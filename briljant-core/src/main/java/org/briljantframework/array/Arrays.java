@@ -42,7 +42,7 @@ import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.ArrayRoutines;
 import org.briljantframework.array.netlib.NetlibArrayBackend;
-import org.briljantframework.exceptions.NonConformantException;
+import org.briljantframework.exceptions.MultiDimensionMismatchException;
 import org.briljantframework.function.DoubleBiPredicate;
 import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.sort.IndexComparator;
@@ -1369,7 +1369,7 @@ public final class Arrays {
     }
     if (b.size(transB == ArrayOperation.KEEP ? 0 : 1) != a.size(transA == ArrayOperation.KEEP ? 1
         : 0)) {
-      throw new NonConformantException(a, b);
+      throw new MultiDimensionMismatchException(a, b);
     }
     DoubleArray c = newDoubleArray(m, n);
     gemm(transA, transB, alpha, a, b, 1, c);
@@ -1617,8 +1617,8 @@ public final class Arrays {
    * @return a new array; the returned array has the same type as {@code array}.
    */
   public static <T extends BaseArray<T>> T mask(T array, BooleanArray mask, T values) {
-    Check.shape(array, mask);
-    Check.shape(array, values);
+    Check.dimension(array, mask);
+    Check.dimension(array, values);
 
     T masked = array.copy();
     putMask(masked, mask, values);
@@ -1634,8 +1634,8 @@ public final class Arrays {
    * @param values the mask; same shape as {@code a}
    */
   public static <T extends BaseArray<T>> void putMask(T a, BooleanArray mask, T values) {
-    Check.shape(a, mask);
-    Check.shape(a, values);
+    Check.dimension(a, mask);
+    Check.dimension(a, values);
     for (int i = 0; i < a.size(); i++) {
       if (mask.get(i)) {
         a.set(i, values, i);
@@ -1653,7 +1653,7 @@ public final class Arrays {
    * @return a new matrix; the returned matrix has the same type as {@code a}.
    */
   public static IntArray select(IntArray a, BooleanArray where, int replace) {
-    Check.shape(a, where);
+    Check.dimension(a, where);
     IntArray copy = a.copy();
     copy.assign(where, (b, i) -> b ? replace : i);
     return copy;
@@ -2001,7 +2001,8 @@ public final class Arrays {
   }
 
   public static <S extends BaseArray<S>> S where(BooleanArray c, S x, S y) {
-    Check.size(x.size() == y.size() && x.size() == c.size(), "Illegal sizes");
+    Check.dimension(x.size(), y.size());
+    Check.dimension(x.size(), c.size());
     int size = x.size();
     S selected = x.newEmptyArray(size);
     for (int i = 0; i < size; i++) {

@@ -20,42 +20,26 @@
  */
 package org.briljantframework.exceptions;
 
-import org.briljantframework.array.BaseArray;
-
 /**
- * Exception indicating that two arrays have illegal dimensions.
- * 
+ * Exception to throw when sizes does not match.
+ *
  * @author Isak Karlsson
  */
-public final class NonConformantException extends RuntimeException {
+public class DimensionMismatchException extends IllegalArgumentException {
 
-  public NonConformantException(BaseArray op1, BaseArray op2) {
-    this("op1", op1, "op2", op2);
+  private final int wrong, expected;
+
+  public DimensionMismatchException(int wrong, int expected) {
+    super(String.format("%d != %d", wrong, expected));
+    this.wrong = wrong;
+    this.expected = expected;
   }
 
-  public NonConformantException(String param1, BaseArray op1, String param2, BaseArray op2) {
-    this(param1, op1.getShape(), param2, op2.getShape());
+  public int getWrong() {
+    return wrong;
   }
 
-  public NonConformantException(String op1, int[] shapeOp1, String op2, int[] shapeOp2) {
-    super(String.format("nonconformant arguments (%s is %s, %s is %s)", op1, formatShape(shapeOp1),
-        op2, formatShape(shapeOp2)));
-  }
-
-  private static String formatShape(int[] shape) {
-    StringBuilder b = new StringBuilder();
-    b.append(shape[0]);
-    for (int i = 1; i < shape.length; i++) {
-      b.append("x").append(shape[i]);
-    }
-    return b.toString();
-  }
-
-  public NonConformantException(int am, int an, int bm, int bn) {
-    this("op1", new int[] {am, an}, "op2", new int[] {bm, bn});
-  }
-
-  public NonConformantException(String message) {
-    super(message);
+  public int getExpected() {
+    return expected;
   }
 }

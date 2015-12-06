@@ -40,7 +40,7 @@ import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
 import org.briljantframework.array.api.ArrayRoutines;
 import org.briljantframework.complex.MutableComplex;
-import org.briljantframework.exceptions.NonConformantException;
+import org.briljantframework.exceptions.MultiDimensionMismatchException;
 import org.briljantframework.sort.IndexComparator;
 import org.briljantframework.sort.QuickSort;
 import org.briljantframework.statistics.FastStatistics;
@@ -413,8 +413,8 @@ public class BaseArrayRoutines implements ArrayRoutines {
   @Override
   public void ger(double alpha, DoubleArray x, DoubleArray y, DoubleArray a) {
     Check.all(x, y).argument(BaseArray::isVector, "x and y must be vectors");
-    Check.size(x.size(), a.rows());
-    Check.size(y.size(), a.columns());
+    Check.dimension(x.size(), a.rows());
+    Check.dimension(y.size(), a.columns());
     for (int i = 0; i < x.size(); i++) {
       for (int j = 0; j < y.size(); j++) {
         a.set(i, j, alpha * x.get(i) * y.get(j));
@@ -440,13 +440,13 @@ public class BaseArrayRoutines implements ArrayRoutines {
     }
 
     if (thisCols != otherRows) {
-      throw new NonConformantException(thisRows, thisCols, otherRows, otherColumns);
+      throw new MultiDimensionMismatchException(thisRows, thisCols, otherRows, otherColumns);
     }
     int m = a.size(transA == ArrayOperation.KEEP ? 0 : 1);
     int n = b.size(transB == ArrayOperation.KEEP ? 1 : 0);
     int dk = a.size(transA == ArrayOperation.KEEP ? 1 : 0);
     if (m != c.size(0) || n != c.size(1)) {
-      throw new NonConformantException(String.format(
+      throw new IllegalArgumentException(String.format(
           "a has size (%d,%d), b has size (%d,%d), c has size (%d, %d)", m, dk, dk, n, c.size(0),
           c.size(1)));
     }
@@ -501,7 +501,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public <T extends BaseArray<T>> void swap(T a, T b) {
-    Check.shape(a, b);
+    Check.dimension(a, b);
     T tmp = a.newEmptyArray(1);
     for (int i = 0; i < a.size(); i++) {
       tmp.set(0, a, i);

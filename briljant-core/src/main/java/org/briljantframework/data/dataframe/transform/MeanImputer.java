@@ -55,7 +55,7 @@ public class MeanImputer implements Transformation {
 
     @Override
     public DataFrame transform(DataFrame x) {
-      Check.size(x.columns(), means.size());
+      Check.dimension(x.columns(), means.size());
       DataFrame.Builder df = x.newBuilder();
       for (Object colKey : x.getColumnIndex().keySet()) {
         Vector column = x.get(colKey);

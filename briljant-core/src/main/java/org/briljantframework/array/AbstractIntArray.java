@@ -98,7 +98,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public IntArray slice(BooleanArray indicator) {
-    Check.shape(this, indicator);
+    Check.dimension(this, indicator);
     IntList list = new IntList();
     for (int i = 0; i < size(); i++) {
       if (indicator.get(i)) {
@@ -271,7 +271,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void assign(int[] data) {
-    Check.size(this.size(), data.length);
+    Check.dimension(this.size(), data.length);
     for (int i = 0; i < data.length; i++) {
       set(i, data[i]);
     }
@@ -286,7 +286,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void assign(IntArray matrix, IntUnaryOperator operator) {
-    Check.shape(this, matrix);
+    Check.dimension(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, operator.applyAsInt(matrix.get(i)));
     }
@@ -294,7 +294,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void assign(IntArray matrix, IntBinaryOperator combine) {
-    Check.shape(this, matrix);
+    Check.dimension(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, combine.applyAsInt(get(i), matrix.get(i)));
     }
@@ -326,7 +326,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void assign(BooleanArray matrix, ToIntObjIntBiFunction<Boolean> function) {
-    Check.shape(this, matrix);
+    Check.dimension(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, function.applyAsInt(matrix.get(i), get(i)));
     }
@@ -407,7 +407,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public BooleanArray where(IntArray matrix, IntBiPredicate predicate) {
-    Check.shape(this, matrix);
+    Check.dimension(this, matrix);
     BooleanArray bits = factory.newBooleanArray();
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), matrix.get(i)));

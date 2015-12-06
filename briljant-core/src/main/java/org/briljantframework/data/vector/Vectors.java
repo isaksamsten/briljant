@@ -567,7 +567,7 @@ public final class Vectors {
    * @return the dot product
    */
   public static double dot(Vector x, Vector y) {
-    Check.size(x.size(), y.size());
+    Check.dimension(x.size(), y.size());
     final int size = y.size();
     double dot = 0;
     for (int i = 0; i < size; i++) {

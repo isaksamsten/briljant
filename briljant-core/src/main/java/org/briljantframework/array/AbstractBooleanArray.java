@@ -86,7 +86,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public BooleanArray slice(BooleanArray indicator) {
-    Check.shape(this, indicator);
+    Check.dimension(this, indicator);
     IncrementalBuilder builder = new IncrementalBuilder();
     for (int i = 0; i < size(); i++) {
       if (indicator.get(i)) {
@@ -291,7 +291,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public BooleanArray xor(BooleanArray other) {
-    Check.shape(this, other);
+    Check.dimension(this, other);
     BooleanArray bm = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       boolean otherHas = other.get(i);
@@ -303,7 +303,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public BooleanArray or(BooleanArray other) {
-    Check.shape(this, other);
+    Check.dimension(this, other);
     BooleanArray bm = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       bm.set(i, get(i) || other.get(i));
@@ -313,7 +313,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public BooleanArray orNot(BooleanArray other) {
-    Check.shape(this, other);
+    Check.dimension(this, other);
     BooleanArray bm = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       bm.set(i, get(i) || !other.get(i));
@@ -323,7 +323,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public BooleanArray and(BooleanArray other) {
-    Check.shape(this, other);
+    Check.dimension(this, other);
     BooleanArray bm = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       bm.set(i, get(i) && other.get(i));
@@ -333,7 +333,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public BooleanArray andNot(BooleanArray other) {
-    Check.shape(this, other);
+    Check.dimension(this, other);
     BooleanArray bm = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       bm.set(i, get(i) && !other.get(i));

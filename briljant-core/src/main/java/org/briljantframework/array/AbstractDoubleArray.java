@@ -96,7 +96,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public DoubleArray slice(BooleanArray indicator) {
-    Check.shape(this, indicator);
+    Check.dimension(this, indicator);
     IncrementalBuilder builder = new IncrementalBuilder();
     for (int i = 0; i < size(); i++) {
       if (indicator.get(i)) {
@@ -276,7 +276,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public void assign(double[] array) {
-    Check.size(this.size(), array.length);
+    Check.dimension(this.size(), array.length);
     for (int i = 0; i < array.length; i++) {
       set(i, array[i]);
     }
@@ -421,7 +421,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public BooleanArray where(DoubleArray array, DoubleBiPredicate predicate) {
-    Check.shape(this, array);
+    Check.dimension(this, array);
     BooleanArray bits = factory.newBooleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), array.get(i)));

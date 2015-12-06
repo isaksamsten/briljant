@@ -89,7 +89,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public void assign(Complex[] value) {
-    Check.size(size(), value.length);
+    Check.dimension(size(), value.length);
     for (int i = 0; i < value.length; i++) {
       set(i, value[i]);
     }
@@ -114,7 +114,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public ComplexArray assign(ComplexArray matrix, BinaryOperator<Complex> combine) {
-    Check.shape(this, matrix);
+    Check.dimension(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, combine.apply(get(i), matrix.get(i)));
     }
@@ -401,7 +401,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public ComplexArray times(Complex alpha, ComplexArray other, Complex beta) {
-    Check.shape(this, other);
+    Check.dimension(this, other);
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, alpha.multiply(get(i)).multiply(beta).multiply(other.get(i)));
@@ -434,7 +434,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public ComplexArray plus(Complex alpha, ComplexArray other, Complex beta) {
-    Check.shape(this, other);
+    Check.dimension(this, other);
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, get(i).multiply(alpha).add(other.get(i).multiply(beta)));
@@ -601,7 +601,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public ComplexArray slice(BooleanArray indicator) {
-    Check.shape(this, indicator);
+    Check.dimension(this, indicator);
     IncrementalBuilder builder = new IncrementalBuilder();
     for (int i = 0; i < size(); i++) {
       if (indicator.get(i)) {

@@ -71,7 +71,7 @@ public final class DataFrames {
   private DataFrames() {}
 
   public static DataFrame table(Vector a, Vector b) {
-    Check.size(a.size(), b.size());
+    Check.dimension(a.size(), b.size());
     Map<Object, Map<Object, Integer>> counts = new HashMap<>();
     Set<Object> aUnique = new HashSet<>();
     Set<Object> bUnique = new HashSet<>();

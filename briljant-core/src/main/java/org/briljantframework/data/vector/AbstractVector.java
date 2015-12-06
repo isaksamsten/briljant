@@ -190,7 +190,7 @@ public abstract class AbstractVector implements Vector {
   @Override
   public final void setIndex(Index index) {
     Objects.requireNonNull(index);
-    Check.size(size(), index.size());
+    Check.dimension(size(), index.size());
     this.index = index;
   }
 
@@ -224,7 +224,7 @@ public abstract class AbstractVector implements Vector {
   @Override
   public Vector get(BooleanArray array) {
     Check.argument(array.isVector(), VECTOR_REQUIRED);
-    Check.size(this.size(), array.size());
+    Check.dimension(this.size(), array.size());
     Builder builder = newBuilder();
     for (int i = 0; i < array.size(); i++) {
       if (array.get(i)) {
@@ -245,7 +245,7 @@ public abstract class AbstractVector implements Vector {
   @Override
   public Vector set(BooleanArray array, Object value) {
     Check.argument(array.isVector(), VECTOR_REQUIRED);
-    Check.size(size(), array.size());
+    Check.dimension(size(), array.size());
     Builder builder = newBuilder();
     for (int i = 0; i < array.size(); i++) {
       Object key = getIndex().get(i);

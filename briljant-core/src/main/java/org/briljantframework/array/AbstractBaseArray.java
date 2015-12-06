@@ -168,9 +168,10 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
         return copy().reshape(shape);
       }
     }
-
-    Check.size(Indexer.size(this.shape), Indexer.size(shape), CHANGED_TOTAL_SIZE,
-        Arrays.toString(this.shape), Arrays.toString(shape));
+    if (Indexer.size(this.shape) != Indexer.size(shape)) {
+      throw new IllegalArgumentException(String.format(CHANGED_TOTAL_SIZE,
+          Arrays.toString(this.shape), Arrays.toString(shape)));
+    }
     if (isContiguous()) {
       return asView(getOffset(), shape.clone(), Indexer.computeStride(1, shape));
     } else {

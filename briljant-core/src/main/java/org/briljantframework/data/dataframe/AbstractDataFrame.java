@@ -621,7 +621,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public final void setIndex(Index index) {
     Objects.requireNonNull(index);
-    Check.size(rows(), index.size());
+    Check.dimension(rows(), index.size());
     this.index = index;
   }
 
@@ -635,7 +635,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public final void setColumnIndex(Index index) {
     Objects.requireNonNull(index);
-    Check.size(columns(), index.size());
+    Check.dimension(columns(), index.size());
     this.columnIndex = index;
   }
 

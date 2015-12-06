@@ -48,7 +48,7 @@ import java.util.stream.StreamSupport;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.exceptions.NonConformantException;
+import org.briljantframework.exceptions.MultiDimensionMismatchException;
 import org.briljantframework.function.LongBiPredicate;
 import org.briljantframework.primitive.ArrayAllocations;
 
@@ -97,7 +97,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
 
   @Override
   public LongArray slice(BooleanArray indicator) {
-    Check.shape(this, indicator);
+    Check.dimension(this, indicator);
     IncrementalBuilder builder = new IncrementalBuilder();
     for (int i = 0; i < size(); i++) {
       if (indicator.get(i)) {
@@ -278,7 +278,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
 
   @Override
   public void assign(long[] values) {
-    Check.size(this.size(), values.length);
+    Check.dimension(this.size(), values.length);
     for (int i = 0; i < values.length; i++) {
       set(i, values[i]);
     }
@@ -303,7 +303,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
 
   @Override
   public LongArray assign(LongArray matrix, LongBinaryOperator combine) {
-    Check.shape(this, matrix);
+    Check.dimension(this, matrix);
     for (int i = 0; i < size(); i++) {
       set(i, combine.applyAsLong(get(i), matrix.get(i)));
     }
@@ -399,7 +399,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
 
   @Override
   public BooleanArray where(LongArray matrix, LongBiPredicate predicate) {
-    Check.shape(this, matrix);
+    Check.dimension(this, matrix);
     BooleanArray bits = factory.newBooleanArray();
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), matrix.get(i)));
@@ -688,7 +688,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
     }
 
     if (thisCols != otherRows) {
-      throw new NonConformantException(thisRows, thisCols, otherRows, otherColumns);
+      throw new MultiDimensionMismatchException(thisRows, thisCols, otherRows, otherColumns);
     }
 
     LongArray result = newEmptyArray(thisRows, otherColumns);

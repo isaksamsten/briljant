@@ -442,7 +442,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   @Override
   public BooleanArray where(Array<T> other, BiPredicate<T, T> predicate) {
-    Check.shape(this, other);
+    Check.dimension(this, other);
     BooleanArray array = getArrayFactory().newBooleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       array.set(i, predicate.test(get(i), other.get(i)));

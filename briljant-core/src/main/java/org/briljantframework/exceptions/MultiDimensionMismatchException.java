@@ -20,14 +20,46 @@
  */
 package org.briljantframework.exceptions;
 
+import org.briljantframework.array.BaseArray;
+
 /**
- * Exception to throw when sizes does not match.
- *
+ * Exception indicating that two arrays have illegal dimensions.
+ * 
  * @author Isak Karlsson
  */
-public class SizeMismatchException extends RuntimeException {
+public final class MultiDimensionMismatchException extends IllegalArgumentException {
 
-  public SizeMismatchException(String message) {
-    super(message);
+  private final int[] wrong, expected;
+
+  public MultiDimensionMismatchException(BaseArray<?> op1, BaseArray<?> op2) {
+    this(op1.getShape(), op2.getShape());
+  }
+
+  public MultiDimensionMismatchException(int[] wrong, int[] expected) {
+    super(String.format("Dimension mismatch (%s != %s)", formatShape(wrong), formatShape(expected)));
+
+    this.wrong = wrong.clone();
+    this.expected = expected.clone();
+  }
+
+  private static String formatShape(int[] shape) {
+    StringBuilder b = new StringBuilder();
+    b.append(shape[0]);
+    for (int i = 1; i < shape.length; i++) {
+      b.append("x").append(shape[i]);
+    }
+    return b.toString();
+  }
+
+  public MultiDimensionMismatchException(int am, int an, int bm, int bn) {
+    this(new int[] {am, an}, new int[] {bm, bn});
+  }
+
+  public int[] getWrongDimensions() {
+    return wrong.clone();
+  }
+
+  public int[] getExpectedDimension() {
+    return expected.clone();
   }
 }

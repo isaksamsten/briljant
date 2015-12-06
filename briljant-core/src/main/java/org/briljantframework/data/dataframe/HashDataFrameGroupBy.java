@@ -196,7 +196,7 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
       for (IntArray index : groups.values()) {
         Vector selectedColumn = column.loc().get(index);
         Vector transformed = op.apply(selectedColumn);
-        Check.size(selectedColumn.size(), transformed.size(), "transformation must retain size");
+        Check.state(selectedColumn.size() != transformed.size(), "transformation must retain size");
         for (int i = 0; i < index.size(); i++) {
           int id = index.get(i);
           columnBuilder.loc().set(id, transformed, i);

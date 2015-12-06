@@ -28,11 +28,8 @@ import org.briljantframework.array.ArrayOperation;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
-import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.exceptions.NonConformantException;
+import org.briljantframework.exceptions.MultiDimensionMismatchException;
 import org.briljantframework.linalg.api.AbstractLinearAlgebraRoutines;
-import org.briljantframework.linalg.decomposition.LuDecomposition;
-import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 import org.netlib.util.intW;
 
 import com.github.fommil.netlib.LAPACK;
@@ -307,7 +304,7 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   @Override
   public int getrf(DoubleArray a, IntArray ipiv) {
     Check.argument(ipiv.isVector(), "ipiv must be a vector");
-    Check.size(Math.min(a.rows(), a.columns()), ipiv.size());
+    Check.dimension(Math.min(a.rows(), a.columns()), ipiv.size());
     double[] aa = getData(a);
     int[] ia = getData(ipiv);
     intW info = new intW(0);
@@ -322,7 +319,7 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   public int getri(DoubleArray a, IntArray ipiv) {
     Check.argument(ipiv.isVector(), "ipiv must be a vector");
     int n = a.size(1);
-    Check.size(ipiv.size(), n, "illegal size");
+    Check.dimension(ipiv.size(), n);
 
     int lda = Math.max(1, a.size(0));
     int lwork = -1;
@@ -375,7 +372,7 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     }
 
     if (a.rows() != b.rows()) {
-      throw new NonConformantException(a, b);
+      throw new MultiDimensionMismatchException(a, b);
     }
 
     if (!ipiv.isVector() || a.rows() != ipiv.size()) {
