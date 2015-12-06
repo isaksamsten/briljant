@@ -31,7 +31,7 @@ class NetlibArrayFactory extends BaseArrayFactory {
   public NetlibArrayFactory() {}
 
   @Override
-  public DoubleArray newVector(double[] data) {
+  public DoubleArray newDoubleVector(double[] data) {
     return new NetlibDoubleArray(this, data);
   }
 

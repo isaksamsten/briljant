@@ -49,13 +49,13 @@ abstract class ArrayRoutinesSpec extends Specification {
 
     where:
     a << [
-        bj.newVector([1, 2, 3, 4] as double[]), // simple
+        bj.newDoubleVector([1, 2, 3, 4] as double[]), // simple
         bj.range(10).asDouble().copy().get([bj.range(1, 10, 2)]), // slice
         bj.linspace(0, 15, 16).reshape(4, 4).getColumn(0)
     ]
 
     b << [
-        bj.newVector([1, 2, 3, 4] as double[]),
+        bj.newDoubleVector([1, 2, 3, 4] as double[]),
         bj.range(10).asDouble().copy().get([bj.range(1, 10, 2)]), // slice
         bj.linspace(0, 11, 12).reshape(3, 4).getRow(2)
     ]
@@ -73,8 +73,8 @@ abstract class ArrayRoutinesSpec extends Specification {
 
     where:
     x << [
-        bj.newVector([1, 2, 3, -5] as double[]),
-        bj.newVector([1, 2, -3, -4, 10, 2] as double[]).get([bj.range(1, 6, 2)])
+        bj.newDoubleVector([1, 2, 3, -5] as double[]),
+        bj.newDoubleVector([1, 2, -3, -4, 10, 2] as double[]).get([bj.range(1, 6, 2)])
     ]
 
     sum << [
@@ -92,8 +92,8 @@ abstract class ArrayRoutinesSpec extends Specification {
 
     where:
     x << [
-        bj.newVector([1, 2, 3, 4] as double[]),
-        bj.newVector([0, 0, 0, 1, 0, 2, 0, 3] as double[]).get([bj.range(1, 8, 2)]),
+        bj.newDoubleVector([1, 2, 3, 4] as double[]),
+        bj.newDoubleVector([0, 0, 0, 1, 0, 2, 0, 3] as double[]).get([bj.range(1, 8, 2)]),
         bj.linspace(0, 4, 10),
         bj.linspace(0, 9, 10).reshape(2, 5).getRow(0).transpose(),
         bj.linspace(0, 11, 12).reshape(3, 4).getRow(2)
@@ -101,7 +101,7 @@ abstract class ArrayRoutinesSpec extends Specification {
 
     y << [
         bj.newDoubleArray(4),
-        bj.newVector([1, 2, 3, 4] as double[]),
+        bj.newDoubleVector([1, 2, 3, 4] as double[]),
         bj.linspace(0, 4, 10),
         bj.linspace(0, 9, 10).reshape(2, 5).getRow(0),
         bj.linspace(0, 11, 12).reshape(4, 3).getColumn(0)
@@ -116,11 +116,11 @@ abstract class ArrayRoutinesSpec extends Specification {
     ]
 
     result << [
-        bj.newVector([2, 4, 6, 8] as double[]),
-        bj.newVector([1, 3, 5, 7] as double[]),
+        bj.newDoubleVector([2, 4, 6, 8] as double[]),
+        bj.newDoubleVector([1, 3, 5, 7] as double[]),
         bj.linspace(0, 4, 10),
-        bj.newVector([0, 4, 8, 12, 16] as double[]).reshape(1, 5),
-        bj.newVector([2, 6, 10, 14] as double[]).reshape(4, 1)
+        bj.newDoubleVector([0, 4, 8, 12, 16] as double[]).reshape(1, 5),
+        bj.newDoubleVector([2, 6, 10, 14] as double[]).reshape(4, 1)
     ]
   }
 
@@ -152,60 +152,60 @@ abstract class ArrayRoutinesSpec extends Specification {
     where:
     [transA, transB, alpha, a, b, beta, c] << [
         [ArrayOperation.KEEP, ArrayOperation.KEEP, 1.0,
-         bj.newMatrix([[1, 1],
-                       [2, 2],
-                       [3, 3]] as double[][]),
-         bj.newMatrix([[1, 2, 3],
-                       [1, 2, 3]] as double[][]),
+         bj.newDoubleMatrix([[1, 1],
+                             [2, 2],
+                             [3, 3]] as double[][]),
+         bj.newDoubleMatrix([[1, 2, 3],
+                             [1, 2, 3]] as double[][]),
          0.0,
          bj.newDoubleArray(3, 3)
         ],
         [ArrayOperation.TRANSPOSE, ArrayOperation.KEEP, 1.0,
-         bj.newMatrix([[1, 1],
-                       [2, 2],
-                       [3, 3]] as double[][]),
-         bj.newMatrix([[1, 1],
-                       [2, 2],
-                       [3, 3]] as double[][]),
+         bj.newDoubleMatrix([[1, 1],
+                             [2, 2],
+                             [3, 3]] as double[][]),
+         bj.newDoubleMatrix([[1, 1],
+                             [2, 2],
+                             [3, 3]] as double[][]),
          0.0,
          bj.newDoubleArray(2, 2)
         ],
         [ArrayOperation.KEEP, ArrayOperation.TRANSPOSE, 1.0,
-         bj.newMatrix([[1, 1],
-                       [2, 2],
-                       [3, 3]] as double[][]),
-         bj.newMatrix([[1, 1],
-                       [2, 2],
-                       [3, 3]] as double[][]),
+         bj.newDoubleMatrix([[1, 1],
+                             [2, 2],
+                             [3, 3]] as double[][]),
+         bj.newDoubleMatrix([[1, 1],
+                             [2, 2],
+                             [3, 3]] as double[][]),
          0.0,
          bj.newIntArray(3, 3).asDouble() // test a non-native view as output
         ],
         [ArrayOperation.KEEP, ArrayOperation.KEEP, 2.0,
-         bj.newMatrix([[1, 1],
-                       [2, 2],
-                       [3, 3]] as double[][]),
-         bj.newMatrix([[1, 2, 3],
-                       [1, 2, 3]] as double[][]),
+         bj.newDoubleMatrix([[1, 1],
+                             [2, 2],
+                             [3, 3]] as double[][]),
+         bj.newDoubleMatrix([[1, 2, 3],
+                             [1, 2, 3]] as double[][]),
          3.0,
          bj.ones(3, 3)
         ]
     ]
 
     result << [
-        bj.newMatrix([[2, 4, 6],
-                      [4, 8, 12],
-                      [6, 12, 18]] as double[][]),
+        bj.newDoubleMatrix([[2, 4, 6],
+                            [4, 8, 12],
+                            [6, 12, 18]] as double[][]),
 
-        bj.newMatrix([[14, 14],
-                      [14, 14]] as double[][]),
+        bj.newDoubleMatrix([[14, 14],
+                            [14, 14]] as double[][]),
 
-        bj.newMatrix([[2, 4, 6],
-                      [4, 8, 12],
-                      [6, 12, 18]] as double[][]),
+        bj.newDoubleMatrix([[2, 4, 6],
+                            [4, 8, 12],
+                            [6, 12, 18]] as double[][]),
 
-        bj.newMatrix([[7, 11, 15],
-                      [11, 19, 27],
-                      [15, 27, 39]] as double[][])
+        bj.newDoubleMatrix([[7, 11, 15],
+                            [11, 19, 27],
+                            [15, 27, 39]] as double[][])
     ]
   }
 
@@ -215,8 +215,8 @@ abstract class ArrayRoutinesSpec extends Specification {
 
     where:
     a << [
-        bj.newVector([1, 2, 3, 4, 5, 6] as double[]),
-        bj.newVector([-1, -2, -3, -4, -5, -6] as double[])
+        bj.newDoubleVector([1, 2, 3, 4, 5, 6] as double[]),
+        bj.newDoubleVector([-1, -2, -3, -4, -5, -6] as double[])
     ]
     b << [3.5, -3.5]
   }
@@ -230,9 +230,9 @@ abstract class ArrayRoutinesSpec extends Specification {
 
     where:
     dim | result
-    0   | bj.newVector([0.5, 2.5, 4.5, 6.5, 8.5, 10.5, 12.5, 14.5] as double[]).reshape(4, 2)
-    1   | bj.newVector([3, 4, 11, 12] as double[]).reshape(2, 2)
-    2   | bj.newVector([4, 5, 6, 7, 8, 9, 10, 11] as double[]).reshape(2, 4)
+    0   | bj.newDoubleVector([0.5, 2.5, 4.5, 6.5, 8.5, 10.5, 12.5, 14.5] as double[]).reshape(4, 2)
+    1   | bj.newDoubleVector([3, 4, 11, 12] as double[]).reshape(2, 2)
+    2   | bj.newDoubleVector([4, 5, 6, 7, 8, 9, 10, 11] as double[]).reshape(2, 4)
   }
 
   @Unroll
@@ -241,11 +241,11 @@ abstract class ArrayRoutinesSpec extends Specification {
     bjr.min(array) == min
 
     where:
-    array                                            | min   | max
-    bj.newVector("aaaa", "a", "ssda", "dsa")         | "a"   | "ssda"
-    bj.newVector([0.1, 0.0001, -1, -23] as double[]) | -23.0 | 0.1
-    bj.newVector([1, 2, 3, 4, 5, -2] as int[])       | -2    | 5
-    bj.newVector([1, 2, 3, -22] as long[])           | -22   | 3
+    array                                                  | min   | max
+    bj.newVector("aaaa", "a", "ssda", "dsa")               | "a"   | "ssda"
+    bj.newDoubleVector([0.1, 0.0001, -1, -23] as double[]) | -23.0 | 0.1
+    bj.newIntVector([1, 2, 3, 4, 5, -2] as int[])          | -2    | 5
+    bj.newLongVector([1, 2, 3, -22] as long[])             | -22   | 3
   }
 
   def "sorting returns a sorted array"() {

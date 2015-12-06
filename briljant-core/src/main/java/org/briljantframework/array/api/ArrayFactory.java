@@ -45,7 +45,7 @@ public interface ArrayFactory {
    * @param <T> the class
    * @return a new array
    */
-  <T> Array<T> newVector(T[] data);
+  <T> Array<T> newVector(T... data);
 
   /**
    * Create a new array from the given data.
@@ -64,9 +64,9 @@ public interface ArrayFactory {
    * @param data the data
    * @return a new matrix
    */
-  BooleanArray newMatrix(boolean[][] data);
+  BooleanArray newBooleanMatrix(boolean[][] data);
 
-  BooleanArray newVector(boolean[] data);
+  BooleanArray newBooleanVector(boolean... data);
 
   /**
    * Create an {@code BitMatrix} with designated shape filled with {@code false}.
@@ -82,7 +82,7 @@ public interface ArrayFactory {
    * @param data the data array
    * @return a new matrix
    */
-  IntArray newMatrix(int[][] data);
+  IntArray newIntMatrix(int[][] data);
 
   /**
    * Create a vector with the given data.
@@ -90,7 +90,7 @@ public interface ArrayFactory {
    * @param data the data array
    * @return a new matrix
    */
-  IntArray newVector(int[] data);
+  IntArray newIntVector(int... data);
 
   /**
    * Create an {@code IntMatrix} with designated shape filled with {@code 0}.
@@ -106,7 +106,7 @@ public interface ArrayFactory {
    * @param data the data
    * @return a new matrix
    */
-  LongArray newMatrix(long[][] data);
+  LongArray newLongMatrix(long[][] data);
 
   /**
    * Create a vector with the given data.
@@ -114,7 +114,7 @@ public interface ArrayFactory {
    * @param data the data array
    * @return a new matrix
    */
-  LongArray newVector(long[] data);
+  LongArray newLongVector(long... data);
 
   /**
    * Create an {@code LongMatrix} with designated shape filled with {@code 0}.
@@ -146,7 +146,7 @@ public interface ArrayFactory {
    * @param data the data
    * @return a new matrix
    */
-  DoubleArray newMatrix(double[][] data);
+  DoubleArray newDoubleMatrix(double[][] data);
 
   /**
    * Create a vector with the given data.
@@ -154,7 +154,7 @@ public interface ArrayFactory {
    * @param data the data array
    * @return a new matrix
    */
-  DoubleArray newVector(double[] data);
+  DoubleArray newDoubleVector(double... data);
 
   /**
    * Construct an empty {@code double} are with the given shape. Note that for most implementations
@@ -170,13 +170,13 @@ public interface ArrayFactory {
    *
    * @param data the data
    * @return a new matrix
-   * @see #newMatrix(double[][])
+   * @see #newDoubleMatrix(double[][])
    */
-  ComplexArray newArray(Complex[][] data);
+  ComplexArray newComplexMatrix(Complex[][] data);
 
-  ComplexArray newVector(Complex[] data);
+  ComplexArray newComplexVector(Complex... data);
 
-  ComplexArray newComplexVector(double[] data);
+  ComplexArray newComplexVector(double... data);
 
   /**
    * Create an {@code ComplexMatrix} with designated shape filled with {@code 0+0i}.

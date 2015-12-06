@@ -766,7 +766,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
     private List<Complex> buffer = new ArrayList<>();
 
     public ComplexArray build() {
-      return factory.newVector(buffer.toArray(new Complex[buffer.size()]));
+      return factory.newComplexVector(buffer.toArray(new Complex[buffer.size()]));
       // new BaseComplexMatrix(buffer.toArray(new Complex[buffer.size()]), buffer.size(), 1);
     }
 

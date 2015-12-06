@@ -142,7 +142,7 @@ public class BaseArrayRoutinesTest {
 
   @Test
   public void testNorm21() throws Exception {
-    DoubleArray x = bj.newVector(new double[] {1, 2, 3});
+    DoubleArray x = bj.newDoubleVector(1, 2, 3);
     // bjr.norm2(x)
   }
 
@@ -178,11 +178,11 @@ public class BaseArrayRoutinesTest {
 
   @Test
   public void testGer() throws Exception {
-    DoubleArray a = bj.newVector(new double[] {1, 2, 3, 4});
-    DoubleArray b = bj.newVector(new double[] {1, 2, 3});
+    DoubleArray a = bj.newDoubleVector(1, 2, 3, 4);
+    DoubleArray b = bj.newDoubleVector(1, 2, 3);
     DoubleArray c = bj.newDoubleArray(4, 3);
     bjr.ger(1, a, b, c);
-    assertEquals(c, bj.newVector(new double[] {1, 2, 3, 4, 2, 4, 6, 8, 3, 6, 9, 12}).reshape(4, 3));
+    assertEquals(c, bj.newDoubleVector(1, 2, 3, 4, 2, 4, 6, 8, 3, 6, 9, 12).reshape(4, 3));
   }
 
   @Test

@@ -781,7 +781,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
     }
 
     public LongArray build() {
-      return factory.newVector(Arrays.copyOf(buffer, size));
+      return factory.newLongVector(Arrays.copyOf(buffer, size));
     }
   }
 }

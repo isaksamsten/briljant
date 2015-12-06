@@ -48,15 +48,15 @@ public class NetlibArrayRoutinesTest {
   @Test
   public void testGemv() throws Exception {
     DoubleArray a =
-        bj.newMatrix(new double[][] {new double[] {1, 2, 3}, new double[] {1, 2, 3},
-            new double[] {1, 2, 3}});
+        bj.newDoubleMatrix(new double[][] {new double[] {1, 2, 3}, new double[] {1, 2, 3},
+                                           new double[] {1, 2, 3}});
 
     DoubleArray b = a.getRow(0);
-    DoubleArray x = bj.newVector(new double[] {1, 2, 3});
+    DoubleArray x = bj.newDoubleVector(1, 2, 3);
     DoubleArray y = bj.newDoubleArray(4);
     y.assign(3);
     y = y.asView(1, new int[] {3}, new int[] {1});
     bjr.gemv(ArrayOperation.TRANSPOSE, 1, a, x, 1, y);
-    ArrayAssert.assertArrayEquals(bj.newVector(new double[] {9, 15, 21}), y, 0.0);
+    ArrayAssert.assertArrayEquals(bj.newDoubleVector(9, 15, 21), y, 0.0);
   }
 }

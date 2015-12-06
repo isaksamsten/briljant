@@ -35,10 +35,10 @@ public class NetlibDoubleArrayTest {
 
   @Test
   public void testMatrixMultiplication() throws Exception {
-    DoubleArray a = bj.newMatrix(new double[][] { {1, 2, 3}, {1, 2, 3}});
-    DoubleArray b = bj.newMatrix(new double[][] { {1, 1}, {2, 2}, {3, 3}});
+    DoubleArray a = bj.newDoubleMatrix(new double[][] {{1, 2, 3}, {1, 2, 3}});
+    DoubleArray b = bj.newDoubleMatrix(new double[][] {{1, 1}, {2, 2}, {3, 3}});
 
-    DoubleArray expected = bj.newMatrix(new double[][] { {2, 4, 6}, {4, 8, 12}, {6, 12, 18}});
+    DoubleArray expected = bj.newDoubleMatrix(new double[][] {{2, 4, 6}, {4, 8, 12}, {6, 12, 18}});
 
     ArrayAssert.assertArrayEquals(expected, Arrays.dot(b, a), EPSILON);
     ArrayAssert.assertArrayEquals(expected.times(2), Arrays.dot(2, b, a), EPSILON);
@@ -50,8 +50,8 @@ public class NetlibDoubleArrayTest {
 
   @Test
   public void testTransposeAndMatrixMultiply() throws Exception {
-    DoubleArray a = bj.newMatrix(new double[][] { {1, 2, 3}, {1, 2, 3}});
-    DoubleArray expected = bj.newMatrix(new double[][] { {2, 4, 6}, {4, 8, 12}, {6, 12, 18}});
+    DoubleArray a = bj.newDoubleMatrix(new double[][] {{1, 2, 3}, {1, 2, 3}});
+    DoubleArray expected = bj.newDoubleMatrix(new double[][] {{2, 4, 6}, {4, 8, 12}, {6, 12, 18}});
 
     ArrayAssert.assertArrayEquals(expected, Arrays.dot(a.transpose(), a), EPSILON);
     ArrayAssert.assertArrayEquals(expected,
@@ -60,14 +60,14 @@ public class NetlibDoubleArrayTest {
 
   @Test
   public void testGetRowAndColumnVectorMatrixMultiply() throws Exception {
-    DoubleArray a = bj.newMatrix(new double[][] { {2, 4, 6}, {4, 8, 12}, {6, 12, 18}});
+    DoubleArray a = bj.newDoubleMatrix(new double[][] {{2, 4, 6}, {4, 8, 12}, {6, 12, 18}});
 
     DoubleArray[] expected =
-        new DoubleArray[] {bj.newMatrix(new double[][] { {4, 8, 12}, {8, 16, 24}, {12, 24, 36}}),
+        new DoubleArray[] {bj.newDoubleMatrix(new double[][] {{4, 8, 12}, {8, 16, 24}, {12, 24, 36}}),
 
-        bj.newMatrix(new double[][] { {16, 32, 48}, {32, 64, 96}, {48, 96, 144}}),
+        bj.newDoubleMatrix(new double[][] {{16, 32, 48}, {32, 64, 96}, {48, 96, 144}}),
 
-        bj.newMatrix(new double[][] { {36, 72, 108}, {72, 144, 216}, {108, 216, 324}})};
+        bj.newDoubleMatrix(new double[][] {{36, 72, 108}, {72, 144, 216}, {108, 216, 324}})};
 
     for (int i = 0; i < expected.length; i++) {
       DoubleArray r = a.getRow(i);
@@ -79,33 +79,33 @@ public class NetlibDoubleArrayTest {
   @Test
   public void testSelectMatrixMultiply() throws Exception {
     DoubleArray a = bj.newDoubleArray(2, 3, 2);
-    a.select(0).assign(bj.newMatrix(new double[][] { {1, 1}, {2, 2}, {3, 3}}));
-    a.select(1).assign(bj.newMatrix(new double[][] { {2, 8}, {3, 2}, {14, 21}}));
+    a.select(0).assign(bj.newDoubleMatrix(new double[][] {{1, 1}, {2, 2}, {3, 3}}));
+    a.select(1).assign(bj.newDoubleMatrix(new double[][] {{2, 8}, {3, 2}, {14, 21}}));
 
     DoubleArray[] expected = new DoubleArray[] {
         // a[0].T * a[0]
-        bj.newMatrix(new double[][] { {14, 14}, {14, 14}}),
+        bj.newDoubleMatrix(new double[][] {{14, 14}, {14, 14}}),
 
         // a[0].T * a[1]
-        bj.newMatrix(new double[][] { {50, 75}, {50, 75}}),
+        bj.newDoubleMatrix(new double[][] {{50, 75}, {50, 75}}),
 
         // a[1].T * a[0]
-        bj.newMatrix(new double[][] { {50, 50}, {75, 75}}),
+        bj.newDoubleMatrix(new double[][] {{50, 50}, {75, 75}}),
 
         // a[1].T * a[1]
-        bj.newMatrix(new double[][] { {209, 316}, {316, 509}}),
+        bj.newDoubleMatrix(new double[][] {{209, 316}, {316, 509}}),
 
         // a[0] * a[0].T
-        bj.newMatrix(new double[][] { {2, 4, 6}, {4, 8, 12}, {6, 12, 18}}),
+        bj.newDoubleMatrix(new double[][] {{2, 4, 6}, {4, 8, 12}, {6, 12, 18}}),
 
         // a[0] * a[1].T
-        bj.newMatrix(new double[][] { {10, 5, 35}, {20, 10, 70}, {30, 15, 105}}),
+        bj.newDoubleMatrix(new double[][] {{10, 5, 35}, {20, 10, 70}, {30, 15, 105}}),
 
         // a[1] * a[0].T
-        bj.newMatrix(new double[][] { {10, 20, 30}, {5, 10, 15}, {35, 70, 105}}),
+        bj.newDoubleMatrix(new double[][] {{10, 20, 30}, {5, 10, 15}, {35, 70, 105}}),
 
         // a[1] * a[1].T
-        bj.newMatrix(new double[][] { {68, 22, 196}, {22, 13, 84}, {196, 84, 637}})};
+        bj.newDoubleMatrix(new double[][] {{68, 22, 196}, {22, 13, 84}, {196, 84, 637}})};
 
     DoubleArray a0 = a.select(0);
     DoubleArray a1 = a.select(1);

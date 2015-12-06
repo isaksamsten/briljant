@@ -3,23 +3,20 @@
  *
  * Copyright (c) 2015 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.array;
 
@@ -57,7 +54,7 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#newVector(double[])
+   * @see org.briljantframework.array.api.ArrayFactory#newDoubleVector(double[])
    */
   static DoubleArray of(double... data) {
     return Arrays.newDoubleVector(data);
@@ -251,7 +248,7 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
   /**
    * Return a boolean array of indicator values for joining this with the given array and the
    * predicate
-   * 
+   *
    * @param array the array
    * @param predicate the predicate
    * @return a boolean array
@@ -260,7 +257,7 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
 
   /**
    * For each double perform the side-effect
-   * 
+   *
    * @param consumer the consumer
    */
   void forEachDouble(DoubleConsumer consumer);
@@ -269,13 +266,13 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
 
   /**
    * Successively apply the given function over the identity and each value
-   * 
+   *
    * <pre>
    * DoubleArray.of(1,2,3).reduce(0, Double::sum));
    * </pre>
-   * 
+   *
    * The first argument to the reduce operator is the initial value (and then the accumulator)
-   * 
+   *
    * @param identity the initial value
    * @param reduce the operator
    * @return a single value
@@ -284,13 +281,13 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
 
   /**
    * Perform a reduction over all vectors along the given dimension
-   * 
+   *
    * <pre>
    * DoubleArray.of(1,2,3,4).reshape(2,2).reduceVectors(0, Double::sum));
    * </pre>
-   * 
+   *
    * sums each row
-   * 
+   *
    * @param dim the dimension
    * @param reduce the reduction
    * @return a new array
@@ -347,6 +344,53 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
   double get(int i, int j);
 
   double get(int... ix);
+
+  /**
+   * Set the elements where the given array is {@code true} to the given value
+   * <p/>
+   * Example
+   *
+   * <pre>
+   * DoubleArray a = Arrays.range(3 * 3).reshape(3, 3).asDouble();
+   * DoubleArray b = Arrays.newDoubleArray(3, 3);
+   * b.assign(0.1);
+   * b.set(a.where(i -&gt; i &gt; 2), 10);
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
+   * array([[0.1, 10.0, 10.0],
+   *        [0.1, 10.0, 10.0],
+   *        [0.1, 10.0, 10.0]])
+   * </pre>
+   *
+   * @param array the array
+   * @param value the value
+   */
+  void set(BooleanArray array, double value);
+
+  /**
+   * Get the elements where the given arra is {@code true}.
+   *
+   * <p/>
+   * Example
+   *
+   * <pre>
+   * DoubleArray a = Arrays.range(3 * 3).reshape(3, 3).asDouble()
+   * a.get(a.where(i -&gt; i &gt; 2));
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
+   * array([3.0, 4.0, 5.0, 6.0, 7.0, 8.0])
+   * </pre>
+   *
+   * @param array the array
+   * @return a new array
+   */
+  DoubleArray get(BooleanArray array);
 
   /**
    * Return a double stream

@@ -531,7 +531,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
     }
 
     public BooleanArray build() {
-      return factory.newVector(Arrays.copyOf(buffer, size));
+      return factory.newBooleanVector(Arrays.copyOf(buffer, size));
     }
   }
 

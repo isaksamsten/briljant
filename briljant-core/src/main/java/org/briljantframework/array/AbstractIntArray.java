@@ -105,7 +105,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
         list.add(get(i));
       }
     }
-    return factory.newVector(Arrays.copyOf(list.elementData, list.size()));
+    return factory.newIntVector(Arrays.copyOf(list.elementData, list.size()));
   }
 
   @Override
@@ -393,7 +393,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
         builder.add(value);
       }
     }
-    return factory.newVector(Arrays.copyOf(builder.elementData, builder.size()));
+    return factory.newIntVector(Arrays.copyOf(builder.elementData, builder.size()));
   }
 
   @Override

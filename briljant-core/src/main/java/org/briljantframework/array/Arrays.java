@@ -158,17 +158,17 @@ public final class Arrays {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#newVector(double[])
+   * @see org.briljantframework.array.api.ArrayFactory#newDoubleVector(double[])
    */
   public static DoubleArray newDoubleVector(double... data) {
-    return ARRAY_FACTORY.newVector(data);
+    return ARRAY_FACTORY.newDoubleVector(data);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#newMatrix(double[][])
+   * @see org.briljantframework.array.api.ArrayFactory#newDoubleMatrix(double[][])
    */
   public static DoubleArray newDoubleMatrix(double[][] data) {
-    return ARRAY_FACTORY.newMatrix(data);
+    return ARRAY_FACTORY.newDoubleMatrix(data);
   }
 
   /**
@@ -291,31 +291,31 @@ public final class Arrays {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#newVector(org.apache.commons.math3.complex.Complex[])
+   * @see org.briljantframework.array.api.ArrayFactory#newComplexVector(org.apache.commons.math3.complex.Complex[])
    */
   public static ComplexArray newComplexVector(Complex... data) {
-    return ARRAY_FACTORY.newVector(data);
+    return ARRAY_FACTORY.newComplexVector(data);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#newArray(org.apache.commons.math3.complex.Complex[][])
+   * @see org.briljantframework.array.api.ArrayFactory#newComplexMatrix(org.apache.commons.math3.complex.Complex[][])
    */
   public static ComplexArray newComplexMatrix(Complex[][] data) {
-    return ARRAY_FACTORY.newArray(data);
+    return ARRAY_FACTORY.newComplexMatrix(data);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#newVector(int[])
+   * @see org.briljantframework.array.api.ArrayFactory#newIntVector(int[])
    */
   public static IntArray newIntVector(int... data) {
-    return ARRAY_FACTORY.newVector(data);
+    return ARRAY_FACTORY.newIntVector(data);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#newMatrix(int[][])
+   * @see org.briljantframework.array.api.ArrayFactory#newIntMatrix(int[][])
    */
   public static IntArray newIntMatrix(int[][] data) {
-    return ARRAY_FACTORY.newMatrix(data);
+    return ARRAY_FACTORY.newIntMatrix(data);
   }
 
   /**
@@ -361,17 +361,17 @@ public final class Arrays {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#newVector(long[])
+   * @see org.briljantframework.array.api.ArrayFactory#newLongVector(long[])
    */
   public static LongArray newLongVector(long... data) {
-    return ARRAY_FACTORY.newVector(data);
+    return ARRAY_FACTORY.newLongVector(data);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#newMatrix(long[][])
+   * @see org.briljantframework.array.api.ArrayFactory#newLongMatrix(long[][])
    */
   public static LongArray newLongMatrix(long[][] data) {
-    return ARRAY_FACTORY.newMatrix(data);
+    return ARRAY_FACTORY.newLongMatrix(data);
   }
 
   /**
@@ -382,17 +382,17 @@ public final class Arrays {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#newVector(boolean[])
+   * @see org.briljantframework.array.api.ArrayFactory#newBooleanVector(boolean[])
    */
   public static BooleanArray newBooleanVector(boolean[] data) {
-    return ARRAY_FACTORY.newVector(data);
+    return ARRAY_FACTORY.newBooleanVector(data);
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#newMatrix(boolean[][])
+   * @see org.briljantframework.array.api.ArrayFactory#newBooleanMatrix(boolean[][])
    */
   public static BooleanArray newBooleanMatrix(boolean[][] data) {
-    return ARRAY_FACTORY.newMatrix(data);
+    return ARRAY_FACTORY.newBooleanMatrix(data);
   }
 
   /**

@@ -3,23 +3,20 @@
  *
  * Copyright (c) 2015 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.array;
 
@@ -416,7 +413,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
         builder.add(value);
       }
     }
-    return factory.newVector(Arrays.copyOf(builder.elementData, builder.size()));
+    return factory.newDoubleVector(Arrays.copyOf(builder.elementData, builder.size()));
   }
 
   @Override
@@ -483,6 +480,27 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   public final double get(int... ix) {
     Check.argument(ix.length == dims());
     return getElement(Indexer.columnMajorStride(ix, getOffset(), stride));
+  }
+
+  @Override
+  public void set(BooleanArray array, double value) {
+    Check.dimension(array, this);
+    for (int i = 0; i < size(); i++) {
+      set(i, array.get(i) ? value : get(i));
+    }
+  }
+
+  @Override
+  public DoubleArray get(BooleanArray array) {
+    Check.dimension(array, this);
+    double[] data = new double[size()];
+    int idx = 0;
+    for (int i = 0; i < size(); i++) {
+      if (array.get(i)) {
+        data[idx++] = get(i);
+      }
+    }
+    return factory.newDoubleVector(Arrays.copyOf(data, idx));
   }
 
   @Override
@@ -779,7 +797,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
     }
 
     public DoubleArray build() {
-      return factory.newVector(Arrays.copyOf(buffer, size));
+      return factory.newDoubleVector(Arrays.copyOf(buffer, size));
     }
   }
 
