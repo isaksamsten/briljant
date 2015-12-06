@@ -26,7 +26,6 @@ import java.util.Map;
 
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.data.Logical;
-import org.briljantframework.data.Scale;
 import org.briljantframework.data.index.ObjectComparator;
 
 /**
@@ -133,11 +132,6 @@ public abstract class VectorType {
    */
   public abstract Vector.Builder newBuilder(int size);
 
-  /**
-   * @return the scale
-   */
-  public abstract Scale getScale();
-
   public boolean isAssignableTo(VectorType type) {
     return isAssignableTo(type.getDataClass());
   }
@@ -171,11 +165,6 @@ public abstract class VectorType {
     }
 
     @Override
-    public Scale getScale() {
-      return Scale.NUMERICAL;
-    }
-
-    @Override
     public Vector.Builder newBuilderWithCapacity(int capacity) {
       return new DoubleVector.Builder(0, capacity);
     }
@@ -201,11 +190,6 @@ public abstract class VectorType {
     @Override
     public Class<?> getDataClass() {
       return Integer.class;
-    }
-
-    @Override
-    public Scale getScale() {
-      return Scale.NUMERICAL;
     }
 
     @Override
@@ -246,8 +230,6 @@ public abstract class VectorType {
       return new GenericVector.Builder(cls);
     }
 
-
-
     @Override
     public Vector.Builder newBuilder(int size) {
       return new GenericVector.Builder(cls, size);
@@ -259,16 +241,9 @@ public abstract class VectorType {
     }
 
     @Override
-    public Scale getScale() {
-      return Number.class.isAssignableFrom(cls) ? Scale.NUMERICAL : Scale.NOMINAL;
-    }
-
-    @Override
     public Vector.Builder newBuilderWithCapacity(int capacity) {
       return new GenericVector.Builder(cls);
     }
-
-
 
     @Override
     public String toString() {

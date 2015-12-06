@@ -30,8 +30,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.Check;
 import org.briljantframework.data.Collectors;
+import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
-import org.briljantframework.data.Scale;
 import org.briljantframework.data.dataframe.join.InnerJoin;
 import org.briljantframework.data.dataframe.join.JoinOperation;
 import org.briljantframework.data.dataframe.join.LeftOuterJoin;
@@ -139,7 +139,7 @@ public final class DataFrames {
 
     for (Object columnKey : df.getColumnIndex().keySet()) {
       Vector column = df.get(columnKey);
-      if (column.getType().getScale() == Scale.NUMERICAL) {
+      if (Is.numeric(column)) {
         StatisticalSummary summary = column.collect(Number.class, Collectors.statisticalSummary());
         builder.set(columnKey, "mean", summary.getMean())
             .set(columnKey, "var", summary.getVariance())
