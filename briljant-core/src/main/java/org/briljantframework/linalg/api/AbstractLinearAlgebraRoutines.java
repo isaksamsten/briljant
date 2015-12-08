@@ -29,6 +29,7 @@ import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.linalg.decomposition.EigenDecomposition;
 import org.briljantframework.linalg.decomposition.LuDecomposition;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 
@@ -46,8 +47,25 @@ public abstract class AbstractLinearAlgebraRoutines implements LinearAlgebraRout
     this.arrayBackend = Objects.requireNonNull(matrixFactory);
   }
 
-  protected ArrayBackend getArrayBackend() {
+  protected final ArrayFactory getArrayFactory() {
+    return getArrayBackend().getArrayFactory();
+  }
+
+  protected final ArrayBackend getArrayBackend() {
     return arrayBackend;
+  }
+
+  @Override
+  public EigenDecomposition eig(DoubleArray x) {
+    Check.argument(x.isMatrix() && x.isSquare(), "require square 2d-array.");
+    final int n = x.size(0);
+    DoubleArray wr = getArrayFactory().newDoubleArray(n);
+    DoubleArray wi = getArrayFactory().newDoubleArray(n);
+    DoubleArray vl = getArrayFactory().newDoubleArray(n, n);
+    DoubleArray vr = getArrayFactory().newDoubleArray(n, n);
+    DoubleArray a = x.copy();
+    geev('v', 'v', a, wr, wi, vl, vr);
+    return null;
   }
 
   @Override
@@ -59,6 +77,24 @@ public abstract class AbstractLinearAlgebraRoutines implements LinearAlgebraRout
     DoubleArray lu = array.copy();
     getrf(lu, pivots);
     return new LuDecomposition(lu, pivots);
+  }
+
+  @Override
+  public SingularValueDecomposition svd(DoubleArray x) {
+    Check.argument(x.isMatrix(), "require 2d-array");
+    ArrayFactory bj = getArrayBackend().getArrayFactory();
+    int m = x.rows();
+    int n = x.columns();
+    DoubleArray s = bj.newDoubleArray(n);
+    DoubleArray u = bj.newDoubleArray(m, m);
+    DoubleArray vt = bj.newDoubleArray(n, n);
+    DoubleArray a = x.copy();
+    if (m > n) {
+      gesdd('a', a, s, u, vt);
+    } else {
+      gesdd('a', a, s, u, vt);
+    }
+    return new SingularValueDecomposition(s, u, vt.transpose());
   }
 
   @Override
@@ -102,24 +138,6 @@ public abstract class AbstractLinearAlgebraRoutines implements LinearAlgebraRout
     getArrayBackend().getArrayRoutines().gemm(ArrayOperation.KEEP, ArrayOperation.TRANSPOSE, 1, v,
         u, 1, pinv);
     return pinv;
-  }
-
-  @Override
-  public SingularValueDecomposition svd(DoubleArray x) {
-    Check.argument(x.isMatrix(), "require 2d-array");
-    ArrayFactory bj = getArrayBackend().getArrayFactory();
-    int m = x.rows();
-    int n = x.columns();
-    DoubleArray s = bj.newDoubleArray(n);
-    DoubleArray u = bj.newDoubleArray(m, m);
-    DoubleArray vt = bj.newDoubleArray(n, n);
-    DoubleArray a = x.copy();
-    if (m > n) {
-      gesdd('a', a, s, u, vt);
-    } else {
-      gesdd('a', a, s, u, vt);
-    }
-    return new SingularValueDecomposition(s, u, vt.transpose());
   }
 
   /**

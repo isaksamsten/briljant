@@ -23,6 +23,9 @@ package org.briljantframework.array.netlib;
 import java.util.Arrays;
 import java.util.Objects;
 
+import net.mintern.primitive.Primitive;
+import net.mintern.primitive.comparators.DoubleComparator;
+
 import org.briljantframework.array.AbstractDoubleArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.api.ArrayFactory;
@@ -84,6 +87,15 @@ class NetlibDoubleArray extends AbstractDoubleArray {
       return new NetlibDoubleArray(getArrayFactory(), Arrays.copyOf(data, size()));
     }
     return super.copy();
+  }
+
+  @Override
+  public void sort(DoubleComparator comparator) {
+    if (!isView() && isVector() && stride(0) == 1) {
+      Primitive.sort(data(), comparator);
+    } else {
+      super.sort(comparator);
+    }
   }
 
   @Override

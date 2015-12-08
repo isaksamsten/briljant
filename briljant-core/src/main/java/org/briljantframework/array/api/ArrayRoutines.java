@@ -30,7 +30,6 @@ import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
-import org.briljantframework.sort.IndexComparator;
 
 /**
  * Array routines perform different operations on arrays.
@@ -507,47 +506,6 @@ public interface ArrayRoutines {
    */
   void gemm(ArrayOperation transA, ArrayOperation transB, double alpha, DoubleArray a,
       DoubleArray b, double beta, DoubleArray c);
-
-  default <T extends BaseArray<T>> T sort(T array) {
-    return sort(array, (t, a, b) -> {
-      return t.compare(a, b);
-    });
-  }
-
-  /**
-   * <p>
-   * Sorts the source matrix {@code a} in the order specified by {@code comparator}.
-   * </p>
-   *
-   * @param x the source matrix
-   * @param cmp the comparator; first argument is the container, and the next are indexes
-   * @return a new sorted matrix; the returned matrix has the same type as {@code a}
-   */
-  <T extends BaseArray<T>> T sort(T x, IndexComparator<T> cmp);
-
-  default <T extends BaseArray<T>> T sort(int dim, T array) {
-    return sort(dim, array, (t, a, b) -> {
-      return t.compare(a, b);
-    });
-  }
-
-  <T extends BaseArray<T>> T sort(int dim, T x, IndexComparator<T> cmp);
-
-  default <T extends Comparable<T>> Array<T> sort(Array<T> array) {
-    return sort(array, (a, i, j) -> a.get(i).compareTo(a.get(j)));
-  }
-
-  default <T extends Comparable<T>> Array<T> sort(int dim, Array<T> array) {
-    return sort(dim, array, (a, i, j) -> a.get(i).compareTo(a.get(j)));
-  }
-
-  default <T> Array<T> sort(Array<T> array, Comparator<T> cmp) {
-    return sort(array, (a, i, j) -> cmp.compare(a.get(i), a.get(j)));
-  }
-
-  default <T> Array<T> sort(int dim, Array<T> array, Comparator<T> cmp) {
-    return sort(dim, array, (a, i, j) -> cmp.compare(a.get(i), a.get(j)));
-  }
 
   /**
    * Copy the contents of {@code from} to {@code to}

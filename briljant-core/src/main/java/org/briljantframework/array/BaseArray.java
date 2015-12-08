@@ -157,6 +157,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * @param b the index of the second value
    * @return an indicator whether the value at {@code a} is smaller, larger or equal to {@code b}
    */
+  @Deprecated
   int compare(int a, int b);
 
   /**

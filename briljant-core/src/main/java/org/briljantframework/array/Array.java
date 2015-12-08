@@ -425,7 +425,7 @@ public interface Array<T> extends BaseArray<Array<T>>, Listable<T> {
   void set(BooleanArray array, T value);
 
   /**
-   * Get the elements where the given arra is {@code true}.
+   * Get the elements where the given array is {@code true}.
    * 
    * <p/>
    * Example

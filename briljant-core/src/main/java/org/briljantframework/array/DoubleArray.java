@@ -37,6 +37,8 @@ import java.util.function.ToDoubleFunction;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 
+import net.mintern.primitive.comparators.DoubleComparator;
+
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.Listable;
@@ -391,6 +393,12 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
    * @return a new array
    */
   DoubleArray get(BooleanArray array);
+
+  default void sort() {
+    sort(Double::compare);
+  }
+
+  void sort(DoubleComparator comparator);
 
   /**
    * Return a double stream

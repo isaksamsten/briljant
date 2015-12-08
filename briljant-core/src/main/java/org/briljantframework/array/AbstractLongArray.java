@@ -45,12 +45,15 @@ import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
 import java.util.stream.StreamSupport;
 
+import net.mintern.primitive.comparators.LongComparator;
+
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.exceptions.MultiDimensionMismatchException;
 import org.briljantframework.function.LongBiPredicate;
 import org.briljantframework.primitive.ArrayAllocations;
+import org.briljantframework.sort.QuickSort;
 
 /**
  * This class provides a skeletal implementation of a long array.
@@ -477,6 +480,11 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
+  public void sort(LongComparator comparator) {
+    QuickSort.quickSort(0, size(), comparator::compare, this);
+  }
+
+  @Override
   public LongStream stream() {
     PrimitiveIterator.OfLong ofLong = new PrimitiveIterator.OfLong() {
       public int current = 0;
@@ -663,6 +671,15 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
       n.set(i, -get(i));
     }
     return n;
+  }
+
+  @Override
+  public long[] data() {
+    long[] data = new long[size()];
+    for (int i = 0; i < size(); i++) {
+      data[i] = get(i);
+    }
+    return data;
   }
 
   protected abstract void setElement(int i, long value);

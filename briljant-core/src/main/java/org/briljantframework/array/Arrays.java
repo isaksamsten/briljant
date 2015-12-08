@@ -31,6 +31,8 @@ import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
 
 import net.mintern.primitive.comparators.DoubleComparator;
+import net.mintern.primitive.comparators.IntComparator;
+import net.mintern.primitive.comparators.LongComparator;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.distribution.NormalDistribution;
@@ -46,6 +48,7 @@ import org.briljantframework.exceptions.MultiDimensionMismatchException;
 import org.briljantframework.function.DoubleBiPredicate;
 import org.briljantframework.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.sort.IndexComparator;
+import org.briljantframework.sort.QuickSort;
 
 /**
  * Utilities for multidimensional arrays. The arrays produces depend on the selected backend.
@@ -912,7 +915,7 @@ public final class Arrays {
       @Override
       public T get(int index) {
         T a = arrays.get(index);
-        return a.isVector() ? a.reshape(1, a.size()) : a;
+        return a.dims() == 1 ? a.reshape(1, a.size()) : a;
       }
 
       @Override
@@ -1253,75 +1256,248 @@ public final class Arrays {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#sort(org.briljantframework.array.Array)
+   * Sort a double array in its natural order.
+   * 
+   * @param x the array
+   * @return a new sorted array
+   * @see DoubleArray#sort()
+   */
+  public static DoubleArray sort(DoubleArray x) {
+    return sort(x, Double::compare);
+  }
+
+  /**
+   * Sort the array according to the given comparator.
+   * 
+   * @param x the array
+   * @param comparator the comparator
+   * @return a new array
+   */
+  public static DoubleArray sort(DoubleArray x, DoubleComparator comparator) {
+    DoubleArray c = x.copy();
+    c.sort(comparator);
+    return c;
+  }
+
+  /**
+   * Sort the vectors along the specified dimensions in its natural order.
+   * 
+   * @param dim the dimension
+   * @param x the array
+   * @return a new array
+   */
+  public static DoubleArray sort(int dim, DoubleArray x) {
+    return sort(dim, x, Double::compare);
+  }
+
+  /**
+   * Sort the vectors along the specified dimensions in its natural order.
+   *
+   * @param dim the dimension
+   * @param x the array
+   * @return a new array
+   */
+  public static DoubleArray sort(int dim, DoubleArray x, DoubleComparator comparator) {
+    DoubleArray c = x.copy();
+    int vectors = c.vectors(dim);
+    for (int i = 0; i < vectors; i++) {
+      c.getVector(dim, i).sort(comparator);
+    }
+    return c;
+  }
+
+  /**
+   * Sort a int array in its natural order.
+   *
+   * @param x the array
+   * @return a new sorted array
+   * @see IntArray#sort()
+   */
+  public static IntArray sort(IntArray x) {
+    return sort(x, Integer::compare);
+  }
+
+  /**
+   * Sort the array according to the given comparator.
+   *
+   * @param x the array
+   * @param comparator the comparator
+   * @return a new array
+   */
+  public static IntArray sort(IntArray x, IntComparator comparator) {
+    IntArray c = x.copy();
+    c.sort(comparator);
+    return c;
+  }
+
+  /**
+   * Sort the vectors along the specified dimensions in its natural order.
+   *
+   * @param dim the dimension
+   * @param x the array
+   * @return a new array
+   */
+  public static IntArray sort(int dim, IntArray x) {
+    return sort(dim, x, Integer::compare);
+  }
+
+  /**
+   * Sort the vectors along the specified dimensions in its natural order.
+   *
+   * @param dim the dimension
+   * @param x the array
+   * @return a new array
+   */
+  public static IntArray sort(int dim, IntArray x, IntComparator comparator) {
+    IntArray c = x.copy();
+    int vectors = c.vectors(dim);
+    for (int i = 0; i < vectors; i++) {
+      c.getVector(dim, i).sort(comparator);
+    }
+    return c;
+  }
+
+  /**
+   * Sort a long array in its natural order.
+   *
+   * @param x the array
+   * @return a new sorted array
+   * @see LongArray#sort()
+   */
+  public static LongArray sort(LongArray x) {
+    return sort(x, Long::compare);
+  }
+
+  /**
+   * Sort the array according to the given comparator.
+   *
+   * @param x the array
+   * @param comparator the comparator
+   * @return a new array
+   */
+  public static LongArray sort(LongArray x, LongComparator comparator) {
+    LongArray c = x.copy();
+    c.sort(comparator);
+    return c;
+  }
+
+  /**
+   * Sort the vectors along the specified dimensions in its natural order.
+   *
+   * @param dim the dimension
+   * @param x the array
+   * @return a new array
+   */
+  public static LongArray sort(int dim, LongArray x) {
+    return sort(dim, x, Long::compare);
+  }
+
+  /**
+   * Sort the vectors along the specified dimensions in its natural order.
+   *
+   * @param dim the dimension
+   * @param x the array
+   * @return a new array
+   */
+  public static LongArray sort(int dim, LongArray x, LongComparator comparator) {
+    LongArray c = x.copy();
+    int vectors = c.vectors(dim);
+    for (int i = 0; i < vectors; i++) {
+      c.getVector(dim, i).sort(comparator);
+    }
+    return c;
+  }
+
+  /**
+   * Sort an array in its natural order.
+   * 
+   * @param array the array
+   * @param <T> the element type
+   * @return a new array
    */
   public static <T extends Comparable<T>> Array<T> sort(Array<T> array) {
-    return ARRAY_ROUTINES.sort(array);
+    return sort(array, (a, i, j) -> a.get(i).compareTo(a.get(j)));
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#sort(int, org.briljantframework.array.Array)
+   * Sort the array using the given index comparator.
+   * 
+   * @param x the array
+   * @param cmp the index comparator
+   * @param <S> the array type
+   * @return a new array
+   */
+  public static <S extends BaseArray<S>> S sort(S x, IndexComparator<S> cmp) {
+    S out = x.copy();
+    QuickSort.quickSort(0, out.size(), (a, b) -> cmp.compare(out, a, b), out);
+    return out;
+  }
+
+  /**
+   * Sort each vector along the specified dimension in its natural order.
+   *
+   * @param array the array
+   * @param <T> the element type
+   * @return a new array
    */
   public static <T extends Comparable<T>> Array<T> sort(int dim, Array<T> array) {
-    return ARRAY_ROUTINES.sort(dim, array);
+    return sort(dim, array, (a, i, j) -> a.get(i).compareTo(a.get(j)));
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#sort(org.briljantframework.array.Array,
-   *      java.util.Comparator)
+   * Sort each vector along the specified dimension according to the given index comparator.
+   * 
+   * @param dim the dimension
+   * @param x the array
+   * @param cmp the index comparator
+   * @param <S> the element type
+   * @return a new array
    */
-  public static <T> Array<T> sort(Array<T> array, Comparator<T> cmp) {
-    return ARRAY_ROUTINES.sort(array, cmp);
+  public static <S extends BaseArray<S>> S sort(int dim, S x, IndexComparator<S> cmp) {
+    S out = x.copy();
+    int m = x.vectors(dim);
+    for (int i = 0; i < m; i++) {
+      S v = out.getVector(dim, i);
+      QuickSort.quickSort(0, v.size(), (a, b) -> cmp.compare(v, a, b), v);
+    }
+
+    return out;
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#sort(int, org.briljantframework.array.Array,
-   *      java.util.Comparator)
+   * Sort the array according to the given comparator.
+   * 
+   * @param array the array
+   * @param comparator the comparator
+   * @param <T> the element type
+   * @return a new array
    */
-  public static <T> Array<T> sort(int dim, Array<T> array, Comparator<T> cmp) {
-    return ARRAY_ROUTINES.sort(dim, array, cmp);
+  public static <T> Array<T> sort(Array<T> array, Comparator<T> comparator) {
+    return sort(array, (a, i, j) -> comparator.compare(a.get(i), a.get(j)));
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayRoutines#sort(org.briljantframework.array.BaseArray)
+   * Sort each vector along the specified dimension according to the given comparator.
+   *
+   * @param dim the dimension
+   * @param array the array
+   * @param comparator the comparator
+   * @param <T> the element type
+   * @return a new array
    */
-  public static <T extends BaseArray<T>> T sort(T array) {
-    return ARRAY_ROUTINES.sort(array);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayRoutines#sort(int,
-   *      org.briljantframework.array.BaseArray)
-   */
-  public static <T extends BaseArray<T>> T sort(int dim, T array) {
-    return ARRAY_ROUTINES.sort(dim, array);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayRoutines#sort(org.briljantframework.array.BaseArray,
-   *      org.briljantframework.sort.IndexComparator)
-   */
-  public static <T extends BaseArray<T>> T sort(T x, IndexComparator<T> cmp) {
-    return ARRAY_ROUTINES.sort(x, cmp);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayRoutines#sort(int,
-   *      org.briljantframework.array.BaseArray, org.briljantframework.sort.IndexComparator)
-   */
-  public static <T extends BaseArray<T>> T sort(int dim, T x, IndexComparator<T> cmp) {
-    return ARRAY_ROUTINES.sort(dim, x, cmp);
+  public static <T> Array<T> sort(int dim, Array<T> array, Comparator<T> comparator) {
+    return sort(dim, array, (a, i, j) -> comparator.compare(a.get(i), a.get(j)));
   }
 
   /**
    * Randomly shuffle the elements in the given array
    *
    * @param x the array
-   * @param <T> the array type
+   * @param <S> the array type
    * @return a new (shuffled) array
    */
-  public static <T extends BaseArray<T>> T shuffle(T x) {
-    T out = x.copy();
+  public static <S extends BaseArray<S>> S shuffle(S x) {
+    S out = x.copy();
     out.permute(out.size());
     return out;
   }

@@ -43,7 +43,6 @@ import java.util.function.ToIntFunction;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
-import net.mintern.primitive.Primitive;
 import net.mintern.primitive.comparators.IntComparator;
 
 import org.apache.commons.math3.complex.Complex;
@@ -548,11 +547,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void sort(IntComparator cmp) {
-    if (stride(0) == 1 && dims() == 1) {
-      Primitive.sort(data(), 0, size(), cmp);
-    } else {
-      QuickSort.quickSort(0, size(), cmp::compare, this);
-    }
+    QuickSort.quickSort(0, size(), cmp::compare, this);
   }
 
   @Override

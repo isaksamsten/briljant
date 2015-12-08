@@ -24,7 +24,6 @@ package org.briljantframework.array.base;
 import static org.briljantframework.array.Indexer.columnMajor;
 import static org.briljantframework.array.Indexer.rowMajor;
 
-import java.util.Arrays;
 import java.util.Comparator;
 
 import org.apache.commons.math3.complex.Complex;
@@ -41,8 +40,6 @@ import org.briljantframework.array.LongArray;
 import org.briljantframework.array.api.ArrayRoutines;
 import org.briljantframework.complex.MutableComplex;
 import org.briljantframework.exceptions.MultiDimensionMismatchException;
-import org.briljantframework.sort.IndexComparator;
-import org.briljantframework.sort.QuickSort;
 import org.briljantframework.statistics.FastStatistics;
 
 /**
@@ -466,29 +463,6 @@ public class BaseArrayRoutines implements ArrayRoutines {
         c.set(row, col, alpha * sum + beta * c.get(row, col));
       }
     }
-  }
-
-  @Override
-  public <T extends BaseArray<T>> T sort(T x, IndexComparator<T> cmp) {
-    T out = x.copy();
-    if (x instanceof DoubleArray) {
-      Arrays.sort(((DoubleArray) out).data());
-    } else {
-      QuickSort.quickSort(0, out.size(), (a, b) -> cmp.compare(out, a, b), out);
-    }
-    return out;
-  }
-
-  @Override
-  public <T extends BaseArray<T>> T sort(int dim, T x, IndexComparator<T> cmp) {
-    T out = x.copy();
-    int m = x.vectors(dim);
-    for (int i = 0; i < m; i++) {
-      T v = out.getVector(dim, i);
-      QuickSort.quickSort(0, v.size(), (a, b) -> cmp.compare(v, a, b), v);
-    }
-
-    return out;
   }
 
   @Override

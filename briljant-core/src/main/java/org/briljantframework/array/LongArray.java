@@ -33,6 +33,8 @@ import java.util.function.LongUnaryOperator;
 import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
 
+import net.mintern.primitive.comparators.LongComparator;
+
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Listable;
 import org.briljantframework.function.LongBiPredicate;
@@ -188,6 +190,12 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
 
   void set(int row, int column, long value);
 
+  default void sort() {
+    sort(Long::compare);
+  }
+
+  void sort(LongComparator comparator);
+
   LongStream stream();
 
   List<Long> toList();
@@ -321,4 +329,6 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
    * @return a new matrix
    */
   LongArray negate();
+
+  long[] data();
 }

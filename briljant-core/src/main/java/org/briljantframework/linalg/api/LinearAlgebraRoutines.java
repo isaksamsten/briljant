@@ -23,6 +23,7 @@ package org.briljantframework.linalg.api;
 import org.briljantframework.array.ArrayOperation;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
+import org.briljantframework.linalg.decomposition.EigenDecomposition;
 import org.briljantframework.linalg.decomposition.LuDecomposition;
 import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
 
@@ -33,13 +34,15 @@ import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
  */
 public interface LinearAlgebraRoutines {
 
+  EigenDecomposition eig(DoubleArray x);
+
   LuDecomposition lu(DoubleArray x);
+
+  SingularValueDecomposition svd(DoubleArray x);
 
   DoubleArray inv(DoubleArray x);
 
   DoubleArray pinv(DoubleArray x);
-
-  SingularValueDecomposition svd(DoubleArray x);
 
   double det(DoubleArray x);
 

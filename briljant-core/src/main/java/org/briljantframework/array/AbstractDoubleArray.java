@@ -46,6 +46,8 @@ import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 import java.util.stream.StreamSupport;
 
+import net.mintern.primitive.comparators.DoubleComparator;
+
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.Precision;
 import org.briljantframework.Check;
@@ -53,6 +55,7 @@ import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.function.DoubleBiPredicate;
 import org.briljantframework.primitive.ArrayAllocations;
 import org.briljantframework.primitive.DoubleList;
+import org.briljantframework.sort.QuickSort;
 
 /**
  * This class provides a skeletal implementation of a double array.
@@ -501,6 +504,11 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
       }
     }
     return factory.newDoubleVector(Arrays.copyOf(data, idx));
+  }
+
+  @Override
+  public void sort(DoubleComparator comparator) {
+    QuickSort.quickSort(0, size(), comparator::compare, this);
   }
 
   @Override

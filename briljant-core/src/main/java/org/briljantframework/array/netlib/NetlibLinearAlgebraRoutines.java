@@ -110,8 +110,8 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     ensureInfo(info);
     lwork = (int) work[0];
 
-    lapack.dgeev(String.valueOf(jobvl), String.valueOf(jobvr), n, aa, Math.max(1, a.stride(1)),
-        wra, wia, vla, Math.max(1, a.stride(1)), vra, Math.max(1, a.stride(1)), work, lwork, info);
+    lapack.dgeev(String.valueOf(jobvl), String.valueOf(jobvr), n, aa, Math.max(1, n), wra, wia,
+        vla, Math.max(1, ldvl), vra, Math.max(1, ldvr), work, lwork, info);
 
     ensureInfo(info);
     assignIfNeeded(a, aa);
@@ -119,32 +119,6 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     assignIfNeeded(wi, wia);
     assignIfNeeded(vl, vla);
     assignIfNeeded(vr, vra);
-  }
-
-  @Override
-  public void geqrf(DoubleArray a, DoubleArray tau) {
-    Check.argument(a.isMatrix(), REQUIRE_2D_ARRAY);
-    int m = a.rows();
-    int n = a.columns();
-    int lda = Math.max(1, m);
-    Check.argument(tau.isVector() && tau.size() == Math.min(m, n));
-
-    double[] aa = getData(a);
-    double[] ta = getData(tau);
-
-    double[] work = new double[1];
-    int lwork = -1;
-
-    intW info = new intW(0);
-    lapack.dgeqrf(m, n, aa, lda, ta, work, lwork, info);
-    ensureInfo(info);
-    lwork = (int) work[0];
-    work = new double[lwork];
-
-    lapack.dgeqrf(m, n, aa, lda, ta, work, lwork, info);
-    ensureInfo(info);
-    assignIfNeeded(a, aa);
-    assignIfNeeded(tau, ta);
   }
 
   @Override
@@ -188,6 +162,32 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     assignIfNeeded(a, aa);
     assignIfNeeded(tau, ta);
     assignIfNeeded(c, ca);
+  }
+
+  @Override
+  public void geqrf(DoubleArray a, DoubleArray tau) {
+    Check.argument(a.isMatrix(), REQUIRE_2D_ARRAY);
+    int m = a.rows();
+    int n = a.columns();
+    int lda = Math.max(1, m);
+    Check.argument(tau.isVector() && tau.size() == Math.min(m, n));
+
+    double[] aa = getData(a);
+    double[] ta = getData(tau);
+
+    double[] work = new double[1];
+    int lwork = -1;
+
+    intW info = new intW(0);
+    lapack.dgeqrf(m, n, aa, lda, ta, work, lwork, info);
+    ensureInfo(info);
+    lwork = (int) work[0];
+    work = new double[lwork];
+
+    lapack.dgeqrf(m, n, aa, lda, ta, work, lwork, info);
+    ensureInfo(info);
+    assignIfNeeded(a, aa);
+    assignIfNeeded(tau, ta);
   }
 
   @Override
@@ -520,6 +520,30 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     ensureInfo(info);
   }
 
+  private void ensureValidParameterInfo(intW info) {
+    if (info.val < 0) {
+      throw new NetlibLapackException(info.val, "Internal error.");
+    }
+  }
+
+  private int[] getData(IntArray ipiv) {
+    if (ipiv.getOffset() > 0 || ipiv.stride(0) != 1) {
+      return ipiv.copy().data();
+    } else {
+      return ipiv.data();
+    }
+  }
+
+  private void assignIfNeeded(IntArray a, int[] data) {
+    if (a.isView() || a.getOffset() > 0 || a.stride(0) != 1) {
+      a.assign(data);
+    }
+  }
+
+  private IllegalArgumentException invalidCharacter(String parameter, char c, List<Character> chars) {
+    return new IllegalArgumentException(String.format("%s %s not in %s.", parameter, c, chars));
+  }
+
   /**
    * Returns the data of the double array. If a is a view (as defined above), a copy is returned.
    */
@@ -531,17 +555,6 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
       return a.data();
     }
   }
-
-
-
-  private int[] getData(IntArray ipiv) {
-    if (ipiv.getOffset() > 0 || ipiv.stride(0) != 1) {
-      return ipiv.copy().data();
-    } else {
-      return ipiv.data();
-    }
-  }
-
 
   /**
    * Assigns the {@code data} to {@code a} if {@code a} is a view (as defined above).
@@ -555,29 +568,13 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     }
   }
 
-  private void assignIfNeeded(IntArray a, int[] data) {
-    if (a.isView() || a.getOffset() > 0 || a.stride(0) != 1) {
-      a.assign(data);
-    }
+  private void ensureInfo(intW info) {
+    ensureInfo("Internal error.", info);
   }
 
   private void ensureInfo(String message, intW info) {
     if (info.val != 0) {
       throw new NetlibLapackException(info.val, message);
     }
-  }
-
-  private void ensureInfo(intW info) {
-    ensureInfo("Internal error.", info);
-  }
-
-  private void ensureValidParameterInfo(intW info) {
-    if (info.val < 0) {
-      throw new NetlibLapackException(info.val, "Internal error.");
-    }
-  }
-
-  private IllegalArgumentException invalidCharacter(String parameter, char c, List<Character> chars) {
-    return new IllegalArgumentException(String.format("%s %s not in %s.", parameter, c, chars));
   }
 }
