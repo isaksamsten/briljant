@@ -46,7 +46,8 @@ import org.briljantframework.function.ToIntObjIntBiFunction;
  * 
  * @author Isak Karlsson
  */
-public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listable<Integer> {
+public interface IntArray extends IntIndexer, BaseArray<IntArray>, Iterable<Integer>,
+    Listable<Integer> {
 
   static IntArray ones(int... shape) {
     IntArray array = zeros(shape);
@@ -176,12 +177,6 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listab
 
   // GET / SET
 
-  /**
-   * @param index get int
-   * @return int at {@code index}
-   */
-  int get(int index);
-
   void set(int index, int value);
 
   /**
@@ -198,6 +193,17 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listab
   void set(int[] ix, int value);
 
   int get(int... ix);
+
+  @Override
+  default int end(int end) {
+    return size();
+  }
+
+  /**
+   * @param index get int
+   * @return int at {@code index}
+   */
+  int get(int index);
 
   void apply(int index, IntUnaryOperator operator);
 

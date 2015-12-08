@@ -1,5 +1,6 @@
 package org.briljantframework.array.api;
 
+import static org.briljantframework.array.ArraySelector.ALL;
 import static org.junit.Assert.assertEquals;
 
 import org.briljantframework.array.Array;
@@ -41,5 +42,14 @@ public abstract class ArrayFactoryTest {
     DoubleArray a = getFactory().range(3 * 3).reshape(3, 3).asDouble();
     DoubleArray x = a.get(a.where(i -> i > 2));
     assertEquals(getFactory().newDoubleVector(3, 4, 5, 6, 7, 8), x);
+  }
+
+  @Test
+  public void testDoubleArrayGet_Range() throws Exception {
+    DoubleArray a = getFactory().range(9 * 3).reshape(9, 3).asDouble();
+    assertEquals(getFactory().newDoubleVector(1, 2, 10, 11).reshape(2, 2),
+        a.get(getFactory().range(1, 3), getFactory().range(2)));
+    assertEquals(getFactory().newDoubleVector(0, 2, 4, 6, 8, 9, 11, 13, 15, 17, 18, 20, 22, 24, 26)
+        .reshape(5, 3), a.get(getFactory().range(0, 9, 2), ALL));
   }
 }

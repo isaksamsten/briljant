@@ -282,22 +282,22 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   }
 
   @Override
-  public E get(Range... ranges) {
+  public E get(RangeIndexer... ranges) {
     return get(Arrays.asList(ranges));
   }
 
   @Override
-  public E get(List<Range> ranges) {
+  public E get(List<? extends RangeIndexer> ranges) {
     Check.argument(ranges.size() > 0, "Too few ranges to slice");
     Check.argument(ranges.size() <= dims(), "Too many ranges to slice");
     int[] stride = getStride();
     int[] shape = getShape();
     int offset = getOffset();
     for (int i = 0; i < ranges.size(); i++) {
-      Range r = ranges.get(i);
+      RangeIndexer r = ranges.get(i);
       int start = r.start();
-      int end = r.end() == -1 ? size(i) : r.size();
-      int step = r.step() == -1 ? 1 : r.step();
+      int end = r.end(size(i));
+      int step = r.step();
 
       Check.argument(step > 0, "Illegal step size in dimension %s", step);
       Check

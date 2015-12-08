@@ -32,7 +32,7 @@ package org.briljantframework.array;
  * 
  * @author Isak Karlsson
  */
-public interface Range extends IntArray {
+public interface Range extends RangeIndexer, IntArray {
 
   /**
    * Return a range from 0 (inclusive) to end (exclusive).
@@ -68,11 +68,23 @@ public interface Range extends IntArray {
   }
 
   /**
+   * The step size of this range.
+   *
+   * @return the step size
+   */
+  int step();
+
+  /**
    * The start value of this range.
    *
    * @return the start value
    */
   int start();
+
+  @Override
+  default int end(int size) {
+    return size();
+  }
 
   /**
    * The end value of this range.
@@ -80,13 +92,6 @@ public interface Range extends IntArray {
    * @return the end value
    */
   int end();
-
-  /**
-   * The step size of this range.
-   *
-   * @return the step size
-   */
-  int step();
 
   /**
    * Determines if the given value is included in the range.

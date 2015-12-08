@@ -853,7 +853,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * @return a view
    * @see #get(java.util.List)
    */
-  S get(Range... ranges);
+  S get(RangeIndexer... ranges);
 
   /**
    * Basic slicing returns a view of the nd-array. The standard rules of slicing applies to basic
@@ -999,7 +999,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * @param ranges a collection of ranges
    * @return a view
    */
-  S get(List<Range> ranges);
+  S get(List<? extends RangeIndexer> ranges);
 
   /**
    * For a 2d-array, get a view of row starting at {@code rowOffset} until {@code rowOffset + rows}
