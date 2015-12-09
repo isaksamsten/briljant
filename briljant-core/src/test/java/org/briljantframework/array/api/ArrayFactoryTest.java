@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.briljantframework.array.Array;
 import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
 import org.junit.Test;
 
 /**
@@ -51,5 +52,11 @@ public abstract class ArrayFactoryTest {
         a.get(getFactory().range(1, 3), getFactory().range(2)));
     assertEquals(getFactory().newDoubleVector(0, 2, 4, 6, 8, 9, 11, 13, 15, 17, 18, 20, 22, 24, 26)
         .reshape(5, 3), a.get(getFactory().range(0, 9, 2), ALL));
+  }
+
+  @Test
+  public void testDoubleArraySelect_IntIndexer() throws Exception {
+    DoubleArray a = getFactory().range(3 * 3 * 3).reshape(3, 3, 3).asDouble();
+    System.out.println(a.select(IntArray.of(0, 1, 2), IntArray.of(1, 1, 1)));
   }
 }

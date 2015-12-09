@@ -551,19 +551,28 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
   S select(int dimension, int index);
 
   /**
+   * Integer based slicing.
+   * 
+   * @param indexers the indexers
+   * @return a new array
+   * @see #select(List)
+   */
+  S select(IntIndexer... indexers);
+
+  /**
    * Integer-based slicing, as opposed to basic slicing, returns a copy of the array. Complex
    * slicing selects a subset of the data based on numerical indicies on a per dimension basis. To
    * include ranges of values, one simple way is to use {@code Arrays.range(end).flat()}.
    *
    * <p>
    * Examples
-   * 
+   *
    * <pre>
    * IntArray x = Arrays.range(2 * 3 * 4).reshape(2, 3, 4);
    * </pre>
-   * 
+   *
    * produces
-   * 
+   *
    * <pre>
    * array([[[0,  9, 18, 27],
    *         [3, 12, 21, 30],
@@ -577,15 +586,15 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    *         [5, 14, 23, 32],
    *         [8, 17, 26, 35]]])
    * </pre>
-   * 
+   *
    * and
-   * 
+   *
    * <pre>
-   * x.select(Arrays.asList(Arrays.asList(0, 1)));
+   * x.select(IntArray.of(0, 1));
    * </pre>
-   * 
+   *
    * produces
-   * 
+   *
    * <pre>
    * array([[[0,  9, 18, 27],
    *         [3, 12, 21, 30],
@@ -595,44 +604,36 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    *         [4, 13, 22, 31],
    *         [7, 16, 25, 34]]])
    * </pre>
-   * 
+   *
    * and
-   * 
+   *
    * <pre>
-   * x.select(Arrays.asList(Arrays.asList(0, 1), Arrays.asList(1, 2)));
+   * x.select(IntArray.of(0, 1), IntArray.of(1, 2));
    * </pre>
-   * 
+   *
    * produces
-   * 
+   *
    * <pre>
    * array([[3, 12, 21, 30],
    *        [7, 16, 25, 34]])
    * </pre>
-   * 
+   *
    * and
-   * 
+   *
    * <pre>
-   * x.select(Arrays.asList(Arrays.asList(1, 1), Arrays.asList(1, 1), Arrays.asList(1, 1)));
+   * x.select(IntArray.of(1,1), IntArray.of(1,1), IntArray.of(1,1)));
    * </pre>
-   * 
+   *
    * produces
-   * 
+   *
    * <pre>
    * array([13, 13])
    * </pre>
    *
-   * @param indexes a list of indexes to include
+   * @param indexers a list of indexes to include
    * @return a new array
    */
-  @Deprecated
-  S select(List<List<Integer>> indexes);
-
-  /**
-   * @param indexes an array of index arrays
-   * @return a new array
-   * @see #select(java.util.List)
-   */
-  S select(int[][] indexes);
+  S select(List<? extends IntIndexer> indexers);
 
   /**
    * Selects the values in the array for which the boolean array is true
@@ -1191,8 +1192,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
 
   /**
    * Create a view of this array with the specified offset, shape, stride and major stride. This is
-   * an advanced technique and in most cases can it be avoided by using
-   * {@linkplain #get(java.util.List)} or {@linkplain #select(java.util.List)}.
+   * an advanced technique and in most cases can it be avoided.
    *
    * <p>
    * Example

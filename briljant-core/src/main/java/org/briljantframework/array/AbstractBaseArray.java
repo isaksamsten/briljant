@@ -20,7 +20,6 @@
  */
 package org.briljantframework.array;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -202,53 +201,28 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   }
 
   @Override
-  public E select(List<List<Integer>> indexes) {
-    Check.argument(indexes.size() > 0 && indexes.size() <= dims());
-    E self = asView(getOffset(), this.shape, this.stride);
-
-    int[] shape = getShape();
-    int commonShape = indexes.get(0).size();
-    for (int i = 0; i < indexes.size(); i++) {
-      List<Integer> index = indexes.get(i);
-      Check.argument(commonShape == index.size(), "Indexing arrays could not be used together");
-      shape[i] = index.size();
-    }
-    int[] newShape = new int[shape.length - indexes.size() + 1];
-    System.arraycopy(shape, dims() - newShape.length, newShape, 0, newShape.length);
-    E array = newEmptyArray(newShape);
-    List<Integer> subIndex = indexes.get(0);
-    if (indexes.size() == 1) {
-      if (array.isVector()) {
-        int size = self.size();
-        for (int i = 0; i < subIndex.size(); i++) {
-          Integer fromIndex = subIndex.get(i);
-          Check.validBoxedIndex(fromIndex, size);
-          array.set(i, self, fromIndex);
-        }
-      } else {
-        for (int j = 0; j < subIndex.size(); j++) {
-          Integer fromIndex = subIndex.get(j);
-          Check.validBoxedIndex(fromIndex, self.size(0));
-          array.select(j).assign(self.select(fromIndex));
-        }
-      }
-    } else {
-      for (int j = 0; j < subIndex.size(); j++) {
-        Integer fromIndex = subIndex.get(j);
-        Check.validBoxedIndex(fromIndex, self.size(0));
-        select(indexes, self.select(fromIndex), array, j, 1);
-      }
-    }
-    return array;
+  public E select(IntIndexer... indexers) {
+    return select(Arrays.asList(indexers));
   }
 
   @Override
-  public E select(int[][] indexes) {
-    List<List<Integer>> boxed = new ArrayList<>();
-    for (int[] index : indexes) {
-      boxed.add(Indexer.asList(index));
+  public E select(List<? extends IntIndexer> indexers) {
+    Check.argument(indexers.size() <= dims(), "too many indicies for array");
+    Check.argument(indexers.size() > 0, "too few indices for array");
+    int[] shape = getShape();
+    int commonShape = indexers.get(0).end(size(0));
+    for (int i = 0; i < indexers.size(); i++) {
+      IntIndexer index = indexers.get(i);
+      Check.argument(commonShape == index.end(size(i)),
+          "Indexing arrays could not be used together (%d != %d", commonShape, index.end(size(i)));
+      shape[i] = index.end(size(i));
     }
-    return select(boxed);
+    int[] newShape = new int[Math.abs(shape.length - indexers.size()) + 1];
+    System.arraycopy(shape, dims() - newShape.length, newShape, 0, newShape.length);
+    E to = newEmptyArray(newShape);
+    E from = asView(getOffset(), getShape(), getStride());
+    recursiveSelect(to, from, indexers);
+    return to;
   }
 
   @Override
@@ -421,31 +395,56 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     }
   }
 
-  private void select(List<List<Integer>> indexes, E from, E to, int j, int dim) {
-    Integer fromIndex = indexes.get(dim).get(j);
-    if (indexes.size() - 1 == dim) {
+  /*
+   * Recursively select elements based on a series of indexers
+   */
+  private void recursiveSelect(E to, E from, List<? extends IntIndexer> indexers) {
+    IntIndexer indexer = indexers.get(0);
+    if (indexers.size() == 1) {
+      if (to.isVector()) {
+        int size = from.size();
+        for (int i = 0; i < indexer.end(size); i++) {
+          int fromIndex = indexer.get(i);
+          Check.validIndex(fromIndex, size);
+          to.set(i, from, fromIndex);
+        }
+      } else {
+        for (int j = 0; j < indexer.end(from.size(0)); j++) {
+          int fromIndex = indexer.get(j);
+          Check.validIndex(fromIndex, from.size(0));
+          to.select(j).assign(from.select(fromIndex));
+        }
+      }
+    } else {
+      // TODO: 09/12/15 support indexers with multiple dimensions
+      for (int j = 0; j < indexer.end(from.size(0)); j++) {
+        int fromIndex = indexer.get(j);
+        Check.validIndex(fromIndex, from.size(0));
+        recursiveSelect(to, from.select(fromIndex), indexers, j, 1);
+      }
+    }
+  }
+
+  private void recursiveSelect(E to, E from, List<? extends IntIndexer> indexers, int index, int dim) {
+    int fromIndex = indexers.get(dim).get(index);
+    if (indexers.size() - 1 == dim) {
       if (to.isVector()) {
         Check.state(from.isVector());
         Check.validBoxedIndex(fromIndex, from.size());
-        to.set(j, from, fromIndex);
+        to.set(index, from, fromIndex);
       } else {
         Check.validBoxedIndex(fromIndex, from.size(dim));
-        to.select(j).assign(from.select(fromIndex));
+        to.select(index).assign(from.select(fromIndex));
       }
     } else {
       Check.validIndex(dim, from.dims());
       Check.validBoxedIndex(fromIndex, from.size(dim));
-      select(indexes, from.select(fromIndex), to, j, dim + 1);
+      recursiveSelect(to, from.select(fromIndex), indexers, index, dim + 1);
     }
   }
 
   protected final ArrayFactory getArrayFactory() {
     return factory;
-  }
-
-  public E get(IntArray i) {
-    Check.argument(Arrays.equals(getShape(), i.getShape()), "Illegal shape");
-    throw new UnsupportedOperationException("unsupported");
   }
 
   /**
