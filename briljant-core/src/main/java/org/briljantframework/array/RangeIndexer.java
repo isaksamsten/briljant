@@ -3,12 +3,11 @@ package org.briljantframework.array;
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
-public interface RangeIndexer extends IntIndexer {
+public interface RangeIndexer {
 
   int step();
 
   int start();
 
-  @Override
   int end(int size);
 }

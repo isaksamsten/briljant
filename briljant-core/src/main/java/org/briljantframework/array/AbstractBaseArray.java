@@ -120,6 +120,21 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   }
 
   @Override
+  public E reverse() {
+    E e = newEmptyArray(getShape());
+    int vectors = vectors(0);
+    for (int i = 0; i < vectors; i++) {
+      E from = getVector(0, i);
+      E to = e.getVector(0, i);
+      int size = from.size();
+      for (int j = 0; j < size; j++) {
+        to.set(size - j - 1, from, j);
+      }
+    }
+    return e;
+  }
+
+  @Override
   public void assign(E o) {
     Check.size(this, o);
     for (int i = 0; i < o.size(); i++) {
@@ -201,27 +216,44 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   }
 
   @Override
-  public E select(IntIndexer... indexers) {
+  public E getSlice(int... index) {
+    E s = select(index[0]);
+    for (int i = 1; i < index.length; i++) {
+      s = s.select(index[i]);
+    }
+    return s;
+  }
+
+  @Override
+  public void setSlice(int[] index, E slice) {
+    getSlice(index).assign(slice);
+  }
+
+  @Override
+  public E select(IntArray... indexers) {
     return select(Arrays.asList(indexers));
   }
 
   @Override
-  public E select(List<? extends IntIndexer> indexers) {
+  public E select(List<? extends IntArray> indexers) {
     Check.argument(indexers.size() <= dims(), "too many indicies for array");
     Check.argument(indexers.size() > 0, "too few indices for array");
-    int[] shape = getShape();
-    int commonShape = indexers.get(0).end(size(0));
-    for (int i = 0; i < indexers.size(); i++) {
-      IntIndexer index = indexers.get(i);
-      Check.argument(commonShape == index.end(size(i)),
-          "Indexing arrays could not be used together (%d != %d", commonShape, index.end(size(i)));
-      shape[i] = index.end(size(i));
+    int dims = indexers.stream().mapToInt(IntArray::dims).max().getAsInt();
+    Check.all(indexers).argument(i -> i.dims() == dims);
+
+    int[] shape = new int[dims + dims() - indexers.size()];
+    for (int i = 0; i < shape.length; i++) {
+      if (i < dims) {
+        shape[i] = indexers.get(0).size(i);
+      } else {
+        shape[i] = size(i - dims);
+      }
     }
-    int[] newShape = new int[Math.abs(shape.length - indexers.size()) + 1];
-    System.arraycopy(shape, dims() - newShape.length, newShape, 0, newShape.length);
-    E to = newEmptyArray(newShape);
+
+    E to = newEmptyArray(shape);
     E from = asView(getOffset(), getShape(), getStride());
-    recursiveSelect(to, from, indexers);
+    IntArray[] i = indexers.toArray(new IntArray[indexers.size()]);
+    recursiveSelect(to, from, i, indexers.get(0).dims());
     return to;
   }
 
@@ -395,52 +427,63 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     }
   }
 
-  /*
-   * Recursively select elements based on a series of indexers
+  /**
+   * Recursively select the appropriate indexers and slices in the to array
    */
-  private void recursiveSelect(E to, E from, List<? extends IntIndexer> indexers) {
-    IntIndexer indexer = indexers.get(0);
-    if (indexers.size() == 1) {
-      if (to.isVector()) {
-        int size = from.size();
-        for (int i = 0; i < indexer.end(size); i++) {
-          int fromIndex = indexer.get(i);
-          Check.validIndex(fromIndex, size);
-          to.set(i, from, fromIndex);
-        }
-      } else {
-        for (int j = 0; j < indexer.end(from.size(0)); j++) {
-          int fromIndex = indexer.get(j);
-          Check.validIndex(fromIndex, from.size(0));
-          to.select(j).assign(from.select(fromIndex));
-        }
-      }
+  private void recursiveSelect(E to, E from, IntArray[] indexers, int dims) {
+    if (dims == 1) {
+      recursiveSelect2(to, from, indexers);
     } else {
-      // TODO: 09/12/15 support indexers with multiple dimensions
-      for (int j = 0; j < indexer.end(from.size(0)); j++) {
-        int fromIndex = indexer.get(j);
-        Check.validIndex(fromIndex, from.size(0));
-        recursiveSelect(to, from.select(fromIndex), indexers, j, 1);
+      IntArray[] newIndexers = new IntArray[indexers.length];
+      for (int j = 0; j < indexers[0].size(0); j++) {
+        for (int i = 0; i < indexers.length; i++) {
+          newIndexers[i] = indexers[i].select(j);
+        }
+        recursiveSelect(to.select(j), from, newIndexers, dims - 1);
       }
     }
   }
 
-  private void recursiveSelect(E to, E from, List<? extends IntIndexer> indexers, int index, int dim) {
-    int fromIndex = indexers.get(dim).get(index);
-    if (indexers.size() - 1 == dim) {
+  /**
+   * Recursively select the correct from slices and assign them to the correct to slices using
+   * the indexers, reduced to
+   */
+  private void recursiveSelect2(E to, E from, IntArray[] indexers) {
+    IntArray indexer = indexers[0];
+    if (indexers.length == 1) {
       if (to.isVector()) {
-        Check.state(from.isVector());
-        Check.validBoxedIndex(fromIndex, from.size());
-        to.set(index, from, fromIndex);
+        for (int i = 0; i < indexer.size(); i++) {
+          to.set(i, from, indexer.get(i));
+        }
       } else {
-        Check.validBoxedIndex(fromIndex, from.size(dim));
-        to.select(index).assign(from.select(fromIndex));
+        for (int i = 0; i < indexer.size(); i++) {
+          to.select(i).assign(from.select(indexer.get(i)));
+        }
       }
     } else {
-      Check.validIndex(dim, from.dims());
-      Check.validBoxedIndex(fromIndex, from.size(dim));
-      recursiveSelect(to, from.select(fromIndex), indexers, index, dim + 1);
+      for (int i = 0; i < indexer.size(); i++) {
+        int fromIndex = indexer.get(i);
+        recursiveSelect3(to, from.select(fromIndex), indexers, i, 1);
+      }
     }
+  }
+
+  private void recursiveSelect3(E to, E from, IntArray[] indexers, int j, int dim) {
+    int fromIndex = indexers[dim].get(j);
+    if (indexers.length - 1 == dim) {
+      if (to.isVector()) {
+        to.set(j, from, fromIndex);
+      } else {
+        to.select(j).assign(from.select(fromIndex));
+      }
+    } else {
+      recursiveSelect3(to, from.select(fromIndex), indexers, j, dim + 1);
+    }
+  }
+
+  private void validIndexInDim(E from, int dim, int fromIndex) {
+    Check.argument(fromIndex >= 0 && fromIndex < from.size(), ILLEGAL_DIMENSION_INDEX, fromIndex,
+        dim, from.size(0));
   }
 
   protected final ArrayFactory getArrayFactory() {

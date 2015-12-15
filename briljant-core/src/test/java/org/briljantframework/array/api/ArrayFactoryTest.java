@@ -6,6 +6,7 @@ import static org.junit.Assert.assertEquals;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
+import org.briljantframework.array.Range;
 import org.junit.Test;
 
 /**
@@ -56,7 +57,26 @@ public abstract class ArrayFactoryTest {
 
   @Test
   public void testDoubleArraySelect_IntIndexer() throws Exception {
-    DoubleArray a = getFactory().range(3 * 3 * 3).reshape(3, 3, 3).asDouble();
-    System.out.println(a.select(IntArray.of(0, 1, 2), IntArray.of(1, 1, 1)));
+    IntArray a = getFactory().range(3 * 3 * 3).reshape(3, 3, 3);
+    // System.out.println(a.select(IntArray.of(0, 1, 0), IntArray.of(1, 1, 1)));
+
+//    System.out.println(a.reshape(3, 3, 3).select(IntArray.of(0, 1), IntArray.of(0, 0)));
+//
+//    System.out.println(a.reshape(3, 3, 3).select(IntArray.of(0, 1), IntArray.of(0, 0),
+//        IntArray.of(0, 0)));
+
+    System.out.println(a.getSlice(0, 0));
+
+    IntArray i = Range.of(2*2*2*2).reshape(2,2,2,2).copy();
+    for (int j = 0; j < i.size(0); j++) {
+      i.select(j).assign(j == 0 ? 2 : 1);
+    }
+    System.out.println(i);
+
+    IntArray i2 = i.copy();
+    i2.assign(0);
+
+    IntArray b = a.reshape(3, 3, 3).select(IntArray.of(0,1,0,1).reshape(2,2));
+    System.out.println(b);
   }
 }
