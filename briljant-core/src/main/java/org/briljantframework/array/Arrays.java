@@ -1085,7 +1085,7 @@ public final class Arrays {
    * If {@code x.dims() < reps.length}, {@code x} is promoted to a {@code reps.length}-dimensional
    * array by prepending dimensions of size {@code 1}. For example, if {@code x} has shape 5 and the
    * replication is {@code new int[2]} the resulting array is promoted to 2d.
-   * 
+   *
    * <p/>
    * If {@code reps.length < x.dims()}, the replication array is prepended with ones.
    *
@@ -1096,35 +1096,35 @@ public final class Arrays {
    * IntArray a = Range.of(3);
    * Arrays.tile(a, 2);
    * </pre>
-   * 
+   *
    * produces
-   * 
+   *
    * <pre>
    *   array([0, 1, 2, 0, 1, 2])
    * </pre>
-   * 
+   *
    * and
-   * 
+   *
    * <pre>
    * Arrays.tile(a, 2, 2);
    * </pre>
-   * 
+   *
    * produces
-   * 
+   *
    * <pre>
    * array([[0, 1, 2, 0, 1, 2],
    *        [0, 1, 2, 0, 1, 2]])
    * </pre>
-   * 
+   *
    * and
-   * 
+   *
    * <pre>
    * DoubleArray b = Arrays.newDoubleMatrix(new double[][] { {1, 2}, {3, 4}});
    * Arrays.tile(b, 2);
    * </pre>
-   * 
+   *
    * produces
-   * 
+   *
    * <pre>
    * array([[1.000, 2.000, 1.000, 2.000],
    *        [3.000, 4.000, 3.000, 4.000]])
@@ -1135,16 +1135,16 @@ public final class Arrays {
    * <pre>
    * Arrays.tile(b, 2, 1);
    * </pre>
-   * 
+   *
    * produces
-   * 
+   *
    * <pre>
    * array([[1.000, 2.000],
    *        [3.000, 4.000],
    *        [1.000, 2.000],
    *        [3.000, 4.000]])
    * </pre>
-   * 
+   *
    * @param x the array
    * @param reps the number of replications per dimension
    * @param <S> the array type
@@ -1210,7 +1210,105 @@ public final class Arrays {
         }
       }
     }
+  }
 
+  public static <E extends BaseArray<E>> List<E> broadcastArrays(List<E> arrays) {
+    int[] shape = arrays.get(0).getShape();
+    for (int i = 1; i < arrays.size(); i++) {
+      shape = broadcast(arrays.get(i), shape);
+    }
+    final int[] finalShape = shape;
+    return new AbstractList<E>() {
+      @Override
+      public E get(int index) {
+        E x = arrays.get(index);
+        E to = x.newEmptyArray(finalShape);
+        copyBroadcast(x, to);
+        return to;
+      }
+
+      @Override
+      public int size() {
+        return arrays.size();
+      }
+    };
+  }
+
+  private static <E extends BaseArray<E>> void copyBroadcast(E from, E to) {
+    // Row-vectors is a special case
+    if (from.size(to.dims() - from.dims() + 1) == 1) {
+      int inDim = to.dims() - from.dims();
+      for (int i = 0; i < to.vectors(inDim); i++) {
+        int idx = 0;
+        E t = to.getVector(inDim, i);
+        for (int j = 0; j < t.size(); j++) {
+          t.set(j, from, idx);
+          idx++;
+        }
+      }
+    } else {
+      int repeat = to.size() / from.size();
+      int idx = 0;
+      for (int i = 0; i < to.size(0); i++) {
+        for (int j = 0; j < repeat; j++) {
+          to.set(idx++, from, i);
+        }
+      }
+    }
+  }
+
+  public static int[] broadcast(BaseArray<?> x, int[] shape) {
+    int[] newShape = new int[shape.length];
+    for (int i = 0; i < newShape.length; i++) {
+      if (x.dims() == 1) {
+        if (i == 0) {
+          if (i < x.dims()) {
+            newShape[i] = Math.max(1, shape[i]);
+          } else {
+            newShape[i] = shape[i];
+          }
+        } else {
+          if (i < x.dims()) {
+            newShape[i] = Math.max(x.size(i), shape[i]);
+          } else {
+            newShape[i] = shape[i];
+          }
+        }
+      } else {
+        if (i < x.dims()) {
+          newShape[i] = Math.max(shape[i], x.size(i));
+        } else {
+          newShape[i] = shape[i];
+        }
+      }
+    }
+    return newShape;
+  }
+
+  public static <E extends BaseArray<E>> E broadcastTo(E x, int... shape) {
+    Check.argument(shape.length > 0 && x.dims() <= shape.length, "to few new dimensions");
+//    Check.argument(, "to few new dimensions");
+    if (java.util.Arrays.equals(x.getShape(), shape)) {
+      return x.asView(x.getShape(), x.getStride());
+    }
+
+    int ac = shape.length - 1;
+    int bc = x.dims() - 1;
+    for (int i = 0; i < shape.length; i++) {
+      if (i >= x.dims()) {
+        break;
+      }
+      if (shape[ac - i] != x.size(bc - i) && x.size(bc - i) != 1) {
+        throw new IllegalArgumentException(String.format(
+            "Can't broadcast array with shape %s to %s", java.util.Arrays.toString(x.getShape()),
+            java.util.Arrays.toString(shape)));
+      }
+    }
+
+    int[] newShape = broadcast(x, shape);
+    E to = x.newEmptyArray(newShape);
+    copyBroadcast(x, to);
+    return to;
   }
 
   /**
@@ -1257,7 +1355,7 @@ public final class Arrays {
 
   /**
    * Sort a double array in its natural order.
-   * 
+   *
    * @param x the array
    * @return a new sorted array
    * @see DoubleArray#sort()
@@ -1268,7 +1366,7 @@ public final class Arrays {
 
   /**
    * Sort the array according to the given comparator.
-   * 
+   *
    * @param x the array
    * @param comparator the comparator
    * @return a new array
@@ -1281,7 +1379,7 @@ public final class Arrays {
 
   /**
    * Sort the vectors along the specified dimensions in its natural order.
-   * 
+   *
    * @param dim the dimension
    * @param x the array
    * @return a new array
@@ -1410,7 +1508,7 @@ public final class Arrays {
 
   /**
    * Sort an array in its natural order.
-   * 
+   *
    * @param array the array
    * @param <T> the element type
    * @return a new array
@@ -1421,7 +1519,7 @@ public final class Arrays {
 
   /**
    * Sort the array using the given index comparator.
-   * 
+   *
    * @param x the array
    * @param cmp the index comparator
    * @param <S> the array type
@@ -1446,7 +1544,7 @@ public final class Arrays {
 
   /**
    * Sort each vector along the specified dimension according to the given index comparator.
-   * 
+   *
    * @param dim the dimension
    * @param x the array
    * @param cmp the index comparator
@@ -1466,7 +1564,7 @@ public final class Arrays {
 
   /**
    * Sort the array according to the given comparator.
-   * 
+   *
    * @param array the array
    * @param comparator the comparator
    * @param <T> the element type

@@ -37,6 +37,30 @@ import org.junit.Test;
 public class ArraysTest {
 
   @Test
+  public void testBroadcast() throws Exception {
+    // IntArray a = Range.of(3 * 2).reshape(3, 2);
+    // System.out.println(a);
+    // System.out.println(Arrays.broadcast(a, new int[] {6, 3, 2}));
+    //
+    // IntArray b = IntArray.zeros(3, 2, 2);
+    // b.select(0).assign(0);
+    // b.select(1).assign(1);
+    // b.select(2).assign(2);
+    //
+    // IntArray x = Range.of(3 * 3 * 3).reshape(3, 3, 3);
+    // System.out.println(x.slice(b,
+    // Arrays.broadcast(IntArray.of(0, 1, 0, 1).reshape(2, 2), new int[] {3, 2, 2})));
+    IntArray x = IntArray.of(0, 1, 2).reshape(1, 3, 1);
+    IntArray y = IntArray.of(0, 1, 2).reshape(3, 1, 1);
+
+    System.out.println(y);
+     System.out.println(Arrays.broadcastTo(y, 3, 3,3));
+    //
+//    System.out.println(Arrays.broadcastArrays(java.util.Arrays.asList(x, y)));
+
+  }
+
+  @Test
   public void testVsplit2d() throws Exception {
     int m = 6;
     int n = 3;

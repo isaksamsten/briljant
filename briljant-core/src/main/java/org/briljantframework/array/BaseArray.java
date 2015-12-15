@@ -553,30 +553,13 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
   S select(int dimension, int index);
 
   /**
-   * For {@code index.length < dims()}, select a slice corresponding to the given indicies.
-   * 
-   * @param index the index
-   * @return a slice
-   */
-  S getSlice(int... index);
-
-  /**
-   * For {@code index.length < dims()}, assign the given slice to the slice defined by the given
-   * indicies.
-   * 
-   * @param index the index
-   * @param slice the slice
-   */
-  void setSlice(int[] index, S slice);
-
-  /**
    * Integer based slicing.
    * 
    * @param indexers the indexers
    * @return a new array
-   * @see #select(List)
+   * @see #slice(List)
    */
-  S select(IntArray... indexers);
+  S slice(IntArray... indexers);
 
   /**
    * Integer-based slicing, as opposed to basic slicing, returns a copy of the array. Complex
@@ -652,7 +635,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * @param indexers a list of indexes to include
    * @return a new array
    */
-  S select(List<? extends IntArray> indexers);
+  S slice(List<? extends IntArray> indexers);
 
   /**
    * Selects the values in the array for which the boolean array is true

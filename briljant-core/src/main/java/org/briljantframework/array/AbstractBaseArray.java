@@ -216,26 +216,12 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   }
 
   @Override
-  public E getSlice(int... index) {
-    E s = select(index[0]);
-    for (int i = 1; i < index.length; i++) {
-      s = s.select(index[i]);
-    }
-    return s;
+  public E slice(IntArray... indexers) {
+    return slice(Arrays.asList(indexers));
   }
 
   @Override
-  public void setSlice(int[] index, E slice) {
-    getSlice(index).assign(slice);
-  }
-
-  @Override
-  public E select(IntArray... indexers) {
-    return select(Arrays.asList(indexers));
-  }
-
-  @Override
-  public E select(List<? extends IntArray> indexers) {
+  public E slice(List<? extends IntArray> indexers) {
     Check.argument(indexers.size() <= dims(), "too many indicies for array");
     Check.argument(indexers.size() > 0, "too few indices for array");
     int dims = indexers.stream().mapToInt(IntArray::dims).max().getAsInt();
