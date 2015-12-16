@@ -92,11 +92,6 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public int compare(int a, int b) {
-    return Integer.compare(get(a), get(b));
-  }
-
-  @Override
   public IntArray slice(BooleanArray indicator) {
     Check.dimension(this, indicator);
     IntList list = new IntList();

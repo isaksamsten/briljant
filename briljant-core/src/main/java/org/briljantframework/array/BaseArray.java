@@ -148,19 +148,6 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
   void set(int[] toIndex, S from, int[] fromIndex);
 
   /**
-   * Compares the values at index {@code a} and {@code b} in ascending order, i.e. if the value at
-   * index {@code a} is smaller than the value at {@code b}, a value smaller than {@code 0} is
-   * returned, if the values are equal {@code 0} is returned and if {@code b} is larger that
-   * {@code a} a value larger than {@code 0} is returned.
-   *
-   * @param a the index of the first value
-   * @param b the index of the second value
-   * @return an indicator whether the value at {@code a} is smaller, larger or equal to {@code b}
-   */
-  @Deprecated
-  int compare(int a, int b);
-
-  /**
    * Reverses each dimension of the array.
    * 
    * @return a new array

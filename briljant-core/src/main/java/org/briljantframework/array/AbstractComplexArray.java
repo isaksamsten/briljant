@@ -596,11 +596,6 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public int compare(int a, int b) {
-    return Double.compare(get(a).abs(), get(b).abs());
-  }
-
-  @Override
   public ComplexArray slice(BooleanArray indicator) {
     Check.dimension(this, indicator);
     IncrementalBuilder builder = new IncrementalBuilder();

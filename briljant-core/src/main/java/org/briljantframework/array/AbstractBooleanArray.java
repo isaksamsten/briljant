@@ -81,11 +81,6 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
   }
 
   @Override
-  public int compare(int a, int b) {
-    return Boolean.compare(get(a), get(b));
-  }
-
-  @Override
   public BooleanArray slice(BooleanArray indicator) {
     Check.dimension(this, indicator);
     IncrementalBuilder builder = new IncrementalBuilder();

@@ -91,11 +91,6 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public int compare(int a, int b) {
-    return Double.compare(get(a), get(b));
-  }
-
-  @Override
   public DoubleArray slice(BooleanArray indicator) {
     Check.dimension(this, indicator);
     IncrementalBuilder builder = new IncrementalBuilder();

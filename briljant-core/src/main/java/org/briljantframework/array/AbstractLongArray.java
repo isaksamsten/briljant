@@ -95,11 +95,6 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public int compare(int a, int b) {
-    return Long.compare(get(a), get(b));
-  }
-
-  @Override
   public LongArray slice(BooleanArray indicator) {
     Check.dimension(this, indicator);
     IncrementalBuilder builder = new IncrementalBuilder();
