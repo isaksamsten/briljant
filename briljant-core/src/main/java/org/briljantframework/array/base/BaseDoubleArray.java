@@ -61,11 +61,11 @@ class BaseDoubleArray extends AbstractDoubleArray {
   }
 
   @Override
-  public void sort(DoubleComparator comparator) {
+  public void sort(DoubleComparator cmp) {
     if (!isView() && isVector() && stride(0) == 1) {
-      Primitive.sort(data(), comparator);
+      Primitive.sort(data(), getOffset(), size(), cmp);
     } else {
-      super.sort(comparator);
+      super.sort(cmp);
     }
   }
 

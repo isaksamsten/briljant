@@ -52,11 +52,11 @@ class BaseLongArray extends AbstractLongArray {
   }
 
   @Override
-  public void sort(LongComparator comparator) {
+  public void sort(LongComparator cmp) {
     if (!isView() && isVector() && stride(0) == 1) {
-      Primitive.sort(data(), 0, size(), comparator);
+      Primitive.sort(data(), getOffset(), size(), cmp);
     } else {
-      super.sort(comparator);
+      super.sort(cmp);
     }
   }
 

@@ -448,11 +448,6 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public final int get(int index) {
-    return getElement(StrideUtils.index(index, getOffset(), stride, shape));
-  }
-
-  @Override
   public final void set(int index, int value) {
     setElement(StrideUtils.index(index, getOffset(), stride, shape), value);
   }
@@ -477,6 +472,11 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   public final int get(int... ix) {
     Check.argument(ix.length == dims());
     return getElement(StrideUtils.index(ix, getOffset(), stride));
+  }
+
+  @Override
+  public final int get(int index) {
+    return getElement(StrideUtils.index(index, getOffset(), stride, shape));
   }
 
   @Override
@@ -548,7 +548,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void sort(IntComparator cmp) {
-    QuickSort.quickSort(0, size(), cmp::compare, this);
+    QuickSort.quickSort(0, size(), (left, right) -> cmp.compare(get(left), get(right)), this);
   }
 
   @Override
@@ -719,9 +719,9 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
     return n;
   }
 
-  protected abstract void setElement(int i, int value);
-
   protected abstract int getElement(int i);
+
+  protected abstract void setElement(int i, int value);
 
   @Override
   public int hashCode() {

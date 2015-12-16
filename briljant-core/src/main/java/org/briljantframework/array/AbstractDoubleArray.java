@@ -117,13 +117,13 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
     return new AsIntArray(getArrayFactory(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
-      protected void setElement(int index, int value) {
-        AbstractDoubleArray.this.setElement(index, value);
+      protected int getElement(int index) {
+        return (int) AbstractDoubleArray.this.getElement(index);
       }
 
       @Override
-      protected int getElement(int index) {
-        return (int) AbstractDoubleArray.this.getElement(index);
+      protected void setElement(int index, int value) {
+        AbstractDoubleArray.this.setElement(index, value);
       }
 
       @Override
@@ -508,8 +508,8 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public void sort(DoubleComparator comparator) {
-    QuickSort.quickSort(0, size(), comparator::compare, this);
+  public void sort(DoubleComparator cmp) {
+    QuickSort.quickSort(0, size(), (left, right) -> cmp.compare(get(left), get(right)), this);
   }
 
   @Override

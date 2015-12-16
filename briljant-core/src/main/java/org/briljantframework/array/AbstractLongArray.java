@@ -142,13 +142,13 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
       }
 
       @Override
-      public void setElement(int index, int value) {
-        AbstractLongArray.this.setElement(index, value);
+      public int getElement(int index) {
+        return (int) AbstractLongArray.this.getElement(index);
       }
 
       @Override
-      public int getElement(int index) {
-        return (int) AbstractLongArray.this.getElement(index);
+      public void setElement(int index, int value) {
+        AbstractLongArray.this.setElement(index, value);
       }
 
       @Override
@@ -481,8 +481,8 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public void sort(LongComparator comparator) {
-    QuickSort.quickSort(0, size(), comparator::compare, this);
+  public void sort(LongComparator cmp) {
+    QuickSort.quickSort(0, size(), (left, right) -> cmp.compare(get(left), get(right)), this);
   }
 
   @Override

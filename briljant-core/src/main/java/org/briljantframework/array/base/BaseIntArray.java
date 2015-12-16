@@ -57,7 +57,7 @@ class BaseIntArray extends AbstractIntArray {
   @Override
   public void sort(IntComparator cmp) {
     if (!isView() && isVector() && stride(0) == 1) {
-      Primitive.sort(data(), 0, size(), cmp);
+      Primitive.sort(data(), getOffset(), size(), cmp);
     } else {
       super.sort(cmp);
     }

@@ -212,6 +212,25 @@ public class ArraysTest {
   }
 
   @Test
+  public void testSort_DoubleArray() throws Exception {
+    DoubleArray x = DoubleArray.of(3, 2, 5, 1, 9, 3);
+    assertEquals(DoubleArray.of(1, 2, 3, 3, 5, 9), Arrays.sort(x));
+  }
+
+  @Test
+  public void testSort_DoubleArray_2d() throws Exception {
+    DoubleArray x = DoubleArray.of(3, 2, 1, 9, 8, 10, 12, 3, 1).reshape(3, 3);
+    DoubleArray sort = Arrays.sort(0, x);
+    assertEquals(DoubleArray.of(1, 2, 3, 8, 9, 10, 1, 3, 12).reshape(3, 3), sort);
+  }
+
+  @Test
+  public void testSort_IntArray() throws Exception {
+    IntArray x = IntArray.of(3, 2, 5, 1, 9, 3);
+    assertEquals(IntArray.of(1, 2, 3, 3, 5, 9), Arrays.sort(x));
+  }
+
+  @Test
   public void testOrder() throws Exception {
     DoubleArray array = DoubleArray.of(2, 3, 1, 9, 1);
     assertEquals(IntArray.of(2, 4, 0, 1, 3), Arrays.order(array));
