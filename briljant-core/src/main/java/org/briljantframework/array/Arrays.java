@@ -1212,7 +1212,19 @@ public final class Arrays {
     }
   }
 
+  /**
+   * Broadcast the given arrays against each other
+   * 
+   * @param arrays the arrays to broadcast
+   * @param <E> the array type
+   * @return a list of broadcasted arrays
+   */
   public static <E extends BaseArray<E>> List<E> broadcastArrays(List<E> arrays) {
+    Check.argument(!arrays.isEmpty(), "no arrays given");
+    if (arrays.size() == 1) {
+      return new ArrayList<>(arrays);
+    }
+
     int[] shape = arrays.get(0).getShape();
     for (int i = 1; i < arrays.size(); i++) {
       shape = broadcast(arrays.get(i), shape);
@@ -1223,7 +1235,8 @@ public final class Arrays {
       public E get(int index) {
         E x = arrays.get(index);
         E to = x.newEmptyArray(finalShape);
-        copyBroadcast(x, to);
+        // TODO: 16/12/15 return a view with the specified shape instead
+        recursiveFillBroadcast(x, to);
         return to;
       }
 
@@ -1234,60 +1247,129 @@ public final class Arrays {
     };
   }
 
-  private static <E extends BaseArray<E>> void copyBroadcast(E from, E to) {
-    // Row-vectors is a special case
-    if (from.size(to.dims() - from.dims() + 1) == 1) {
-      int inDim = to.dims() - from.dims();
-      for (int i = 0; i < to.vectors(inDim); i++) {
-        int idx = 0;
-        E t = to.getVector(inDim, i);
-        for (int j = 0; j < t.size(); j++) {
-          t.set(j, from, idx);
-          idx++;
+  /*
+   * Recursively fill the to array with the contents of from given the broadcasting rules.
+   */
+  private static <E extends BaseArray<E>> void recursiveFillBroadcast(E from, E to) {
+    if (from.dims() == to.dims() && from.dims() != 1) {
+      int repeat = to.size(0) / from.size(0);
+      int index = 0;
+      for (int i = 0; i < from.size(0); i++) {
+        E fromSlice = from.select(i);
+        for (int j = 0; j < repeat; j++) {
+          recursiveFillBroadcast(fromSlice, to.select(index++));
+        }
+      }
+    } else if (from.dims() == 1 && to.dims() == 1) {
+      int repeat = to.size() / from.size();
+      int index = 0;
+      for (int i = 0; i < from.size(); i++) {
+        for (int j = 0; j < repeat; j++) {
+          to.set(index++, from, i);
         }
       }
     } else {
-      int repeat = to.size() / from.size();
-      int idx = 0;
       for (int i = 0; i < to.size(0); i++) {
-        for (int j = 0; j < repeat; j++) {
-          to.set(idx++, from, i);
-        }
+        recursiveFillBroadcast(from, to.select(i));
       }
     }
+
   }
 
+  /**
+   * Return the shape of the given array brodcasted to the specified shape.
+   * 
+   * @param x the array
+   * @param shape the broadcast shape
+   * @return the shapw of the new broadcast array
+   */
   public static int[] broadcast(BaseArray<?> x, int[] shape) {
     int[] newShape = new int[shape.length];
     for (int i = 0; i < newShape.length; i++) {
+      int index = newShape.length - 1 - i;
+      int dim = x.dims() - 1 - i;
+      int broadcastShape = shape[index];
       if (x.dims() == 1) {
         if (i == 0) {
           if (i < x.dims()) {
-            newShape[i] = Math.max(1, shape[i]);
+            newShape[index] = Math.max(1, broadcastShape);
           } else {
-            newShape[i] = shape[i];
+            newShape[index] = broadcastShape;
           }
         } else {
           if (i < x.dims()) {
-            newShape[i] = Math.max(x.size(i), shape[i]);
+            newShape[index] = Math.max(x.size(dim), broadcastShape);
           } else {
-            newShape[i] = shape[i];
+            newShape[index] = broadcastShape;
           }
         }
       } else {
         if (i < x.dims()) {
-          newShape[i] = Math.max(shape[i], x.size(i));
+          newShape[index] = Math.max(broadcastShape, x.size(dim));
         } else {
-          newShape[i] = shape[i];
+          newShape[index] = broadcastShape;
         }
       }
     }
     return newShape;
   }
 
+  /**
+   * Broadcast the array to the specified shape.
+   *
+   * <p/>
+   * An array can be broadcast to a specified shape, given that we start by comparing the shapes
+   * element-wise starting with the trailing dimension, if the dimensions are compatible. Two
+   * dimensions are compatible if:
+   * <ul>
+   * <li>they are equal</li>
+   * <li>one of them is equal to {@code 1}</li>
+   * </ul>
+   * 
+   * Example:
+   * <p/>
+   * Given the 1d-array:
+   * 
+   * <pre>
+   * IntArray a = IntArray.of(0, 1, 2);
+   * </pre>
+   * 
+   * broadcasting it to a {@code 4 x 3} 2d-array
+   * 
+   * <pre>
+   * Arrays.broadcastTo(a, 4, 3);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
+   * array([[0, 1, 2],
+   *        [0, 1, 2],
+   *        [0, 1, 2],
+   *        [0, 1, 2]])
+   * </pre>
+   *
+   * Reshaping {@code a} to a {@code 3 x 1} 2d-array and broadcast to a {@code 3 x 6} array
+   * 
+   * <pre>
+   * Arrays.broadcastTo(a.reshape(3, 1), 3, 6);
+   * </pre>
+   * 
+   * produces,
+   * 
+   * <pre>
+   * array([[0, 0, 0, 0, 0, 0],
+   *        [1, 1, 1, 1, 1, 1], 
+   *        [2, 2, 2, 2, 2, 2]])
+   * </pre>
+   *
+   * @param x the array
+   * @param shape the new shape
+   * @param <E> the array type
+   * @return a new array
+   */
   public static <E extends BaseArray<E>> E broadcastTo(E x, int... shape) {
     Check.argument(shape.length > 0 && x.dims() <= shape.length, "to few new dimensions");
-//    Check.argument(, "to few new dimensions");
     if (java.util.Arrays.equals(x.getShape(), shape)) {
       return x.asView(x.getShape(), x.getStride());
     }
@@ -1306,8 +1388,9 @@ public final class Arrays {
     }
 
     int[] newShape = broadcast(x, shape);
+    // TODO: 16/12/15 we should instead return a view
     E to = x.newEmptyArray(newShape);
-    copyBroadcast(x, to);
+    recursiveFillBroadcast(x, to);
     return to;
   }
 

@@ -93,7 +93,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     this.shape = shape.clone();
     this.stride = Indexer.computeStride(1, shape);
     this.size = Indexer.size(shape);
-    offset = 0;
+    this.offset = 0;
     this.majorStride = 0;
   }
 
@@ -117,6 +117,10 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     this.size = Indexer.size(shape);
     this.offset = offset;
     this.majorStride = majorStride;
+  }
+
+  protected final ArrayFactory getArrayFactory() {
+    return factory;
   }
 
   @Override
@@ -431,8 +435,8 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   }
 
   /**
-   * Recursively select the correct from slices and assign them to the correct to slices using
-   * the indexers, reduced to
+   * Recursively select the correct from slices and assign them to the correct to slices using the
+   * indexers, reduced to
    */
   private void recursiveSelect2(E to, E from, IntArray[] indexers) {
     IntArray indexer = indexers[0];
@@ -470,10 +474,6 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   private void validIndexInDim(E from, int dim, int fromIndex) {
     Check.argument(fromIndex >= 0 && fromIndex < from.size(), ILLEGAL_DIMENSION_INDEX, fromIndex,
         dim, from.size(0));
-  }
-
-  protected final ArrayFactory getArrayFactory() {
-    return factory;
   }
 
   /**
