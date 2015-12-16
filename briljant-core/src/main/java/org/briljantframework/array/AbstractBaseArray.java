@@ -142,7 +142,6 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   @Override
   public void assign(E o) {
     Check.argument(ShapeUtils.isBroadcastCompatible(o.getShape(), getShape()), "Can't broadcast.");
-    o = org.briljantframework.array.Arrays.broadcastTo(o, getShape());
     for (int i = 0; i < o.size(); i++) {
       set(i, o, i);
     }
@@ -222,12 +221,12 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   }
 
   @Override
-  public E slice(IntArray... indexers) {
-    return slice(Arrays.asList(indexers));
+  public E getSlice(IntArray... indexers) {
+    return getSlice(Arrays.asList(indexers));
   }
 
   @Override
-  public E slice(List<? extends IntArray> indexers) {
+  public E getSlice(List<? extends IntArray> indexers) {
     Check.argument(indexers.size() <= dims(), "too many indicies for array");
     Check.argument(indexers.size() > 0, "too few indices for array");
     int dims = indexers.stream().mapToInt(IntArray::dims).max().getAsInt();
@@ -245,8 +244,28 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     E to = newEmptyArray(shape);
     E from = asView(getOffset(), getShape(), getStride());
     IntArray[] i = indexers.toArray(new IntArray[indexers.size()]);
-    recursiveSelect(to, from, i, indexers.get(0).dims());
+    recursiveGetSlice(to, from, i, indexers.get(0).dims());
     return to;
+  }
+
+  @Override
+  public void setSlice(List<? extends IntArray> indexers, E slice) {
+    Check.argument(indexers.size() <= dims(), "too many indicies for array");
+    Check.argument(indexers.size() > 0, "too few indices for array");
+    int dims = indexers.stream().mapToInt(IntArray::dims).max().getAsInt();
+    Check.all(indexers).argument(i -> i.dims() == dims);
+
+    int[] shape = new int[dims + dims() - indexers.size()];
+    for (int i = 0; i < shape.length; i++) {
+      if (i < dims) {
+        shape[i] = indexers.get(0).size(i);
+      } else {
+        shape[i] = size(i - dims);
+      }
+    }
+    E from = org.briljantframework.array.Arrays.broadcastTo(slice, shape);
+    IntArray[] i = indexers.toArray(new IntArray[indexers.size()]);
+    recursiveSetSlice(asView(getShape(), getStride()), from, i, 1);
   }
 
   @Override
@@ -419,19 +438,66 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     }
   }
 
-  /**
-   * Recursively select the appropriate indexers and slices in the to array
-   */
-  private void recursiveSelect(E to, E from, IntArray[] indexers, int dims) {
+  private void recursiveSetSlice(E to, E from, IntArray[] indexers, int dims) {
     if (dims == 1) {
-      recursiveSelect2(to, from, indexers);
+      recursiveSetSlice2(to, from, indexers);
     } else {
       IntArray[] newIndexers = new IntArray[indexers.length];
       for (int j = 0; j < indexers[0].size(0); j++) {
         for (int i = 0; i < indexers.length; i++) {
           newIndexers[i] = indexers[i].select(j);
         }
-        recursiveSelect(to.select(j), from, newIndexers, dims - 1);
+        recursiveSetSlice(to.select(j), from, newIndexers, dims - 1);
+      }
+    }
+  }
+
+  private void recursiveSetSlice2(E to, E from, IntArray[] indexers) {
+    IntArray indexer = indexers[0];
+    if (indexers.length == 1) {
+      if (to.isVector()) {
+        for (int i = 0; i < indexer.size(); i++) {
+          to.set(indexer.get(i), from, i);
+        }
+      } else {
+        for (int i = 0; i < indexer.size(); i++) {
+          to.select(indexer.get(i)).assign(from.select(i));
+        }
+      }
+    } else {
+      for (int i = 0; i < indexer.size(); i++) {
+        int fromIndex = indexer.get(i);
+        recursiveSetSlice3(to.select(fromIndex), from, indexers, i, 1);
+      }
+    }
+  }
+
+  private void recursiveSetSlice3(E to, E from, IntArray[] indexers, int j, int dim) {
+    int toIndex = indexers[dim].get(j);
+    if (indexers.length - 1 == dim) {
+      if (to.isVector()) {
+        to.set(toIndex, from, j);
+      } else {
+        to.select(toIndex).assign(from.select(j));
+      }
+    } else {
+      recursiveSetSlice3(to.select(toIndex), from, indexers, j, dim + 1);
+    }
+  }
+
+  /**
+   * Recursively select the appropriate indexers and slices in the to array
+   */
+  private void recursiveGetSlice(E to, E from, IntArray[] indexers, int dims) {
+    if (dims == 1) {
+      recursiveGetSlice2(to, from, indexers);
+    } else {
+      IntArray[] newIndexers = new IntArray[indexers.length];
+      for (int j = 0; j < indexers[0].size(0); j++) {
+        for (int i = 0; i < indexers.length; i++) {
+          newIndexers[i] = indexers[i].select(j);
+        }
+        recursiveGetSlice(to.select(j), from, newIndexers, dims - 1);
       }
     }
   }
@@ -440,7 +506,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
    * Recursively select the correct from slices and assign them to the correct to slices using the
    * indexers, reduced to
    */
-  private void recursiveSelect2(E to, E from, IntArray[] indexers) {
+  private void recursiveGetSlice2(E to, E from, IntArray[] indexers) {
     IntArray indexer = indexers[0];
     if (indexers.length == 1) {
       if (to.isVector()) {
@@ -455,12 +521,12 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     } else {
       for (int i = 0; i < indexer.size(); i++) {
         int fromIndex = indexer.get(i);
-        recursiveSelect3(to, from.select(fromIndex), indexers, i, 1);
+        recursiveGetSlice3(to, from.select(fromIndex), indexers, i, 1);
       }
     }
   }
 
-  private void recursiveSelect3(E to, E from, IntArray[] indexers, int j, int dim) {
+  private void recursiveGetSlice3(E to, E from, IntArray[] indexers, int j, int dim) {
     int fromIndex = indexers[dim].get(j);
     if (indexers.length - 1 == dim) {
       if (to.isVector()) {
@@ -469,7 +535,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
         to.select(j).assign(from.select(fromIndex));
       }
     } else {
-      recursiveSelect3(to, from.select(fromIndex), indexers, j, dim + 1);
+      recursiveGetSlice3(to, from.select(fromIndex), indexers, j, dim + 1);
     }
   }
 

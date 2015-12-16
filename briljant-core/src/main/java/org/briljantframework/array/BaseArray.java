@@ -552,9 +552,9 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * 
    * @param indexers the indexers
    * @return a new array
-   * @see #slice(List)
+   * @see #getSlice(List)
    */
-  S slice(IntArray... indexers);
+  S getSlice(IntArray... indexers);
 
   /**
    * Integer-based slicing, as opposed to basic slicing, returns a copy of the array. Complex
@@ -626,11 +626,34 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * <pre>
    * array([13, 13])
    * </pre>
+   * 
+   * Note that the returned slice is a new array (i.e., changes are not visible in the original
+   * array)
    *
    * @param indexers a list of indexes to include
    * @return a new array
    */
-  S slice(List<? extends IntArray> indexers);
+  S getSlice(List<? extends IntArray> indexers);
+
+  /**
+   * Set the slice denoted by the indexer to to given slice.
+   * 
+   * @param indexers the indexers
+   * @param slice the slice
+   * @see #setSlice(List, BaseArray)
+   */
+  default void setSlice(IntArray[] indexers, S slice) {
+    setSlice(java.util.Arrays.asList(indexers), slice);
+  }
+
+  /**
+   * Set the slice denoted by the indexer to the given slice.
+   * 
+   * @param indexers the indexer
+   * @param slice the slice
+   * @see #getSlice(List)
+   */
+  void setSlice(List<? extends IntArray> indexers, S slice);
 
   /**
    * Gets the {@code i:th} vector along the {@code d:th} dimension. For 2d-arrays,

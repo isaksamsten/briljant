@@ -29,7 +29,6 @@ import org.briljantframework.array.Arrays;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
-import org.briljantframework.array.Range;
 import org.junit.Test;
 
 /**
@@ -60,7 +59,7 @@ public class ArraysTest {
 
   @Test
   public void testBroadcast() throws Exception {
-    IntArray a = Range.of(3).reshape(3, 1);
+    IntArray a = IntArray.of(10032).reshape(1);
     System.out.println(Arrays.broadcastTo(a, 3,3,3));
 //
 //    a = Range.of(3*3).reshape(3,3, 1);

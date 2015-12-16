@@ -1212,23 +1212,51 @@ public final class Arrays {
     }
   }
 
+  // TODO: 16/12/15 improve to allow one to place a new dim anywhere not only at the end.
+  public static <E extends BaseArray<E>> E newdim(E array, int dim) {
+    int[] shape = new int[array.dims() + dim];
+    for (int i = 0; i < shape.length; i++) {
+      if (i < array.dims()) {
+        shape[i] = array.size(i);
+      } else {
+        shape[i] = 1;
+      }
+    }
+
+    return array.reshape(shape);
+  }
+
   /**
    * Broadcast the given arrays against each other
-   * 
+   *
    * @param arrays the arrays to broadcast
    * @param <E> the array type
    * @return a list of broadcasted arrays
    */
-  public static <E extends BaseArray<E>> List<E> broadcastArrays(List<E> arrays) {
+  public static <E extends BaseArray<E>> List<E> broadcastArrays(List<? extends E> arrays) {
     Check.argument(!arrays.isEmpty(), "no arrays given");
     if (arrays.size() == 1) {
       return new ArrayList<>(arrays);
     }
-
-    int[] shape = arrays.get(0).getShape();
-    for (int i = 1; i < arrays.size(); i++) {
-      shape = broadcast(arrays.get(i), shape);
+    int dims = arrays.stream().mapToInt(BaseArray::dims).max().getAsInt();
+    int[] shape = new int[dims];
+    java.util.Arrays.fill(shape, 1);
+    for (E array : arrays) {
+      for (int i = 0; i < shape.length; i++) {
+        int shapeIndex = shape.length - 1 - i;
+        int arrayIndex = array.dims() - 1 - i;
+        if (i < array.dims()) {
+          if (shape[shapeIndex] != array.size(arrayIndex)
+              && (shape[shapeIndex] != 1 && array.size(arrayIndex) != 1)) {
+            throw new IllegalArgumentException("arrays cannot be broadcast to the same shape");
+          }
+          shape[(shapeIndex)] = Math.max(shape[shapeIndex], array.size(arrayIndex));
+        } else {
+          shape[(shapeIndex)] = Math.max(shape[shapeIndex], 1);
+        }
+      }
     }
+    System.out.println(java.util.Arrays.toString(shape));
     final int[] finalShape = shape;
     return new AbstractList<E>() {
       @Override
@@ -1278,7 +1306,7 @@ public final class Arrays {
 
   /**
    * Return the shape of the given array brodcasted to the specified shape.
-   * 
+   *
    * @param x the array
    * @param shape the broadcast shape
    * @return the shapw of the new broadcast array
@@ -1318,23 +1346,23 @@ public final class Arrays {
    * Broadcast the array to the specified shape. The array must be
    * {@linkplain ShapeUtils#isBroadcastCompatible(int[], int[]) broadcast compatible} with the given
    * shape.
-   * 
+   *
    * Example:
    * <p/>
    * Given the 1d-array:
-   * 
+   *
    * <pre>
    * IntArray a = IntArray.of(0, 1, 2);
    * </pre>
-   * 
+   *
    * broadcasting it to a {@code 4 x 3} 2d-array
-   * 
+   *
    * <pre>
    * Arrays.broadcastTo(a, 4, 3);
    * </pre>
-   * 
+   *
    * produces
-   * 
+   *
    * <pre>
    * array([[0, 1, 2],
    *        [0, 1, 2],
@@ -1343,13 +1371,13 @@ public final class Arrays {
    * </pre>
    *
    * Reshaping {@code a} to a {@code 3 x 1} 2d-array and broadcast to a {@code 3 x 6} array
-   * 
+   *
    * <pre>
    * Arrays.broadcastTo(a.reshape(3, 1), 3, 6);
    * </pre>
-   * 
+   *
    * produces,
-   * 
+   *
    * <pre>
    * array([[0, 0, 0, 0, 0, 0],
    *        [1, 1, 1, 1, 1, 1], 

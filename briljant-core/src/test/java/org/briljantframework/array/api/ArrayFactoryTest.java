@@ -1,7 +1,10 @@
 package org.briljantframework.array.api;
 
 import static org.briljantframework.array.ArraySelector.ALL;
+import static org.briljantframework.array.Arrays.broadcastArrays;
 import static org.junit.Assert.assertEquals;
+
+import java.util.Arrays;
 
 import org.briljantframework.array.Array;
 import org.briljantframework.array.DoubleArray;
@@ -65,26 +68,56 @@ public abstract class ArrayFactoryTest {
   }
 
   @Test
+  public void testBroadCastIgen() throws Exception {
+    IntArray i = Range.of(3).reshape(3, 1).copy();
+    System.out.println(broadcastArrays(Arrays.asList(i, i.transpose(), Range.of(4))));
+
+  }
+
+  @Test
   public void testDoubleArraySelect_IntIndexer() throws Exception {
-    IntArray a = getFactory().range(3 * 3 * 3).reshape(3, 3, 3);
+    IntArray a = getFactory().range(4 * 3).reshape(4, 3).copy();
+    IntArray rows = IntArray.of(0, 3).reshape(2, 1);
+    IntArray columns = IntArray.of(0, 2).reshape(2, 1);
+    System.out.println(a.getSlice(rows, columns));
+
+    System.out.println(broadcastArrays(Arrays.asList(rows, columns)));
+
+
     // System.out.println(a.select(IntArray.of(0, 1, 0), IntArray.of(1, 1, 1)));
 
     // System.out.println(a.reshape(3, 3, 3).select(IntArray.of(0, 1), IntArray.of(0, 0)));
     //
     // System.out.println(a.reshape(3, 3, 3).select(IntArray.of(0, 1), IntArray.of(0, 0),
     // IntArray.of(0, 0)));
+    // IntArray b = getFactory().range(6 * 6).reshape(6, 6).copy();
+    // b.setSlice(new IntArray[] {IntArray.of(5, 4, 1)}, IntArray.of(1, 2, 3, 4, 5, 6));
+    // System.out.println(b);
 
+    // System.out.println(org.briljantframework.array.Arrays.broadcastTo(Range.of(3), 3, 3,3));
 
-    IntArray i = Range.of(2).reshape(2, 1).copy();
+    // IntArray r = Range.of(3).reshape(3,1);
+    // System.out.println(org.briljantframework.array.Arrays.repeat(r, 2));
+    //
+    // IntArray i = Range.of(2).reshape(2, 1).copy();
+    // System.out.println(i);
     // for (int j = 0; j < i.size(0); j++) {
     // i.select(j).assign(j == 0 ? 2 : 1);
     // }
     // System.out.println(i);
 
-    IntArray i2 = i.copy();
-    i2.assign(0);
-
-    IntArray b = a.reshape(3, 3, 3).slice(i, i, i);
-    System.out.println(b);
+    // IntArray i2 = i.copy();
+    // i2.assign(0);
+    // System.out.println(a);
+    // IntArray rows = IntArray.of(0, 1, 2, 0, 1, 2).reshape(3, 2, 1);
+    // i = org.briljantframework.array.Arrays.broadcastTo(i, rows.getShape());
+    // System.out.println(i);
+    // System.out.println(rows);
+    // List<IntArray> index = Arrays.asList(rows, i, i);
+    // System.out.println(a.getSlice(index));
+    // IntArray value = IntArray.of(1000, 1000, 1000, 1000, 1000, 1000).reshape(2, 1, 3);
+    // System.out.println(value);
+    // a.reshape(3, 3, 3).setSlice(index, value);
+    // System.out.println(a);
   }
 }
