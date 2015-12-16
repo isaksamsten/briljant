@@ -633,14 +633,6 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
   S slice(List<? extends IntArray> indexers);
 
   /**
-   * Selects the values in the array for which the boolean array is true
-   * 
-   * @param indicator the indicator array
-   * @return a new 1d-array
-   */
-  S slice(BooleanArray indicator);
-
-  /**
    * Gets the {@code i:th} vector along the {@code d:th} dimension. For 2d-arrays,
    * {@linkplain #getRow(int)} and {@linkplain #getColumn(int)} preserves the 2d-shape of the
    * vectors resulting in row-vectors and column-vectors respectively. This method results in

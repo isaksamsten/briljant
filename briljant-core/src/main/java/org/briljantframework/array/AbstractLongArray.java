@@ -95,18 +95,6 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public LongArray slice(BooleanArray indicator) {
-    Check.dimension(this, indicator);
-    IncrementalBuilder builder = new IncrementalBuilder();
-    for (int i = 0; i < size(); i++) {
-      if (indicator.get(i)) {
-        builder.add(get(i));
-      }
-    }
-    return builder.build();
-  }
-
-  @Override
   public DoubleArray asDouble() {
     return new AsDoubleArray(getArrayFactory(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {

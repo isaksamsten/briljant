@@ -92,18 +92,6 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public IntArray slice(BooleanArray indicator) {
-    Check.dimension(this, indicator);
-    IntList list = new IntList();
-    for (int i = 0; i < size(); i++) {
-      if (indicator.get(i)) {
-        list.add(get(i));
-      }
-    }
-    return factory.newIntVector(Arrays.copyOf(list.elementData, list.size()));
-  }
-
-  @Override
   public DoubleArray asDouble() {
     return new AsDoubleArray(getArrayFactory(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {

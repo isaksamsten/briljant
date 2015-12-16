@@ -80,21 +80,6 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
     set(toIndex, from.get(fromIndex));
   }
 
-  @Override
-  public Array<T> slice(BooleanArray indicator) {
-    Check.size(this, indicator);
-    List<T> newData = new ArrayList<>();
-    for (int i = 0; i < size(); i++) {
-      if (indicator.get(i)) {
-        newData.add(get(i));
-      }
-    }
-
-    @SuppressWarnings("unchecked")
-    T[] arr = (T[]) new Object[newData.size()];
-    return getArrayFactory().newVector(newData.toArray(arr));
-  }
-
   /**
    * @return a view of {@code this} array as a {@linkplain org.briljantframework.array.DoubleArray}
    * @throws java.lang.ClassCastException if {@code T} is not {@linkplain Double}
