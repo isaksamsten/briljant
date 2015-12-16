@@ -141,7 +141,8 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   @Override
   public void assign(E o) {
-    Check.size(this, o);
+    Check.argument(ShapeUtils.isBroadcastCompatible(o.getShape(), getShape()), "Can't broadcast.");
+    o = org.briljantframework.array.Arrays.broadcastTo(o, getShape());
     for (int i = 0; i < o.size(); i++) {
       set(i, o, i);
     }
@@ -216,8 +217,8 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   public E select(int dimension, int index) {
     Check.argument(dimension < dims() && dimension >= 0, "Can't select dimension.");
     Check.argument(index < size(dimension), "Index outside of shape.");
-    return asView(getOffset() + index * stride(dimension), ArrayUtils.remove(getShape(), dimension),
-                  ArrayUtils.remove(getStride(), dimension));
+    return asView(getOffset() + index * stride(dimension),
+        ArrayUtils.remove(getShape(), dimension), ArrayUtils.remove(getStride(), dimension));
   }
 
   @Override
@@ -399,7 +400,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   @Override
   public boolean isView() {
     return !(majorStride == 0 && offset == 0 && Arrays.equals(stride,
-                                                              StrideUtils.computeStride(1, shape)));
+        StrideUtils.computeStride(1, shape)));
   }
 
   @Override

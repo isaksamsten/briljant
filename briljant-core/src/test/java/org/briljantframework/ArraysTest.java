@@ -29,6 +29,7 @@ import org.briljantframework.array.Arrays;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
+import org.briljantframework.array.Range;
 import org.junit.Test;
 
 /**
@@ -59,8 +60,8 @@ public class ArraysTest {
 
   @Test
   public void testBroadcast() throws Exception {
-//    IntArray a = Range.of(3).reshape(3, 1);
-//    System.out.println(Arrays.broadcastTo(a, 3,6));
+    IntArray a = Range.of(3).reshape(3, 1);
+    System.out.println(Arrays.broadcastTo(a, 3,3,3));
 //
 //    a = Range.of(3*3).reshape(3,3, 1);
 //    System.out.println(Arrays.broadcastTo(a, 1,1, 3, 3, 6));
@@ -81,13 +82,13 @@ public class ArraysTest {
     // IntArray x = Range.of(3 * 3 * 3).reshape(3, 3, 3);
     // System.out.println(x.slice(b,
     // Arrays.broadcast(IntArray.of(0, 1, 0, 1).reshape(2, 2), new int[] {3, 2, 2})));
-    IntArray x = IntArray.of(0, 1, 2).reshape(1, 3, 1);
-    IntArray y = IntArray.of(0, 1, 2).reshape(3, 1, 1);
+//    IntArray x = IntArray.of(0, 1, 2).reshape(1, 3, 1);
+//    IntArray y = IntArray.of(0, 1, 2).reshape(3, 1, 1);
 //
 //    System.out.println(y);
 //    System.out.println(Arrays.broadcastTo(y, 3, 3, 3));
 
-    System.out.println(Arrays.broadcastArrays(java.util.Arrays.asList(x, y)));
+//    System.out.println(Arrays.broadcastArrays(java.util.Arrays.asList(x, y)));
 
   }
 

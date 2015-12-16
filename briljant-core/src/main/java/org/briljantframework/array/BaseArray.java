@@ -160,6 +160,11 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
   @Deprecated
   int compare(int a, int b);
 
+  /**
+   * Reverses each dimension of the array.
+   * 
+   * @return a new array
+   */
   S reverse();
 
   /**
@@ -179,6 +184,9 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * array([1.000, 2.000, 3.000, 4.000])
    * </pre>
    *
+   * The given array will be {@link Arrays#broadcastTo(BaseArray, int...) broadcast} to the this
+   * shape.
+   * 
    * @param o the matrix
    */
   void assign(S o);
