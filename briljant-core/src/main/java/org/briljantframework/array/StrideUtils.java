@@ -21,18 +21,14 @@
 package org.briljantframework.array;
 
 
-import java.util.AbstractList;
-import java.util.List;
-import java.util.Objects;
-
 /**
  * Provide utilities for handling strided arrays.
  * 
  * @author Isak Karlsson
  */
-public final class Indexer {
+public final class StrideUtils {
 
-  private Indexer() {}
+  private StrideUtils() {}
 
   /**
    * Returns a reversed copy of the argument.
@@ -48,6 +44,23 @@ public final class Indexer {
     return copy;
   }
 
+  /**
+   * Compute the stride of an array with the given shape.
+   * 
+   * @param shape the shape
+   * @return the strides of the array
+   */
+  public static int[] computeStride(int[] shape) {
+    return computeStride(1, shape);
+  }
+
+  /**
+   * Compute the stride of an array with the given shape.
+   * 
+   * @param st the initial stride
+   * @param shape the shape
+   * @return the stride of the array
+   */
   public static int[] computeStride(int st, int[] shape) {
     int[] stride = new int[shape.length];
     for (int i = 0; i < stride.length; i++) {
@@ -57,55 +70,62 @@ public final class Indexer {
     return stride;
   }
 
-  public static int size(int[] shape) throws ArithmeticException {
-    int size = shape[0];
-    for (int i = 1; i < shape.length; i++) {
-      size = Math.multiplyExact(size, shape[i]);
-    }
-    return size;
+  /**
+   * Return the memory location of the row and column coordinates.
+   * 
+   * @param i the row
+   * @param j the column
+   * @param offset the offset
+   * @param stride the strides
+   * @return the memory location
+   */
+  public static int index(int i, int j, int offset, int[] stride) {
+    return offset + i * stride[0] + j * stride[1];
   }
 
-  public static int[] remove(int[] array, int index) {
-    int[] result = new int[array.length - 1];
-    System.arraycopy(array, 0, result, 0, index);
-    if (index < array.length - 1) {
-      System.arraycopy(array, index + 1, result, index, array.length - index - 1);
-    }
-
-    return result;
-  }
-
-  public static int columnMajorStride(int[] index, int offset, int[] stride) {
+  /**
+   * Return the memory location of the index.
+   * 
+   * @param index the index
+   * @param offset the offset
+   * @param stride the stride
+   * @return the memory location
+   */
+  public static int index(int[] index, int offset, int[] stride) {
     for (int i = 0; i < index.length; i++) {
       offset += index[i] * stride[i];
     }
     return offset;
   }
 
-  public static int sub2ind(int[] dims, int... i) {
-    int n = i.length - 1;
-    int idx = i[n];
-    for (int j = n - 1; j > 0; j--) {
-      idx = i[j] + dims[j] * idx;
-    }
-    return idx;
-  }
-
   /**
-   * Returns the index of {@code indexe}, if the stride were {@code step}.
-   *
-   * @param step the step size
-   * @param index the index
-   * @param n the end
-   * @return a new index; {@code step * index}, guaranteed to be {@code < n}
+   * Returns the memory (array) location of a given index when traversing a multidimensional array
+   * in column major order. This is the inverse of {@link #index(int[], int, int[])}.
+   * 
+   * @param index the linear index position
+   * @param offset the array offset
+   * @param stride the strides
+   * @param shape the shape
+   * @return the memory location
    */
-  public static int sliceIndex(int step, int index, int n) {
-    int i = Math.multiplyExact(step, index);
-    if (i >= n || i < 0) {
-      throw new IllegalArgumentException(String.format(
-          "index out of bounds; value %d out of bound %d", i, n));
+  public static int index(int index, int offset, int[] stride, int[] shape) {
+    if (stride.length == 1) {
+      return Math.abs(offset + index * stride[0]);
+    } else if (stride.length == 2) {
+      int shape0 = shape[0];
+      int shape1 = shape[1];
+      int sub0 = index / shape0;
+      int sub1 = sub0 / shape1;
+      return offset + (index - shape0 * sub0) * stride[0] + (sub0 - shape1 * sub1) * stride[1];
+    } else {
+      for (int i = 0; i < stride.length; i++) {
+        int size = shape[i];
+        int sub2 = index / size;
+        offset += (index - size * sub2) * stride[i];
+        index = sub2;
+      }
+      return offset;
     }
-    return i;
   }
 
   /**
@@ -131,24 +151,6 @@ public final class Indexer {
   }
 
   /**
-   * Given an {@code index}, compute the linearized column major index in a parent matrix.
-   *
-   * @param index the current index
-   * @param rows the rows of the view
-   * @param colOffset the column offset
-   * @param rowOffset the row offset
-   * @param parentRows the number of rows in the parent
-   * @param parentColumns the number of columns in the parent
-   * @return the position {@code index} in a view, transformed to the position in the parent matrix.
-   */
-  public static int computeLinearIndex(int index, int rows, int colOffset, int rowOffset,
-      int parentRows, int parentColumns) {
-    int currentColumn = index / rows + colOffset;
-    int currentRow = index % rows + rowOffset;
-    return columnMajor(0, currentRow, currentColumn, parentRows, parentColumns);
-  }
-
-  /**
    * Returns the flattened index for a column-major indexed array given {@code row}, {@code column}
    * and the size {@code nrows} and {@code ncols}
    *
@@ -170,38 +172,4 @@ public final class Indexer {
     }
   }
 
-  protected static int linearized(int index, int offset, int[] stride, int[] shape) {
-    if (stride.length == 1) {
-      return Math.abs(offset + index * stride[0]);
-    } else if (stride.length == 2) {
-      int shape0 = shape[0];
-      int shape1 = shape[1];
-      int sub0 = index / shape0;
-      int sub1 = sub0 / shape1;
-      return offset + (index - shape0 * sub0) * stride[0] + (sub0 - shape1 * sub1) * stride[1];
-    } else {
-      for (int i = 0; i < stride.length; i++) {
-        int size = shape[i];
-        int sub2 = index / size;
-        offset += (index - size * sub2) * stride[i];
-        index = sub2;
-      }
-      return offset;
-    }
-  }
-
-  public static List<Integer> asList(int[] index) {
-    Objects.requireNonNull(index);
-    return new AbstractList<Integer>() {
-      @Override
-      public Integer get(int i) {
-        return index[i];
-      }
-
-      @Override
-      public int size() {
-        return index.length;
-      }
-    };
-  }
 }

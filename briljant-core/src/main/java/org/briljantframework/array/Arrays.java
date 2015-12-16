@@ -1315,16 +1315,9 @@ public final class Arrays {
   }
 
   /**
-   * Broadcast the array to the specified shape.
-   *
-   * <p/>
-   * An array can be broadcast to a specified shape, given that we start by comparing the shapes
-   * element-wise starting with the trailing dimension, if the dimensions are compatible. Two
-   * dimensions are compatible if:
-   * <ul>
-   * <li>they are equal</li>
-   * <li>one of them is equal to {@code 1}</li>
-   * </ul>
+   * Broadcast the array to the specified shape. The array must be
+   * {@linkplain ShapeUtils#isBroadcastCompatible(int[], int[]) broadcast compatible} with the given
+   * shape.
    * 
    * Example:
    * <p/>
@@ -1370,21 +1363,13 @@ public final class Arrays {
    */
   public static <E extends BaseArray<E>> E broadcastTo(E x, int... shape) {
     Check.argument(shape.length > 0 && x.dims() <= shape.length, "to few new dimensions");
-    if (java.util.Arrays.equals(x.getShape(), shape)) {
-      return x.asView(x.getShape(), x.getStride());
-    }
+    Check.argument(ShapeUtils.isBroadcastCompatible(x.getShape(), shape),
+        "Can't broadcast array with shape %s to %s", java.util.Arrays.toString(x.getShape()),
+        java.util.Arrays.toString(shape));
 
-    int ac = shape.length - 1;
-    int bc = x.dims() - 1;
-    for (int i = 0; i < shape.length; i++) {
-      if (i >= x.dims()) {
-        break;
-      }
-      if (shape[ac - i] != x.size(bc - i) && x.size(bc - i) != 1) {
-        throw new IllegalArgumentException(String.format(
-            "Can't broadcast array with shape %s to %s", java.util.Arrays.toString(x.getShape()),
-            java.util.Arrays.toString(shape)));
-      }
+    int[] dims = x.getShape();
+    if (java.util.Arrays.equals(dims, shape)) {
+      return x.asView(dims, x.getStride());
     }
 
     int[] newShape = broadcast(x, shape);

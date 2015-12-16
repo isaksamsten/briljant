@@ -44,6 +44,7 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
@@ -248,7 +249,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   public ComplexArray reduceVectors(int dim,
       Function<? super ComplexArray, ? extends Complex> reduce) {
     Check.argument(dim < dims(), INVALID_DIMENSION, dim, dims());
-    ComplexArray reduced = newEmptyArray(Indexer.remove(getShape(), dim));
+    ComplexArray reduced = newEmptyArray(ArrayUtils.remove(getShape(), dim));
     int vectors = vectors(dim);
     for (int i = 0; i < vectors; i++) {
       Complex value = reduce.apply(getVector(dim, i));
@@ -302,17 +303,17 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public final void set(int index, Complex value) {
-    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
+    setElement(StrideUtils.index(index, getOffset(), stride, shape), value);
   }
 
   public final void set(int[] ix, Complex value) {
     Check.argument(ix.length == dims(), REQUIRE_ND, dims());
-    setElement(Indexer.columnMajorStride(ix, getOffset(), getStride()), value);
+    setElement(StrideUtils.index(ix, getOffset(), getStride()), value);
   }
 
   @Override
   public final Complex get(int index) {
-    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
+    return getElement(StrideUtils.index(index, getOffset(), stride, shape));
   }
 
   @Override
@@ -323,7 +324,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   public final Complex get(int... ix) {
     Check.argument(ix.length == dims(), REQUIRE_ND, dims());
-    return getElement(Indexer.columnMajorStride(ix, getOffset(), getStride()));
+    return getElement(StrideUtils.index(ix, getOffset(), getStride()));
   }
 
   @Override

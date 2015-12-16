@@ -41,6 +41,7 @@ import java.util.function.ToLongFunction;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
@@ -469,7 +470,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   @Override
   public Array<T> reduceVector(int dim, Function<? super Array<T>, T> accumulator) {
     Check.argument(dim < dims(), INVALID_DIMENSION, dim, dims());
-    Array<T> reduced = newEmptyArray(Indexer.remove(getShape(), dim));
+    Array<T> reduced = newEmptyArray(ArrayUtils.remove(getShape(), dim));
     int vectors = vectors(dim);
     for (int i = 0; i < vectors; i++) {
       T value = accumulator.apply(getVector(dim, i));
@@ -480,12 +481,12 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   @Override
   public T get(int i) {
-    return getElement(Indexer.linearized(i, getOffset(), stride, shape));
+    return getElement(StrideUtils.index(i, getOffset(), stride, shape));
   }
 
   @Override
   public void set(int i, T value) {
-    setElement(Indexer.linearized(i, getOffset(), stride, shape), value);
+    setElement(StrideUtils.index(i, getOffset(), stride, shape), value);
   }
 
   @Override
@@ -503,13 +504,13 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   @Override
   public T get(int... index) {
     Check.argument(index.length == dims());
-    return getElement(Indexer.columnMajorStride(index, getOffset(), stride));
+    return getElement(StrideUtils.index(index, getOffset(), stride));
   }
 
   @Override
   public void set(int[] index, T value) {
     Check.argument(index.length == dims());
-    setElement(Indexer.columnMajorStride(index, getOffset(), stride), value);
+    setElement(StrideUtils.index(index, getOffset(), stride), value);
   }
 
   @Override

@@ -20,8 +20,8 @@
  */
 package org.briljantframework.array;
 
-import static org.briljantframework.array.Indexer.columnMajor;
-import static org.briljantframework.array.Indexer.rowMajor;
+import static org.briljantframework.array.StrideUtils.columnMajor;
+import static org.briljantframework.array.StrideUtils.rowMajor;
 
 import java.io.IOException;
 import java.util.AbstractList;
@@ -47,6 +47,7 @@ import java.util.stream.StreamSupport;
 
 import net.mintern.primitive.comparators.LongComparator;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
@@ -426,7 +427,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   @Override
   public LongArray reduceVector(int dim, ToLongFunction<? super LongArray> accumulator) {
     Check.argument(dim < dims(), INVALID_DIMENSION, dim, dims());
-    LongArray reduced = newEmptyArray(Indexer.remove(getShape(), dim));
+    LongArray reduced = newEmptyArray(ArrayUtils.remove(getShape(), dim));
     int vectors = vectors(dim);
     for (int i = 0; i < vectors; i++) {
       long value = accumulator.applyAsLong(getVector(dim, i));
@@ -455,22 +456,22 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
 
   @Override
   public final long get(int index) {
-    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
+    return getElement(StrideUtils.index(index, getOffset(), stride, shape));
   }
 
   @Override
   public final void set(int index, long value) {
-    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
+    setElement(StrideUtils.index(index, getOffset(), stride, shape), value);
   }
 
   public final void set(int[] ix, long value) {
     Check.argument(ix.length == dims());
-    setElement(Indexer.columnMajorStride(ix, getOffset(), getStride()), value);
+    setElement(StrideUtils.index(ix, getOffset(), getStride()), value);
   }
 
   public final long get(int... ix) {
     Check.argument(ix.length == dims());
-    return getElement(Indexer.columnMajorStride(ix, getOffset(), getStride()));
+    return getElement(StrideUtils.index(ix, getOffset(), getStride()));
   }
 
   @Override

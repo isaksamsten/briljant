@@ -36,6 +36,6 @@ class IndexerSpec extends Specification {
     def a = [1, 2, 3] as int[]
 
     then:
-    Indexer.reverse(a) == [3, 2, 1] as int[]
+    StrideUtils.reverse(a) == [3, 2, 1] as int[]
   }
 }

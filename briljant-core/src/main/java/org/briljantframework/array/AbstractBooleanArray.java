@@ -38,6 +38,7 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
@@ -236,7 +237,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public void set(int index, boolean value) {
-    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
+    setElement(StrideUtils.index(index, getOffset(), stride, shape), value);
   }
 
   @Override
@@ -254,12 +255,12 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   public final void set(int[] ix, boolean value) {
     Check.argument(ix.length == dims(), REQUIRE_ND, dims());
-    setElement(Indexer.columnMajorStride(ix, getOffset(), getStride()), value);
+    setElement(StrideUtils.index(ix, getOffset(), getStride()), value);
   }
 
   @Override
   public boolean get(int index) {
-    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
+    return getElement(StrideUtils.index(index, getOffset(), stride, shape));
   }
 
   @Override
@@ -270,7 +271,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   public final boolean get(int... ix) {
     Check.argument(ix.length == dims(), REQUIRE_ND, dims());
-    return getElement(Indexer.columnMajorStride(ix, getOffset(), getStride()));
+    return getElement(StrideUtils.index(ix, getOffset(), getStride()));
   }
 
   @Override
@@ -358,7 +359,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
   @Override
   public BooleanArray reduceAlong(int dim, Function<? super BooleanArray, Boolean> function) {
     Check.argument(0 <= dim && dim < dims(), INVALID_DIMENSION, dim, dims());
-    BooleanArray out = newEmptyArray(Indexer.remove(getShape(), dim));
+    BooleanArray out = newEmptyArray(ArrayUtils.remove(getShape(), dim));
     int vectors = vectors(dim);
     for (int i = 0; i < vectors; i++) {
       out.set(i, function.apply(getVector(dim, i)));

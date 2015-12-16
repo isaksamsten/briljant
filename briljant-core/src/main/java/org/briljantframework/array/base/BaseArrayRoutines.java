@@ -21,8 +21,8 @@
 package org.briljantframework.array.base;
 
 
-import static org.briljantframework.array.Indexer.columnMajor;
-import static org.briljantframework.array.Indexer.rowMajor;
+import static org.briljantframework.array.StrideUtils.columnMajor;
+import static org.briljantframework.array.StrideUtils.rowMajor;
 
 import java.util.Comparator;
 

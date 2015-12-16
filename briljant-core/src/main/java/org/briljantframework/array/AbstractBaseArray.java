@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
 
@@ -91,8 +92,8 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   protected AbstractBaseArray(ArrayFactory factory, int[] shape) {
     this.factory = Objects.requireNonNull(factory);
     this.shape = shape.clone();
-    this.stride = Indexer.computeStride(1, shape);
-    this.size = Indexer.size(shape);
+    this.stride = StrideUtils.computeStride(1, shape);
+    this.size = ShapeUtils.size(shape);
     this.offset = 0;
     this.majorStride = 0;
   }
@@ -114,7 +115,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     // copied.
     this.shape = shape;
     this.stride = stride;
-    this.size = Indexer.size(shape);
+    this.size = ShapeUtils.size(shape);
     this.offset = offset;
     this.majorStride = majorStride;
   }
@@ -181,17 +182,17 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     if (shape.length == 0 || (shape.length == 1 && shape[0] == -1)) {
       if (isContiguous()) {
         int[] newShape = {size()};
-        return asView(getOffset(), newShape, Indexer.computeStride(1, newShape));
+        return asView(getOffset(), newShape, StrideUtils.computeStride(1, newShape));
       } else {
         return copy().reshape(shape);
       }
     }
-    if (Indexer.size(this.shape) != Indexer.size(shape)) {
+    if (ShapeUtils.size(this.shape) != ShapeUtils.size(shape)) {
       throw new IllegalArgumentException(String.format(CHANGED_TOTAL_SIZE,
           Arrays.toString(this.shape), Arrays.toString(shape)));
     }
     if (isContiguous()) {
-      return asView(getOffset(), shape.clone(), Indexer.computeStride(1, shape));
+      return asView(getOffset(), shape.clone(), StrideUtils.computeStride(1, shape));
     } else {
       return copy().reshape(shape);
     }
@@ -215,8 +216,8 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   public E select(int dimension, int index) {
     Check.argument(dimension < dims() && dimension >= 0, "Can't select dimension.");
     Check.argument(index < size(dimension), "Index outside of shape.");
-    return asView(getOffset() + index * stride(dimension), Indexer.remove(getShape(), dimension),
-        Indexer.remove(getStride(), dimension));
+    return asView(getOffset() + index * stride(dimension), ArrayUtils.remove(getShape(), dimension),
+                  ArrayUtils.remove(getStride(), dimension));
   }
 
   @Override
@@ -398,7 +399,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   @Override
   public boolean isView() {
     return !(majorStride == 0 && offset == 0 && Arrays.equals(stride,
-        Indexer.computeStride(1, shape)));
+                                                              StrideUtils.computeStride(1, shape)));
   }
 
   @Override
@@ -411,7 +412,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     if (dims() == 1) {
       return asView(getOffset(), getShape(), getStride());
     } else {
-      return asView(getOffset(), Indexer.reverse(shape), Indexer.reverse(stride),
+      return asView(getOffset(), StrideUtils.reverse(shape), StrideUtils.reverse(stride),
           majorStride == 0 ? dims() - 1 : 0 // change the major stride
       );
     }

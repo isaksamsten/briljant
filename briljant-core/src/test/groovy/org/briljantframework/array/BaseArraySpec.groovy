@@ -239,7 +239,7 @@ class BaseArraySpec extends Specification {
     array.reshape(shape).shape == shape
     array.reshape(shape).dims() == 4
     array.reshape(shape).size() == 2 * 3 * 4 * 5
-    array.reshape(shape).reshape(Indexer.reverse(shape)).shape == Indexer.reverse(shape)
+    array.reshape(shape).reshape(StrideUtils.reverse(shape)).shape == StrideUtils.reverse(shape)
 
     where:
     array << getArrays(2 * 3 * 4 * 5);

@@ -45,6 +45,7 @@ import java.util.stream.StreamSupport;
 
 import net.mintern.primitive.comparators.IntComparator;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
@@ -437,7 +438,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   @Override
   public IntArray reduceVectors(int dim, ToIntFunction<? super IntArray> accumulator) {
     Check.argument(dim < dims(), INVALID_DIMENSION, dim, dims());
-    IntArray reduced = newEmptyArray(Indexer.remove(getShape(), dim));
+    IntArray reduced = newEmptyArray(ArrayUtils.remove(getShape(), dim));
     int vectors = vectors(dim);
     for (int i = 0; i < vectors; i++) {
       int value = accumulator.applyAsInt(getVector(dim, i));
@@ -448,12 +449,12 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public final int get(int index) {
-    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
+    return getElement(StrideUtils.index(index, getOffset(), stride, shape));
   }
 
   @Override
   public final void set(int index, int value) {
-    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
+    setElement(StrideUtils.index(index, getOffset(), stride, shape), value);
   }
 
   @Override
@@ -470,12 +471,12 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   public final void set(int[] ix, int value) {
     Check.argument(ix.length == dims());
-    setElement(Indexer.columnMajorStride(ix, getOffset(), stride), value);
+    setElement(StrideUtils.index(ix, getOffset(), stride), value);
   }
 
   public final int get(int... ix) {
     Check.argument(ix.length == dims());
-    return getElement(Indexer.columnMajorStride(ix, getOffset(), stride));
+    return getElement(StrideUtils.index(ix, getOffset(), stride));
   }
 
   @Override

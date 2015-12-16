@@ -48,6 +48,7 @@ import java.util.stream.StreamSupport;
 
 import net.mintern.primitive.comparators.DoubleComparator;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.Precision;
 import org.briljantframework.Check;
@@ -263,7 +264,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public final void set(int index, double value) {
-    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
+    setElement(StrideUtils.index(index, getOffset(), stride, shape), value);
   }
 
   @Override
@@ -447,7 +448,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   @Override
   public DoubleArray reduceVectors(int dim, ToDoubleFunction<? super DoubleArray> reduce) {
     Check.argument(dim < dims(), INVALID_DIMENSION, dim, dims());
-    DoubleArray reduced = newEmptyArray(Indexer.remove(getShape(), dim));
+    DoubleArray reduced = newEmptyArray(ArrayUtils.remove(getShape(), dim));
     int vectors = vectors(dim);
     for (int i = 0; i < vectors; i++) {
       double value = reduce.applyAsDouble(getVector(dim, i));
@@ -465,12 +466,12 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   @Override
   public final void set(int[] ix, double value) {
     Check.argument(ix.length == dims());
-    setElement(Indexer.columnMajorStride(ix, getOffset(), stride), value);
+    setElement(StrideUtils.index(ix, getOffset(), stride), value);
   }
 
   @Override
   public final double get(int index) {
-    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
+    return getElement(StrideUtils.index(index, getOffset(), stride, shape));
   }
 
   @Override
@@ -482,7 +483,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   @Override
   public final double get(int... ix) {
     Check.argument(ix.length == dims());
-    return getElement(Indexer.columnMajorStride(ix, getOffset(), stride));
+    return getElement(StrideUtils.index(ix, getOffset(), stride));
   }
 
   @Override

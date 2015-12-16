@@ -25,7 +25,7 @@ package org.briljantframework.array.base;
 
 import org.briljantframework.array.AbstractArray;
 import org.briljantframework.array.Array;
-import org.briljantframework.array.Indexer;
+import org.briljantframework.array.ShapeUtils;
 import org.briljantframework.array.api.ArrayFactory;
 
 /**
@@ -53,7 +53,7 @@ class BaseReferenceArray<T> extends AbstractArray<T> {
   @SuppressWarnings("unchecked")
   public BaseReferenceArray(BaseArrayFactory bj, int[] shape) {
     super(bj, shape);
-    this.data = (T[]) new Object[Indexer.size(shape)];
+    this.data = (T[]) new Object[ShapeUtils.size(shape)];
   }
 
   @Override
@@ -69,7 +69,7 @@ class BaseReferenceArray<T> extends AbstractArray<T> {
   @Override
   public Array<T> newEmptyArray(int... shape) {
     @SuppressWarnings("unchecked")
-    T[] data = (T[]) new Object[Indexer.size(shape)];
+    T[] data = (T[]) new Object[ShapeUtils.size(shape)];
     return new BaseReferenceArray<>(getArrayFactory(), shape, data);
   }
 
