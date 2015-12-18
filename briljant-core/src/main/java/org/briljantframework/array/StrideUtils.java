@@ -71,6 +71,26 @@ public final class StrideUtils {
   }
 
   /**
+   * Compute the stride of the given strides and shape for the new shape.
+   * 
+   * @param strides the old strides
+   * @param shape the old shape
+   * @param newShape the new shape
+   * @return the new strides
+   */
+  public static int[] broadcastStrides(int[] strides, int[] shape, int[] newShape) {
+    int[] newStrides = new int[newShape.length];
+    for (int i = 0; i < newShape.length; i++) {
+      int index = newShape.length - 1 - i;
+      int dim = shape.length - 1 - i;
+      if (i < shape.length && shape[dim] != 1) {
+        newStrides[index] = strides[dim];
+      }
+    }
+    return newStrides;
+  }
+
+  /**
    * Return the memory location of the row and column coordinates.
    * 
    * @param i the row
@@ -171,5 +191,4 @@ public final class StrideUtils {
       return offset + col * nrows + row;
     }
   }
-
 }
