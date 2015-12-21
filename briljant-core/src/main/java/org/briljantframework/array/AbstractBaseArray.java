@@ -20,6 +20,10 @@
  */
 package org.briljantframework.array;
 
+import static org.briljantframework.array.Arrays.broadcastArrays;
+import static org.briljantframework.array.Arrays.broadcastTo;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -28,6 +32,7 @@ import java.util.function.Consumer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.primitive.IntList;
 
 /**
  * This class provides a skeletal implementation of the {@link BaseArray} interface to minimize the
@@ -141,7 +146,10 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   @Override
   public void assign(E o) {
-    Check.argument(ShapeUtils.isBroadcastCompatible(o.getShape(), getShape()), "Can't broadcast.");
+    if (!isVector() || !o.isVector()) {
+      o = broadcastTo(o, getShape());
+    }
+    Check.size(this, o);
     for (int i = 0; i < o.size(); i++) {
       set(i, o, i);
     }
@@ -225,26 +233,122 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     return getSlice(Arrays.asList(indexers));
   }
 
+  // TODO: 21/12/15 work in progress. works better than before. still some bugs to iron out.
   @Override
   public E getSlice(List<? extends IntArray> indexers) {
     Check.argument(indexers.size() <= dims(), "too many indicies for array");
     Check.argument(indexers.size() > 0, "too few indices for array");
-    int dims = indexers.stream().mapToInt(IntArray::dims).max().getAsInt();
-    Check.all(indexers).argument(i -> i.dims() == dims);
 
-    int[] shape = new int[dims + dims() - indexers.size()];
-    for (int i = 0; i < shape.length; i++) {
-      if (i < dims) {
-        shape[i] = indexers.get(0).size(i);
-      } else {
-        shape[i] = size(i - dims);
+    List<IntArray> nonNull = new ArrayList<>();
+    int firstNonNull = -1;
+    boolean hasGap = false;
+    List<Integer> locs = new ArrayList<>();
+    for (int i = 0; i < indexers.size(); i++) {
+      IntArray indexer = indexers.get(i);
+      if (indexer != null && firstNonNull > 0 && i > 0) {
+        hasGap = true;
+      }
+      if (indexer != null) {
+        nonNull.add(indexer);
+        firstNonNull = i;
+        locs.add(i);
+      }
+    }
+    List<IntArray> broadcast = broadcastArrays(nonNull);
+
+    IntList dims = new IntList();
+    if (hasGap) {
+      for (int i = 0; i < broadcast.get(0).dims(); i++) {
+        dims.add(broadcast.get(0).size(i));
+      }
+      for (int i = 0; i < dims(); i++) {
+        if (!locs.contains(i)) {
+          dims.add(size(i));
+        }
+      }
+    } else {
+      for (int i = 0; i < dims(); i++) {
+        if (locs.get(0) == i) {
+          IntArray index = indexers.get(i);
+          for (int j = 0; j < index.dims(); j++) {
+            dims.add(index.size(j));
+          }
+        } else {
+          dims.add(size(i));
+        }
+      }
+    }
+    int[] newShape = Arrays.copyOf(dims.elementData, dims.size());
+    IntArray[] arrays = new IntArray[dims()];
+
+    if (hasGap) {
+      int index = 0;
+      for (int i = 0; i < dims(); i++) {
+        int[] shape = new int[newShape.length];
+        if (i == 0) {
+          for (IntArray array : broadcast) {
+            for (int j = 0; j < shape.length; j++) {
+              if (j < array.dims()) {
+                shape[j] = array.size(j);
+              } else {
+                shape[j] = 1;
+              }
+            }
+            arrays[index++] = broadcastTo(array.reshape(shape), newShape);
+          }
+        } else {
+          Arrays.fill(shape, 1);
+          int size = newShape[i + index - 1];
+          shape[i + index - 1] = size;
+          arrays[i] = broadcastTo(Range.of(size).reshape(shape), newShape);
+        }
+      }
+    } else {
+      int j = 0;
+      int pad = 0;
+      for (int i = 0; i < dims(); i++) {
+        if (locs.contains(i)) { // Nonnull
+          int[] shape = new int[newShape.length];
+          int kk = 0;
+          for (int k = 0; k < i; k++) {
+            shape[kk++] = 1;
+          }
+          IntArray x = broadcast.get(j++);
+          for (int k = 0; k < x.dims(); k++) {
+            shape[kk++] = x.size(k);
+            pad++;
+          }
+          for (int k = kk; k < shape.length; k++) {
+            shape[k] = 1;
+          }
+          arrays[i] = broadcastTo(x.reshape(shape), newShape);
+          pad--;
+        } else {
+          int[] shape = new int[newShape.length];
+          for (int k = 0; k < shape.length; k++) {
+            shape[k] = 1;
+          }
+          shape[i + pad] = size(i);
+          IntArray r = Range.of(size(i)).reshape(shape);
+          arrays[i] = broadcastTo(r, newShape);
+        }
       }
     }
 
-    E to = newEmptyArray(shape);
+    E to = newEmptyArray(newShape);
     E from = asView(getOffset(), getShape(), getStride());
-    IntArray[] i = indexers.toArray(new IntArray[indexers.size()]);
-    recursiveGetSlice(to, from, i, indexers.get(0).dims());
+    int offset = from.getOffset();
+    int[] stride = from.getStride();
+    int[] index = new int[dims()];
+    int idx = 0;
+    for (int i = 0; i < to.size(); i++) {
+      for (int k = 0; k < arrays.length; k++) {
+        index[k] = arrays[k].get(idx);
+      }
+      idx++;
+      to.set(i, from, StrideUtils.index(index, offset, stride));
+    }
+
     return to;
   }
 
@@ -263,7 +367,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
         shape[i] = size(i - dims);
       }
     }
-    E from = org.briljantframework.array.Arrays.broadcastTo(slice, shape);
+    E from = broadcastTo(slice, shape);
     IntArray[] i = indexers.toArray(new IntArray[indexers.size()]);
     recursiveSetSlice(asView(getShape(), getStride()), from, i, 1);
   }

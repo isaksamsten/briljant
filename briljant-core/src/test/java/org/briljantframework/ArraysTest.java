@@ -53,13 +53,12 @@ public class ArraysTest {
   @Test
   public void testBroadcastTo_1darray() throws Exception {
     IntArray a = IntArray.of(0, 1, 2);
-    System.out.println(Arrays.broadcastTo(a, 4,3));
-
+    System.out.println(Arrays.broadcastTo(a, 3,3,3));
   }
 
   @Test
   public void testBroadcast() throws Exception {
-    IntArray a = IntArray.of(10032).reshape(1);
+    IntArray a = IntArray.of(10032,3,3).reshape(3,1);
     System.out.println(Arrays.broadcastTo(a, 3,3,3));
 //
 //    a = Range.of(3*3).reshape(3,3, 1);
@@ -81,13 +80,13 @@ public class ArraysTest {
     // IntArray x = Range.of(3 * 3 * 3).reshape(3, 3, 3);
     // System.out.println(x.slice(b,
     // Arrays.broadcast(IntArray.of(0, 1, 0, 1).reshape(2, 2), new int[] {3, 2, 2})));
-//    IntArray x = IntArray.of(0, 1, 2).reshape(1, 3, 1);
-//    IntArray y = IntArray.of(0, 1, 2).reshape(3, 1, 1);
+    IntArray x = IntArray.of(0, 1, 2).reshape(1, 3, 1);
+    IntArray y = IntArray.of(0, 1, 2).reshape(3, 1, 1);
 //
 //    System.out.println(y);
 //    System.out.println(Arrays.broadcastTo(y, 3, 3, 3));
 
-//    System.out.println(Arrays.broadcastArrays(java.util.Arrays.asList(x, y)));
+    System.out.println(Arrays.broadcastArrays(java.util.Arrays.asList(x, y)));
 
   }
 

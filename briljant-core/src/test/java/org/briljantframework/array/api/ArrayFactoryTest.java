@@ -1,10 +1,7 @@
 package org.briljantframework.array.api;
 
 import static org.briljantframework.array.ArraySelector.ALL;
-import static org.briljantframework.array.Arrays.broadcastArrays;
 import static org.junit.Assert.assertEquals;
-
-import java.util.Arrays;
 
 import org.briljantframework.array.Array;
 import org.briljantframework.array.DoubleArray;
@@ -69,20 +66,33 @@ public abstract class ArrayFactoryTest {
 
   @Test
   public void testBroadCastIgen() throws Exception {
-    IntArray i = Range.of(3).reshape(3, 1).copy();
-    System.out.println(broadcastArrays(Arrays.asList(i, i.transpose(), Range.of(4))));
-
+    IntArray i = Range.of(4 * 3).reshape(4, 3);
+    System.out.println(i.get(ALL, Range.of(1, 3)));
   }
 
   @Test
   public void testDoubleArraySelect_IntIndexer() throws Exception {
-    IntArray a = getFactory().range(4 * 3).reshape(4, 3).copy();
-    IntArray rows = IntArray.of(0, 3).reshape(2, 1);
-    IntArray columns = IntArray.of(0, 2).reshape(2, 1);
-    System.out.println(a.getSlice(rows, columns));
+    // IntArray x = Range.of(10 * 20 * 30).reshape(10, 20, 30);
+    // IntArray y = x.getSlice(Arrays.asList(null, IntArray.zeros(2, 2, 2), null));
+    // System.out.println(y);
+    // y = Range.of(10 * 20 * 30 * 40 * 50).reshape(10, 20, 30, 40, 50);
+    // System.out.println(y.getSlice(null, IntArray.zeros(2, 3, 4), null, IntArray.zeros(2, 3, 4)));
 
-    System.out.println(broadcastArrays(Arrays.asList(rows, columns)));
+    IntArray x = Range.of(4 * 3).reshape(4, 3);
+    System.out.println(x);
+    System.out.println(x.getSlice(null, IntArray.of(0, 1, 0, 1)));
+    System.out.println(x.getSlice(IntArray.of(0, 1, 0, 1).reshape(2, 2), null));
 
+
+
+    // IntArray a = getFactory().range(4 * 3).reshape(4, 3).copy();
+    // IntArray rows = IntArray.of(0, 3).reshape(2, 1);
+    // IntArray columns = IntArray.of(0, 2).reshape(1, 2);
+    //
+    // List<IntArray> x = broadcastArrays(Arrays.asList(rows, columns));
+    // System.out.println(x);
+    //
+    // System.out.println(a.getSlice(null, x.get(0)));
 
     // System.out.println(a.select(IntArray.of(0, 1, 0), IntArray.of(1, 1, 1)));
 
@@ -119,5 +129,43 @@ public abstract class ArrayFactoryTest {
     // System.out.println(value);
     // a.reshape(3, 3, 3).setSlice(index, value);
     // System.out.println(a);
+    // IntArray x = Range.of(3 * 3 * 3).reshape(3, 3, 3);
+    // IntArray i = broadcastTo(IntArray.of(0, 0, 0).reshape(1,3), 3,2,3);
+
+    // NOTE: when encountering ALL create a new array with dims (DIM_IN_LOC, ..., last)
+
+    // NOTE: first: no selections in dim 1; second: no selections in dim 2 and so on
+    // IntArray i = IntArray.zeros(1, 3, 3);
+    // for (int n = 0; n < i.size(0); n++) {
+    // i.select(n).assign(n);
+    // }
+
+    // IntArray j = IntArray.of(0, 1, 1, 0, 1, 1, 0, 1, 1).reshape(3, 3);
+    // System.out.println(Arrays.toString(j.getStride()));
+    // System.out.println(j.asView(new int[]{1,3,3,3}, new int[]{0,0,1,3}));
+    //
+    // System.out.println(j);
+
+    // IntArray k = IntArray.zeros(3, 1, 3, 3);
+    // int dim = 3;
+    // for (int n = 0; n < k.size(dim); n++) {
+    // k.select(dim, n).assign(n);
+    // }
+    // System.out.println(k);
+
+    // List<IntArray> x1 = new ArrayList<>(broadcastArrays(Arrays.asList(i, j, k)));
+    // System.out.println(x1.get(1));
+    // for (IntArray xs : x1) {
+    // System.out.println(xs);
+    // }
+    // x1.add(k);
+    // List<IntArray> x2 = broadcastArrays(x1);
+    // System.out.println(x.getSlice(i, j, k));
+
+    // IntArray f = x.get(Range.of(2), Range.of(2));
+    // System.out.println(f);
+    // System.out.println(f.getSlice(IntArray.of(0)));
+
+
   }
 }
