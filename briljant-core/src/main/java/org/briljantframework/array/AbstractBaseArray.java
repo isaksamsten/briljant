@@ -381,8 +381,14 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
       int dims = dims();
       int size = to.size();
       for (int i = 0; i < size; i++) {
-        for (int k = 0; k < dims; k++) {
-          fromIndex[k] = indexArrays[k].get(i);
+        for (int j = 0; j < dims; j++) {
+          int idx = indexArrays[j].get(i);
+          if (idx >= 0 && idx < size(j)) {
+            fromIndex[j] = idx;
+          } else {
+            throw new IndexOutOfBoundsException(String.format(ILLEGAL_DIMENSION_INDEX, idx, j,
+                size(j)));
+          }
         }
         to.set(i, from, StrideUtils.index(fromIndex, getOffset(), stride));
       }
@@ -401,6 +407,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
       List<Range> ranges = arrays.stream().map(Range.class::cast).collect(Collectors.toList());
       getView(ranges).assign(from);
     } else {
+      IntArray[] indexArrays = indexer.getIndex();
       int[] shape = indexer.getShape();
       from = broadcastTo(from, shape);
       int size = from.size();
@@ -408,7 +415,13 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
       int[] toIndex = new int[dims];
       for (int i = 0; i < size; i++) {
         for (int j = 0; j < dims; j++) {
-          toIndex[j] = indexer.getIndex(j).get(i);
+          int idx = indexArrays[j].get(i);
+          if (idx >= 0 && idx < size(j)) {
+            toIndex[j] = idx;
+          } else {
+            throw new IndexOutOfBoundsException(String.format(ILLEGAL_DIMENSION_INDEX, idx, j,
+                                                              size(j)));
+          }
         }
         set(StrideUtils.index(toIndex, getOffset(), stride), from, i);
       }

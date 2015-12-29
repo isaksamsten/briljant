@@ -135,6 +135,7 @@ public class AdvancedIndexer {
         for (int i = 0; i < ndims; i++) {
           java.util.Arrays.fill(compatibleShape, 1);
           IntArray index = indexers[i];
+          // TODO: 29/12/15 fix the bug here should not be -1 and k
           if (isBasicIndexer(index)) {
             compatibleShape[i + basicIndexPosition - 1] = index.size();
             indexArrays[i] = broadcastCompatible(index, compatibleShape, newShape);

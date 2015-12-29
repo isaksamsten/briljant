@@ -68,16 +68,18 @@ public abstract class ArrayFactoryTest {
   @Test
   public void testBroadCastIgen() throws Exception {
     IntArray i = Range.of(4 * 3).reshape(4, 3);
-    System.out.println(i.get(ALL, Range.of(1, 3)));
+    System.out.println(i.get(ALL, IntArray.of(0,2)));
+
+    System.out.println(i);
   }
 
   @Test
   public void testDoubleArraySelect_IntIndexer() throws Exception {
     ArrayPrinter.setMinimumTruncateSize(10000000);
     IntArray x = Range.of(4 * 5 * 6).reshape(4, 5, 6).copy();
-//    IntArray y =
-        x.set(new IntArray[]{IntArray.of(1, 2, 3, 0).reshape(2, 2), IntArray.zeros(2, 2, 2), Range.of(3)}, IntArray.of(2));
-    System.out.println(x);
+    IntArray y =
+        x.get(IntArray.of(1, 2, 3, 0).reshape(2, 2), IntArray.zeros(2, 2, 2), Range.of(3));
+    System.out.println(y);
     // IntArray y = Range.of(10 * 20 * 30 * 40 * 50).reshape(10, 20, 30, 40, 50);
     // System.out.println(y.getSlice(Range.of(10), IntArray.zeros(2, 3, 4), Range.of(30),
     // IntArray.zeros(2, 3, 4), Range.of(50)));
