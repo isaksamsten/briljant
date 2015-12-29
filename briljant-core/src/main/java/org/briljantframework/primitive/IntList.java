@@ -73,11 +73,6 @@ public class IntList extends AbstractList<Integer> {
     this.size = elementData.length;
   }
 
-  @Override
-  public int size() {
-    return size;
-  }
-
   public IntList() {
 
   }
@@ -90,8 +85,25 @@ public class IntList extends AbstractList<Integer> {
     }
   }
 
+  private static int hugeCapacity(int minCapacity) {
+    if (minCapacity < 0) // overflow
+    {
+      throw new OutOfMemoryError();
+    }
+    return (minCapacity > MAX_ARRAY_SIZE) ? Integer.MAX_VALUE : MAX_ARRAY_SIZE;
+  }
+
+  @Override
+  public int size() {
+    return size;
+  }
+
   public IntArray toIntArray() {
     return IntArray.of(Arrays.copyOf(elementData, size));
+  }
+
+  public int[] toPrimitiveArray() {
+    return Arrays.copyOf(elementData, size());
   }
 
   /**
@@ -112,63 +124,6 @@ public class IntList extends AbstractList<Integer> {
   @Override
   public boolean add(Integer e) {
     return add((int) e);
-  }
-
-  /**
-   * Avoid boxing of {@code int}-values
-   *
-   * @param e the value
-   * @return true
-   */
-  public boolean add(int e) {
-    ensureCapacityInternal(size + 1);
-    elementData[size++] = e;
-    return true;
-  }
-
-  private void ensureCapacityInternal(int minCapacity) {
-    if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
-      minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
-    }
-
-    ensureExplicitCapacity(minCapacity);
-  }
-
-  private void ensureExplicitCapacity(int minCapacity) {
-    modCount++;
-
-    // overflow-conscious code
-    if (minCapacity - elementData.length > 0) {
-      grow(minCapacity);
-    }
-  }
-
-  /**
-   * Increases the capacity to ensure that it can hold at least the number of elements specified by
-   * the minimum capacity argument.
-   *
-   * @param minCapacity the desired minimum capacity
-   */
-  private void grow(int minCapacity) {
-    // overflow-conscious code
-    int oldCapacity = elementData.length;
-    int newCapacity = oldCapacity + (oldCapacity >> 1);
-    if (newCapacity - minCapacity < 0) {
-      newCapacity = minCapacity;
-    }
-    if (newCapacity - MAX_ARRAY_SIZE > 0) {
-      newCapacity = hugeCapacity(minCapacity);
-    }
-    // minCapacity is usually close to size, so this is a win:
-    elementData = Arrays.copyOf(elementData, newCapacity);
-  }
-
-  private static int hugeCapacity(int minCapacity) {
-    if (minCapacity < 0) // overflow
-    {
-      throw new OutOfMemoryError();
-    }
-    return (minCapacity > MAX_ARRAY_SIZE) ? Integer.MAX_VALUE : MAX_ARRAY_SIZE;
   }
 
   @Override
@@ -245,6 +200,62 @@ public class IntList extends AbstractList<Integer> {
       throw new IndexOutOfBoundsException("Index: " + index);
     }
     return new ListItr(index);
+  }
+
+  /**
+   * Avoid boxing of {@code int}-values
+   *
+   * @param e the value
+   * @return true
+   */
+  public boolean add(int e) {
+    ensureCapacityInternal(size + 1);
+    elementData[size++] = e;
+    return true;
+  }
+
+  public boolean addAll(int... all) {
+    for (int i : all) {
+      add(i);
+    }
+    return all.length > 0;
+  }
+
+  private void ensureCapacityInternal(int minCapacity) {
+    if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
+      minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
+    }
+
+    ensureExplicitCapacity(minCapacity);
+  }
+
+  private void ensureExplicitCapacity(int minCapacity) {
+    modCount++;
+
+    // overflow-conscious code
+    if (minCapacity - elementData.length > 0) {
+      grow(minCapacity);
+    }
+  }
+
+  /**
+   * Increases the capacity to ensure that it can hold at least the number of elements specified by
+   * the minimum capacity argument.
+   *
+   * @param minCapacity the desired minimum capacity
+   */
+  private void grow(int minCapacity) {
+    // overflow-conscious code
+    int oldCapacity = elementData.length;
+    int newCapacity = oldCapacity + (oldCapacity >> 1);
+    if (newCapacity - minCapacity < 0) {
+      newCapacity = minCapacity;
+    }
+    if (newCapacity - MAX_ARRAY_SIZE > 0) {
+      newCapacity = hugeCapacity(minCapacity);
+    }
+    // minCapacity is usually close to size, so this is a win:
+    elementData = Arrays.copyOf(elementData, newCapacity);
   }
 
   public Integer set(int index, int element) {

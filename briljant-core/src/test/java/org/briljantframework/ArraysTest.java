@@ -37,6 +37,27 @@ import org.junit.Test;
 public class ArraysTest {
 
   @Test
+  public void testBroadcast_reshape() throws Exception {
+//    IntArray x = IntArray.of(1, 2);
+//    IntArray a = Arrays.broadcastTo(x, 2, 2, 2).reshape(2, 1, 1, 2, 2);
+//    System.out.println(a);
+//    System.out.println(java.util.Arrays.toString(a.getStride()));
+//
+//    IntArray b = Arrays.broadcastTo(IntArray.of(1), 2, 2, 2).reshape(2, 2, 2, 1);
+//    System.out.println(b);
+//    System.out.println(java.util.Arrays.toString(b.getStride()));
+//
+//    IntArray c = Arrays.broadcastTo(IntArray.of(1, 2), 2, 2, 2).reshape(1, 1, 2, 2, 2);
+//    System.out.println(c);
+//    System.out.println(java.util.Arrays.toString(c.getStride()));
+
+    IntArray d = Arrays.broadcastTo(IntArray.of(1, 2), 2, 2, 2).reshape(2,2,1,1,2,1,1);
+    System.out.println(d);
+//    System.out.println(d.asView(new int[]{3, 1, 3, 1, 3}, new int[]{0, 0, 0, 1, 1}));
+    System.out.println(java.util.Arrays.toString(d.getStride()));
+  }
+
+  @Test
   public void testBroadcast_column_vector() throws Exception {
     IntArray a = IntArray.of(0, 1, 2).reshape(3, 1);
     IntArray expected = IntArray.of(0, 1, 2, 0, 1, 2, 0, 1, 2).reshape(3, 3);
@@ -53,16 +74,16 @@ public class ArraysTest {
   @Test
   public void testBroadcastTo_1darray() throws Exception {
     IntArray a = IntArray.of(0, 1, 2);
-    System.out.println(Arrays.broadcastTo(a, 3,3,3));
+    System.out.println(Arrays.broadcastTo(a, 3, 3, 3));
   }
 
   @Test
   public void testBroadcast() throws Exception {
-    IntArray a = IntArray.of(10032,3,3).reshape(3,1);
-    System.out.println(Arrays.broadcastTo(a, 3,3,3));
-//
-//    a = Range.of(3*3).reshape(3,3, 1);
-//    System.out.println(Arrays.broadcastTo(a, 1,1, 3, 3, 6));
+    IntArray a = IntArray.of(10032, 3, 3).reshape(3, 1);
+    System.out.println(Arrays.broadcastTo(a, 3, 3, 3));
+    //
+    // a = Range.of(3*3).reshape(3,3, 1);
+    // System.out.println(Arrays.broadcastTo(a, 1,1, 3, 3, 6));
 
     // IntArray a = Range.of(3).reshape(1, 3);
     // System.out.println(Arrays.broadcastTo(a, 30, 3));
@@ -82,9 +103,9 @@ public class ArraysTest {
     // Arrays.broadcast(IntArray.of(0, 1, 0, 1).reshape(2, 2), new int[] {3, 2, 2})));
     IntArray x = IntArray.of(0, 1, 2).reshape(1, 3, 1);
     IntArray y = IntArray.of(0, 1, 2).reshape(3, 1, 1);
-//
-//    System.out.println(y);
-//    System.out.println(Arrays.broadcastTo(y, 3, 3, 3));
+    //
+    // System.out.println(y);
+    // System.out.println(Arrays.broadcastTo(y, 3, 3, 3));
 
     System.out.println(Arrays.broadcastArrays(java.util.Arrays.asList(x, y)));
 

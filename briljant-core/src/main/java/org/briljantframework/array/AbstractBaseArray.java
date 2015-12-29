@@ -20,19 +20,17 @@
  */
 package org.briljantframework.array;
 
-import static org.briljantframework.array.Arrays.broadcastArrays;
 import static org.briljantframework.array.Arrays.broadcastTo;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.primitive.IntList;
 
 /**
  * This class provides a skeletal implementation of the {@link BaseArray} interface to minimize the
@@ -97,7 +95,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   protected AbstractBaseArray(ArrayFactory factory, int[] shape) {
     this.factory = Objects.requireNonNull(factory);
     this.shape = shape.clone();
-    this.stride = StrideUtils.computeStride(1, shape);
+    this.stride = StrideUtils.computeStride(shape);
     this.size = ShapeUtils.size(shape);
     this.offset = 0;
     this.majorStride = 0;
@@ -186,23 +184,91 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   }
 
   @Override
-  public final E reshape(int... shape) {
-    if (shape.length == 0 || (shape.length == 1 && shape[0] == -1)) {
+  public final E reshape(int... newShape) {
+    if (newShape.length == 0 || (newShape.length == 1 && newShape[0] == -1)) {
       if (isContiguous()) {
-        int[] newShape = {size()};
-        return asView(getOffset(), newShape, StrideUtils.computeStride(1, newShape));
+        newShape = new int[] {size()};
+        return asView(getOffset(), newShape, StrideUtils.computeStride(newShape));
       } else {
-        return copy().reshape(shape);
+        return copy().reshape(newShape);
       }
     }
-    if (ShapeUtils.size(this.shape) != ShapeUtils.size(shape)) {
-      throw new IllegalArgumentException(String.format(CHANGED_TOTAL_SIZE,
-          Arrays.toString(this.shape), Arrays.toString(shape)));
+
+    // do nothing if the shapes are equal
+    if (Arrays.equals(this.shape, newShape)) {
+      return asView(shape, stride);
     }
-    if (isContiguous()) {
-      return asView(getOffset(), shape.clone(), StrideUtils.computeStride(1, shape));
+
+    if (ShapeUtils.size(this.shape) != ShapeUtils.size(newShape)) {
+      throw new IllegalArgumentException(String.format(CHANGED_TOTAL_SIZE,
+          Arrays.toString(this.shape), Arrays.toString(newShape)));
+    }
+
+    // The implementation is inspired by:
+    // https://github.com/numpy/numpy/blob/master/numpy/core/src/multiarray/shape.c#L171
+
+    int oldDims = 0;
+    int[] oldSize = new int[dims()];
+    int[] oldStrides = new int[dims()];
+    int[] newStrides = new int[newShape.length];
+
+    for (int oi = 0; oi < dims(); oi++) {
+      if (size(oi) != 1) {
+        oldSize[oldDims] = size(oi);
+        oldStrides[oldDims] = stride(oi);
+        oldDims++;
+      }
+    }
+
+    int oi = 0;
+    int oj = 1;
+    int ni = 0;
+    int nj = 1;
+    while (ni < newShape.length && oi < oldDims) {
+      int np = newShape[ni];
+      int op = oldSize[oi];
+
+      while (np != op) {
+        if (np < op) {
+          // trailing ones are handled later
+          np *= newShape[nj++];
+        } else {
+          op *= oldSize[oj++];
+        }
+      }
+
+      for (int i = oi; i < oj - 1; i++) {
+        // check if the array is continuous
+        if (oldStrides[i + 1] != oldSize[i] * oldStrides[i]) {
+          return copy().reshape(newShape);
+        }
+      }
+
+      // calculate the new stride
+      newStrides[ni] = oldStrides[oi];
+      for (int i = ni + 1; i < nj; i++) {
+        newStrides[i] = newStrides[i - 1] * newShape[i - 1];
+      }
+
+      ni = nj++;
+      oi = oj++;
+    }
+
+    int lastStride;
+    if (ni >= 1) {
+      lastStride = newStrides[ni - 1] * newShape[ni - 1];
     } else {
-      return copy().reshape(shape);
+      lastStride = newShape[ni - 1];
+    }
+
+    for (int i = ni; i < newShape.length; i++) {
+      newStrides[i] = lastStride;
+    }
+
+    if (isContiguous()) {
+      return asView(getOffset(), newShape.clone(), newStrides);
+    } else {
+      return copy().reshape(newShape);
     }
   }
 
@@ -234,122 +300,34 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   }
 
   // TODO: 21/12/15 work in progress. works better than before. still some bugs to iron out.
+  // TODO: 28/12/15 ranges with dims() > 1 should be treated as advanced indicies
   @Override
   public E getSlice(List<? extends IntArray> indexers) {
     Check.argument(indexers.size() <= dims(), "too many indicies for array");
     Check.argument(indexers.size() > 0, "too few indices for array");
 
-    List<IntArray> nonNull = new ArrayList<>();
-    int firstNonNull = -1;
-    boolean hasGap = false;
-    List<Integer> locs = new ArrayList<>();
-    for (int i = 0; i < indexers.size(); i++) {
-      IntArray indexer = indexers.get(i);
-      if (indexer != null && firstNonNull > 0 && i > 0) {
-        hasGap = true;
-      }
-      if (indexer != null) {
-        nonNull.add(indexer);
-        firstNonNull = i;
-        locs.add(i);
-      }
-    }
-    List<IntArray> broadcast = broadcastArrays(nonNull);
-
-    IntList dims = new IntList();
-    if (hasGap) {
-      for (int i = 0; i < broadcast.get(0).dims(); i++) {
-        dims.add(broadcast.get(0).size(i));
-      }
-      for (int i = 0; i < dims(); i++) {
-        if (!locs.contains(i)) {
-          dims.add(size(i));
-        }
-      }
+    AdvancedIndexer indexer = AdvancedIndexer.getIndexer(this, indexers);
+    if (indexer == null) {
+      List<Range> ranges = indexers.stream().map(Range.class::cast).collect(Collectors.toList());
+      return get(ranges);
     } else {
-      for (int i = 0; i < dims(); i++) {
-        if (locs.get(0) == i) {
-          IntArray index = indexers.get(i);
-          for (int j = 0; j < index.dims(); j++) {
-            dims.add(index.size(j));
-          }
-        } else {
-          dims.add(size(i));
+      IntArray[] indexArrays = indexer.getIndex();
+      int[] newShape = indexer.getShape();
+      // Since it's faster to linearly iterate a flat array we postpone reshaping it
+      E to = newEmptyArray(ShapeUtils.size(newShape));
+      E from = asView(getOffset(), shape, stride);
+      int[] fromIndex = new int[dims()];
+      int dims = dims();
+      int size = to.size();
+      for (int i = 0; i < size; i++) {
+        for (int k = 0; k < dims; k++) {
+          fromIndex[k] = indexArrays[k].get(i);
         }
+        to.set(i, from, StrideUtils.index(fromIndex, getOffset(), stride));
       }
-    }
-    int[] newShape = Arrays.copyOf(dims.elementData, dims.size());
-    IntArray[] arrays = new IntArray[dims()];
 
-    if (hasGap) {
-      int index = 0;
-      for (int i = 0; i < dims(); i++) {
-        int[] shape = new int[newShape.length];
-        if (i == 0) {
-          for (IntArray array : broadcast) {
-            for (int j = 0; j < shape.length; j++) {
-              if (j < array.dims()) {
-                shape[j] = array.size(j);
-              } else {
-                shape[j] = 1;
-              }
-            }
-            arrays[index++] = broadcastTo(array.reshape(shape), newShape);
-          }
-        } else {
-          Arrays.fill(shape, 1);
-          int size = newShape[i + index - 1];
-          shape[i + index - 1] = size;
-          arrays[i] = broadcastTo(Range.of(size).reshape(shape), newShape);
-        }
-      }
-    } else {
-      int j = 0;
-      int pad = 0;
-      for (int i = 0; i < dims(); i++) {
-        if (locs.contains(i)) { // Nonnull
-          int[] shape = new int[newShape.length];
-          int kk = 0;
-          for (int k = 0; k < i; k++) {
-            shape[kk++] = 1;
-          }
-          IntArray x = broadcast.get(j++);
-          for (int k = 0; k < x.dims(); k++) {
-            shape[kk++] = x.size(k);
-            pad++;
-          }
-          for (int k = kk; k < shape.length; k++) {
-            shape[k] = 1;
-          }
-          arrays[i] = broadcastTo(x.reshape(shape), newShape);
-          pad--;
-        } else {
-          int[] shape = new int[newShape.length];
-          for (int k = 0; k < shape.length; k++) {
-            shape[k] = 1;
-          }
-          shape[i + pad] = size(i);
-          IntArray r = Range.of(size(i)).reshape(shape);
-          arrays[i] = broadcastTo(r, newShape);
-        }
-      }
+      return to.reshape(newShape);
     }
-
-    E to = newEmptyArray(newShape);
-    E from = asView(getOffset(), getShape(), getStride());
-    int offset = from.getOffset();
-    int[] stride = from.getStride();
-    int[] index = new int[dims()];
-    int idx = 0;
-    for (int i = 0; i < to.size(); i++) {
-      for (int k = 0; k < arrays.length; k++) {
-        index[k] = arrays[k].get(idx);
-      }
-      idx++;
-      to.set(i, from, StrideUtils.index(index, offset, stride));
-    }
-
-    return to;
   }
 
   @Override
@@ -523,7 +501,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   @Override
   public boolean isView() {
     return !(majorStride == 0 && offset == 0 && Arrays.equals(stride,
-        StrideUtils.computeStride(1, shape)));
+        StrideUtils.computeStride(shape)));
   }
 
   @Override

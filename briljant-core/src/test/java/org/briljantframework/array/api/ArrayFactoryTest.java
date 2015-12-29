@@ -72,16 +72,18 @@ public abstract class ArrayFactoryTest {
 
   @Test
   public void testDoubleArraySelect_IntIndexer() throws Exception {
-    // IntArray x = Range.of(10 * 20 * 30).reshape(10, 20, 30);
-    // IntArray y = x.getSlice(Arrays.asList(null, IntArray.zeros(2, 2, 2), null));
-    // System.out.println(y);
-    // y = Range.of(10 * 20 * 30 * 40 * 50).reshape(10, 20, 30, 40, 50);
-    // System.out.println(y.getSlice(null, IntArray.zeros(2, 3, 4), null, IntArray.zeros(2, 3, 4)));
+    IntArray x = Range.of(10 * 20 * 30).reshape(10, 20, 30);
+    IntArray y =
+        x.getSlice(IntArray.of(1, 2, 3, 4).reshape(2, 2), IntArray.zeros(2, 2, 2), Range.of(3));
+    System.out.println(y);
+    // IntArray y = Range.of(10 * 20 * 30 * 40 * 50).reshape(10, 20, 30, 40, 50);
+    // System.out.println(y.getSlice(Range.of(10), IntArray.zeros(2, 3, 4), Range.of(30),
+    // IntArray.zeros(2, 3, 4), Range.of(50)));
 
-    IntArray x = Range.of(4 * 3).reshape(4, 3);
-    System.out.println(x);
-    System.out.println(x.getSlice(null, IntArray.of(0, 1, 0, 1)));
-    System.out.println(x.getSlice(IntArray.of(0, 1, 0, 1).reshape(2, 2), null));
+    // IntArray x = Range.of(4 * 3).reshape(4, 3);
+    // System.out.println(x);
+    // System.out.println(x.getSlice(Range.of(4), IntArray.of(0, 1, 0, 1)));
+    // System.out.println(x.getSlice(IntArray.of(0, 1, 0, 1).reshape(2, 2), Range.of(3)));
 
 
 
