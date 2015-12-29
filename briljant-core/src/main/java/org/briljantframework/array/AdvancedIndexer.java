@@ -29,9 +29,10 @@ public class AdvancedIndexer {
   /**
    * Returns an advanced indexer using the given arrays
    * 
-   * @param array
-   * @param arrays
-   * @return
+   * @param array the array to index
+   * @param arrays the arrays used for indexing
+   * @return a new indexer if advanced indexing is required; null otherwise (if all arrays are basic
+   *         indexers)
    */
   public static AdvancedIndexer getIndexer(BaseArray<?> array, List<? extends IntArray> arrays) {
     if (arrays.stream().allMatch(AdvancedIndexer::isBasicIndexer)) {
@@ -40,9 +41,10 @@ public class AdvancedIndexer {
       int[] shape = array.getShape();
       List<IntArray> advancedIndexes = new ArrayList<>();
       boolean hasBasicIndexGap = false;
-      IntArray[] indexers = new IntArray[shape.length];
+      int ndims = array.dims();
+      IntArray[] indexers = new IntArray[ndims];
       int nonRangeIndex = -1;
-      for (int i = 0; i < shape.length; i++) {
+      for (int i = 0; i < ndims; i++) {
         if (i < arrays.size()) {
           IntArray index = arrays.get(i);
           Check.argument(index != null, "indexer is required.");
@@ -54,8 +56,9 @@ public class AdvancedIndexer {
             advancedIndexes.add(index);
             nonRangeIndex = i;
           }
-          indexers[i] = index;
+          indexers[i] = index == BasicIndex.ALL ? Arrays.range(shape[i]) : index;
         } else {
+          // include everything from additional dimensions not covered by the index
           indexers[i] = Arrays.range(shape[i]);
         }
       }
@@ -77,20 +80,21 @@ public class AdvancedIndexer {
         // if we can place the index correctly, we place it at the position of
         // the first advanced index
         int firstAdvancedIndex = -1;
-        for (int i = 0; i < indexers.length; i++) {
+        for (int i = 0; i < ndims; i++) {
           if (!(isBasicIndexer(indexers[i]))) {
             firstAdvancedIndex = i;
             break;
           }
         }
 
-        for (int i = 0; i < shape.length; i++) {
+        for (int i = 0; i < ndims; i++) {
           // place the advanced index at the appropriate position
           if (firstAdvancedIndex == i) {
             dims.addAll(broadcastShape);
           } else {
-            if (isBasicIndexer(indexers[i])) {
-              dims.add(indexers[i].size());
+            IntArray index = indexers[i];
+            if (isBasicIndexer(index)) {
+              dims.add(index.size());
             }
           }
         }
@@ -99,7 +103,7 @@ public class AdvancedIndexer {
       int[] newShape = dims.toPrimitiveArray();
 
       // index arrays broadcast to the shape of the
-      IntArray[] indexArrays = new IntArray[shape.length];
+      IntArray[] indexArrays = new IntArray[ndims];
 
       if (hasBasicIndexGap) {
         // if we have a gap, insert the advanced indexer shape first and then the
@@ -128,7 +132,7 @@ public class AdvancedIndexer {
         int j = 0;
         int basicIndexPosition = 0;
         int[] compatibleShape = new int[newShape.length];
-        for (int i = 0; i < shape.length; i++) {
+        for (int i = 0; i < ndims; i++) {
           java.util.Arrays.fill(compatibleShape, 1);
           IntArray index = indexers[i];
           if (isBasicIndexer(index)) {

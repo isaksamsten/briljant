@@ -1,9 +1,10 @@
 package org.briljantframework.array.api;
 
-import static org.briljantframework.array.ArraySelector.ALL;
+import static org.briljantframework.array.BasicIndex.ALL;
 import static org.junit.Assert.assertEquals;
 
 import org.briljantframework.array.Array;
+import org.briljantframework.array.ArrayPrinter;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.Range;
@@ -72,10 +73,11 @@ public abstract class ArrayFactoryTest {
 
   @Test
   public void testDoubleArraySelect_IntIndexer() throws Exception {
-    IntArray x = Range.of(10 * 20 * 30).reshape(10, 20, 30);
-    IntArray y =
-        x.getSlice(IntArray.of(1, 2, 3, 4).reshape(2, 2), IntArray.zeros(2, 2, 2), Range.of(3));
-    System.out.println(y);
+    ArrayPrinter.setMinimumTruncateSize(10000000);
+    IntArray x = Range.of(4 * 5 * 6).reshape(4, 5, 6).copy();
+//    IntArray y =
+        x.set(new IntArray[]{IntArray.of(1, 2, 3, 0).reshape(2, 2), IntArray.zeros(2, 2, 2), Range.of(3)}, IntArray.of(2));
+    System.out.println(x);
     // IntArray y = Range.of(10 * 20 * 30 * 40 * 50).reshape(10, 20, 30, 40, 50);
     // System.out.println(y.getSlice(Range.of(10), IntArray.zeros(2, 3, 4), Range.of(30),
     // IntArray.zeros(2, 3, 4), Range.of(50)));

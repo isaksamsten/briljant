@@ -295,59 +295,36 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   }
 
   @Override
-  public E getSlice(IntArray... indexers) {
-    return getSlice(Arrays.asList(indexers));
+  public E getView(Range... indexers) {
+    return getView(Arrays.asList(indexers));
   }
 
   // TODO: 21/12/15 work in progress. works better than before. still some bugs to iron out.
   // TODO: 28/12/15 ranges with dims() > 1 should be treated as advanced indicies
   @Override
-  public E getSlice(List<? extends IntArray> indexers) {
-    Check.argument(indexers.size() <= dims(), "too many indicies for array");
-    Check.argument(indexers.size() > 0, "too few indices for array");
+  public E getView(List<? extends Range> ranges) {
+    Check.argument(ranges.size() <= dims(), "too many indicies for array");
+    Check.argument(ranges.size() > 0, "too few indices for array");
 
-    AdvancedIndexer indexer = AdvancedIndexer.getIndexer(this, indexers);
-    if (indexer == null) {
-      List<Range> ranges = indexers.stream().map(Range.class::cast).collect(Collectors.toList());
-      return get(ranges);
-    } else {
-      IntArray[] indexArrays = indexer.getIndex();
-      int[] newShape = indexer.getShape();
-      // Since it's faster to linearly iterate a flat array we postpone reshaping it
-      E to = newEmptyArray(ShapeUtils.size(newShape));
-      E from = asView(getOffset(), shape, stride);
-      int[] fromIndex = new int[dims()];
-      int dims = dims();
-      int size = to.size();
-      for (int i = 0; i < size; i++) {
-        for (int k = 0; k < dims; k++) {
-          fromIndex[k] = indexArrays[k].get(i);
-        }
-        to.set(i, from, StrideUtils.index(fromIndex, getOffset(), stride));
-      }
+    int[] stride = getStride();
+    int[] shape = getShape();
+    int offset = getOffset();
+    for (int i = 0; i < ranges.size(); i++) {
+      Range r = ranges.get(i);
+      int start = r.start();
+      int end = r == BasicIndex.ALL ? size(i) : r.size();
+      int step = r.step();
 
-      return to.reshape(newShape);
+      Check.argument(step > 0, "Illegal step size in dimension %s", step);
+      Check
+          .argument(start >= 0 && start <= start + end, ILLEGAL_DIMENSION_INDEX, start, i, size(i));
+      Check.argument(end <= size(i), ILLEGAL_DIMENSION_INDEX, end, i, size(i));
+      offset += start * stride[i];
+      shape[i] = end;
+      stride[i] = stride[i] * step;
     }
-  }
 
-  @Override
-  public void setSlice(List<? extends IntArray> indexers, E slice) {
-    Check.argument(indexers.size() <= dims(), "too many indicies for array");
-    Check.argument(indexers.size() > 0, "too few indices for array");
-    int dims = indexers.stream().mapToInt(IntArray::dims).max().getAsInt();
-    Check.all(indexers).argument(i -> i.dims() == dims);
-
-    int[] shape = new int[dims + dims() - indexers.size()];
-    for (int i = 0; i < shape.length; i++) {
-      if (i < dims) {
-        shape[i] = indexers.get(0).size(i);
-      } else {
-        shape[i] = size(i - dims);
-      }
-    }
-    E from = broadcastTo(slice, shape);
-    IntArray[] i = indexers.toArray(new IntArray[indexers.size()]);
-    recursiveSetSlice(asView(getShape(), getStride()), from, i, 1);
+    return asView(offset, shape, stride);
   }
 
   @Override
@@ -381,33 +358,61 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   }
 
   @Override
-  public E get(RangeIndexer... ranges) {
-    return get(Arrays.asList(ranges));
+  public E get(IntArray... arrays) {
+    return get(Arrays.asList(arrays));
   }
 
   @Override
-  public E get(List<? extends RangeIndexer> ranges) {
-    Check.argument(ranges.size() > 0, "Too few ranges to slice");
-    Check.argument(ranges.size() <= dims(), "Too many ranges to slice");
-    int[] stride = getStride();
-    int[] shape = getShape();
-    int offset = getOffset();
-    for (int i = 0; i < ranges.size(); i++) {
-      RangeIndexer r = ranges.get(i);
-      int start = r.start();
-      int end = r.end(size(i));
-      int step = r.step();
+  public E get(List<? extends IntArray> arrays) {
+    Check.argument(arrays.size() <= dims(), "too many indicies for array");
+    Check.argument(arrays.size() > 0, "too few indices for array");
 
-      Check.argument(step > 0, "Illegal step size in dimension %s", step);
-      Check
-          .argument(start >= 0 && start <= start + end, ILLEGAL_DIMENSION_INDEX, start, i, size(i));
-      Check.argument(end <= size(i), ILLEGAL_DIMENSION_INDEX, end, i, size(i));
-      offset += start * stride[i];
-      shape[i] = end;
-      stride[i] = stride[i] * step;
+    AdvancedIndexer indexer = AdvancedIndexer.getIndexer(this, arrays);
+    if (indexer == null) {
+      List<Range> ranges = arrays.stream().map(Range.class::cast).collect(Collectors.toList());
+      return getView(ranges);
+    } else {
+      IntArray[] indexArrays = indexer.getIndex();
+      int[] newShape = indexer.getShape();
+      // Since it's faster to linearly iterate a flat array we postpone reshaping it
+      E to = newEmptyArray(ShapeUtils.size(newShape));
+      E from = asView(getOffset(), shape, stride);
+      int[] fromIndex = new int[dims()];
+      int dims = dims();
+      int size = to.size();
+      for (int i = 0; i < size; i++) {
+        for (int k = 0; k < dims; k++) {
+          fromIndex[k] = indexArrays[k].get(i);
+        }
+        to.set(i, from, StrideUtils.index(fromIndex, getOffset(), stride));
+      }
+      return to.reshape(newShape);
     }
 
-    return asView(offset, shape, stride);
+  }
+
+  @Override
+  public void set(List<? extends IntArray> arrays, E from) {
+    Check.argument(arrays.size() <= dims(), "too many indicies for array");
+    Check.argument(arrays.size() > 0, "too few indices for array");
+
+    AdvancedIndexer indexer = AdvancedIndexer.getIndexer(this, arrays);
+    if (indexer == null) {
+      List<Range> ranges = arrays.stream().map(Range.class::cast).collect(Collectors.toList());
+      getView(ranges).assign(from);
+    } else {
+      int[] shape = indexer.getShape();
+      from = broadcastTo(from, shape);
+      int size = from.size();
+      int dims = dims();
+      int[] toIndex = new int[dims];
+      for (int i = 0; i < size; i++) {
+        for (int j = 0; j < dims; j++) {
+          toIndex[j] = indexer.getIndex(j).get(i);
+        }
+        set(StrideUtils.index(toIndex, getOffset(), stride), from, i);
+      }
+    }
   }
 
   @Override
@@ -518,112 +523,6 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
           majorStride == 0 ? dims() - 1 : 0 // change the major stride
       );
     }
-  }
-
-  private void recursiveSetSlice(E to, E from, IntArray[] indexers, int dims) {
-    if (dims == 1) {
-      recursiveSetSlice2(to, from, indexers);
-    } else {
-      IntArray[] newIndexers = new IntArray[indexers.length];
-      for (int j = 0; j < indexers[0].size(0); j++) {
-        for (int i = 0; i < indexers.length; i++) {
-          newIndexers[i] = indexers[i].select(j);
-        }
-        recursiveSetSlice(to.select(j), from, newIndexers, dims - 1);
-      }
-    }
-  }
-
-  private void recursiveSetSlice2(E to, E from, IntArray[] indexers) {
-    IntArray indexer = indexers[0];
-    if (indexers.length == 1) {
-      if (to.isVector()) {
-        for (int i = 0; i < indexer.size(); i++) {
-          to.set(indexer.get(i), from, i);
-        }
-      } else {
-        for (int i = 0; i < indexer.size(); i++) {
-          to.select(indexer.get(i)).assign(from.select(i));
-        }
-      }
-    } else {
-      for (int i = 0; i < indexer.size(); i++) {
-        int fromIndex = indexer.get(i);
-        recursiveSetSlice3(to.select(fromIndex), from, indexers, i, 1);
-      }
-    }
-  }
-
-  private void recursiveSetSlice3(E to, E from, IntArray[] indexers, int j, int dim) {
-    int toIndex = indexers[dim].get(j);
-    if (indexers.length - 1 == dim) {
-      if (to.isVector()) {
-        to.set(toIndex, from, j);
-      } else {
-        to.select(toIndex).assign(from.select(j));
-      }
-    } else {
-      recursiveSetSlice3(to.select(toIndex), from, indexers, j, dim + 1);
-    }
-  }
-
-  /**
-   * Recursively select the appropriate indexers and slices in the to array
-   */
-  private void recursiveGetSlice(E to, E from, IntArray[] indexers, int dims) {
-    if (dims == 1) {
-      recursiveGetSlice2(to, from, indexers);
-    } else {
-      IntArray[] newIndexers = new IntArray[indexers.length];
-      for (int j = 0; j < indexers[0].size(0); j++) {
-        for (int i = 0; i < indexers.length; i++) {
-          newIndexers[i] = indexers[i].select(j);
-        }
-        recursiveGetSlice(to.select(j), from, newIndexers, dims - 1);
-      }
-    }
-  }
-
-  /**
-   * Recursively select the correct from slices and assign them to the correct to slices using the
-   * indexers, reduced to
-   */
-  private void recursiveGetSlice2(E to, E from, IntArray[] indexers) {
-    IntArray indexer = indexers[0];
-    if (indexers.length == 1) {
-      if (to.isVector()) {
-        for (int i = 0; i < indexer.size(); i++) {
-          to.set(i, from, indexer.get(i));
-        }
-      } else {
-        for (int i = 0; i < indexer.size(); i++) {
-          to.select(i).assign(from.select(indexer.get(i)));
-        }
-      }
-    } else {
-      for (int i = 0; i < indexer.size(); i++) {
-        int fromIndex = indexer.get(i);
-        recursiveGetSlice3(to, from.select(fromIndex), indexers, i, 1);
-      }
-    }
-  }
-
-  private void recursiveGetSlice3(E to, E from, IntArray[] indexers, int j, int dim) {
-    int fromIndex = indexers[dim].get(j);
-    if (indexers.length - 1 == dim) {
-      if (to.isVector()) {
-        to.set(j, from, fromIndex);
-      } else {
-        to.select(j).assign(from.select(fromIndex));
-      }
-    } else {
-      recursiveGetSlice3(to, from.select(fromIndex), indexers, j, dim + 1);
-    }
-  }
-
-  private void validIndexInDim(E from, int dim, int fromIndex) {
-    Check.argument(fromIndex >= 0 && fromIndex < from.size(), ILLEGAL_DIMENSION_INDEX, fromIndex,
-        dim, from.size(0));
   }
 
   /**

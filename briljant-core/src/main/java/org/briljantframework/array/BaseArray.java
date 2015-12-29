@@ -552,108 +552,156 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * 
    * @param indexers the indexers
    * @return a new array
-   * @see #getSlice(List)
+   * @see #getView(List)
    */
-  S getSlice(IntArray... indexers);
+  S getView(Range... indexers);
+
 
   /**
-   * Integer-based slicing, as opposed to basic slicing, returns a copy of the array. Complex
-   * slicing selects a subset of the data based on numerical indicies on a per dimension basis. To
-   * include ranges of values, one simple way is to use {@code Arrays.range(end).flat()}.
+   * Basic slicing returns a view of the nd-array. The standard rules of slicing applies to basic
+   * slicing on a per dimension basis, i.e., the values included in a range (with step > 0) is
+   * selected for each dimension {@code d}. Given an nd-array, a range {@code range(i, j, k)} with
+   * start index ({@code i}), end index ({@code j}) and step size ({@code k}) selects a series of
+   * {@code m} values (in the d:th dimension) {@code i, i+k,...,i+(m-1)} where {@code m = q/k + r}
+   * and {@code q=j-i} and {@code r = 1(i % k = 0)}. If {@code ranges.size() < dims()}, dimension d
+   * {@code d > ranges.size() && d <= dims()} are assumed to be {@code range(0, size(d), 1)}
    *
    * <p>
-   * Examples
+   * It is simple to see that the (specialized in each primitive array) function {@code get(int...)}
+   * is a special case returning a single field.
+   * </p>
+   *
+   * <p>
+   * Example
+   * <ul>
+   * <li>1d-array
    *
    * <pre>
-   * IntArray x = Arrays.range(2 * 3 * 4).reshape(2, 3, 4);
+   * IntArray r = Arrays.range(10);
    * </pre>
    *
-   * produces
+   * produces,
    *
    * <pre>
-   * array([[[0,  9, 18, 27],
-   *         [3, 12, 21, 30],
-   *         [6, 15, 24, 33]],
-   * 
-   *        [[1, 10, 19, 28],
-   *         [4, 13, 22, 31],
-   *         [7, 16, 25, 34]],
-   * 
-   *        [[2, 11, 20, 29],
-   *         [5, 14, 23, 32],
-   *         [8, 17, 26, 35]]])
+   * array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
    * </pre>
    *
    * and
    *
    * <pre>
-   * x.select(IntArray.of(0, 1));
+   * r.get(Arrays.range(0, 8, 2));
    * </pre>
    *
    * produces
    *
    * <pre>
-   * array([[[0,  9, 18, 27],
-   *         [3, 12, 21, 30],
-   *         [6, 15, 24, 33]],
-   * 
-   *        [[1, 10, 19, 28],
-   *         [4, 13, 22, 31],
-   *         [7, 16, 25, 34]]])
+   * array([0, 2, 4, 6])
+   * </pre>
+   *
+   * </pre>
+   *
+   * </li>
+   * <li>2d-array
+   *
+   * <pre>
+   * IntArray r = Arrays.range(3 * 3).reshape(3, 3);
+   * </pre>
+   *
+   * produces,
+   *
+   * <pre>
+   * array([[0, 3, 6],
+   *        [1, 4, 7],
+   *        [2, 5, 8]])
    * </pre>
    *
    * and
    *
    * <pre>
-   * x.select(IntArray.of(0, 1), IntArray.of(1, 2));
+   * r.get(Arrays.range(1, 2)
    * </pre>
    *
    * produces
    *
    * <pre>
-   * array([[3, 12, 21, 30],
-   *        [7, 16, 25, 34]])
+   * array([[1, 4, 7]])
    * </pre>
    *
    * and
    *
    * <pre>
-   * x.select(IntArray.of(1,1), IntArray.of(1,1), IntArray.of(1,1)));
+   * r.get(Arrays.range(0, 3, 2), Arrays.range(0, 3, 2))
    * </pre>
    *
    * produces
    *
    * <pre>
-   * array([13, 13])
+   * array([[0, 6],
+   *        [2, 8]])
    * </pre>
-   * 
-   * Note that the returned slice is a new array (i.e., changes are not visible in the original
-   * array)
    *
-   * @param indexers a list of indexes to include
-   * @return a new array
-   */
-  S getSlice(List<? extends IntArray> indexers);
-
-  /**
-   * Set the slice denoted by the indexer to to given slice.
+   * </li>
+   * <li>nd-array
+   *
+   * <pre>
+   * IntArray r = Arrays.range(3*3*3).reshape(3,3,3):
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
+   *  array([[[0,  9, 18],
+   *          [3, 12, 21],
+   *          [6, 15, 24]],
    * 
-   * @param indexers the indexers
-   * @param slice the slice
-   * @see #setSlice(List, BaseArray)
-   */
-  default void setSlice(IntArray[] indexers, S slice) {
-    setSlice(java.util.Arrays.asList(indexers), slice);
-  }
-
-  /**
-   * Set the slice denoted by the indexer to the given slice.
+   *         [[1, 10, 19],
+   *          [4, 13, 22],
+   *          [7, 16, 25]],
    * 
-   * @param indexers the indexer
-   * @param slice the slice
-   * @see #getSlice(List)
+   *         [[2, 11, 20],
+   *          [5, 14, 23],
+   *          [8, 17, 26]]])
+   * </pre>
+   *
+   * and
+   *
+   * <pre>
+   * r.get(Arrays.range(0, 3, 2));
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
+   *  array([[[0,  9, 18],
+   *          [3, 12, 21],
+   *          [6, 15, 24]],
+   * 
+   *         [[2, 11, 20],
+   *          [5, 14, 23],
+   *          [8, 17, 26]]])
+   * </pre>
+   *
+   * and
+   *
+   * <pre>
+   * r.get(Arrays.range(0, 3, 2), Arrays.range(0, 1), Arrays.range(0, 3, 2))
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
+   * array([[[0, 18]],
+   * 
+   *        [[2, 20]]])
+   * </pre>
+   *
+   * </li>
+   * </ul>
+   *
+   * @param ranges a collection of ranges
+   * @return a view
    */
-  void setSlice(List<? extends IntArray> indexers, S slice);
+  S getView(List<? extends Range> ranges);
 
   /**
    * Gets the {@code i:th} vector along the {@code d:th} dimension. For 2d-arrays,
@@ -862,157 +910,111 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
   S getDiagonal();
 
   /**
-   * @param ranges the ranges (one for each dimension) to include in the view
+   * @param arrays the ranges (one for each dimension) to include in the view
    * @return a view
    * @see #get(java.util.List)
    */
-  S get(RangeIndexer... ranges);
+  S get(IntArray... arrays);
 
   /**
-   * Basic slicing returns a view of the nd-array. The standard rules of slicing applies to basic
-   * slicing on a per dimension basis, i.e., the values included in a range (with step > 0) is
-   * selected for each dimension {@code d}. Given an nd-array, a range {@code range(i, j, k)} with
-   * start index ({@code i}), end index ({@code j}) and step size ({@code k}) selects a series of
-   * {@code m} values (in the d:th dimension) {@code i, i+k,...,i+(m-1)} where {@code m = q/k + r}
-   * and {@code q=j-i} and {@code r = 1(i % k = 0)}. If {@code ranges.size() < dims()}, dimension d
-   * {@code d > ranges.size() && d <= dims()} are assumed to be {@code range(0, size(d), 1)}
+   * Integer-based slicing, as opposed to basic slicing, returns a copy of the array. Complex
+   * slicing selects a subset of the data based on numerical indicies on a per dimension basis. To
+   * include ranges of values, one simple way is to use {@code Arrays.range(end).flat()}.
    *
    * <p>
-   * It is simple to see that the (specialized in each primitive array) function {@code get(int...)}
-   * is a special case returning a single field.
-   * </p>
-   *
-   * <p>
-   * Example
-   * <ul>
-   * <li>1d-array
-   * 
-   * <pre>
-   * IntArray r = Arrays.range(10);
-   * </pre>
-   * 
-   * produces,
-   * 
-   * <pre>
-   * array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-   * </pre>
-   * 
-   * and
-   * 
-   * <pre>
-   * r.get(Arrays.range(0, 8, 2));
-   * </pre>
-   * 
-   * produces
-   * 
-   * <pre>
-   * array([0, 2, 4, 6])
-   * </pre>
-   * 
-   * </pre>
-   * 
-   * </li>
-   * <li>2d-array
+   * Examples
    *
    * <pre>
-   * IntArray r = Arrays.range(3 * 3).reshape(3, 3);
-   * </pre>
-   * 
-   * produces,
-   * 
-   * <pre>
-   * array([[0, 3, 6],
-   *        [1, 4, 7],
-   *        [2, 5, 8]])
-   * </pre>
-   * 
-   * and
-   * 
-   * <pre>
-   * r.get(Arrays.range(1, 2)
-   * </pre>
-   * 
-   * produces
-   * 
-   * <pre>
-   * array([[1, 4, 7]])
-   * </pre>
-   * 
-   * and
-   * 
-   * <pre>
-   * r.get(Arrays.range(0, 3, 2), Arrays.range(0, 3, 2))
-   * </pre>
-   * 
-   * produces
-   * 
-   * <pre>
-   * array([[0, 6],
-   *        [2, 8]])
+   * IntArray x = Arrays.range(2 * 3 * 4).reshape(2, 3, 4);
    * </pre>
    *
-   * </li>
-   * <li>nd-array
+   * produces
    *
    * <pre>
-   * IntArray r = Arrays.range(3*3*3).reshape(3,3,3):
+   * array([[[0,  9, 18, 27],
+   *         [3, 12, 21, 30],
+   *         [6, 15, 24, 33]],
+   * 
+   *        [[1, 10, 19, 28],
+   *         [4, 13, 22, 31],
+   *         [7, 16, 25, 34]],
+   * 
+   *        [[2, 11, 20, 29],
+   *         [5, 14, 23, 32],
+   *         [8, 17, 26, 35]]])
    * </pre>
-   * 
-   * produces
-   * 
-   * <pre>
-   *  array([[[0,  9, 18],
-   *          [3, 12, 21],
-   *          [6, 15, 24]],
-   * 
-   *         [[1, 10, 19],
-   *          [4, 13, 22],
-   *          [7, 16, 25]],
-   * 
-   *         [[2, 11, 20],
-   *          [5, 14, 23],
-   *          [8, 17, 26]]])
-   * </pre>
-   * 
-   * and
-   * 
-   * <pre>
-   * r.get(Arrays.range(0, 3, 2));
-   * </pre>
-   * 
-   * produces
-   * 
-   * <pre>
-   *  array([[[0,  9, 18],
-   *          [3, 12, 21],
-   *          [6, 15, 24]],
-   * 
-   *         [[2, 11, 20],
-   *          [5, 14, 23],
-   *          [8, 17, 26]]])
-   * </pre>
-   * 
-   * and
-   * 
-   * <pre>
-   * r.get(Arrays.range(0, 3, 2), Arrays.range(0, 1), Arrays.range(0, 3, 2))
-   * </pre>
-   * 
-   * produces
-   * 
-   * <pre>
-   * array([[[0, 18]],
-   * 
-   *        [[2, 20]]])
-   * </pre>
-   * 
-   * </li>
-   * </ul>
    *
-   * @param ranges a collection of ranges
-   * @return a view
+   * and
+   *
+   * <pre>
+   * x.select(IntArray.of(0, 1));
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
+   * array([[[0,  9, 18, 27],
+   *         [3, 12, 21, 30],
+   *         [6, 15, 24, 33]],
+   * 
+   *        [[1, 10, 19, 28],
+   *         [4, 13, 22, 31],
+   *         [7, 16, 25, 34]]])
+   * </pre>
+   *
+   * and
+   *
+   * <pre>
+   * x.select(IntArray.of(0, 1), IntArray.of(1, 2));
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
+   * array([[3, 12, 21, 30],
+   *        [7, 16, 25, 34]])
+   * </pre>
+   *
+   * and
+   *
+   * <pre>
+   * x.select(IntArray.of(1,1), IntArray.of(1,1), IntArray.of(1,1)));
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
+   * array([13, 13])
+   * </pre>
+   *
+   * Note that the returned slice is a new array (i.e., changes are not visible in the original
+   * array)
+   *
+   * @param arrays a list of indexes to include
+   * @return a new array if advanced indexing and a view if basic indexing
+   * @see #getView(List)
    */
-  S get(List<? extends RangeIndexer> ranges);
+  S get(List<? extends IntArray> arrays);
+
+  /**
+   * Set the slice denoted by the indexer to to given slice.
+   *
+   * @param indexers the indexers
+   * @param slice the slice
+   * @see #set(List, BaseArray)
+   */
+  default void set(IntArray[] indexers, S slice) {
+    set(java.util.Arrays.asList(indexers), slice);
+  }
+
+  /**
+   * Set the slice denoted by the indexer to the given slice.
+   *
+   * @param arrays the indexer
+   * @param slice the slice
+   * @see #getView(List)
+   */
+  void set(List<? extends IntArray> arrays, S slice);
 
   /**
    * For a 2d-array, get a view of row starting at {@code rowOffset} until {@code rowOffset + rows}
