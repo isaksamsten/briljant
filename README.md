@@ -74,10 +74,15 @@ df.groupBy(LocalDate.class, "Date", LocalDate::getYear)
 [36 rows x 5 columns]
 ```
 ### ND-Array
+
+Creating an array of normally distributed real values and multiplying it with its transpose is as simple as:
+ 
 ```
 DoubleArray x = Arrays.randn(20).reshape(4, 5);
 Arrays.dot(x.transpose(), x);
 ```
+
+which produces the following output
 
 ```
 array([[ 8.095, -1.714, -2.135,  2.017, -3.727],
@@ -87,13 +92,55 @@ array([[ 8.095, -1.714, -2.135,  2.017, -3.727],
        [-3.727,  0.952,  2.531,  0.440,  5.072]])
 ```
 
+Similarly, creating a 2-by-2 `String` array is as simple as:
+
 ```
-Array<String> x = Array.of("a", "b", "c", "d").reshape(2, 2)
+Array<String> x = Array.of("a", "b", "c", "d").reshape(2, 2);
 ```
+
+which produces the following array:
 
 ```
 array([[a, c],
        [b, d]])
+```
+
+We can broadcast this array to a new shape
+
+```
+Array<String> y = Arrays.broadcast(x, 4, 2, 2);
+```
+
+which produces
+
+```
+array([[[a, c],
+        [b, d]],
+
+       [[a, c],
+        [b, d]],
+
+       [[a, c],
+        [b, d]],
+
+       [[a, c],
+        [b, d]]])
+```
+
+and select desired elements (`__` is a constant in the class `BasicIndex`):
+
+```
+y.get(IntArray.of(0, 3), __, IntArray.of(0, 0, 0, 0).reshape(2, 2))
+```
+
+which produces
+
+```
+array([[[a, b],
+        [a, b]],
+
+       [[a, b],
+        [a, b]]])
 ```
 
 Briljant also provides facilities to adapt arrays to 
