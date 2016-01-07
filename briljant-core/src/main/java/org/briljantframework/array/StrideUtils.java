@@ -130,7 +130,7 @@ public final class StrideUtils {
    */
   public static int index(int index, int offset, int[] stride, int[] shape) {
     if (stride.length == 1) {
-      return Math.abs(offset + index * stride[0]);
+      return offset + index * stride[0];
     } else if (stride.length == 2) {
       int shape0 = shape[0];
       int shape1 = shape[1];

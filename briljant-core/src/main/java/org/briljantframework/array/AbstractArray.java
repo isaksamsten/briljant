@@ -80,6 +80,16 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
     set(toIndex, from.get(fromIndex));
   }
 
+  @Override
+  public void set(int[] toIndex, Array<T> from, int fromIndex) {
+    set(toIndex, from.get(fromIndex));
+  }
+
+  @Override
+  public void set(int toIndex, Array<T> from, int[] fromIndex) {
+    set(toIndex, from.get(fromIndex));
+  }
+
   /**
    * @return a view of {@code this} array as a {@linkplain org.briljantframework.array.DoubleArray}
    * @throws java.lang.ClassCastException if {@code T} is not {@linkplain Double}
@@ -408,7 +418,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   /**
    * Converts a list to an array.
-   * 
+   *
    * @param list the list
    * @return an array (as created by {@link #newEmptyArray(int...)})
    */

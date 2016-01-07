@@ -75,14 +75,19 @@ public abstract class ArrayFactoryTest {
 
   @Test
   public void testDoubleArraySelect_IntIndexer() throws Exception {
-    ArrayPrinter.setMinimumTruncateSize(10000000);
+    ArrayPrinter.setMinimumTruncateSize(100);
     IntArray x = Range.of(4 * 5 * 6).reshape(4, 5, 6).copy();
     IntArray y =
         x.get(IntArray.of(1, 2, 3, 0).reshape(2, 2), IntArray.zeros(2, 2, 2), Range.of(3));
     System.out.println(y);
-    // IntArray y = Range.of(10 * 20 * 30 * 40 * 50).reshape(10, 20, 30, 40, 50);
-    // System.out.println(y.getSlice(Range.of(10), IntArray.zeros(2, 3, 4), Range.of(30),
-    // IntArray.zeros(2, 3, 4), Range.of(50)));
+//     IntArray y = Range.of(10 * 20 * 30 * 40 * 50).reshape(10, 20, 30, 40, 50);
+//     System.out.println(y.get(
+//         Range.of(10),
+//         IntArray.zeros(2, 3, 4),
+//         Range.of(30),
+//         IntArray.zeros(2, 3, 4),
+//         Range.of(50)
+//     ));
 
     // IntArray x = Range.of(4 * 3).reshape(4, 3);
     // System.out.println(x);

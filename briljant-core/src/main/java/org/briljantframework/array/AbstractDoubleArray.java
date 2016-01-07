@@ -91,6 +91,16 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
+  public void set(int[] toIndex, DoubleArray from, int fromIndex) {
+    set(toIndex, from.get(fromIndex));
+  }
+
+  @Override
+  public void set(int toIndex, DoubleArray from, int[] fromIndex) {
+    set(toIndex, from.get(fromIndex));
+  }
+
+  @Override
   public DoubleArray asDouble() {
     return this;
   }

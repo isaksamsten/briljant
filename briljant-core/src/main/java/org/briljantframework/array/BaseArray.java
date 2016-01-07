@@ -147,6 +147,10 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    */
   void set(int[] toIndex, S from, int[] fromIndex);
 
+  void set(int[] toIndex, S from, int fromIndex);
+
+  void set(int toIndex, S from, int[] fromIndex);
+
   /**
    * Reverses each dimension of the array.
    * 

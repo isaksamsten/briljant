@@ -358,6 +358,16 @@ public enum BasicIndex implements Range {
   }
 
   @Override
+  public void set(int[] toIndex, IntArray from, int fromIndex) {
+    throw unsupported();
+  }
+
+  @Override
+  public void set(int toIndex, IntArray from, int[] fromIndex) {
+    throw unsupported();
+  }
+
+  @Override
   public IntArray reverse() {
     throw unsupported();
   }
@@ -423,11 +433,6 @@ public enum BasicIndex implements Range {
   }
 
   @Override
-  public void set(List<? extends IntArray> arrays, IntArray slice) {
-    throw unsupported();
-  }
-
-  @Override
   public IntArray getVector(int dimension, int index) {
     throw unsupported();
   }
@@ -449,6 +454,11 @@ public enum BasicIndex implements Range {
 
   @Override
   public IntArray get(List<? extends IntArray> arrays) {
+    throw unsupported();
+  }
+
+  @Override
+  public void set(List<? extends IntArray> arrays, IntArray slice) {
     throw unsupported();
   }
 

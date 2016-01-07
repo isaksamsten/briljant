@@ -258,7 +258,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     if (ni >= 1) {
       lastStride = newStrides[ni - 1] * newShape[ni - 1];
     } else {
-      lastStride = newShape[ni - 1];
+      lastStride = ni > 0 ? newShape[ni - 1] : 1;
     }
 
     for (int i = ni; i < newShape.length; i++) {
@@ -282,16 +282,16 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     Check.argument(dims() > 1, "Can't select in 1-d array");
     Check.argument(index >= 0 && index < size(0), ILLEGAL_DIMENSION_INDEX, index, 0, size(0));
     int dims = dims();
-    return asView(getOffset() + index * stride(0), Arrays.copyOfRange(getShape(), 1, dims),
-        Arrays.copyOfRange(getStride(), 1, dims));
+    return asView(getOffset() + index * stride(0), Arrays.copyOfRange(shape, 1, dims),
+        Arrays.copyOfRange(stride, 1, dims));
   }
 
   @Override
   public E select(int dimension, int index) {
     Check.argument(dimension < dims() && dimension >= 0, "Can't select dimension.");
     Check.argument(index < size(dimension), "Index outside of shape.");
-    return asView(getOffset() + index * stride(dimension),
-        ArrayUtils.remove(getShape(), dimension), ArrayUtils.remove(getStride(), dimension));
+    return asView(getOffset() + index * stride(dimension), ArrayUtils.remove(shape, dimension),
+        ArrayUtils.remove(stride, dimension));
   }
 
   @Override
@@ -299,8 +299,6 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     return getView(Arrays.asList(indexers));
   }
 
-  // TODO: 21/12/15 work in progress. works better than before. still some bugs to iron out.
-  // TODO: 28/12/15 ranges with dims() > 1 should be treated as advanced indicies
   @Override
   public E getView(List<? extends Range> ranges) {
     Check.argument(ranges.size() <= dims(), "too many indicies for array");
@@ -329,21 +327,27 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   @Override
   public E getVector(int dimension, int index) {
+    if (ArrayUtils.contains(stride, 0)) {
+      return copy().getVector(dimension, index);
+    }
     int dims = dims();
     int vectors = vectors(dimension);
     Check.argument(dimension < dims, INVALID_DIMENSION, dimension, dims);
     Check.argument(index < vectors, INVALID_VECTOR, index, vectors);
 
-    int offset = getOffset();
-    int stride = stride(dimension);
-    int shape = size(dimension);
-    int indexMajorStride = index * stride(majorStride);
-    if (indexMajorStride >= stride) {
-      offset += (indexMajorStride / stride) * stride * (shape - 1);
+    int[] startIndex = new int[dims];
+    int stepSize = 1;
+    for (int i = 0; i < dims; i++) {
+      if (i == dimension) {
+        startIndex[i] = 0;
+      } else {
+        startIndex[i] = index / stepSize % size(i);
+        stepSize *= size(i);
+      }
     }
 
-    return asView(offset + indexMajorStride, new int[] {size(dimension)},
-        new int[] {stride(dimension)});
+    int offset = StrideUtils.index(startIndex, getOffset(), stride);
+    return asView(offset, new int[] {size(dimension)}, new int[] {stride(dimension)});
   }
 
   @Override
@@ -390,7 +394,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
                 size(j)));
           }
         }
-        to.set(i, from, StrideUtils.index(fromIndex, getOffset(), stride));
+        to.set(i, from, fromIndex);
       }
       return to.reshape(newShape);
     }
@@ -420,10 +424,10 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
             toIndex[j] = idx;
           } else {
             throw new IndexOutOfBoundsException(String.format(ILLEGAL_DIMENSION_INDEX, idx, j,
-                                                              size(j)));
+                size(j)));
           }
         }
-        set(StrideUtils.index(toIndex, getOffset(), stride), from, i);
+        set(toIndex, from, i);
       }
     }
   }
@@ -536,6 +540,10 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
           majorStride == 0 ? dims() - 1 : 0 // change the major stride
       );
     }
+  }
+
+  private E asView() {
+    return asView(shape, stride);
   }
 
   /**

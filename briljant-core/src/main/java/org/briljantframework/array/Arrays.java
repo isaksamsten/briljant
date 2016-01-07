@@ -1376,6 +1376,57 @@ public final class Arrays {
     return newShape;
   }
 
+  public static <E extends BaseArray<E>> E swapDimension(E array, int a, int b) {
+    int[] dims = new int[array.dims()];
+    for (int i = 0; i < dims.length; i++) {
+      dims[i] = i;
+    }
+    dims[a] = b;
+    dims[b] = a;
+    return transpose(array, dims);
+  }
+
+  /**
+   * Transpose the given array while permuting the dimensions.
+   * 
+   * @param array the array
+   * @param permute the new indices for the dimensions
+   * @param <E> the array type
+   * @return a view
+   */
+  private static <E extends BaseArray<E>> E transpose(E array, int[] permute) {
+    Check.argument(permute != null);
+    Check.argument(array.dims() == permute.length, "dimension don't match array");
+    int n = permute.length;
+
+    int[] reversePermutation = new int[n];
+    int[] permutation = new int[n];
+
+    java.util.Arrays.fill(reversePermutation, -1);
+    for (int i = 0; i < n; i++) {
+      int dim = permute[i];
+      if (dim < 0 || dim >= array.dims()) {
+        throw new IllegalArgumentException("invalid dimension for array");
+      }
+
+      if (reversePermutation[dim] != -1) {
+        throw new IllegalArgumentException("repeated dimension in transpose");
+      }
+
+      reversePermutation[dim] = i;
+      permutation[i] = dim;
+    }
+
+    int[] shape = new int[n];
+    int[] stride = new int[n];
+    for (int i = 0; i < n; i++) {
+      shape[i] = array.size(permutation[i]);
+      stride[i] = array.stride(permutation[i]);
+    }
+
+    return array.asView(array.getOffset(), shape, stride);
+  }
+
   /**
    * Returns the sum along the specified dimension.
    *
