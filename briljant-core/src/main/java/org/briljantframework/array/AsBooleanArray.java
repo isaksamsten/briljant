@@ -34,7 +34,7 @@ abstract class AsBooleanArray extends AbstractBooleanArray {
   }
 
   @Override
-  public BooleanArray asView(int offset, int[] shape, int[] stride, int majorStride) {
+  public BooleanArray asView(int offset, int[] shape, int[] stride) {
     return new AsBooleanArray(getArrayFactory(), offset, shape, stride, majorStride) {
       @Override
       protected boolean getElement(int i) {

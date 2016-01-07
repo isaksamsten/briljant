@@ -20,7 +20,7 @@
  */
 package org.briljantframework.array;
 
-import static org.briljantframework.array.Arrays.broadcastTo;
+import static org.briljantframework.array.Arrays.broadcast;
 
 import java.util.Arrays;
 import java.util.List;
@@ -107,15 +107,13 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
    *
    * @param factory the factory
    * @param offset the offset
-   * @param shape the shape
-   * @param stride the stride
+   * @param shape the shape (<strong>not copied</strong>)
+   * @param stride the stride (<strong>not copied</strong>)
    * @param majorStride the major stride index
    */
   protected AbstractBaseArray(ArrayFactory factory, int offset, int[] shape, int[] stride,
       int majorStride) {
     this.factory = factory;
-    // TODO: 04/12/15 note that this is not copied. We should clarify when the shape needs to be
-    // copied.
     this.shape = shape;
     this.stride = stride;
     this.size = ShapeUtils.size(shape);
@@ -145,7 +143,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   @Override
   public void assign(E o) {
     if (!isVector() || !o.isVector()) {
-      o = broadcastTo(o, getShape());
+      o = broadcast(o, getShape());
     }
     Check.size(this, o);
     for (int i = 0; i < o.size(); i++) {
@@ -402,19 +400,19 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   }
 
   @Override
-  public void set(List<? extends IntArray> arrays, E from) {
+  public void set(List<? extends IntArray> arrays, E value) {
     Check.argument(arrays.size() <= dims(), "too many indicies for array");
     Check.argument(arrays.size() > 0, "too few indices for array");
 
     AdvancedIndexer indexer = AdvancedIndexer.getIndexer(this, arrays);
     if (indexer == null) {
       List<Range> ranges = arrays.stream().map(Range.class::cast).collect(Collectors.toList());
-      getView(ranges).assign(from);
+      getView(ranges).assign(value);
     } else {
       IntArray[] indexArrays = indexer.getIndex();
       int[] shape = indexer.getShape();
-      from = broadcastTo(from, shape);
-      int size = from.size();
+      value = broadcast(value, shape);
+      int size = value.size();
       int dims = dims();
       int[] toIndex = new int[dims];
       for (int i = 0; i < size; i++) {
@@ -427,7 +425,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
                 size(j)));
           }
         }
-        set(toIndex, from, i);
+        set(toIndex, value, i);
       }
     }
   }
@@ -438,7 +436,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     Check.argument(rowOffset + rows <= rows() && colOffset + columns <= columns(),
         "Selected view is to large");
     return asView(getOffset() + rowOffset * stride(0) + colOffset * stride(1), new int[] {rows,
-        columns}, getStride(), rows == 1 ? 1 : 0 // change the major stride
+        columns}, getStride() // change the major stride
     );
   }
 
@@ -516,19 +514,14 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   }
 
   @Override
-  public final E asView(int offset, int[] shape, int[] stride) {
-    return asView(offset, shape, stride, 0);
-  }
-
-  @Override
   public boolean isView() {
-    return !(majorStride == 0 && offset == 0 && Arrays.equals(stride,
+    return !(isContiguous() && offset == 0 && Arrays.equals(stride,
         StrideUtils.computeStride(shape)));
   }
 
   @Override
   public final boolean isContiguous() {
-    return majorStride == 0;
+    return getMajorStride() == 1;
   }
 
   @Override
@@ -536,14 +529,10 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     if (dims() == 1) {
       return asView(getOffset(), getShape(), getStride());
     } else {
-      return asView(getOffset(), StrideUtils.reverse(shape), StrideUtils.reverse(stride),
-          majorStride == 0 ? dims() - 1 : 0 // change the major stride
+      return asView(getOffset(), StrideUtils.reverse(shape), StrideUtils.reverse(stride)
+      // , majorStride == 0 ? dims() - 1 : 0 // change the major stride
       );
     }
-  }
-
-  private E asView() {
-    return asView(shape, stride);
   }
 
   /**

@@ -175,10 +175,10 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * array([1.000, 2.000, 3.000, 4.000])
    * </pre>
    *
-   * The given array will be {@link Arrays#broadcastTo(BaseArray, int...) broadcast} to the this
+   * The given array will be {@link Arrays#broadcast(BaseArray, int...) broadcast} to the this
    * shape.
    * 
-   * @param o the matrix
+   * @param o the array to assign
    */
   void assign(S o);
 
@@ -252,7 +252,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * and
    * 
    * <pre>
-   * r.setColumn(0, Arrays.newVector(new int[] {0, 0, 1}))
+   * r.setColumn(0, IntArray.of(0, 0, 1))
    * </pre>
    * 
    * produces,
@@ -266,7 +266,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * and
    * 
    * <pre>
-   * r.get(Arrays.range(3), Arrays.range(1)).assign(Arrays.newVector(new int[] {0, 1, 0}))
+   * r.get(BasicIndex.ALL, Arrays.range(1)).assign(Arrays.newVector(new int[] {0, 1, 0}));
    * </pre>
    * 
    * produces
@@ -290,8 +290,8 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * Example
    * 
    * <pre>
-   * IntArray r = Arrays.range(3 * 3).reshape(3, 3).copy()
-   * r.setRow(0, Arrays.newVector(new int[]{0, 0, 1}))
+   * IntArray r = Arrays.range(3 * 3).reshape(3, 3).copy();
+   * r.setRow(0, Arrays.newIntVector(0, 0, 1));
    * </pre>
    * 
    * produces,
@@ -552,14 +552,13 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
   S select(int dimension, int index);
 
   /**
-   * Integer based slicing.
+   * Basic slicing returns a view of the array.
    * 
    * @param indexers the indexers
    * @return a new array
    * @see #getView(List)
    */
   S getView(Range... indexers);
-
 
   /**
    * Basic slicing returns a view of the nd-array. The standard rules of slicing applies to basic
@@ -991,8 +990,8 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * array([13, 13])
    * </pre>
    *
-   * Note that the returned slice is a new array (i.e., changes are not visible in the original
-   * array)
+   * If all index-arrays are {@linkplain AdvancedIndexer#isBasicIndexer(IntArray) basic indexers}
+   * the returned array is a view, otherwise the returned array is a new array.
    *
    * @param arrays a list of indexes to include
    * @return a new array if advanced indexing and a view if basic indexing
@@ -1012,13 +1011,19 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
   }
 
   /**
-   * Set the slice denoted by the indexer to the given slice.
+   * Set the slice denoted by the indexer to the given slice. If all index-arrays are basic
+   * indexers, the result of this method is equivalent to {@code x.get(..).assign(..)}. The primary
+   * purpose is hence when using advanced indexing.
+   *
+   * <p/>
+   * The value must be {@link Arrays#broadcast(BaseArray, int...) broadcastable} to the same shape
+   * as the selected array.
    *
    * @param arrays the indexer
-   * @param slice the slice
+   * @param value the slice
    * @see #getView(List)
    */
-  void set(List<? extends IntArray> arrays, S slice);
+  void set(List<? extends IntArray> arrays, S value);
 
   /**
    * For a 2d-array, get a view of row starting at {@code rowOffset} until {@code rowOffset + rows}
@@ -1038,13 +1043,13 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    *        [7, 8, 9]])
    * </pre>
    * 
-   * and
+   * We can take the lower right {@code 2 x 2} square as
    * 
    * <pre>
    * x.getView(1, 1, 2, 2);
    * </pre>
    * 
-   * produces
+   * which produces
    * 
    * <pre>
    * array([[5, 6]
@@ -1133,8 +1138,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
   int[] getStride();
 
   /**
-   * The major stride. In most cases this is {@code this.stride(0)} if {@code this.isContiguous()}
-   * returns true.
+   * The major stride, if the array is {@link #isContiguous() contiguous} {@code 1} is returned.
    *
    * @return the major stride
    */
@@ -1193,37 +1197,38 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * @param shape the shape of the view
    * @param stride the stride of the view
    * @return a view
-   * @see #asView(int, int[], int[], int)
+   * @see #asView(int, int[], int[])
    */
   S asView(int[] shape, int[] stride);
 
   /**
-   * Create a view of {@code this} array with the specified offset, shape and stride.
-   *
-   * @param offset the offset (where indexing starts)
-   * @param shape the shape of the view
-   * @param stride the strides of the view
-   * @return a view
-   * @see #asView(int, int[], int[], int)
-   */
-  S asView(int offset, int[] shape, int[] stride);
-
-  /**
-   * Create a view of this array with the specified offset, shape, stride and major stride. This is
-   * an advanced technique and in most cases can it be avoided.
+   * Create a view of this array with the specified offset, shape and stride. This is an advanced
+   * technique which in most cases can be avoided.
    *
    * <p>
    * Example
    * 
    * <pre>
-   * {@code
-   * > IntArray x = Arrays.range(10).reshape(2,5);
-   * array([[0, 2, 4, 6, 8],
-   *        [1, 3, 5, 7, 9]] type: int)
+   * IntArray x = Arrays.range(10).reshape(2, 5);
+   * </pre>
    * 
-   * > x.asView(new int[]{5}, new int[]{2});
-   * array([0, 2, 4, 6, 8] type: int)
-   * }
+   * produces
+   * 
+   * <pre>
+   * array([[0, 2, 4, 6, 8],
+   *        [1, 3, 5, 7, 9]])
+   * </pre>
+   * 
+   * To get every second element we can issue:
+   * 
+   * <pre>
+   * x.asView(new int[] {5}, new int[] {2});
+   * </pre>
+   * 
+   * which produces,
+   * 
+   * <pre>
+   * array([0, 2, 4, 6, 8])
    * </pre>
    *
    * A more complex example could be that we have a 2d-array and want to extract {@code p x p}
@@ -1284,10 +1289,8 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * @param offset the offset (where indexing starts)
    * @param shape the shape of the view
    * @param stride the stride of the view
-   * @param majorStride the index of the major stride (usually {@code 0} or {@code shape.length -
-   *                    1})
    */
-  S asView(int offset, int[] shape, int[] stride, int majorStride);
+  S asView(int offset, int[] shape, int[] stride);
 
   /**
    * Create a new array with the given shape.

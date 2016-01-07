@@ -1,3 +1,23 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2015 Isak Karlsson
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package org.briljantframework.array;
 
 import java.util.Iterator;
@@ -23,10 +43,95 @@ import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.function.ToIntObjIntBiFunction;
 
 /**
+ * Special indexer for inserting new dimensions and selecting everything along a specified dimension
+ * akin to {@code ..., : and np.newaxis} in <a href="http://numpy.org">Numpy</a>.
+ * 
+ * <p/>
+ * Example
+ * 
+ * <pre>
+ * import static org.briljantframework.array.BasicIndex.*;
+ * import org.briljantframework.array.*;
+ * 
+ * class Test {
+ *   public static void main(String[] args) {
+ *     IntArray x = Range.of(5 * 10).reshape(5, 10);
+ *     x.get(__, IntArray.of(0, 0, 1, 1).reshape(2, 2));
+ *     x.get(ALL, IntArray.of(0, 0));
+ *     x.get(IntArray.of(0, 4).reshape(2, 1), all);
+ *   }
+ * }
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * </pre>
+ * 
+ * which would produce
+ * 
+ * <pre>
+ * array([[[0, 5],
+ *         [0, 5]],
+ * 
+ *        [[1, 6],
+ *         [1, 6]],
+ * 
+ *        [[2, 7],
+ *         [2, 7]],
+ * 
+ *        [[3, 8],
+ *         [3, 8]],
+ * 
+ *        [[4, 9],
+ *         [4, 9]]])
+ * </pre>,
+ * 
+ * <pre>
+ *   array([[0, 0],
+ *          [1, 1],
+ *          [2, 2],
+ *          [3, 3],
+ *          [4, 4]])
+ * </pre>
+ *
+ * and
+ * 
+ * <pre>
+ * array([[[0, 5, 10, 15, 20, 25, 30, 35, 40, 45]],
+ * 
+ *        [[4, 9, 14, 19, 24, 29, 34, 39, 44, 49]]])
+ * </pre>
+ * 
+ * {@code ALL}, {@code all} and {@code __} all indicates the same thing.
+ * 
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
-public enum BasicIndex implements Range {
-  ALL;
+public final class BasicIndex implements Range {
+
+  /**
+   * Special selector that selects everything along the indicated dimension
+   */
+  public static final BasicIndex ALL = new BasicIndex();
+
+  /**
+   * @see #ALL
+   */
+  public static final BasicIndex all = ALL;
+
+  /**
+   * @see #ALL
+   */
+  public static final BasicIndex __ = ALL;
+
+  public static final BasicIndex NEW_DIMENSION = null;
+  public static final BasicIndex newdim = NEW_DIMENSION;
+
+  private BasicIndex() {}
 
   @Override
   public int step() {
@@ -458,7 +563,7 @@ public enum BasicIndex implements Range {
   }
 
   @Override
-  public void set(List<? extends IntArray> arrays, IntArray slice) {
+  public void set(List<? extends IntArray> arrays, IntArray value) {
     throw unsupported();
   }
 
@@ -539,11 +644,6 @@ public enum BasicIndex implements Range {
 
   @Override
   public IntArray asView(int offset, int[] shape, int[] stride) {
-    throw unsupported();
-  }
-
-  @Override
-  public IntArray asView(int offset, int[] shape, int[] stride, int majorStride) {
     throw unsupported();
   }
 

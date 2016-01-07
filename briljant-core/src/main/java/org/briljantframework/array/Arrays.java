@@ -1212,18 +1212,16 @@ public final class Arrays {
     }
   }
 
-  // TODO: 16/12/15 improve to allow one to place a new dim anywhere not only at the end.
-  public static <E extends BaseArray<E>> E newdim(E array, int dim) {
-    int[] shape = new int[array.dims() + dim];
-    for (int i = 0; i < shape.length; i++) {
-      if (i < array.dims()) {
-        shape[i] = array.size(i);
-      } else {
-        shape[i] = 1;
-      }
-    }
-
-    return array.reshape(shape);
+  /**
+   * Broadcast the given arrays against each other.
+   * 
+   * @param arrays the arrays to broadcast
+   * @param <E> the array type
+   * @return a list of broadcasted array views
+   * @see #broadcastArrays(List)
+   */
+  public static <E extends BaseArray<E>> List<E> broadcastArrays(E... arrays) {
+    return broadcastArrays(java.util.Arrays.asList(arrays));
   }
 
   /**
@@ -1321,61 +1319,32 @@ public final class Arrays {
    * @param <E> the array type
    * @return a broadcasted view
    */
-  public static <E extends BaseArray<E>> E broadcastTo(E x, int... newShape) {
+  public static <E extends BaseArray<E>> E broadcast(E x, int... newShape) {
     Check.argument(newShape.length > 0 && x.dims() <= newShape.length, "to few new dimensions");
-    Check.argument(ShapeUtils.isBroadcastCompatible(x.getShape(), newShape),
-        "Can't broadcast array with shape %s to %s", java.util.Arrays.toString(x.getShape()),
+    int[] oldShape = x.getShape();
+    Check.argument(ShapeUtils.isBroadcastCompatible(oldShape, newShape),
+        "Can't broadcast array with shape %s to %s", java.util.Arrays.toString(oldShape),
         java.util.Arrays.toString(newShape));
 
-    int[] oldShape = x.getShape();
     int[] oldStrides = x.getStride();
     if (java.util.Arrays.equals(oldShape, newShape)) {
       return x.asView(oldShape, oldStrides);
     } else {
-      newShape = broadcast(x, newShape);
+      newShape = ShapeUtils.broadcast(oldShape, newShape);
       int[] newStrides = StrideUtils.broadcastStrides(oldStrides, oldShape, newShape);
       return x.asView(newShape, newStrides);
     }
   }
 
   /**
-   * Return the shape of the given array brodcasted to the specified shape.
+   * Interchange two dimensions of an array.
    *
-   * @param x the array
-   * @param shape the broadcast shape
-   * @return the shapw of the new broadcast array
+   * @param array the array
+   * @param a the first dimension
+   * @param b the second dimension
+   * @param <E> the array type
+   * @return
    */
-  public static int[] broadcast(BaseArray<?> x, int[] shape) {
-    int[] newShape = new int[shape.length];
-    for (int i = 0; i < newShape.length; i++) {
-      int index = newShape.length - 1 - i;
-      int dim = x.dims() - 1 - i;
-      int broadcastShape = shape[index];
-      if (x.dims() == 1) {
-        if (i == 0) {
-          if (i < x.dims()) {
-            newShape[index] = Math.max(1, broadcastShape);
-          } else {
-            newShape[index] = broadcastShape;
-          }
-        } else {
-          if (i < x.dims()) {
-            newShape[index] = Math.max(x.size(dim), broadcastShape);
-          } else {
-            newShape[index] = broadcastShape;
-          }
-        }
-      } else {
-        if (i < x.dims()) {
-          newShape[index] = Math.max(broadcastShape, x.size(dim));
-        } else {
-          newShape[index] = broadcastShape;
-        }
-      }
-    }
-    return newShape;
-  }
-
   public static <E extends BaseArray<E>> E swapDimension(E array, int a, int b) {
     int[] dims = new int[array.dims()];
     for (int i = 0; i < dims.length; i++) {
@@ -1395,7 +1364,14 @@ public final class Arrays {
    * @return a view
    */
   private static <E extends BaseArray<E>> E transpose(E array, int[] permute) {
-    Check.argument(permute != null);
+    // If no permutation is given, just transpose the array
+    if (permute == null) {
+      permute = new int[array.dims()];
+      for (int i = 0; i < permute.length; i++) {
+        permute[i] = permute.length - 1 - i;
+      }
+    }
+
     Check.argument(array.dims() == permute.length, "dimension don't match array");
     int n = permute.length;
 

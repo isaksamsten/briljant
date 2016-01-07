@@ -34,7 +34,7 @@ abstract class AsLongArray extends AbstractLongArray {
   }
 
   @Override
-  public LongArray asView(int offset, int[] shape, int[] stride, int majorStride) {
+  public LongArray asView(int offset, int[] shape, int[] stride) {
     return new AsLongArray(getArrayFactory(), offset, shape, stride, majorStride) {
       @Override
       protected void setElement(int i, long value) {

@@ -71,7 +71,7 @@ class BaseLongArray extends AbstractLongArray {
   }
 
   @Override
-  public LongArray asView(int offset, int[] shape, int[] stride, int majorStride) {
+  public LongArray asView(int offset, int[] shape, int[] stride) {
     return new BaseLongArray(getArrayFactory(), offset, shape, stride, majorStride, data);
   }
 

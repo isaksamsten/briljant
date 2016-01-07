@@ -25,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import org.briljantframework.array.Array;
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
@@ -36,10 +37,12 @@ import org.junit.Test;
  */
 public class ArraysTest {
 
+
+
   @Test
   public void testSwapdimensions() throws Exception {
     // IntArray x = IntArray.of(0, 4, 2, 6, 1, 5, 3, 7).reshape(2, 2, 2);
-    IntArray x = Arrays.broadcastTo(IntArray.of(1, 2), 2, 2, 2);
+    IntArray x = Arrays.broadcast(IntArray.of(1, 2), 2, 2, 2);
     System.out.println(x);
 
     System.out.println(Arrays.swapDimension(x, 0, 2));
@@ -47,174 +50,43 @@ public class ArraysTest {
 
   @Test
   public void testBroadcast_reshape() throws Exception {
-    // IntArray x = IntArray.of(1, 2);
-    // IntArray a = Arrays.broadcastTo(x, 2, 2, 2).reshape(2, 1, 1, 2, 2);
-    // System.out.println(a);
-    // System.out.println(java.util.Arrays.toString(a.getStride()));
-    //
-    // IntArray b = Arrays.broadcastTo(IntArray.of(1), 2, 2, 2).reshape(2, 2, 2, 1);
-    // System.out.println(b);
-    // System.out.println(java.util.Arrays.toString(b.getStride()));
-    //
-    // IntArray c = Arrays.broadcastTo(IntArray.of(1, 2), 2, 2, 2).reshape(1, 1, 2, 2, 2);
-    // System.out.println(c);
-    // System.out.println(java.util.Arrays.toString(c.getStride()));
-
-    IntArray d = Arrays.broadcastTo(IntArray.of(1, 2), 2, 2, 2);
-
-
-    // IntArray d = Range.of(2 * 2 * 2).reshape(2, 2, 2);
-    // System.out.println(d);
-
-    // System.out.println(Arrays.sum(0, d));
-    // System.out.println(d.get(IntArray.of(1,1), BasicIndex.ALL, BasicIndex.ALL));
-
-//    d = Range.of(3 * 3 * 3*3).reshape(3, 3, 3, 3);
-    System.out.println(d);
-    // System.out.println(java.util.Arrays.toString(d.getStride()));
-    int dimension = 2;
-    int vectors = d.vectors(dimension);
-    System.out.println(vectors);
-    for (int i = 0; i < vectors; i++) {
-      IntArray vector = d.getVector(dimension, i);
-      System.out.println(vector);
-    }
-
-//    System.out.println(d.get(0, 0, 0, 0));
-//    System.out.println(d.get(1, 0, 0, 0));
-//    System.out.println(d.get(2, 0, 0, 0));
-//    System.out.println(d.get(0, 1, 0, 0));
-//    System.out.println(d.get(1, 1, 0, 0));
-//    System.out.println(d.get(2, 1, 0, 0));
-//    System.out.println(d.get(0, 2, 0, 0));
-//    System.out.println(d.get(1, 2, 0, 0));
-//    System.out.println(d.get(2, 2, 0, 0));
-//
-//    System.out.println(d.get(0, 0, 1, 0));
-//    System.out.println(d.get(1, 0, 1, 0));
-//    System.out.println(d.get(2, 0, 1, 0));
-//    System.out.println(d.get(0, 1, 1, 0));
-//    System.out.println(d.get(1, 1, 1, 0));
-//    System.out.println(d.get(2, 1, 1, 0));
-//    System.out.println(d.get(0, 2, 1, 0));
-//    System.out.println(d.get(1, 2, 1, 0));
-//    System.out.println(d.get(2, 2, 1, 0));
-//
-//    System.out.println(d.get(0, 0, 2, 0));
-//    System.out.println(d.get(1, 0, 2, 0));
-//    System.out.println(d.get(2, 0, 2, 0));
-//    System.out.println(d.get(0, 1, 2, 0));
-//    System.out.println(d.get(1, 1, 2, 0));
-//    System.out.println(d.get(2, 1, 2, 0));
-//    System.out.println(d.get(0, 2, 2, 0));
-//    System.out.println(d.get(1, 2, 2, 0));
-//    System.out.println(d.get(2, 2, 2, 0));
-//
-//
-//
-
-//    System.out.println(d.get(0, 0, 0));
-//    System.out.println(d.get(1, 0, 0));
-//    System.out.println(d.get(2, 0, 0));
-//
-//    System.out.println(d.get(0, 1, 0));
-//    System.out.println(d.get(1, 1, 0));
-//    System.out.println(d.get(2, 1, 0));
-//
-//    System.out.println(d.get(0, 2, 0));
-//    System.out.println(d.get(1, 2, 0));
-//    System.out.println(d.get(2, 2, 0));
-//
-//    int[] arr = new int[4];
-//      for (int j = 0; j < 3; j++) {
-//        for (int k = 0; k < 3; k++) {
-//          arr[0] = k;
-//          arr[1] = j;
-//          System.out.println(java.util.Arrays.toString(arr));
-//        }
-//      }
-//    for (int i = 0; i < d.vectors(dimension); i++) {
-//      arr[0] = (i / 1) % 3;
-//      arr[1] = (i / 3) % 3;
-//      arr[2] = (i / 9) % 3;
-//      System.out.println(java.util.Arrays.toString(arr));
-//    }
-//
-//     System.out.println(d.get(0, 0, 0));
-//     System.out.println(d.get(1, 0, 0));
-//     System.out.println(d.get(0, 0, 1));
-    // System.out.println(d.get(1, 0, 1));
-
-    // System.out.println(d.get(0, 0, 0));
-    // System.out.println(d.get(1, 0, 0));
-    // System.out.println(d.get(0, 1, 0));
-    // System.out.println(d.get(1, 1, 0));
-
-//    System.out.println(StrideUtils.index(new int[] {0, 0, 0}, d.getOffset(), d.getStride()));
-//    System.out.println(StrideUtils.index(new int[] {1, 0, 0}, d.getOffset(), d.getStride()));
-//    System.out.println(StrideUtils.index(new int[] {0, 1, 0}, d.getOffset(), d.getStride()));
-//    System.out.println(StrideUtils.index(new int[] {1, 1, 0}, d.getOffset(), d.getStride()));
-//    System.out.println(StrideUtils.index(new int[] {0, 2, 0}, d.getOffset(), d.getStride()));
-
-    //
-    // System.out.println(Arrays.sum(dimension, d));
-    // System.out.println(d.getVector(0, 1));
-    // System.out.println(d.asView(new int[]{3, 1, 3, 1, 3}, new int[]{0, 0, 0, 1, 1}));
-    // System.out.println(java.util.Arrays.toString(d.getStride()));
+    Array<String> a = Array.of("a", "b", "c");
+    Array<String> x = Arrays.broadcast(a, 6, 3).reshape(2, 9);
+    assertEquals(
+        Array.of("a", "a", "a", "a", "a", "a", "b", "b", "b", "b", "b", "b", "c", "c", "c", "c",
+            "c", "c").reshape(2, 9), x);
   }
 
   @Test
   public void testBroadcast_column_vector() throws Exception {
     IntArray a = IntArray.of(0, 1, 2).reshape(3, 1);
     IntArray expected = IntArray.of(0, 1, 2, 0, 1, 2, 0, 1, 2).reshape(3, 3);
-    assertEquals(expected, Arrays.broadcastTo(a, 3, 3));
+    assertEquals(expected, Arrays.broadcast(a, 3, 3));
   }
 
   @Test
   public void testBroadcastTo_row_vector() throws Exception {
     IntArray a = IntArray.of(0, 1, 2).reshape(1, 3);
     IntArray expected = IntArray.of(0, 0, 0, 1, 1, 1, 2, 2, 2).reshape(3, 3);
-    assertEquals(expected, Arrays.broadcastTo(a, 3, 3));
+    assertEquals(expected, Arrays.broadcast(a, 3, 3));
   }
 
   @Test
   public void testBroadcastTo_1darray() throws Exception {
     IntArray a = IntArray.of(0, 1, 2);
-    System.out.println(Arrays.broadcastTo(a, 3, 3, 3));
+    IntArray y = Arrays.broadcast(a, 3, 3, 3);
+    for (int i = 0; i < y.vectors(2); i++) {
+      assertEquals(a, y.getVector(2, i));
+    }
   }
 
   @Test
   public void testBroadcast() throws Exception {
     IntArray a = IntArray.of(10032, 3, 3).reshape(3, 1);
-    System.out.println(Arrays.broadcastTo(a, 3, 3, 3));
-    //
-    // a = Range.of(3*3).reshape(3,3, 1);
-    // System.out.println(Arrays.broadcastTo(a, 1,1, 3, 3, 6));
-
-    // IntArray a = Range.of(3).reshape(1, 3);
-    // System.out.println(Arrays.broadcastTo(a, 30, 3));
-
-
-
-    // System.out.println(a);
-    // System.out.println(Arrays.broadcast(a, new int[] {6, 3, 2}));
-    //
-    // IntArray b = IntArray.zeros(3, 2, 2);
-    // b.select(0).assign(0);
-    // b.select(1).assign(1);
-    // b.select(2).assign(2);
-    //
-    // IntArray x = Range.of(3 * 3 * 3).reshape(3, 3, 3);
-    // System.out.println(x.slice(b,
-    // Arrays.broadcast(IntArray.of(0, 1, 0, 1).reshape(2, 2), new int[] {3, 2, 2})));
-    IntArray x = IntArray.of(0, 1, 2).reshape(1, 3, 1);
-    IntArray y = IntArray.of(0, 1, 2).reshape(3, 1, 1);
-    //
-    // System.out.println(y);
-    // System.out.println(Arrays.broadcastTo(y, 3, 3, 3));
-
+    System.out.println(Arrays.broadcast(a, 3, 3, 3));
+    IntArray x = IntArray.of(0, 1, 2).reshape(1, 3);
+    IntArray y = IntArray.of(0, 1, 2).reshape(3, 1);
     System.out.println(Arrays.broadcastArrays(java.util.Arrays.asList(x, y)));
-
   }
 
   @Test

@@ -34,7 +34,7 @@ abstract class AsIntArray extends AbstractIntArray {
   }
 
   @Override
-  public IntArray asView(int offset, int[] shape, int[] stride, int majorStride) {
+  public IntArray asView(int offset, int[] shape, int[] stride) {
     return new AsIntArray(getArrayFactory(), offset, shape, stride, majorStride) {
       @Override
       protected void setElement(int i, int value) {

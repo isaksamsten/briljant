@@ -51,7 +51,7 @@ class BaseDoubleArray extends AbstractDoubleArray {
   }
 
   @Override
-  public DoubleArray asView(int offset, int[] shape, int[] stride, int majorStride) {
+  public DoubleArray asView(int offset, int[] shape, int[] stride) {
     return new BaseDoubleArray(getArrayFactory(), offset, shape, stride, majorStride, data);
   }
 
