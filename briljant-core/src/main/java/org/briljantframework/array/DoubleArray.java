@@ -1,25 +1,22 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Isak Karlsson
+ * Copyright (c) 2016 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.array;
 
@@ -40,70 +37,15 @@ import java.util.function.ToDoubleFunction;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 
+import net.mintern.primitive.comparators.DoubleComparator;
+
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.Listable;
 import org.briljantframework.function.DoubleBiPredicate;
 
 /**
- * A matrix is a n-dimensional array.
- *
- * <p>
- * Every implementation have to ensure that {@link #set(int, double)}, {@link #get(int)} and work in
- * <b>column-major</b> order as fortran and not in <b>row-major</b> order as in e.g., c.
- *
- * More specifically this means that given the matrix {@code m}
- *
- * <pre>
- *     1  2  3
- *     4  5  6
- *     7  8  9
- * </pre>
- *
- * The following must hold:
- * <ul>
- * <li>{@code for(int i = 0; i < m.size(); i++) System.out.print(m.get(i))} produces
- * {@code 147258369}</li>
- * <li>{@code for(int i = 0; i < m.size(); i++) m.put(i, m.get(i) * 2)} changes {@code m} to
- *
- * <pre>
- *     1   4   6
- *     8   10  12
- *     14  16  18
- * </pre>
- *
- * </li>
- * </ul>
- * <p>
- * Due to the order in which values are stored and implications such as cache-locality, different
- * implementations might have varying performance characteristics. For example, for element wise
- * operations one should prefer {@link #get(int)} and {@link #set(int, double)} to
- * {@link #get(int, int)} and {@link #set(int, int, double)}.
- *
- * <pre>
- * // Option 1:
- * for (int i = 0; i < m.rows(); i++) {
- *   for (int j = 0; j < m.columns() ; j++) {
- *     m.put(i, j, m.get(i, j) * 2);
- *   }
- * }
- * 
- * // Option 2
- * for (int i = 0; i < m.size(); i++) {
- *   m.put(i, m.get(i) * 2)
- * }
- * 
- * // Option 3
- * for (int j = 0; j < m.columns(); j++) {
- *   for (int i = 0; i < m.rows() ; i++) {
- *     m.put(i, j, m.get(i, j) * 2);
- *   }
- * }
- * </pre>
- *
- * In the example above, prefer <b>Option 2</b> (or simply {@code m.plusAssign(2)}). <b>Option 3</b>
- * can also be an alternative option, that for many implementations preserves cache locality and
- * might be more readable in some cases.
+ * A n-dimensional array of double values.
  *
  * @author Isak Karlsson
  */
@@ -114,10 +56,10 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#newVector(double[])
+   * @see org.briljantframework.array.api.ArrayFactory#newDoubleVector(double[])
    */
   static DoubleArray of(double... data) {
-    return Arrays.newDoubleVector(data);
+    return Arrays.doubleVector(data);
   }
 
   /**
@@ -144,10 +86,8 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
   }
 
   static DoubleArray zeros(int... shape) {
-    return Arrays.newDoubleArray(shape);
+    return Arrays.doubleArray(shape);
   }
-
-  void set(int index, double value);
 
   /**
    * @see Arrays#linspace(double, double, int)
@@ -155,6 +95,8 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
   static DoubleArray linspace(double start, double end, int size) {
     return Arrays.linspace(start, end, size);
   }
+
+  void set(int index, double value);
 
   /**
    * Assign {@code value} to {@code this}
@@ -181,16 +123,16 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
   /**
    * Assign {@code matrix} to {@code this}, applying {@code operator} to each value.
    *
-   * @param matrix the matrix
+   * @param array the matrix
    * @param operator the operator
    */
-  void assign(DoubleArray matrix, DoubleUnaryOperator operator);
+  void assign(DoubleArray array, DoubleUnaryOperator operator);
 
-  void assign(IntArray matrix, IntToDoubleFunction function);
+  void assign(IntArray array, IntToDoubleFunction function);
 
-  void assign(LongArray matrix, LongToDoubleFunction function);
+  void assign(LongArray array, LongToDoubleFunction function);
 
-  void assign(ComplexArray matrix, ToDoubleFunction<? super Complex> function);
+  void assign(ComplexArray array, ToDoubleFunction<? super Complex> function);
 
   /**
    * Combine this with the given array assigning the results
@@ -308,7 +250,7 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
   /**
    * Return a boolean array of indicator values for joining this with the given array and the
    * predicate
-   * 
+   *
    * @param array the array
    * @param predicate the predicate
    * @return a boolean array
@@ -317,7 +259,7 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
 
   /**
    * For each double perform the side-effect
-   * 
+   *
    * @param consumer the consumer
    */
   void forEachDouble(DoubleConsumer consumer);
@@ -326,13 +268,13 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
 
   /**
    * Successively apply the given function over the identity and each value
-   * 
+   *
    * <pre>
    * DoubleArray.of(1,2,3).reduce(0, Double::sum));
    * </pre>
-   * 
+   *
    * The first argument to the reduce operator is the initial value (and then the accumulator)
-   * 
+   *
    * @param identity the initial value
    * @param reduce the operator
    * @return a single value
@@ -341,13 +283,13 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
 
   /**
    * Perform a reduction over all vectors along the given dimension
-   * 
+   *
    * <pre>
    * DoubleArray.of(1,2,3,4).reshape(2,2).reduceVectors(0, Double::sum));
    * </pre>
-   * 
+   *
    * sums each row
-   * 
+   *
    * @param dim the dimension
    * @param reduce the reduction
    * @return a new array
@@ -406,6 +348,59 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
   double get(int... ix);
 
   /**
+   * Set the elements where the given array is {@code true} to the given value
+   * <p/>
+   * Example
+   *
+   * <pre>
+   * DoubleArray a = Arrays.range(3 * 3).reshape(3, 3).asDouble();
+   * DoubleArray b = Arrays.newDoubleArray(3, 3);
+   * b.assign(0.1);
+   * b.set(a.where(i -&gt; i &gt; 2), 10);
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
+   * array([[0.1, 10.0, 10.0],
+   *        [0.1, 10.0, 10.0],
+   *        [0.1, 10.0, 10.0]])
+   * </pre>
+   *
+   * @param array the array
+   * @param value the value
+   */
+  void set(BooleanArray array, double value);
+
+  /**
+   * Get the elements where the given arra is {@code true}.
+   *
+   * <p/>
+   * Example
+   *
+   * <pre>
+   * DoubleArray a = Arrays.range(3 * 3).reshape(3, 3).asDouble()
+   * a.get(a.where(i -&gt; i &gt; 2));
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
+   * array([3.0, 4.0, 5.0, 6.0, 7.0, 8.0])
+   * </pre>
+   *
+   * @param array the array
+   * @return a new array
+   */
+  DoubleArray get(BooleanArray array);
+
+  default void sort() {
+    sort(Double::compare);
+  }
+
+  void sort(DoubleComparator comparator);
+
+  /**
    * Return a double stream
    *
    * @return a double stream
@@ -431,16 +426,13 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
   // Arithmetical operations ///////////
 
   /**
-   * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.times(alpha).times(other.times(beta))}, but in one
-   * pass.
+   * Element wise multiplication.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  DoubleArray times(double alpha, DoubleArray other, double beta);
+  DoubleArray times(double alpha, DoubleArray other);
 
   /**
    * Element wise <u>m</u>ultiplication
@@ -469,16 +461,13 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
   void plusAssign(double scalar);
 
   /**
-   * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.times(alpha).plus(other.times(beta))}, but in one
-   * pass.
-   *
+   * Element wise addition.
+   * 
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  DoubleArray plus(double alpha, DoubleArray other, double beta);
+  DoubleArray plus(double alpha, DoubleArray other);
 
   /**
    * Element wise subtraction. {@code this - other}.
@@ -501,10 +490,9 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  DoubleArray minus(double alpha, DoubleArray other, double beta);
+  DoubleArray minus(double alpha, DoubleArray other);
 
   /**
    * <u>R</u>eversed element wise subtraction. {@code scalar - this}.

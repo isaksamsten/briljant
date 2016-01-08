@@ -1,25 +1,22 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Isak Karlsson
+ * Copyright (c) 2016 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.array.api;
 
@@ -35,6 +32,8 @@ import org.briljantframework.array.Range;
 
 
 /**
+ * An array factory creates new arrays.
+ * 
  * @author Isak Karlsson
  */
 public interface ArrayFactory {
@@ -46,7 +45,7 @@ public interface ArrayFactory {
    * @param <T> the class
    * @return a new array
    */
-  <T> Array<T> newVector(T[] data);
+  <T> Array<T> newVector(T... data);
 
   /**
    * Create a new array from the given data.
@@ -65,9 +64,9 @@ public interface ArrayFactory {
    * @param data the data
    * @return a new matrix
    */
-  BooleanArray newMatrix(boolean[][] data);
+  BooleanArray newBooleanMatrix(boolean[][] data);
 
-  BooleanArray newVector(boolean[] data);
+  BooleanArray newBooleanVector(boolean... data);
 
   /**
    * Create an {@code BitMatrix} with designated shape filled with {@code false}.
@@ -83,7 +82,7 @@ public interface ArrayFactory {
    * @param data the data array
    * @return a new matrix
    */
-  IntArray newMatrix(int[][] data);
+  IntArray newIntMatrix(int[][] data);
 
   /**
    * Create a vector with the given data.
@@ -91,7 +90,7 @@ public interface ArrayFactory {
    * @param data the data array
    * @return a new matrix
    */
-  IntArray newVector(int[] data);
+  IntArray newIntVector(int... data);
 
   /**
    * Create an {@code IntMatrix} with designated shape filled with {@code 0}.
@@ -107,7 +106,7 @@ public interface ArrayFactory {
    * @param data the data
    * @return a new matrix
    */
-  LongArray newMatrix(long[][] data);
+  LongArray newLongMatrix(long[][] data);
 
   /**
    * Create a vector with the given data.
@@ -115,7 +114,7 @@ public interface ArrayFactory {
    * @param data the data array
    * @return a new matrix
    */
-  LongArray newVector(long[] data);
+  LongArray newLongVector(long... data);
 
   /**
    * Create an {@code LongMatrix} with designated shape filled with {@code 0}.
@@ -147,7 +146,7 @@ public interface ArrayFactory {
    * @param data the data
    * @return a new matrix
    */
-  DoubleArray newMatrix(double[][] data);
+  DoubleArray newDoubleMatrix(double[][] data);
 
   /**
    * Create a vector with the given data.
@@ -155,7 +154,7 @@ public interface ArrayFactory {
    * @param data the data array
    * @return a new matrix
    */
-  DoubleArray newVector(double[] data);
+  DoubleArray newDoubleVector(double... data);
 
   /**
    * Construct an empty {@code double} are with the given shape. Note that for most implementations
@@ -171,13 +170,13 @@ public interface ArrayFactory {
    *
    * @param data the data
    * @return a new matrix
-   * @see #newMatrix(double[][])
+   * @see #newDoubleMatrix(double[][])
    */
-  ComplexArray newArray(Complex[][] data);
+  ComplexArray newComplexMatrix(Complex[][] data);
 
-  ComplexArray newVector(Complex[] data);
+  ComplexArray newComplexVector(Complex... data);
 
-  ComplexArray newComplexVector(double[] data);
+  ComplexArray newComplexVector(double... data);
 
   /**
    * Create an {@code ComplexMatrix} with designated shape filled with {@code 0+0i}.
@@ -251,8 +250,6 @@ public interface ArrayFactory {
    * @return a new row vector
    */
   Range range(int end);
-
-  Range range();
 
   /**
    * Return a row vector of linearly spaced values

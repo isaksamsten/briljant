@@ -1,33 +1,29 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Isak Karlsson
+ * Copyright (c) 2016 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.array.base;
 
 
-import static org.briljantframework.array.Indexer.columnMajor;
-import static org.briljantframework.array.Indexer.rowMajor;
+import static org.briljantframework.array.StrideUtils.columnMajor;
+import static org.briljantframework.array.StrideUtils.rowMajor;
 
-import java.util.Arrays;
 import java.util.Comparator;
 
 import org.apache.commons.math3.complex.Complex;
@@ -43,12 +39,12 @@ import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
 import org.briljantframework.array.api.ArrayRoutines;
 import org.briljantframework.complex.MutableComplex;
-import org.briljantframework.exceptions.NonConformantException;
-import org.briljantframework.sort.IndexComparator;
-import org.briljantframework.sort.QuickSort;
+import org.briljantframework.exceptions.MultiDimensionMismatchException;
 import org.briljantframework.statistics.FastStatistics;
 
 /**
+ * Base array routines implemented in Java.
+ * 
  * @author Isak Karlsson
  */
 public class BaseArrayRoutines implements ArrayRoutines {
@@ -219,12 +215,43 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
+  public long sum(LongArray x) {
+    return x.reduce(0, Long::sum);
+  }
+
+  @Override
+  public Complex sum(ComplexArray x) {
+    MutableComplex sum = new MutableComplex(0);
+    for (int i = 0; i < x.size(); i++) {
+      sum.plus(x.get(i));
+    }
+    return sum.toComplex();
+  }
+
+  @Override
   public DoubleArray sum(int dim, DoubleArray x) {
     return x.reduceVectors(dim, this::sum);
   }
 
   @Override
   public IntArray sum(int dim, IntArray x) {
+    return x.reduceVectors(dim, this::sum);
+  }
+
+  @Override
+  public LongArray sum(int dim, LongArray x) {
+    return x.reduceVector(dim, this::sum);
+  }
+
+  /**
+   * Returns the sum along the specified dimension.
+   *
+   * @param dim the dimension
+   * @param x the array
+   * @return an array of sums
+   */
+  @Override
+  public ComplexArray sum(int dim, ComplexArray x) {
     return x.reduceVectors(dim, this::sum);
   }
 
@@ -275,12 +302,12 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public Complex conjugateInner(ComplexArray a, ComplexArray b) {
+  public Complex inner(ComplexArray a, ComplexArray b) {
     return null;
   }
 
   @Override
-  public Complex inner(ComplexArray a, ComplexArray b) {
+  public Complex conjugateInner(ComplexArray a, ComplexArray b) {
     return null;
   }
 
@@ -383,8 +410,8 @@ public class BaseArrayRoutines implements ArrayRoutines {
   @Override
   public void ger(double alpha, DoubleArray x, DoubleArray y, DoubleArray a) {
     Check.all(x, y).argument(BaseArray::isVector, "x and y must be vectors");
-    Check.size(x.size(), a.rows());
-    Check.size(y.size(), a.columns());
+    Check.dimension(x.size(), a.rows());
+    Check.dimension(y.size(), a.columns());
     for (int i = 0; i < x.size(); i++) {
       for (int j = 0; j < y.size(); j++) {
         a.set(i, j, alpha * x.get(i) * y.get(j));
@@ -410,13 +437,13 @@ public class BaseArrayRoutines implements ArrayRoutines {
     }
 
     if (thisCols != otherRows) {
-      throw new NonConformantException(thisRows, thisCols, otherRows, otherColumns);
+      throw new MultiDimensionMismatchException(thisRows, thisCols, otherRows, otherColumns);
     }
     int m = a.size(transA == ArrayOperation.KEEP ? 0 : 1);
     int n = b.size(transB == ArrayOperation.KEEP ? 1 : 0);
     int dk = a.size(transA == ArrayOperation.KEEP ? 1 : 0);
     if (m != c.size(0) || n != c.size(1)) {
-      throw new NonConformantException(String.format(
+      throw new IllegalArgumentException(String.format(
           "a has size (%d,%d), b has size (%d,%d), c has size (%d, %d)", m, dk, dk, n, c.size(0),
           c.size(1)));
     }
@@ -439,69 +466,6 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public <T extends BaseArray<T>> T repmat(T x, int n) {
-    return repmat(x, n, n);
-  }
-
-  @Override
-  public <T extends BaseArray<T>> T repmat(T x, int r, int c) {
-    final int m = x.rows();
-    final int n = x.columns();
-    T y = x.newEmptyArray(m * r, n * c);
-    for (int cc = 0; cc < c; cc++) {
-      for (int j = 0; j < n; j++) {
-        int jj = j + (cc * n);
-        for (int rc = 0; rc < r; rc++) {
-          for (int i = 0; i < m; i++) {
-            y.set(i + (rc * m), jj, x, i, j);
-          }
-        }
-      }
-    }
-    return y;
-  }
-
-  @Override
-  public <T extends BaseArray<T>> T repeat(T x, int num) {
-    return null;
-  }
-
-  @Override
-  public <T extends BaseArray<T>> T take(T x, int num) {
-    if (num < 0 || num > x.size()) {
-      throw new IllegalArgumentException();
-    }
-    T c = x.newEmptyArray(num);
-    for (int i = 0; i < num; i++) {
-      c.set(i, x, i);
-    }
-    return c;
-  }
-
-  @Override
-  public <T extends BaseArray<T>> T sort(T x, IndexComparator<T> cmp) {
-    T out = x.copy();
-    if (x instanceof DoubleArray) {
-      Arrays.sort(((DoubleArray) out).data());
-    } else {
-      QuickSort.quickSort(0, out.size(), (a, b) -> cmp.compare(out, a, b), out);
-    }
-    return out;
-  }
-
-  @Override
-  public <T extends BaseArray<T>> T sort(int dim, T x, IndexComparator<T> cmp) {
-    T out = x.copy();
-    int m = x.vectors(dim);
-    for (int i = 0; i < m; i++) {
-      T v = out.getVector(dim, i);
-      QuickSort.quickSort(0, v.size(), (a, b) -> cmp.compare(v, a, b), v);
-    }
-
-    return out;
-  }
-
-  @Override
   public <T extends BaseArray<T>> void copy(T from, T to) {
     Check.size(from, to);
     for (int i = 0; i < from.size(); i++) {
@@ -511,7 +475,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public <T extends BaseArray<T>> void swap(T a, T b) {
-    Check.shape(a, b);
+    Check.dimension(a, b);
     T tmp = a.newEmptyArray(1);
     for (int i = 0; i < a.size(); i++) {
       tmp.set(0, a, i);

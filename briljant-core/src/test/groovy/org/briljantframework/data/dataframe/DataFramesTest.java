@@ -29,16 +29,16 @@ import org.junit.Test;
 
 public class DataFramesTest {
 
-  protected DataFrame createDataFrame() {
-    return DataFrame.of("a", Vector.of(1, 2, 3, 4, 5, 6), "b",
-        Vector.of("a", "b", "b", "b", "e", "f"), "c", Vector.of(1.1, 1.2, 1.3, 1.4, 1.5, 1.6));
-  }
-
   @Test
   public void testSummary() throws Exception {
     DataFrame df = createDataFrame();
     DataFrame summary = DataFrames.summary(df);
     System.out.println(summary);
+  }
+
+  protected DataFrame createDataFrame() {
+    return DataFrame.of("a", Vector.of(1, 2, 3, 4, 5, 6), "b",
+        Vector.of("a", "b", "b", "b", "e", "f"), "c", Vector.of(1.1, 1.2, 1.3, 1.4, 1.5, 1.6));
   }
 
   @Test
@@ -53,17 +53,17 @@ public class DataFramesTest {
     of.setIndex(Index.of("dsadsadsadsa", "dsadsadsadsadsadsa", "dsaa", "dsa"));
     System.out.println(Vectors.toString(of, 2));
 
-//    Index of = Index.of(0.1, 0.3, 0.001, 0.22, 0.33);
-//    Index.Builder index = of.newCopyBuilder();
-//    int[] array = {50, 30, 20, 10, 0};
-//    index.sortIterationOrder(
-//        (a, b) -> Double.compare((Double)of.getKey(a), (Double)of.getKey(b)));
-//    System.out.println(index.build().entrySet());
+    // Index of = Index.of(0.1, 0.3, 0.001, 0.22, 0.33);
+    // Index.Builder index = of.newCopyBuilder();
+    // int[] array = {50, 30, 20, 10, 0};
+    // index.sortIterationOrder(
+    // (a, b) -> Double.compare((Double)of.getKey(a), (Double)of.getKey(b)));
+    // System.out.println(index.build().entrySet());
 
-//    Index of2 = index.build();
-//    for (int i = 0; i < of2.size(); i++) {
-//      System.out.println(of2.getKey(i));
-//    }
+    // Index of2 = index.build();
+    // for (int i = 0; i < of2.size(); i++) {
+    // System.out.println(of2.getKey(i));
+    // }
   }
 
   @Test

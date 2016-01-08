@@ -1,25 +1,22 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Isak Karlsson
+ * Copyright (c) 2016 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.array;
 
@@ -38,12 +35,15 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.primitive.ArrayAllocations;
 
 /**
+ * This class provides a skeletal implementation of a boolean array.
+ *
  * @author Isak Karlsson
  */
 public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArray> implements
@@ -78,20 +78,13 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
   }
 
   @Override
-  public int compare(int a, int b) {
-    return Boolean.compare(get(a), get(b));
+  public void set(int[] toIndex, BooleanArray from, int fromIndex) {
+    set(toIndex, from.get(fromIndex));
   }
 
   @Override
-  public BooleanArray slice(BooleanArray bits) {
-    Check.shape(this, bits);
-    IncrementalBuilder builder = new IncrementalBuilder();
-    for (int i = 0; i < size(); i++) {
-      if (bits.get(i)) {
-        builder.add(get(i));
-      }
-    }
-    return builder.build();
+  public void set(int toIndex, BooleanArray from, int[] fromIndex) {
+    set(toIndex, from.get(fromIndex));
   }
 
   @Override
@@ -234,7 +227,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public void set(int index, boolean value) {
-    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
+    setElement(StrideUtils.index(index, getOffset(), stride, shape), value);
   }
 
   @Override
@@ -252,12 +245,12 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   public final void set(int[] ix, boolean value) {
     Check.argument(ix.length == dims(), REQUIRE_ND, dims());
-    setElement(Indexer.columnMajorStride(ix, getOffset(), getStride()), value);
+    setElement(StrideUtils.index(ix, getOffset(), getStride()), value);
   }
 
   @Override
   public boolean get(int index) {
-    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
+    return getElement(StrideUtils.index(index, getOffset(), stride, shape));
   }
 
   @Override
@@ -268,7 +261,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   public final boolean get(int... ix) {
     Check.argument(ix.length == dims(), REQUIRE_ND, dims());
-    return getElement(Indexer.columnMajorStride(ix, getOffset(), getStride()));
+    return getElement(StrideUtils.index(ix, getOffset(), getStride()));
   }
 
   @Override
@@ -289,7 +282,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public BooleanArray xor(BooleanArray other) {
-    Check.shape(this, other);
+    Check.dimension(this, other);
     BooleanArray bm = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       boolean otherHas = other.get(i);
@@ -301,7 +294,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public BooleanArray or(BooleanArray other) {
-    Check.shape(this, other);
+    Check.dimension(this, other);
     BooleanArray bm = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       bm.set(i, get(i) || other.get(i));
@@ -311,7 +304,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public BooleanArray orNot(BooleanArray other) {
-    Check.shape(this, other);
+    Check.dimension(this, other);
     BooleanArray bm = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       bm.set(i, get(i) || !other.get(i));
@@ -321,7 +314,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public BooleanArray and(BooleanArray other) {
-    Check.shape(this, other);
+    Check.dimension(this, other);
     BooleanArray bm = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       bm.set(i, get(i) && other.get(i));
@@ -331,7 +324,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public BooleanArray andNot(BooleanArray other) {
-    Check.shape(this, other);
+    Check.dimension(this, other);
     BooleanArray bm = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       bm.set(i, get(i) && !other.get(i));
@@ -356,7 +349,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
   @Override
   public BooleanArray reduceAlong(int dim, Function<? super BooleanArray, Boolean> function) {
     Check.argument(0 <= dim && dim < dims(), INVALID_DIMENSION, dim, dims());
-    BooleanArray out = newEmptyArray(Indexer.remove(getShape(), dim));
+    BooleanArray out = newEmptyArray(ArrayUtils.remove(getShape(), dim));
     int vectors = vectors(dim);
     for (int i = 0; i < vectors; i++) {
       out.set(i, function.apply(getVector(dim, i)));
@@ -529,7 +522,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
     }
 
     public BooleanArray build() {
-      return bj.newVector(Arrays.copyOf(buffer, size));
+      return factory.newBooleanVector(Arrays.copyOf(buffer, size));
     }
   }
 

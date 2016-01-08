@@ -1,8 +1,8 @@
 # Briljant Framework
 
-![Build status](https://travis-ci.org/briljant/briljant.svg?branch=0.1.6) [![Join the chat at https://gitter.im/briljant/briljant](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/briljant/briljant?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
+![Build status](https://travis-ci.org/briljant/briljant.svg?branch=0.1.7) [![Join the chat at https://gitter.im/briljant/briljant](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/briljant/briljant?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
 
-Briljant (0.1.6) is a [MIT](http://https://opensource.org/licenses/MIT)
+Briljant (0.1.7) is a [MIT](http://https://opensource.org/licenses/MIT)
 licensed framework for [Numpy](http://www.numpy.org/)-like nd-arrays
 and [R](https://www.r-project.org/)-like data frames and vectors for
 the [JVM](https://en.wikipedia.org/wiki/Java_virtual_machine) written
@@ -74,10 +74,15 @@ df.groupBy(LocalDate.class, "Date", LocalDate::getYear)
 [36 rows x 5 columns]
 ```
 ### ND-Array
+
+Creating an array of normally distributed real values and multiplying it with its transpose is as simple as:
+ 
 ```
 DoubleArray x = Arrays.randn(20).reshape(4, 5);
 Arrays.dot(x.transpose(), x);
 ```
+
+which produces the following output
 
 ```
 array([[ 8.095, -1.714, -2.135,  2.017, -3.727],
@@ -87,20 +92,98 @@ array([[ 8.095, -1.714, -2.135,  2.017, -3.727],
        [-3.727,  0.952,  2.531,  0.440,  5.072]])
 ```
 
+Similarly, creating a 2-by-2 `String` array is as simple as:
+
 ```
-Array<String> x = Array.of("a", "b", "c", "d").reshape(2, 2)
+Array<String> x = Array.of("a", "b", "c", "d").reshape(2, 2);
 ```
+
+which produces the following array:
 
 ```
 array([[a, c],
        [b, d]])
 ```
 
+We can broadcast this array to a new shape
+
+```
+Array<String> y = Arrays.broadcast(x, 4, 2, 2);
+```
+
+which produces
+
+```
+array([[[a, c],
+        [b, d]],
+
+       [[a, c],
+        [b, d]],
+
+       [[a, c],
+        [b, d]],
+
+       [[a, c],
+        [b, d]]])
+```
+
+and select desired elements (`__` is a constant in the class `BasicIndex`):
+
+```
+y.get(IntArray.of(0, 3), __, IntArray.of(0, 0, 0, 0).reshape(2, 2))
+```
+
+which produces
+
+```
+array([[[a, b],
+        [a, b]],
+
+       [[a, b],
+        [a, b]]])
+```
+
+Briljant also provides facilities to adapt arrays to 
+[https://commons.apache.org/proper/commons-math/](Apache Commons Math) matrices and vectors,
+allowing us to leverage a large body of their linear algebra routines. For example, given
+`DoubleArray array = Arrays.linspace(-1, 1, 1000000).reshape(1000, 1000);` we can
+decompose it as:
+ 
+```
+RealMatrix x = Matrices.asRealMatrix(array);
+SingularValueDecomposition decomposition = new SingularValueDecomposition(x);
+```
+
+Note that singular value decomposition is also implemented in Briljant (the default implementation 
+delegates to an optimized Fortran implementation):
+
+```
+SingularValueDecomposition decomposition = Arrays.linalg.svd(array);
+```
+
+Measuring the CPU time, one can see that the latter is approximately ten order of magnitudes faster
+than the former.
+
 ## Installation
 
 ### Pre-compiled binaries
 
-Not yet available
+Pre-compiled binaries are available in the snapshot repository
+
+In your `build.gradle`
+ 
+     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+
+or `pom.xml`
+
+    <repository>
+         <id>oss.sonatype.org.snapshots</id>
+         <name>OSS Sonatype Snapshot Repository</name>
+         <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+         <snapshots/>
+    </repository>
+    
+The latest version is `0.1.7-SNAPSHOT`.
 
 ### Building from source
 
@@ -119,8 +202,10 @@ In your `build.gradle` or `pom.xml` reference
     <dependency>
         <groupId>org.briljantframework</groupId>
         <artifactId>briljant-core</artifactId>
-        <version>0.1.5</version>
+        <version>0.1.7-SNAPSHOT</version>
     </dependency>
+
+Also don't forget to include maven local. (`mavenLocal()` in gradle).
 
 ## Contribute
 

@@ -1,25 +1,22 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Isak Karlsson
+ * Copyright (c) 2016 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.primitive;
 
@@ -40,6 +37,8 @@ import org.briljantframework.array.IntArray;
 
 /**
  * ArrayList backed by a primitive {@code int}-array.
+ * 
+ * @author Isak Karlsson
  */
 public class IntList extends AbstractList<Integer> {
 
@@ -86,8 +85,25 @@ public class IntList extends AbstractList<Integer> {
     }
   }
 
+  private static int hugeCapacity(int minCapacity) {
+    if (minCapacity < 0) // overflow
+    {
+      throw new OutOfMemoryError();
+    }
+    return (minCapacity > MAX_ARRAY_SIZE) ? Integer.MAX_VALUE : MAX_ARRAY_SIZE;
+  }
+
+  @Override
+  public int size() {
+    return size;
+  }
+
   public IntArray toIntArray() {
     return IntArray.of(Arrays.copyOf(elementData, size));
+  }
+
+  public int[] toPrimitiveArray() {
+    return Arrays.copyOf(elementData, size());
   }
 
   /**
@@ -110,16 +126,16 @@ public class IntList extends AbstractList<Integer> {
     return add((int) e);
   }
 
-  /**
-   * Avoid boxing of {@code int}-values
-   *
-   * @param e the value
-   * @return true
-   */
-  public boolean add(int e) {
-    ensureCapacityInternal(size + 1);
-    elementData[size++] = e;
-    return true;
+  @Override
+  public Integer get(int index) {
+    return elementData[index];
+  }
+
+  @Override
+  public Integer set(int index, Integer element) {
+    int oldValue = elementData[index];
+    elementData[index] = element;
+    return oldValue;
   }
 
   /**
@@ -141,6 +157,68 @@ public class IntList extends AbstractList<Integer> {
     elementData[--size] = -1; // clear to let GC do its work
 
     return oldValue;
+  }
+
+  /**
+   * Returns an iterator over the elements in this list in proper sequence.
+   *
+   * <p>
+   * The returned iterator is <a href="#fail-fast"><i>fail-fast</i></a>.
+   *
+   * @return an iterator over the elements in this list in proper sequence
+   */
+  public Iterator<Integer> iterator() {
+    return new Itr();
+  }
+
+  /**
+   * Returns a list iterator over the elements in this list (in proper sequence).
+   *
+   * <p>
+   * The returned list iterator is <a href="#fail-fast"><i>fail-fast</i></a>.
+   *
+   * @see #listIterator(int)
+   */
+  public ListIterator<Integer> listIterator() {
+    return new ListItr(0);
+  }
+
+  /**
+   * Returns a list iterator over the elements in this list (in proper sequence), starting at the
+   * specified position in the list. The specified index indicates the first element that would be
+   * returned by an initial call to {@link java.util.ListIterator#next next}. An initial call to
+   * {@link java.util.ListIterator#previous previous} would return the element with the specified
+   * index minus one.
+   *
+   * <p>
+   * The returned list iterator is <a href="#fail-fast"><i>fail-fast</i></a>.
+   *
+   * @throws IndexOutOfBoundsException {@inheritDoc}
+   */
+  public ListIterator<Integer> listIterator(int index) {
+    if (index < 0 || index > size) {
+      throw new IndexOutOfBoundsException("Index: " + index);
+    }
+    return new ListItr(index);
+  }
+
+  /**
+   * Avoid boxing of {@code int}-values
+   *
+   * @param e the value
+   * @return true
+   */
+  public boolean add(int e) {
+    ensureCapacityInternal(size + 1);
+    elementData[size++] = e;
+    return true;
+  }
+
+  public boolean addAll(int... all) {
+    for (int i : all) {
+      add(i);
+    }
+    return all.length > 0;
   }
 
   private void ensureCapacityInternal(int minCapacity) {
@@ -180,78 +258,10 @@ public class IntList extends AbstractList<Integer> {
     elementData = Arrays.copyOf(elementData, newCapacity);
   }
 
-  private static int hugeCapacity(int minCapacity) {
-    if (minCapacity < 0) // overflow
-    {
-      throw new OutOfMemoryError();
-    }
-    return (minCapacity > MAX_ARRAY_SIZE) ? Integer.MAX_VALUE : MAX_ARRAY_SIZE;
-  }
-
-  @Override
-  public Integer set(int index, Integer element) {
-    int oldValue = elementData[index];
-    elementData[index] = element;
-    return oldValue;
-  }
-
   public Integer set(int index, int element) {
     int oldValue = elementData[index];
     elementData[index] = element;
     return oldValue;
-  }
-
-  @Override
-  public Integer get(int index) {
-    return elementData[index];
-  }
-
-  @Override
-  public int size() {
-    return size;
-  }
-
-  /**
-   * Returns a list iterator over the elements in this list (in proper sequence), starting at the
-   * specified position in the list. The specified index indicates the first element that would be
-   * returned by an initial call to {@link java.util.ListIterator#next next}. An initial call to
-   * {@link java.util.ListIterator#previous previous} would return the element with the specified
-   * index minus one.
-   *
-   * <p>
-   * The returned list iterator is <a href="#fail-fast"><i>fail-fast</i></a>.
-   *
-   * @throws IndexOutOfBoundsException {@inheritDoc}
-   */
-  public ListIterator<Integer> listIterator(int index) {
-    if (index < 0 || index > size) {
-      throw new IndexOutOfBoundsException("Index: " + index);
-    }
-    return new ListItr(index);
-  }
-
-  /**
-   * Returns a list iterator over the elements in this list (in proper sequence).
-   *
-   * <p>
-   * The returned list iterator is <a href="#fail-fast"><i>fail-fast</i></a>.
-   *
-   * @see #listIterator(int)
-   */
-  public ListIterator<Integer> listIterator() {
-    return new ListItr(0);
-  }
-
-  /**
-   * Returns an iterator over the elements in this list in proper sequence.
-   *
-   * <p>
-   * The returned iterator is <a href="#fail-fast"><i>fail-fast</i></a>.
-   *
-   * @return an iterator over the elements in this list in proper sequence
-   */
-  public Iterator<Integer> iterator() {
-    return new Itr();
   }
 
   @Override
@@ -350,14 +360,6 @@ public class IntList extends AbstractList<Integer> {
       return cursor != 0;
     }
 
-    public int nextIndex() {
-      return cursor;
-    }
-
-    public int previousIndex() {
-      return cursor - 1;
-    }
-
     @SuppressWarnings("unchecked")
     public Integer previous() {
       checkForComodification();
@@ -371,6 +373,14 @@ public class IntList extends AbstractList<Integer> {
       }
       cursor = i;
       return elementData[lastRet = i];
+    }
+
+    public int nextIndex() {
+      return cursor;
+    }
+
+    public int previousIndex() {
+      return cursor - 1;
     }
 
     public void set(Integer e) {

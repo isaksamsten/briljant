@@ -1,25 +1,22 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Isak Karlsson
+ * Copyright (c) 2016 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework;
 
@@ -31,8 +28,8 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import org.briljantframework.array.BaseArray;
-import org.briljantframework.exceptions.NonConformantException;
-import org.briljantframework.exceptions.SizeMismatchException;
+import org.briljantframework.exceptions.DimensionMismatchException;
+import org.briljantframework.exceptions.MultiDimensionMismatchException;
 
 /**
  * Perform common checks.
@@ -88,66 +85,49 @@ public final class Check<T> {
   }
 
   /**
-   * Throws {@linkplain org.briljantframework.exceptions.NonConformantException} if the shape of the
-   * arguments differ.
+   * Throws {@linkplain MultiDimensionMismatchException} if the shape of the arguments differ.
    *
    * @param a an array
    * @param b an array
    */
-  public static void shape(BaseArray a, BaseArray b) throws NonConformantException {
-    if (!Arrays.equals(a.getShape(), b.getShape())) {
-      throw new NonConformantException(a, b);
+  public static void dimension(BaseArray a, BaseArray b) throws MultiDimensionMismatchException {
+    dimension(a.getShape(), b.getShape());
+  }
+
+  /**
+   * Throws {@link MultiDimensionMismatchException} if the shapes differ.
+   * 
+   * @param wrong the wrong shape
+   * @param expected the expected shape
+   * @throws MultiDimensionMismatchException if shapes differ
+   */
+  public static void dimension(int[] wrong, int[] expected) throws MultiDimensionMismatchException {
+    if (!Arrays.equals(wrong, expected)) {
+      throw new MultiDimensionMismatchException(wrong, expected);
     }
   }
 
   /**
-   * Throws {@linkplain org.briljantframework.exceptions.SizeMismatchException} if the (linearized)
-   * size of the arguments differ.
+   * Throws {@linkplain DimensionMismatchException} if the (linearized) size of the arguments
+   * differ.
    *
    * @param a an array
    * @param b an array
    */
-  public static void size(BaseArray a, BaseArray b) throws SizeMismatchException {
-    size(a.size(), b.size());
+  public static void size(BaseArray a, BaseArray b) throws DimensionMismatchException {
+    dimension(a.size(), b.size());
   }
 
   /**
-   * Throws {@linkplain org.briljantframework.exceptions.SizeMismatchException} if the arguments
-   * differ.
+   * Throws {@linkplain DimensionMismatchException} if the arguments differ.
    *
    * @param actual the actual size
    * @param expected the expected size
-   * @throws SizeMismatchException if {@code actual != expected}
+   * @throws DimensionMismatchException if {@code actual != expected}
    */
-  public static void size(int actual, int expected) throws SizeMismatchException {
-    size(actual, expected, "Size does not match. (%d != %d)", actual, expected);
-  }
-
-  /**
-   * Throws exception if {@code actual != expected}.
-   * 
-   * @param actual the actual size
-   * @param expected the expected size
-   * @param msg the error message
-   * @param args the arguments
-   * @throws SizeMismatchException if {@code actual != expected}
-   */
-  public static void size(int actual, int expected, String msg, Object... args) {
-    size(actual == expected, msg, args);
-  }
-
-  /**
-   * Throws {@linkplain org.briljantframework.exceptions.SizeMismatchException} if {@code condition}
-   * is {@code false}
-   *
-   * @param condition the condition
-   * @param message the message
-   * @param args the arguments to message (formatted as
-   *        {@link String#format(java.util.Locale, String, Object...)}
-   */
-  public static void size(boolean condition, String message, Object... args) {
-    if (!condition) {
-      throw new SizeMismatchException(String.format(message, args));
+  public static void dimension(int actual, int expected) throws DimensionMismatchException {
+    if (actual != expected) {
+      throw new DimensionMismatchException(actual, expected);
     }
   }
 

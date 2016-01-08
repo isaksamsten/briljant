@@ -1,25 +1,22 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Isak Karlsson
+ * Copyright (c) 2016 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.array;
 
@@ -29,48 +26,57 @@ import java.util.function.Consumer;
 import org.briljantframework.sort.Swappable;
 
 /**
- * <p>
- * The {@code Matrix} interface is a base interface for several different matrix implementations.
- *
- * There are four supported matrix types {@code double}, {@code int}, {@code boolean} and
- * {@link org.apache.commons.math3.complex.Complex}, specialized in {@link DoubleArray},
- * {@link IntArray} , {@link BooleanArray} and {@link ComplexArray} respectively.
+ * A multi dimensional array of unknown element type. An nd-array is a (usually fixed size)
+ * multidimensional container of items of the same (unknown type). The number of dimensions is
+ * defined by it {@link #getShape() shape} which is an array of n positive integers that specify the
+ * size of each dimension. The field (element) type is specified in subclasses.
+ * 
+ * <p/>
+ * The contents of an nd-array can be accessed by indexing or slicing.
+ * 
+ * <p/>
+ * Different arrays can be sharing data so that changes made to a specific array can be visible in
+ * another, i.e., an array can be a view of another array while still sharing underlying data
+ * buffers.
+ * 
  * </p>
- *
- * <p>
- * The {@code Matrix} interface provides ways to
+ * This interface is implemented by arrays for four primitive types ({@link IntArray int},
+ * {@link LongArray long}, {@link IntArray int} and {@link BooleanArray boolean}) and the references
+ * types ({@link ComplexArray Complex} and {@link Array Object}). We call the first five the
+ * <i>specialized</i> types (they support numerical operations).
+ * 
+ * <p/>
+ * This interface provides ways to:
  *
  * <ul>
  * <li>adapt one implementation to another.</li>
  * <li>get values of any type.</li>
  * <li>set values of any type.</li>
- * <li>set values of any type from another {@code Matrix}, possibly without boxing.</li>
- * <li>compare values of unknown types.</li>
  * </ul>
  * </p>
  *
- * <h1>Adapt {@code Array} to another array type</h1>
- * <p>
- * {@code Array} defines four methods for adapting the current implementation to any of the four
- * specialized types. However, there are some caveats when adapting matrices and perform mutations.
+ * This interface defines five methods for adapting the current implementation to any of the five
+ * specialized types. However, there are some caveats when adapting arrays and perform mutations.
  *
  * For example, given a {@code DoubleArray d} which is adapted to a
- * {@code ComplexArray c = d.asComplex()}, then setting a position to a new {@code Complex} with an
+ * {@code ComplexArray c = d.asComplex()}, setting a position to a new {@code Complex} with an
  * imaginary part, e.g., {@code c.set(0, Complex.I)}, would just propagate the real part to the
- * underlying {@code DoubleMatrix}. Likewise, given an {@code IntMatrix} adapted to a
+ * underlying {@code DoubleArray}. Likewise, given an {@code IntArray} adapted to a
  * {@code DoubleArray}, setting a position to a double converts it to an {@code int} (using
  * {@code (int) value}).
  *
- * Finally, if receiver is
+ * Finally, all specialized types must return them self when the specialization method is called. In
+ * all other cases, a view should be returned. That is:
  * <ul>
- * <li>{@link DoubleArray}, {@link #asDouble()} must return {@code this}</li>
- * <li>{@link IntArray}, {@link #asInt()} must return {@code this}</li>
- * <li>{@link org.briljantframework.array.LongArray}, {@link #asLong()} must return {@code this}</li>
- * <li>{@link BooleanArray}, {@link #asBoolean()} must return {@code this}</li>
- * <li>{@link ComplexArray}, {@link #asComplex()} must return {@code this}</li>
+ * <li>{@link DoubleArray#asDouble()} must return {@code this}</li>
+ * <li>{@link IntArray#asInt()} must return {@code this}</li>
+ * <li>{@link org.briljantframework.array.LongArray#asLong()} must return {@code this}</li>
+ * <li>{@link BooleanArray#asBoolean()} must return {@code this}</li>
+ * <li>{@link ComplexArray#asComplex()} must return {@code this}</li>
  * </ul>
- * </p>
- * <h1>Implicit conversions</h1>
+ * 
+ * <p/>
+ * We define the following conversions between the specialized types
  * <ul>
  * <li>{@code Complex => double}: {@code value.real()}</li>
  * <li>{@code double => int}: {@code (int) value}</li>
@@ -81,11 +87,18 @@ import org.briljantframework.sort.Swappable;
  * </ul>
  *
  * <p>
- * Remember that most subclasses provide, {@code get(int, int)} and {@code get(int)}, returning the
- * specialized type. For example, {@link DoubleArray#get(int, int)}.
+ * Remember that most subclasses provide, {@code get(int...)}, {@code get(int, int)} and
+ * {@code get(int)}, returning the specialized type. For example, {@link DoubleArray#get(int, int)}.
  * </p>
  *
  * @author Isak Karlsson
+ * @see AbstractBaseArray
+ * @see Array
+ * @see ComplexArray
+ * @see DoubleArray
+ * @see LongArray
+ * @see IntArray
+ * @see BooleanArray
  */
 public interface BaseArray<S extends BaseArray<S>> extends Swappable {
 
@@ -97,12 +110,10 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * can generically implement swapping without knowing the element type.
    *
    * <pre>
-   * {@code
-   * <T extends Array<T>> copy(T from, T to) {
-   *  for(int i = 0; i < from.size(); i++) {
-   *    to.set(i, from, i);
-   *  }
-   * }
+   * &lt;T extends BaseArray&lt;T&gt;&gt; copy(T from, T to) {
+   *   for (int i = 0; i &lt; from.size(); i++) {
+   *     to.set(i, from, i);
+   *   }
    * }
    * </pre>
    *
@@ -136,33 +147,38 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    */
   void set(int[] toIndex, S from, int[] fromIndex);
 
+  void set(int[] toIndex, S from, int fromIndex);
+
+  void set(int toIndex, S from, int[] fromIndex);
+
   /**
-   * Compares the values at index {@code a} and {@code b} in ascending order, i.e. if the value at
-   * index {@code a} is smaller than the value at {@code b}, a value smaller than {@code 0} is
-   * returned, if the values are equal {@code 0} is returned and if {@code b} is larger that
-   * {@code a} a value larger than {@code 0} is returned.
-   *
-   * @param a the index of the first value
-   * @param b the index of the second value
-   * @return an indicator whether the value at {@code a} is smaller, larger or equal to {@code b}
+   * Reverses each dimension of the array.
+   * 
+   * @return a new array
    */
-  int compare(int a, int b);
+  S reverse();
 
   /**
    * Assign {@code o} to {@code this}.
    * <p>
    * 
    * <pre>
-   * {@code
-   *  > DoubleArray arr = Arrays.array(new double[]{1,2,3,4});
-   *  > DoubleArray zero = Arrays.doubleArray(4);
-   *  > zero.assign(arr);
-   *  > zero
-   *  array([1.000, 2.000, 3.000, 4.000])
-   * }
+   * DoubleArray arr = Arrays.newVector(new double[]{1,2,3,4});
+   * DoubleArray zero = Arrays.doubleArray(4);
+   * zero.assign(arr);
+   * zero
+   * </pre>
+   * 
+   * produces,
+   * 
+   * <pre>
+   * array([1.000, 2.000, 3.000, 4.000])
    * </pre>
    *
-   * @param o the matrix
+   * The given array will be {@link Arrays#broadcast(BaseArray, int...) broadcast} to the this
+   * shape.
+   * 
+   * @param o the array to assign
    */
   void assign(S o);
 
@@ -172,17 +188,19 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * Example:
    * 
    * <pre>
-   * {@code
-   * > DoubleArray a = Arrays.linspace(0, 1, 2 * 2 * 3).reshape(2, 2, 3)
-   * > a.forEach(0, x -> System.out.println(x))
+   * DoubleArray a = Arrays.linspace(0, 1, 2 * 2 * 3).reshape(2, 2, 3)
+   * a.forEach(0, x -> System.out.println(x))
+   * </pre>
    * 
+   * produces,
+   * 
+   * <pre>
    * array([0.000, 0.091])
    * array([0.182, 0.273])
    * array([0.364, 0.455])
    * array([0.545, 0.636])
    * array([0.727, 0.818])
    * array([0.909, 1.000])
-   * }
    * </pre>
    */
   void forEach(int dim, Consumer<S> consumer);
@@ -194,14 +212,16 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * Example
    * 
    * <pre>
-   * {@code
-   * > DoubleArray a = Arrays.linspace(0, 1, 3 * 3).reshape(3, 3);
-   * > a.setColumn(0, Arrays.zero(3));
+   * DoubleArray a = Arrays.linspace(0, 1, 3 * 3).reshape(3, 3);
+   * a.setColumn(0, Arrays.zero(3));
+   * </pre>
    * 
+   * produces,
+   * 
+   * <pre>
    * array([[0.000, 0.375, 0.750],
    *        [0.000, 0.500, 0.875],
    *        [0.000, 0.625, 1.000]])
-   * }
    * </pre>
    *
    * @param i the column index
@@ -218,25 +238,43 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * Example
    * 
    * <pre>
-   * {@code
-   * > IntArray r = Arrays.range(3 * 3).reshape(3, 3).copy()
-   * > r
+   * IntArray r = Arrays.range(3 * 3).reshape(3, 3).copy()
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
    * array([[0, 3, 6],
    *        [1, 4, 7],
    *        [2, 5, 8]])
+   * </pre>
    * 
-   * > r.setColumn(0, Arrays.array(new int[]{0, 0, 1}))
-   * > r
+   * and
+   * 
+   * <pre>
+   * r.setColumn(0, IntArray.of(0, 0, 1))
+   * </pre>
+   * 
+   * produces,
+   * 
+   * <pre>
    * array([[0, 3, 6],
    *        [0, 4, 7],
    *        [1, 5, 8]])
+   * </pre>
    * 
-   * > r.get(Arrays.range(3), Arrays.range(1)).assign(Arrays.array(new int[]{0, 1, 0}))
-   * > r
+   * and
+   * 
+   * <pre>
+   * r.get(BasicIndex.ALL, Arrays.range(1)).assign(Arrays.newVector(new int[] {0, 1, 0}));
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
    * array([[0, 3, 6],
    *        [1, 4, 7],
    *        [0, 5, 8]])
-   * }
    * </pre>
    *
    * @param index the index
@@ -252,23 +290,37 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * Example
    * 
    * <pre>
-   * {@code
-   * > IntArray r = Arrays.range(3 * 3).reshape(3, 3).copy()
-   * > r.setRow(0, Arrays.array(new int[]{0, 0, 1}))
+   * IntArray r = Arrays.range(3 * 3).reshape(3, 3).copy();
+   * r.setRow(0, Arrays.newIntVector(0, 0, 1));
+   * </pre>
+   * 
+   * produces,
+   * 
+   * <pre>
+   * // r: before
    * array([[0, 3, 6],
    *        [1, 4, 7],
    *        [2, 5, 8]])
-   * > r
+   *        
+   * // r: after
    * array([[0, 0, 1],
    *        [1, 4, 7],
    *        [2, 5, 8]])
+   *
+   * </pre>
    * 
-   * > r.get(bj.range(1)).assign(Arrays.array(new int[]{0, 1, 0}))
-   * > r
+   * and
+   * 
+   * <pre>
+   * r.get(Arrays.range(1)).assign(Arrays.newVector(new int[] {0, 1, 0}))
+   * </pre>
+   * 
+   * produces,
+   * 
+   * <pre>
    * array([[0, 1, 0],
    *        [1, 4, 7],
    *        [2, 5, 8]])
-   * }
    * </pre>
    *
    * @param i the row index
@@ -296,58 +348,94 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * In most cases reshaping can be performed without copying:
    * 
    * <pre>
-   * {@code
-   * > IntArray x = Arrays.range(3 * 3).copy();
-   * array([0, 1, 2, 3, 4, 5, 6, 7, 8])
+   * IntArray x = Arrays.range(3 * 3).copy();
+   * </pre>
    * 
-   * > x.reshape(3, 3)
+   * produces
+   * 
+   * <pre>
+   * array([0, 1, 2, 3, 4, 5, 6, 7, 8])
+   * </pre>
+   * 
+   * and
+   * 
+   * <pre>
+   * x.reshape(3, 3)
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
    * array([[0, 3, 6],
    *        [1, 4, 7],
    *        [2, 5, 8]])
-   * > x.reshape(3, 3).data() == x.data()
-   * true
-   * }
+   * </pre>
+   * 
+   * and
+   * 
+   * <pre>
+   * x.reshape(3, 3).data() == x.data() == true
+   * // true
    * </pre>
    *
    * however, in some cases (when elements are non-contiguous) a copy is created
    *
    * <pre>
-   * {@code
-   * > IntArray x = Arrays.range(3 * 3).reshape(3, 3).copy().transpose();
+   * IntArray x = Arrays.range(3 * 3).reshape(3, 3).copy().transpose();
+   * </pre>
+   * 
+   * which produces
+   * 
+   * <pre>
    * array([[0, 1, 2],
    *        [3, 4, 5],
    *        [6, 7, 8]])
+   * </pre>
    * 
-   * > x.reshape(1, 9);
+   * and
+   * 
+   * <pre>
+   * x.reshape(1, 9);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
    * array([[0, 3, 6, 1, 4, 7, 2, 5, 8]])
+   * </pre>
    * 
-   * > x.reshape(1, 9).data() == x.data()
-   * false
-   * }
+   * then
+   * 
+   * <pre>
+   * x.reshape(1, 9).data() == x.data() == false
    * </pre>
    *
    * <p>
    * Passing {@code -1} is a shortcut for {@code Array x; x.reshape(x.size())}
    *
    * <pre>
-   * IntArray x = Arrays.range(3 * 3).reshape(3, 3).transpose()
+   * IntArray x = Arrays.range(3 * 3).reshape(3, 3).transpose();
    * </pre>
    * 
    * <pre>
    * array([[0, 1, 2],
-   *       [3, 4, 5],
-   *       [6, 7, 8]])
+   *        [3, 4, 5],
+   *        [6, 7, 8]])
    * </pre>
    * 
+   * and
+   * 
    * <pre>
-   * x.reshape(-1) // or x.reshape() or x.ravel()
+   * x.reshape(-1); // or x.reshape() or x.ravel()
    * </pre>
+   * 
+   * produces
    * 
    * <pre>
    * array([0, 3, 6, 1, 4, 7, 2, 5, 8])
    * </pre>
    *
-   * @param shape the new shape must be compatible with the old shape, i.e. {@code shape[0] * ...
+   * @param shape the new shape must be compatible with the old shape, i.e. {@code shape[0] * ... *
    *              shape[shape.length - 1] == this.size()}
    * @return if possible, returns a view of the array without changing its data; otherwise returns a
    *         copy with changed shape
@@ -368,28 +456,49 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * Example
    * 
    * <pre>
-   * {@code
-   * > IntArray x = Arrays.range(3*3*3).reshape(3, 3, 3)
+   * IntArray x = Arrays.range(3 * 3 * 3).reshape(3, 3, 3);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
    * array([[[0,  9, 18],
    *         [3, 12, 21],
    *         [6, 15, 24]],
    * 
-   *         [[1, 10, 19],
+   *        [[1, 10, 19],
    *         [4, 13, 22],
    *         [7, 16, 25]],
    * 
-   *         [[2, 11, 20],
+   *        [[2, 11, 20],
    *         [5, 14, 23],
    *         [8, 17, 26]]])
+   * </pre>
    * 
-   * > x.select(0)
+   * and
+   * 
+   * <pre>
+   * x.select(0);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
    * array([[0,  9, 18],
    *        [3, 12, 21],
    *        [6, 15, 24]])
+   * </pre>
    * 
-   * > x.select(0).select(0)
+   * and
+   * 
+   * <pre>
+   * x.select(0).select(0);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
    * array([0, 9, 18])
-   * }
    * </pre>
    *
    * <p>
@@ -407,216 +516,49 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * Example
    * 
    * <pre>
-   * {@code
-   * > IntArray x = Arrays.range(3*3*3).reshape(3, 3, 3)
-   * array([[[0,  9, 18],
-   *         [3, 12, 21],
-   *         [6, 15, 24]],
+   * IntArray x = Arrays.range(3*3*3).reshape(3, 3, 3)
+   * </pre>
    * 
+   * produces
+   * 
+   * <pre>
+   *  array([[[0,  9, 18],
+   *          [3, 12, 21],
+   *          [6, 15, 24]],
+   *  
    *         [[1, 10, 19],
-   *         [4, 13, 22],
-   *         [7, 16, 25]],
-   * 
+   *          [4, 13, 22],
+   *          [7, 16, 25]],
+   *  
    *         [[2, 11, 20],
-   *         [5, 14, 23],
-   *         [8, 17, 26]]])
+   *          [5, 14, 23],
+   *          [8, 17, 26]]])
+   * </pre>
    * 
-   * > x.select(2, 1);
+   * and
+   * 
+   * <pre>
+   * x.select(2, 1);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
    * array([[ 9, 12, 15],
    *        [10, 13, 16],
    *        [11, 14, 17]])
-   * }
    * </pre>
    */
   S select(int dimension, int index);
 
   /**
-   * Integer-based slicing, as opposed to basic slicing, returns a copy of the array. Complex
-   * slicing selects a subset of the data based on numerical indicies on a per dimension basis. To
-   * include ranges of values, one simple way is to use {@code Arrays.range(end).flat()}.
-   *
-   * <p>
-   * Examples
+   * Basic slicing returns a view of the array.
    * 
-   * <pre>
-   * {@code
-   * > IntArray x = Arrays.range(2 * 3 * 4).reshape(2, 3, 4);
-   * array([[[0,  9, 18, 27],
-   *         [3, 12, 21, 30],
-   *         [6, 15, 24, 33]],
-   * 
-   *         [[1, 10, 19, 28],
-   *         [4, 13, 22, 31],
-   *         [7, 16, 25, 34]],
-   * 
-   *         [[2, 11, 20, 29],
-   *         [5, 14, 23, 32],
-   *         [8, 17, 26, 35]]])
-   * 
-   * > x.select(Arrays.asList(
-   *      Arrays.asList(0, 1)
-   *   ));
-   * array([[[0,  9, 18, 27],
-   *         [3, 12, 21, 30],
-   *         [6, 15, 24, 33]],
-   * 
-   *         [[1, 10, 19, 28],
-   *         [4, 13, 22, 31],
-   *         [7, 16, 25, 34]]])
-   * 
-   * > x.select(Arrays.asList(
-   *      Arrays.asList(0, 1), Arrays.asList(1, 2)
-   *   ));
-   * array([[3, 12, 21, 30],
-   *        [7, 16, 25, 34]])
-   * 
-   * > x.select(Arrays.asList(
-   *      Arrays.asList(1, 1), Arrays.asList(1, 1), Arrays.asList(1, 1)
-   *   ));
-   * array([13, 13])
-   * }
-   * </pre>
-   *
-   * @param indexes a list of indexes to include
+   * @param indexers the indexers
    * @return a new array
+   * @see #getView(List)
    */
-  S select(List<List<Integer>> indexes);
-
-  /**
-   * @param indexes an array of index arrays
-   * @return a new array
-   * @see #select(java.util.List)
-   */
-  S select(int[][] indexes);
-
-  S slice(BooleanArray bits);
-
-  /**
-   * Gets the {@code i:th} vector along the {@code d:th} dimension. For 2d-arrays,
-   * {@linkplain #getRow(int)} and {@linkplain #getColumn(int)} preserves the 2d-shape of the
-   * vectors resulting in row-vectors and column-vectors respectively. This method results in
-   * 1d-vectors.
-   *
-   * <p>
-   * Example
-   * 
-   * <pre>
-   * {@code
-   * > IntArray x = Arrays.range(3*3*3).reshape(3, 3, 3)
-   * array([[[0,  9, 18],
-   *         [3, 12, 21],
-   *         [6, 15, 24]],
-   * 
-   *         [[1, 10, 19],
-   *         [4, 13, 22],
-   *         [7, 16, 25]],
-   * 
-   *         [[2, 11, 20],
-   *         [5, 14, 23],
-   *         [8, 17, 26]]])
-   * 
-   * > x.getVector(0, 0)
-   * array([0, 1, 2])
-   * 
-   * > x.getVector(1, 0)
-   * array([0, 3, 6])
-   * 
-   * > x.getVector(2, 9)
-   * array([0, 9, 18])
-   * 
-   * > IntArray y = x.select(0)
-   * array([[0,  9, 18],
-   *        [3, 12, 21],
-   *        [6, 15, 24]])
-   * 
-   * > y.getVector(0, 0)
-   * array([0, 3, 6])
-   * 
-   * > y.getColumn(0)
-   * array([[0],
-   *        [3],
-   *        [6]])
-   * 
-   * > y.getVector(1, 1)
-   * array([3, 12, 21])
-   * 
-   * > y.getRow(1)
-   * array([[3, 12, 21]])
-   * }
-   * </pre>
-   *
-   * @param dimension the dimension
-   * @param index the index of the vector
-   * @return a view of the {@code i:th} vector of the {@code d:th} dimension
-   */
-  S getVector(int dimension, int index);
-
-  /**
-   * Sets the elements of the {@code i:th} vector in the {@code d:th} dimension to the values of
-   * {@code other}. The size of {@code other} must equal the size of the {@code d:th} dimension
-   * {@code size(dim)}.
-   *
-   * <p>
-   * Example
-   * 
-   * <pre>
-   * {@code
-   * > IntArray x = Arrays.range(3*3*3).reshape(3, 3, 3)
-   * array([[[0,  9, 18],
-   *         [3, 12, 21],
-   *         [6, 15, 24]],
-   * 
-   *         [[1, 10, 19],
-   *         [4, 13, 22],
-   *         [7, 16, 25]],
-   * 
-   *         [[2, 11, 20],
-   *         [5, 14, 23],
-   *         [8, 17, 26]]])
-   * > x.setVector(0, 0, Arrays.zero(3).asInt());
-   * > x
-   * array([[[0,  9, 18],
-   *         [3, 12, 21],
-   *         [6, 15, 24]],
-   * 
-   *         [[0, 10, 19],
-   *         [4, 13, 22],
-   *         [7, 16, 25]],
-   * 
-   *         [[0, 11, 20],
-   *         [5, 14, 23],
-   *         [8, 17, 26]]])
-   * }
-   * </pre>
-   *
-   * @param dimension the dimension
-   * @param index the index of the vector
-   * @param other the new values for the {@code i:th} vector in the {@code d:th} dimension
-   */
-  void setVector(int dimension, int index, S other);
-
-  /**
-   * <p>
-   * Gets a view of the diagonal of a 2-d array
-   *
-   * <pre>
-   * {@code
-   *  > DoubleArray b = Arrays.array(new double[]{1,2,3,4}).reshape(2, 2);
-   *  > b.getDiagonal();
-   *  array([1,4])
-   * }
-   * </pre>
-   *
-   * @return a diagonal view
-   */
-  S getDiagonal();
-
-  /**
-   * @param ranges the ranges (one for each dimension) to include in the view
-   * @return a view
-   * @see #get(java.util.List)
-   */
-  S get(Range... ranges);
+  S getView(Range... indexers);
 
   /**
    * Basic slicing returns a view of the nd-array. The standard rules of slicing applies to basic
@@ -636,77 +578,452 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * Example
    * <ul>
    * <li>1d-array
-   * 
+   *
    * <pre>
-   * {@code
-   * > IntArray r = Arrays.range(10)
-   * array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-   * 
-   * > r.get(Arrays.range(0, 8, 2))
-   * array([0, 2, 4, 6])
-   * }
+   * IntArray r = Arrays.range(10);
    * </pre>
-   * 
+   *
+   * produces,
+   *
+   * <pre>
+   * array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+   * </pre>
+   *
+   * and
+   *
+   * <pre>
+   * r.get(Arrays.range(0, 8, 2));
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
+   * array([0, 2, 4, 6])
+   * </pre>
+   *
+   * </pre>
+   *
    * </li>
    * <li>2d-array
-   * 
+   *
    * <pre>
-   * {@code
-   * > IntArray r = Arrays.range(3 * 3).reshape(3, 3)
+   * IntArray r = Arrays.range(3 * 3).reshape(3, 3);
+   * </pre>
+   *
+   * produces,
+   *
+   * <pre>
    * array([[0, 3, 6],
    *        [1, 4, 7],
    *        [2, 5, 8]])
-   * 
-   * > r.get(Arrays.range(1, 2))
+   * </pre>
+   *
+   * and
+   *
+   * <pre>
+   * r.get(Arrays.range(1, 2)
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
    * array([[1, 4, 7]])
-   * 
-   * > r.get(Arrays.range(0, 3, 2), Arrays.range(0, 3, 2))
+   * </pre>
+   *
+   * and
+   *
+   * <pre>
+   * r.get(Arrays.range(0, 3, 2), Arrays.range(0, 3, 2))
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
    * array([[0, 6],
    *        [2, 8]])
-   * }
    * </pre>
-   * 
+   *
    * </li>
    * <li>nd-array
-   * 
+   *
    * <pre>
-   * {@code
-   * >IntArray r = Arrays.range(3*3*3).reshape(3,3,3)
-   * array([[[0,  9, 18],
-   *         [3, 12, 21],
-   *         [6, 15, 24]],
+   * IntArray r = Arrays.range(3*3*3).reshape(3,3,3):
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
+   *  array([[[0,  9, 18],
+   *          [3, 12, 21],
+   *          [6, 15, 24]],
    * 
    *         [[1, 10, 19],
-   *         [4, 13, 22],
-   *         [7, 16, 25]],
+   *          [4, 13, 22],
+   *          [7, 16, 25]],
    * 
    *         [[2, 11, 20],
-   *         [5, 14, 23],
-   *         [8, 17, 26]]])
-   * 
-   * > r.get(Arrays.range(0,3,2))
-   * array([[[0,  9, 18],
-   *         [3, 12, 21],
-   *         [6, 15, 24]],
+   *          [5, 14, 23],
+   *          [8, 17, 26]]])
+   * </pre>
+   *
+   * and
+   *
+   * <pre>
+   * r.get(Arrays.range(0, 3, 2));
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
+   *  array([[[0,  9, 18],
+   *          [3, 12, 21],
+   *          [6, 15, 24]],
    * 
    *         [[2, 11, 20],
-   *         [5, 14, 23],
-   *         [8, 17, 26]]])
-   * 
-   * > r.get(Arrays.range(0,3,2), Arrays.range(0,1), Arrays.range(0,3,2))
+   *          [5, 14, 23],
+   *          [8, 17, 26]]])
+   * </pre>
+   *
+   * and
+   *
+   * <pre>
+   * r.get(Arrays.range(0, 3, 2), Arrays.range(0, 1), Arrays.range(0, 3, 2))
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
    * array([[[0, 18]],
    * 
-   *         [[2, 20]]])
-   * }
+   *        [[2, 20]]])
    * </pre>
-   * 
+   *
    * </li>
    * </ul>
    *
    * @param ranges a collection of ranges
    * @return a view
    */
-  S get(List<Range> ranges);
+  S getView(List<? extends Range> ranges);
+
+  /**
+   * Gets the {@code i:th} vector along the {@code d:th} dimension. For 2d-arrays,
+   * {@linkplain #getRow(int)} and {@linkplain #getColumn(int)} preserves the 2d-shape of the
+   * vectors resulting in row-vectors and column-vectors respectively. This method results in
+   * 1d-vectors.
+   *
+   * <p/>
+   * Example
+   * 
+   * <pre>
+   * IntArray x = Arrays.range(3 * 3 * 3).reshape(3, 3, 3);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
+   * array([[[0,  9, 18],
+   *         [3, 12, 21],
+   *         [6, 15, 24]],
+   * 
+   *        [[1, 10, 19],
+   *         [4, 13, 22],
+   *         [7, 16, 25]],
+   * 
+   *        [[2, 11, 20],
+   *         [5, 14, 23],
+   *         [8, 17, 26]]])
+   * </pre>
+   * 
+   * and
+   * 
+   * <pre>
+   * x.getVector(0, 0);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
+   * array([0, 1, 2])
+   * </pre>
+   * 
+   * and
+   * 
+   * <pre>
+   * x.getVector(1, 0);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
+   * array([0, 3, 6])
+   * </pre>
+   * 
+   * and
+   * 
+   * <pre>
+   * x.getVector(2, 9);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
+   * array([0, 9, 18])
+   * </pre>
+   * 
+   * and
+   * 
+   * <pre>
+   * IntArray y = x.select(0);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
+   * array([[0,  9, 18],
+   *        [3, 12, 21],
+   *        [6, 15, 24]])
+   * </pre>
+   * 
+   * and
+   * 
+   * <pre>
+   * y.getVector(0, 0);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
+   * array([0, 3, 6])
+   * </pre>
+   * 
+   * and
+   * 
+   * <pre>
+   * y.getColumn(0);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
+   * array([[0],
+   *        [3],
+   *        [6]])
+   * </pre>
+   * 
+   * and
+   * 
+   * <pre>
+   * y.getVector(1, 1);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
+   * array([3, 12, 21])
+   * </pre>
+   * 
+   * and
+   * 
+   * <pre>
+   * y.getRow(1);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
+   * array([[3, 12, 21]])
+   * </pre>
+   *
+   * @param dimension the dimension
+   * @param index the index of the vector
+   * @return a view of the {@code i:th} vector of the {@code d:th} dimension
+   */
+  S getVector(int dimension, int index);
+
+  /**
+   * Sets the elements of the {@code i:th} vector in the {@code d:th} dimension to the values of
+   * {@code other}. The size of {@code other} must equal the size of the {@code d:th} dimension
+   * {@code size(dim)}.
+   *
+   * <p>
+   * Example
+   * 
+   * <pre>
+   * IntArray x = Arrays.range(3 * 3 * 3).reshape(3, 3, 3);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
+   * array([[[0,  9, 18],
+   *         [3, 12, 21],
+   *         [6, 15, 24]],
+   * 
+   *        [[1, 10, 19],
+   *         [4, 13, 22],
+   *         [7, 16, 25]],
+   * 
+   *        [[2, 11, 20],
+   *         [5, 14, 23],
+   *         [8, 17, 26]]])
+   * </pre>
+   * 
+   * and
+   * 
+   * <pre>
+   * x.setVector(0, 0, IntArray.zeros(3));
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
+   * array([[[0,  9, 18],
+   *         [3, 12, 21],
+   *         [6, 15, 24]],
+   * 
+   *        [[0, 10, 19],
+   *         [4, 13, 22],
+   *         [7, 16, 25]],
+   * 
+   *        [[0, 11, 20],
+   *         [5, 14, 23],
+   *         [8, 17, 26]]])
+   * }
+   * </pre>
+   *
+   * @param dimension the dimension
+   * @param index the index of the vector
+   * @param other the new values for the {@code i:th} vector in the {@code d:th} dimension
+   */
+  void setVector(int dimension, int index, S other);
+
+  /**
+   * <p>
+   * Gets a view of the diagonal of a 2-d array
+   *
+   * <pre>
+   * DoubleArray b = Arrays.newVector(new double[] {1, 2, 3, 4}).reshape(2, 2);
+   * b.getDiagonal();
+   * // array([1,4])
+   * </pre>
+   *
+   * @return a diagonal view
+   */
+  S getDiagonal();
+
+  /**
+   * @param arrays the ranges (one for each dimension) to include in the view
+   * @return a view
+   * @see #get(java.util.List)
+   */
+  S get(IntArray... arrays);
+
+  /**
+   * Integer-based slicing, as opposed to basic slicing, returns a copy of the array. Complex
+   * slicing selects a subset of the data based on numerical indicies on a per dimension basis. To
+   * include ranges of values, one simple way is to use {@code Arrays.range(end).flat()}.
+   *
+   * <p>
+   * Examples
+   *
+   * <pre>
+   * IntArray x = Arrays.range(2 * 3 * 4).reshape(2, 3, 4);
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
+   * array([[[0,  9, 18, 27],
+   *         [3, 12, 21, 30],
+   *         [6, 15, 24, 33]],
+   * 
+   *        [[1, 10, 19, 28],
+   *         [4, 13, 22, 31],
+   *         [7, 16, 25, 34]],
+   * 
+   *        [[2, 11, 20, 29],
+   *         [5, 14, 23, 32],
+   *         [8, 17, 26, 35]]])
+   * </pre>
+   *
+   * and
+   *
+   * <pre>
+   * x.select(IntArray.of(0, 1));
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
+   * array([[[0,  9, 18, 27],
+   *         [3, 12, 21, 30],
+   *         [6, 15, 24, 33]],
+   * 
+   *        [[1, 10, 19, 28],
+   *         [4, 13, 22, 31],
+   *         [7, 16, 25, 34]]])
+   * </pre>
+   *
+   * and
+   *
+   * <pre>
+   * x.select(IntArray.of(0, 1), IntArray.of(1, 2));
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
+   * array([[3, 12, 21, 30],
+   *        [7, 16, 25, 34]])
+   * </pre>
+   *
+   * and
+   *
+   * <pre>
+   * x.select(IntArray.of(1,1), IntArray.of(1,1), IntArray.of(1,1)));
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
+   * array([13, 13])
+   * </pre>
+   *
+   * If all index-arrays are {@linkplain AdvancedIndexer#isBasicIndexer(IntArray) basic indexers}
+   * the returned array is a view, otherwise the returned array is a new array.
+   *
+   * @param arrays a list of indexes to include
+   * @return a new array if advanced indexing and a view if basic indexing
+   * @see #getView(List)
+   */
+  S get(List<? extends IntArray> arrays);
+
+  /**
+   * Set the slice denoted by the indexer to to given slice.
+   *
+   * @param indexers the indexers
+   * @param slice the slice
+   * @see #set(List, BaseArray)
+   */
+  default void set(IntArray[] indexers, S slice) {
+    set(java.util.Arrays.asList(indexers), slice);
+  }
+
+  /**
+   * Set the slice denoted by the indexer to the given slice. If all index-arrays are basic
+   * indexers, the result of this method is equivalent to {@code x.get(..).assign(..)}. The primary
+   * purpose is hence when using advanced indexing.
+   *
+   * <p/>
+   * The value must be {@link Arrays#broadcast(BaseArray, int...) broadcastable} to the same shape
+   * as the selected array.
+   *
+   * @param arrays the indexer
+   * @param value the slice
+   * @see #getView(List)
+   */
+  void set(List<? extends IntArray> arrays, S value);
 
   /**
    * For a 2d-array, get a view of row starting at {@code rowOffset} until {@code rowOffset + rows}
@@ -715,16 +1032,28 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * Example
    * 
    * <pre>
-   * {@code
-   * > IntArray x = Arrays.range(1, 10).reshape(3, 3).transpose();
+   * IntArray x = Arrays.range(1, 10).reshape(3, 3).transpose();
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
    * array([[1, 2, 3],
    *        [4, 5, 6]
    *        [7, 8, 9]])
+   * </pre>
    * 
-   * > x.getView(1, 1, 2, 2)
+   * We can take the lower right {@code 2 x 2} square as
+   * 
+   * <pre>
+   * x.getView(1, 1, 2, 2);
+   * </pre>
+   * 
+   * which produces
+   * 
+   * <pre>
    * array([[5, 6]
    *        [8, 9]])
-   * }
    * </pre>
    *
    * @param rowOffset the row offset
@@ -738,7 +1067,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
   /**
    * Returns the linearized size of this matrix. If {@code dims() == } 1, then {@code size()} is
    * intuitive. However, if not, size is {@code shape[1] * shape[2] * ... *
-   * shape[dims[]-1]} and used when iterating using {@code get(int)}. For matrices, to avoid cache
+   * shape[dims() - 1]} and used when iterating using {@code get(int)}. For matrices, to avoid cache
    * misses, {@code for(int i = 0; i < m.size(); i++) m.set(i, o.get(i))} should be preferred to
    *
    * <pre>
@@ -809,8 +1138,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
   int[] getStride();
 
   /**
-   * The major stride. In most cases this is {@code this.stride(0)} if {@code this.isContiguous()}
-   * returns true.
+   * The major stride, if the array is {@link #isContiguous() contiguous} {@code 1} is returned.
    *
    * @return the major stride
    */
@@ -869,38 +1197,38 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * @param shape the shape of the view
    * @param stride the stride of the view
    * @return a view
-   * @see #asView(int, int[], int[], int)
+   * @see #asView(int, int[], int[])
    */
   S asView(int[] shape, int[] stride);
 
   /**
-   * Create a view of {@code this} array with the specified offset, shape and stride.
-   *
-   * @param offset the offset (where indexing starts)
-   * @param shape the shape of the view
-   * @param stride the strides of the view
-   * @return a view
-   * @see #asView(int, int[], int[], int)
-   */
-  S asView(int offset, int[] shape, int[] stride);
-
-  /**
-   * Create a view of this array with the specified offset, shape, stride and major stride. This is
-   * an advanced technique and in most cases can it be avoided by using
-   * {@linkplain #get(java.util.List)} or {@linkplain #select(java.util.List)}.
+   * Create a view of this array with the specified offset, shape and stride. This is an advanced
+   * technique which in most cases can be avoided.
    *
    * <p>
    * Example
    * 
    * <pre>
-   * {@code
-   * > IntArray x = Arrays.range(10).reshape(2,5);
-   * array([[0, 2, 4, 6, 8],
-   *        [1, 3, 5, 7, 9]] type: int)
+   * IntArray x = Arrays.range(10).reshape(2, 5);
+   * </pre>
    * 
-   * > x.asView(new int[]{5}, new int[]{2});
-   * array([0, 2, 4, 6, 8] type: int)
-   * }
+   * produces
+   * 
+   * <pre>
+   * array([[0, 2, 4, 6, 8],
+   *        [1, 3, 5, 7, 9]])
+   * </pre>
+   * 
+   * To get every second element we can issue:
+   * 
+   * <pre>
+   * x.asView(new int[] {5}, new int[] {2});
+   * </pre>
+   * 
+   * which produces,
+   * 
+   * <pre>
+   * array([0, 2, 4, 6, 8])
    * </pre>
    *
    * A more complex example could be that we have a 2d-array and want to extract {@code p x p}
@@ -929,14 +1257,22 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    *          [12, 16]]]] type: int)
    * </pre>
    *
+   * We can implement it as this:
+   * 
    * <pre>
-   * {@code
-   * > IntArray x = Arrays.range(1, 17).reshape(4, 4)
-   * > int h = x.size(0), w = x.size(1);
-   * > int bh = 2, bw = 2;
-   * > int[] shape = new int[]{h / bw, w / bw, bh, bw};
-   * > int[] strides = new int[]{h * bw, bh, 1, h}
-   * > IntArray y = x.asView(shape, strides)
+   * IntArray x = Arrays.range(1, 17).reshape(4, 4);
+   * int h = x.size(0);
+   * int w = x.size(1);
+   * int bh = 2;
+   * int bw = 2;
+   * int[] shape = new int[] {h / bw, w / bw, bh, bw};
+   * int[] strides = new int[] {h * bw, bh, 1, h};
+   * IntArray y = x.asView(shape, strides);
+   * </pre>
+   * 
+   * which produces {@code y} as:
+   * 
+   * <pre>
    * array([[[[ 1,  5],
    *          [ 2,  6]],
    * 
@@ -947,17 +1283,14 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    *          [10, 14]],
    * 
    *         [[11, 15],
-   *          [12, 16]]]] type: int)
-   * }
+   *          [12, 16]]]])
    * </pre>
    *
    * @param offset the offset (where indexing starts)
    * @param shape the shape of the view
    * @param stride the stride of the view
-   * @param majorStride the index of the major stride (usually {@code 0} or {@code shape.length -
-   *                    1})
    */
-  S asView(int offset, int[] shape, int[] stride, int majorStride);
+  S asView(int offset, int[] shape, int[] stride);
 
   /**
    * Create a new array with the given shape.
@@ -968,7 +1301,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
   S newEmptyArray(int... shape);
 
   /**
-   * Returns {@code true} if th
+   * Returns {@code true} if the array is a view
    */
   boolean isView();
 
@@ -1005,21 +1338,19 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * Example
    * 
    * <pre>
-   * {@code
-   * > IntArray a = Arrays.array(new int[]{1, 2, 3, 4, 5, 6}).reshape(3, 3);
+   * IntArray a = Arrays.newVector(new int[] {1, 2, 3, 4, 5, 6}).reshape(3, 3);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
    * array([[1, 3, 5]
    *        [2, 4, 6]] type: int);
-   * 
-   * > a.isContiguous();
-   * true
-   * 
-   * > a.reshape(-1).isContiguous()
-   * true
-   * 
-   * > a.transpose().isContiguous()
-   * false
-   * }
    * </pre>
+   * 
+   * with {@code a.isContiguous();} returning {@code true} and also
+   * {@code a.reshape(-1).isContiguous()} return {@code true}. However,
+   * {@code a.transpose().isContiguous()} reverses the major stride and hence returns {@code false}.
    *
    * <p>
    * If a method specifies that it returns a view if possible and a copy otherwise, generally this

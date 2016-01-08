@@ -1,25 +1,22 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Isak Karlsson
+ * Copyright (c) 2016 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.array;
 
@@ -42,23 +39,26 @@ import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Listable;
 
 /**
+ * A multidimensional array of reference types.
+ * 
  * @author Isak Karlsson
+ * @see BaseArray
  */
 public interface Array<T> extends BaseArray<Array<T>>, Listable<T> {
 
   /**
-   * @see Arrays#newVector(Object[])
+   * @see Arrays#vector(Object[])
    */
   @SafeVarargs
   static <T> Array<T> of(T... data) {
-    return Arrays.newVector(data);
+    return Arrays.vector(data);
   }
 
   /**
-   * @see Arrays#newArray(int...)
+   * @see Arrays#array(int...)
    */
   static <T> Array<T> empty(int... shape) {
-    return Arrays.newArray(shape);
+    return Arrays.array(shape);
   }
 
   /**
@@ -76,15 +76,17 @@ public interface Array<T> extends BaseArray<Array<T>>, Listable<T> {
    * Example:
    *
    * <pre>
-   * {@code
-   * > Array<Double> random = Arrays.referenceArray(3, 3);
-   * > Random rng = new Random();
-   * > random.assign(rng::nextGaussian);
+   * Array&lt;Double&gt; random = Arrays.referenceArray(3, 3);
+   * Random rng = new Random();
+   * random.assign(rng::nextGaussian);
+   * </pre>
    * 
+   * produces
+   * 
+   * <pre>
    * array([[     0.6310493305783, 0.8472577240960372, 0.32059848527214957],
    *        [ 0.23032061567663129, 1.4297521011054555,   1.666247841931618],
-   *        [-0.47219553601033654,  1.400574394946874, 0.14261753382770095]] type: Double)
-   * }
+   *        [-0.47219553601033654,  1.400574394946874, 0.14261753382770095]])
    * </pre>
    *
    * @param supplier the value supplier
@@ -98,12 +100,15 @@ public interface Array<T> extends BaseArray<Array<T>>, Listable<T> {
    * Example
    *
    * <pre>
-   * {@code
-   * > Array<Integer> i = Arrays.range(0, 3).boxed();
-   * > Array<String> x = Arrays.array(new String[]{"foo", "bar", "baz"});
-   * > i.assign(x, String::length).mapToInt(Integer::intValue);
-   * array([3, 3, 3] type: int)
-   * }
+   * Array&lt;Integer&gt; i = Arrays.range(0, 3).boxed();
+   * Array&lt;String&gt; x = Arrays.array(new String[] {&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;});
+   * i.assign(x, String::length).mapToInt(Integer::intValue);
+   * </pre>
+   * 
+   * produces
+   * 
+   * <pre>
+   * array([3, 3, 3])
    * </pre>
    *
    * @param other the other array
@@ -156,6 +161,11 @@ public interface Array<T> extends BaseArray<Array<T>>, Listable<T> {
    */
   <U> Array<U> map(Function<? super T, ? extends U> f);
 
+  /**
+   * Apply the given operator to each element.
+   * 
+   * @param operator the operator
+   */
   void apply(UnaryOperator<T> operator);
 
   /**
@@ -321,8 +331,22 @@ public interface Array<T> extends BaseArray<Array<T>>, Listable<T> {
    */
   BooleanArray where(Array<T> other, BiPredicate<T, T> predicate);
 
+  /**
+   * Reduce the array element wise with the given initial value and accumulator.
+   * 
+   * @param initial the initial value
+   * @param accumulator the accumulator
+   * @return the accumulated value
+   */
   T reduce(T initial, BinaryOperator<T> accumulator);
 
+  /**
+   * Reduce each vector along the specified dimension using the given accumulator.
+   * 
+   * @param dim the dimension
+   * @param accumulator the accumulator
+   * @return a new array
+   */
   Array<T> reduceVector(int dim, Function<? super Array<T>, T> accumulator);
 
   /**
@@ -375,6 +399,52 @@ public interface Array<T> extends BaseArray<Array<T>>, Listable<T> {
    * @param value the value
    */
   void set(int[] index, T value);
+
+  /**
+   * Set the elements where the given array is {@code true} to the given value
+   * <p/>
+   * Example
+   * 
+   * <pre>
+   * Array&lt;Integer&gt; a = Arrays.range(3 * 3).reshape(3, 3).boxed();
+   * Array&lt;Integer&gt; b = Arrays.newArray(3, 3);
+   * b.set(a.where(i -&gt; i &gt; 2), 10);
+   * </pre>
+   *
+   * produces
+   * 
+   * <pre>
+   * array([[null, 10, 10],
+   *        [null, 10, 10],
+   *        [null, 10, 10]])
+   * </pre>
+   *
+   * @param array the array
+   * @param value the value
+   */
+  void set(BooleanArray array, T value);
+
+  /**
+   * Get the elements where the given array is {@code true}.
+   * 
+   * <p/>
+   * Example
+   * 
+   * <pre>
+   * Array&lt;Integer&gt; a = Arrays.range(3 * 3).reshape(3, 3).boxed();
+   * a.get(a.where(i -&gt; i &gt; 2));
+   * </pre>
+   *
+   * produces
+   *
+   * <pre>
+   * array([3, 4, 5, 6, 7, 8])
+   * </pre>
+   *
+   * @param array the array
+   * @return a new array
+   */
+  Array<T> get(BooleanArray array);
 
   /**
    * Return this array as a {@code Stream} with the values in the same order as

@@ -1,25 +1,22 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Isak Karlsson
+ * Copyright (c) 2016 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.data.dataframe;
 
@@ -33,8 +30,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.Check;
 import org.briljantframework.data.Collectors;
+import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
-import org.briljantframework.data.Scale;
 import org.briljantframework.data.dataframe.join.InnerJoin;
 import org.briljantframework.data.dataframe.join.JoinOperation;
 import org.briljantframework.data.dataframe.join.LeftOuterJoin;
@@ -50,8 +47,8 @@ import org.briljantframework.data.vector.Vectors;
 
 /**
  * Utility methods for handling {@code DataFrame}s
- * <p>
- * Created by Isak Karlsson on 27/11/14.
+ * 
+ * @author Isak Karlsson
  */
 public final class DataFrames {
 
@@ -71,11 +68,10 @@ public final class DataFrames {
     joinOperations.put(OUTER, OuterJoin.getInstance());
   }
 
-
   private DataFrames() {}
 
   public static DataFrame table(Vector a, Vector b) {
-    Check.size(a.size(), b.size());
+    Check.dimension(a.size(), b.size());
     Map<Object, Map<Object, Integer>> counts = new HashMap<>();
     Set<Object> aUnique = new HashSet<>();
     Set<Object> bUnique = new HashSet<>();
@@ -143,7 +139,7 @@ public final class DataFrames {
 
     for (Object columnKey : df.getColumnIndex().keySet()) {
       Vector column = df.get(columnKey);
-      if (column.getType().getScale() == Scale.NUMERICAL) {
+      if (Is.numeric(column)) {
         StatisticalSummary summary = column.collect(Number.class, Collectors.statisticalSummary());
         builder.set(columnKey, "mean", summary.getMean())
             .set(columnKey, "var", summary.getVariance())

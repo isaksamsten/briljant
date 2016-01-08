@@ -1,25 +1,22 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Isak Karlsson
+ * Copyright (c) 2016 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.data.dataseries;
 
@@ -35,20 +32,18 @@ import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 
 /**
- * <p>
  * Symbolic aggregation (when normalized) is a representation method for data series that allow for
  * lower bounding the distance calculation. It works by transforming the normalized data series into
  * a series of discrete symbols, called words, by mapping each data point using the probability
  * associated with a particular value.
- * </p>
+ * <p/>
  *
- * <p>
  * For example, given the alphabet {@code [a, b, c, d]} the following thresholds can be computed
  * from the normal distribution and equally sized regions {@code [-0.674,0.000,0.674]}. Then, if a
  * value is {@code <= -0.674} assign {@code a}, if the value is {@code >= 0.674} assign {@code d},
  * if value is {@code -0.674 < value < 0} assign b and if {@code 0 < value < 0.674} assign c. That
  * is, {@code [-1, 1, 0.3, -0.2]} becomes {@code [a, d, c, b]}.
- * </p>
+ * <p/>
  *
  * <p>
  * The {@link SymbolicAggregator} is often coupled with the {@link MeanAggregator}. For example,
@@ -56,14 +51,12 @@ import org.briljantframework.data.vector.VectorType;
  * <pre>
  * Transformer sax =
  *     PipelineTransformer.of(new AggregateApproximation(new MeanAggreagator(5)),
- *         new AggreagetApproximation(new SymbolicAggregator(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;)));
+ *         new AggregateApproximation(new SymbolicAggregator(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;)));
  * sax.transform(x);
  * 
  * // Alternatively
  * Approximations.sax(x, 5, &quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;);
  * </pre>
- *
- * </p>
  *
  * @author Isak Karlsson
  */
@@ -77,9 +70,8 @@ public class SymbolicAggregator implements Aggregator {
    *
    * @param alphabet the alphabet
    */
-  public SymbolicAggregator(Vector alphabet) {
-    this.alphabet = alphabet;
-    thresholds = calculateThresholds(alphabet);
+  public SymbolicAggregator(List<String> alphabet) {
+    this(Vector.singleton(alphabet));
   }
 
   /**
@@ -87,8 +79,22 @@ public class SymbolicAggregator implements Aggregator {
    *
    * @param alphabet the alphabet
    */
-  public SymbolicAggregator(List<String> alphabet) {
-    this(Vector.singleton(alphabet));
+  public SymbolicAggregator(Vector alphabet) {
+    this.alphabet = alphabet;
+    thresholds = calculateThresholds(alphabet);
+  }
+
+  /*
+   * Compute the thresholds for the alphabet using the normal distribution. Given an alphabet A,
+   * computes the thresholds as [ppf(1/|A|), ppf(2/|A|), ..., ppf((|A|-1)/|A|)].
+   */
+  private static DoubleArray calculateThresholds(Vector alphabet) {
+    double prob = 1.0 / alphabet.size();
+    int length = alphabet.size() - 1;
+    RealDistribution distribution = new NormalDistribution(0, 1);
+    DoubleArray array = Arrays.linspace(prob, 1.0 - prob, length);
+    array.map(distribution::inverseCumulativeProbability);
+    return array;
   }
 
   /**
@@ -109,19 +115,6 @@ public class SymbolicAggregator implements Aggregator {
   public static Map<String, Map<String, Double>> newLookupTable(List<String> alphabet) {
     Vector vector = Vector.singleton(alphabet); // TODO: note of(...)
     return createLookupTable(vector, calculateThresholds(vector));
-  }
-
-  /*
-   * Compute the thresholds for the alphabet using the normal distribution. Given an alphabet A,
-   * computes the thresholds as [ppf(1/|A|), ppf(2/|A|), ..., ppf((|A|-1)/|A|)].
-   */
-  private static DoubleArray calculateThresholds(Vector alphabet) {
-    double prob = 1.0 / alphabet.size();
-    int length = alphabet.size() - 1;
-    RealDistribution distribution = new NormalDistribution(0, 1);
-    DoubleArray array = Arrays.linspace(prob, 1.0 - prob, length);
-    array.map(distribution::inverseCumulativeProbability);
-    return array;
   }
 
   /*
@@ -156,6 +149,11 @@ public class SymbolicAggregator implements Aggregator {
   }
 
   @Override
+  public VectorType getAggregatedType() {
+    return VectorType.of(String.class);
+  }
+
+  @Override
   public Vector.Builder partialAggregate(Vector in) {
     Vector.Builder sax = Vector.Builder.of(String.class);
     for (int j = 0; j < in.size(); j++) {
@@ -177,10 +175,5 @@ public class SymbolicAggregator implements Aggregator {
       }
     }
     return sax;
-  }
-
-  @Override
-  public VectorType getAggregatedType() {
-    return VectorType.of(String.class);
   }
 }

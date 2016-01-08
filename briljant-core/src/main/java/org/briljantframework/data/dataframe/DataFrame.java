@@ -1,25 +1,22 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Isak Karlsson
+ * Copyright (c) 2016 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.data.dataframe;
 
@@ -55,8 +52,12 @@ import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.primitive.ArrayAllocations;
 
 /**
- * A DataFrame is a 2-dimensional storage of data consisting of (index) <em>columns</em> and
- * <em>rows</em>.
+ * A DataFrame is a 2-dimensional storage of data consisting of (indexed) <em>columns</em> and
+ * (indexed) <em>rows</em>. Rows are denoted as records and columns as columns.
+ * 
+ * <p/>
+ * Columns and records can either be accessed by their intrinsic location using {@link #loc()} or by
+ * their index e.g, using {@link #get(Object)} and {@link #getRecord(Object)}.
  *
  * @author Isak Karlsson
  */
@@ -226,8 +227,8 @@ public interface DataFrame extends Iterable<Object> {
    *
    * <pre>
    * {@code
-   *
-   *
+   * 
+   * 
    * }
    * </pre>
    *
@@ -404,13 +405,13 @@ public interface DataFrame extends Iterable<Object> {
    *  1  2  -2.0
    *  2  1  1.5
    *  3  2  2.0
-   *
+   * 
    *  [4 rows x 2 columns]
-   *
+   * 
    *     A  B
    *  0  1  30.0
    *  2  1  33.0
-   *
+   * 
    * [2 rows x 2 columns]
    * </pre>
    *
@@ -435,7 +436,7 @@ public interface DataFrame extends Iterable<Object> {
    *    A   B
    * 2  10  c
    * 3  20  d
-   *
+   * 
    * [2 rows x 2 columns]
    * </pre>
    *
@@ -472,7 +473,7 @@ public interface DataFrame extends Iterable<Object> {
    *      entry(&quot;B&quot;, Vector.of(1, 1, 0, 4)),
    *      entry(&quot;C&quot;, Vector.of(1, 1, 0, 4))
    *  );
-   *
+   * 
    * for (Group group : df.groupBy(Vector::mean, &quot;A&quot;, &quot;B&quot;)) {
    *   System.out.println(&quot;key: &quot; + group.getKey());
    *   System.out.println(group.getData());
@@ -486,20 +487,20 @@ public interface DataFrame extends Iterable<Object> {
    * key: 1.0
    *    A  B  C
    * 0  1  1  1
-   *
+   * 
    * [1 rows x 3 columns]
-   *
+   * 
    * key: 4.0
    *    A  B  C
    * 3  4  4  4
-   *
+   * 
    * [1 rows x 3 columns]
-   *
+   * 
    * key: 1.5
    *    A  B  C
    * 1  2  1  1
    * 2  3  0  0
-   *
+   * 
    * [2 rows x 3 columns]
    * </pre>
    *
@@ -533,7 +534,7 @@ public interface DataFrame extends Iterable<Object> {
    *
    * <pre>
    * df.groupBy(LocalData.class, k -&gt; Is.NA(k) ? 2000 : k.getYear());
-   *
+   * 
    * // or, if we allow the possibility of error
    * df.groupBy(LocalData.class, LocalData::getYear);
    * </pre>
@@ -629,7 +630,7 @@ public interface DataFrame extends Iterable<Object> {
    * 0  1
    * 1  2
    * 2  3
-   *
+   * 
    * [1 rows x 3 columns]
    * </pre>
    *
@@ -770,7 +771,7 @@ public interface DataFrame extends Iterable<Object> {
    * 0  1   1
    * 1  30  30
    * 2  30  30
-   *
+   * 
    * [3 rows x 2 columns]
    * </pre>
    *
@@ -826,7 +827,7 @@ public interface DataFrame extends Iterable<Object> {
    * <pre>
    *    a  b  c  d
    * A  1  2  3  4
-   *
+   * 
    * [1 rows x 4 columns]
    * </pre>
    *
@@ -848,7 +849,7 @@ public interface DataFrame extends Iterable<Object> {
    *    A   B
    * 1  2   NA
    * 2  NA  3
-   *
+   * 
    * [2 rows x 2 columns]
    * </pre>
    *
@@ -980,7 +981,7 @@ public interface DataFrame extends Iterable<Object> {
    * array([[a, 1],
    *        [b, 2],
    *        [c, 3]])
-   *
+   * 
    * array([[NaN, 1.0],
    *        [NaN, 2.0],
    *        [NaN, 3.0]])
@@ -1040,7 +1041,7 @@ public interface DataFrame extends Iterable<Object> {
    *    0   1
    * 0  b   NA
    * 1  NA  3
-   *
+   * 
    * [2 rows x 2 columns]
    * </pre>
    *
@@ -1085,7 +1086,7 @@ public interface DataFrame extends Iterable<Object> {
    *    index  0  1
    * 0  a      1  2
    * 1  b      1  2
-   *
+   * 
    * [2 rows x 3 columns]
    * </pre>
    *

@@ -17,7 +17,9 @@ allprojects {thisProject ->
 subprojects {thisProject ->
   apply plugin: 'java'
   apply plugin: 'maven'
-  apply plugin: 'signing'
+  if (project.hasProperty("signing.keyId")) {
+    apply plugin: 'signing'
+  }
 
   sourceCompatibility = 1.8
   targetCompatibility = 1.8
@@ -42,6 +44,7 @@ subprojects {thisProject ->
     excludes(["**/*.txt", "**/*.conf"])
   }
 
+  // format the license before assembling
   assemble {
     dependsOn licenseFormat
   }
@@ -62,23 +65,30 @@ subprojects {thisProject ->
     archives sourcesJar, javadocJar
   }
 
-  signing {
-    sign configurations.archives
+  if (project.hasProperty("signing.keyId")) {
+    signing {
+      sign configurations.archives
+    }
   }
 
   uploadArchives {
     repositories {
       mavenDeployer {
-        beforeDeployment {MavenDeployment deployment -> signing.signPom(deployment)}
-
-        def username = hasProperty('ossrhUsername') ? ossrhUsername : System.getenv('ossrhUsername')
-        def password = hasProperty('ossrhPassword') ? ossrhPassword : System.getenv('ossrhPassword')
-        repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-          authentication(userName: username, password: password)
+        if (project.hasProperty("signing.keyId")) {
+          beforeDeployment {MavenDeployment deployment -> signing.signPom(deployment)}
         }
+        if (project.hasProperty('ossrhUsername')) {
+          def username = project.hasProperty('ossrhUsername') ? ossrhUsername :
+                         System.getenv('ossrhUsername')
+          def password = project.hasProperty('ossrhPassword') ? ossrhPassword :
+                         System.getenv('ossrhPassword')
+          repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+            authentication(userName: username, password: password)
+          }
 
-        snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-          authentication(userName: username, password: password)
+          snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+            authentication(userName: username, password: password)
+          }
         }
 
 
@@ -147,9 +157,19 @@ def getVersionName() {
     standardOutput = stdout
   }
   def version = stdout.toString().trim()
-  // The version is a snapshot
+  stdout = new ByteArrayOutputStream()
+  exec {
+    commandLine "git", "log", "-n", "1", "--pretty=%d HEAD"
+    standardOutput = stdout
+  }
+  def isRelease = stdout.toString().trim().contains("master")
   if (version.contains("-")) {
-    version = "${version.substring(0, version.lastIndexOf("-"))}-SNAPSHOT"
+    version =  "${version.substring(0, version.lastIndexOf("-"))}"
+  }
+
+  // The version is a snapshot if it does not have a 'clean' tag
+  if (!isRelease) {
+    version = "${version.substring(0, version.indexOf("-"))}-SNAPSHOT"
   }
   return version
 }

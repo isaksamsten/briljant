@@ -1,25 +1,22 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Isak Karlsson
+ * Copyright (c) 2016 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.array;
 
@@ -45,6 +42,8 @@ import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.function.ToIntObjIntBiFunction;
 
 /**
+ * A n-dimensional array of integer values.
+ * 
  * @author Isak Karlsson
  */
 public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listable<Integer> {
@@ -60,18 +59,18 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listab
   }
 
   /**
+   * @see Arrays#intVector(int...)
+   */
+  static IntArray of(int... data) {
+    return Arrays.intVector(data);
+  }
+
+  /**
    * Assign {@code value} to {@code this}
    *
    * @param value the value to assign
    */
   void assign(int value);
-
-  /**
-   * @see Arrays#newIntVector(int...)
-   */
-  static IntArray of(int... data) {
-    return Arrays.newIntVector(data);
-  }
 
   void assign(int[] data);
 
@@ -90,25 +89,25 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listab
    * @param operator the operator
    * @return receiver modified
    */
-  void assign(IntArray matrix, IntUnaryOperator operator);
+  void assign(IntArray array, IntUnaryOperator operator);
 
   /**
    * Assign {@code matrix} to {@code this}, applying {@code combine} to combine the i:th value of
    * {@code this} and {@code matrix}
    *
-   * @param matrix the matrix
+   * @param array the matrix
    * @param combine the combiner
    * @return receiver modified
    */
-  void assign(IntArray matrix, IntBinaryOperator combine);
+  void combineAssign(IntArray array, IntBinaryOperator combine);
 
-  void assign(ComplexArray matrix, ToIntFunction<? super Complex> function);
+  void assign(ComplexArray array, ToIntFunction<? super Complex> function);
 
-  void assign(DoubleArray matrix, DoubleToIntFunction function);
+  void assign(DoubleArray array, DoubleToIntFunction function);
 
-  void assign(LongArray matrix, LongToIntFunction operator);
+  void assign(LongArray array, LongToIntFunction operator);
 
-  void assign(BooleanArray matrix, ToIntObjIntBiFunction<Boolean> function);
+  void assign(BooleanArray array, ToIntObjIntBiFunction<Boolean> function);
 
   void apply(IntUnaryOperator operator);
 
@@ -152,7 +151,7 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listab
 
   BooleanArray where(IntPredicate predicate);
 
-  BooleanArray where(IntArray matrix, IntBiPredicate predicate);
+  BooleanArray where(IntArray array, IntBiPredicate predicate);
 
   void forEachPrimitive(IntConsumer consumer);
 
@@ -177,12 +176,6 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listab
 
   // GET / SET
 
-  /**
-   * @param index get int
-   * @return int at {@code index}
-   */
-  int get(int index);
-
   void set(int index, int value);
 
   /**
@@ -199,6 +192,12 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listab
   void set(int[] ix, int value);
 
   int get(int... ix);
+
+  /**
+   * @param index get int
+   * @return int at {@code index}
+   */
+  int get(int index);
 
   void apply(int index, IntUnaryOperator operator);
 
@@ -225,16 +224,13 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listab
   IntArray times(IntArray other);
 
   /**
-   * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.times(alpha).times(other.times(beta))}, but in one
-   * pass.
+   * Element wise multiplication.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  IntArray times(int alpha, IntArray other, int beta);
+  IntArray times(int alpha, IntArray other);
 
   /**
    * Element wise <u>m</u>ultiplication

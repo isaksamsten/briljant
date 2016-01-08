@@ -1,25 +1,22 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Isak Karlsson
+ * Copyright (c) 2016 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.data.resolver;
 
@@ -219,10 +216,25 @@ public final class Resolve {
     return resolver;
   }
 
+  /**
+   * Install the specified resolver for the specified class.
+   * 
+   * @param cls the class
+   * @param resolver the resolver
+   * @param <T> the type
+   */
   public static <T> void install(Class<T> cls, Resolver<T> resolver) {
     RESOLVERS.put(cls, resolver);
   }
 
+  /**
+   * Find a resolver for the the given value and convert it to a value of the given class.
+   * 
+   * @param cls the class to convert to
+   * @param value a value to convert
+   * @param <T> the type
+   * @return an instance of T or NA if no resolver exists or the given value is null.
+   */
   public static <T> T to(Class<T> cls, Object value) {
     if (Is.NA(value)) {
       return Na.of(cls);
@@ -236,6 +248,13 @@ public final class Resolve {
     }
   }
 
+  /**
+   * Get a resolver for the given class.
+   * 
+   * @param cls the class
+   * @param <T> the type
+   * @return a resolver or null if no resolver is associated with the given class.
+   */
   public static <T> Resolver<T> find(Class<T> cls) {
     @SuppressWarnings("unchecked")
     Resolver<T> resolver = (Resolver<T>) RESOLVERS.get(cls);

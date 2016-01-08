@@ -1,25 +1,22 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Isak Karlsson
+ * Copyright (c) 2016 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.array;
 
@@ -49,15 +46,20 @@ import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 import java.util.stream.StreamSupport;
 
+import net.mintern.primitive.comparators.DoubleComparator;
+
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.Precision;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.function.DoubleBiPredicate;
-import org.briljantframework.primitive.ArrayAllocations;
 import org.briljantframework.primitive.DoubleList;
+import org.briljantframework.sort.QuickSort;
 
 /**
+ * This class provides a skeletal implementation of a double array.
+ *
  * @author Isak Karlsson
  */
 public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray> implements
@@ -88,20 +90,13 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public int compare(int a, int b) {
-    return Double.compare(get(a), get(b));
+  public void set(int[] toIndex, DoubleArray from, int fromIndex) {
+    set(toIndex, from.get(fromIndex));
   }
 
   @Override
-  public DoubleArray slice(BooleanArray bits) {
-    Check.shape(this, bits);
-    IncrementalBuilder builder = new IncrementalBuilder();
-    for (int i = 0; i < size(); i++) {
-      if (bits.get(i)) {
-        builder.add(get(i));
-      }
-    }
-    return builder.build();
+  public void set(int toIndex, DoubleArray from, int[] fromIndex) {
+    set(toIndex, from.get(fromIndex));
   }
 
   @Override
@@ -114,13 +109,13 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
     return new AsIntArray(getArrayFactory(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
-      protected void setElement(int index, int value) {
-        AbstractDoubleArray.this.setElement(index, value);
+      protected int getElement(int index) {
+        return (int) AbstractDoubleArray.this.getElement(index);
       }
 
       @Override
-      protected int getElement(int index) {
-        return (int) AbstractDoubleArray.this.getElement(index);
+      protected void setElement(int index, int value) {
+        AbstractDoubleArray.this.setElement(index, value);
       }
 
       @Override
@@ -261,7 +256,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public final void set(int index, double value) {
-    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
+    setElement(StrideUtils.index(index, getOffset(), stride, shape), value);
   }
 
   @Override
@@ -274,7 +269,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public void assign(double[] array) {
-    Check.size(this.size(), array.length);
+    Check.dimension(this.size(), array.length);
     for (int i = 0; i < array.length; i++) {
       set(i, array[i]);
     }
@@ -288,39 +283,44 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public void assign(DoubleArray matrix, DoubleUnaryOperator operator) {
-    Check.size(this, matrix);
+  public void assign(DoubleArray array, DoubleUnaryOperator operator) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.size(this, array);
     for (int i = 0; i < size(); i++) {
-      set(i, operator.applyAsDouble(matrix.get(i)));
+      set(i, operator.applyAsDouble(array.get(i)));
     }
   }
 
   @Override
-  public void assign(IntArray matrix, IntToDoubleFunction function) {
-    Check.size(this, matrix);
+  public void assign(IntArray array, IntToDoubleFunction function) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.size(this, array);
     for (int i = 0; i < size(); i++) {
-      set(i, function.applyAsDouble(matrix.get(i)));
+      set(i, function.applyAsDouble(array.get(i)));
     }
   }
 
   @Override
-  public void assign(LongArray matrix, LongToDoubleFunction function) {
-    Check.size(this, matrix);
+  public void assign(LongArray array, LongToDoubleFunction function) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.size(this, array);
     for (int i = 0; i < size(); i++) {
-      set(i, function.applyAsDouble(matrix.get(i)));
+      set(i, function.applyAsDouble(array.get(i)));
     }
   }
 
   @Override
-  public void assign(ComplexArray other, ToDoubleFunction<? super Complex> function) {
-    Check.size(this, other);
+  public void assign(ComplexArray array, ToDoubleFunction<? super Complex> function) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.size(this, array);
     for (int i = 0; i < size(); i++) {
-      set(i, function.applyAsDouble(other.get(i)));
+      set(i, function.applyAsDouble(array.get(i)));
     }
   }
 
   @Override
   public void combineAssign(DoubleArray array, DoubleBinaryOperator combine) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
     Check.size(this, array);
     for (int i = 0; i < size(); i++) {
       set(i, combine.applyAsDouble(get(i), array.get(i)));
@@ -329,6 +329,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public DoubleArray combine(DoubleArray array, DoubleBinaryOperator combine) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
     Check.size(this, array);
     DoubleArray empty = newEmptyArray(getShape());
     empty.combineAssign(array, combine);
@@ -364,7 +365,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public IntArray mapToInt(DoubleToIntFunction function) {
-    IntArray m = bj.newIntArray(getShape());
+    IntArray m = factory.newIntArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, function.applyAsInt(get(i)));
     }
@@ -373,7 +374,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public LongArray mapToLong(DoubleToLongFunction function) {
-    LongArray m = bj.newLongArray(getShape());
+    LongArray m = factory.newLongArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, function.applyAsLong(get(i)));
     }
@@ -382,7 +383,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public ComplexArray mapToComplex(DoubleFunction<Complex> function) {
-    ComplexArray m = bj.newComplexArray(getShape());
+    ComplexArray m = factory.newComplexArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, function.apply(get(i)));
     }
@@ -414,13 +415,14 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
         builder.add(value);
       }
     }
-    return bj.newVector(Arrays.copyOf(builder.elementData, builder.size()));
+    return factory.newDoubleVector(Arrays.copyOf(builder.elementData, builder.size()));
   }
 
   @Override
   public BooleanArray where(DoubleArray array, DoubleBiPredicate predicate) {
-    Check.shape(this, array);
-    BooleanArray bits = bj.newBooleanArray(getShape());
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.dimension(this, array);
+    BooleanArray bits = factory.newBooleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), array.get(i)));
     }
@@ -445,7 +447,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   @Override
   public DoubleArray reduceVectors(int dim, ToDoubleFunction<? super DoubleArray> reduce) {
     Check.argument(dim < dims(), INVALID_DIMENSION, dim, dims());
-    DoubleArray reduced = newEmptyArray(Indexer.remove(getShape(), dim));
+    DoubleArray reduced = newEmptyArray(ArrayUtils.remove(getShape(), dim));
     int vectors = vectors(dim);
     for (int i = 0; i < vectors; i++) {
       double value = reduce.applyAsDouble(getVector(dim, i));
@@ -463,12 +465,12 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   @Override
   public final void set(int[] ix, double value) {
     Check.argument(ix.length == dims());
-    setElement(Indexer.columnMajorStride(ix, getOffset(), stride), value);
+    setElement(StrideUtils.index(ix, getOffset(), stride), value);
   }
 
   @Override
   public final double get(int index) {
-    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
+    return getElement(StrideUtils.index(index, getOffset(), stride, shape));
   }
 
   @Override
@@ -480,7 +482,33 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   @Override
   public final double get(int... ix) {
     Check.argument(ix.length == dims());
-    return getElement(Indexer.columnMajorStride(ix, getOffset(), stride));
+    return getElement(StrideUtils.index(ix, getOffset(), stride));
+  }
+
+  @Override
+  public void set(BooleanArray array, double value) {
+    Check.dimension(array, this);
+    for (int i = 0; i < size(); i++) {
+      set(i, array.get(i) ? value : get(i));
+    }
+  }
+
+  @Override
+  public DoubleArray get(BooleanArray array) {
+    Check.dimension(array, this);
+    double[] data = new double[size()];
+    int idx = 0;
+    for (int i = 0; i < size(); i++) {
+      if (array.get(i)) {
+        data[idx++] = get(i);
+      }
+    }
+    return factory.newDoubleVector(Arrays.copyOf(data, idx));
+  }
+
+  @Override
+  public void sort(DoubleComparator cmp) {
+    QuickSort.quickSort(0, size(), (left, right) -> cmp.compare(get(left), get(right)), this);
   }
 
   @Override
@@ -538,15 +566,16 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public DoubleArray times(DoubleArray other) {
-    return times(1, other, 1);
+    return times(1, other);
   }
 
   @Override
-  public DoubleArray times(double alpha, DoubleArray other, double beta) {
+  public DoubleArray times(double alpha, DoubleArray other) {
+    other = ShapeUtils.broadcastIfSensible(this, other);
     Check.size(this, other);
     DoubleArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
-      m.set(i, alpha * get(i) * other.get(i) * beta);
+      m.set(i, alpha * get(i) * other.get(i));
     }
     return m;
   }
@@ -572,7 +601,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public DoubleArray plus(DoubleArray other) {
-    return plus(1, other, 1);
+    return plus(1, other);
   }
 
   @Override
@@ -595,11 +624,12 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public DoubleArray plus(double alpha, DoubleArray other, double beta) {
+  public DoubleArray plus(double alpha, DoubleArray other) {
+    other = ShapeUtils.broadcastIfSensible(this, other);
     Check.size(this, other);
     DoubleArray matrix = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
-      matrix.set(i, alpha * get(i) + other.get(i) * beta);
+      matrix.set(i, alpha * get(i) + other.get(i));
     }
     return matrix;
   }
@@ -611,7 +641,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public DoubleArray minus(DoubleArray other) {
-    return minus(1, other, 1);
+    return minus(1, other);
   }
 
   @Override
@@ -625,23 +655,24 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public DoubleArray minus(double alpha, DoubleArray other, double beta) {
+  public DoubleArray minus(double alpha, DoubleArray other) {
+    other = ShapeUtils.broadcastIfSensible(this, other);
     Check.size(this, other);
     DoubleArray matrix = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
-      matrix.set(i, alpha * get(i) - other.get(i) * beta);
+      matrix.set(i, alpha * get(i) - other.get(i));
     }
     return matrix;
   }
 
   @Override
   public DoubleArray reverseMinus(double scalar) {
-    DoubleArray matrix = newEmptyArray(getShape());
+    DoubleArray array = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
-      matrix.set(i, scalar - get(i));
+      array.set(i, scalar - get(i));
     }
 
-    return matrix;
+    return array;
   }
 
   @Override
@@ -656,6 +687,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public DoubleArray div(DoubleArray other) {
+    other = ShapeUtils.broadcastIfSensible(this, other);
     Check.size(this, other);
     DoubleArray matrix = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
@@ -699,7 +731,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public BooleanArray where(DoublePredicate predicate) {
-    BooleanArray bits = bj.newBooleanArray(getShape());
+    BooleanArray bits = factory.newBooleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i)));
     }
@@ -764,21 +796,6 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   @Override
   public Iterator<Double> iterator() {
     return toList().iterator();
-  }
-
-  private class IncrementalBuilder {
-
-    private double[] buffer = new double[10];
-    private int size = 0;
-
-    public void add(double value) {
-      buffer = ArrayAllocations.ensureCapacity(buffer, size);
-      buffer[size++] = value;
-    }
-
-    public DoubleArray build() {
-      return bj.newVector(Arrays.copyOf(buffer, size));
-    }
   }
 
   private class DoubleListView extends AbstractList<Double> {

@@ -1,25 +1,22 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Isak Karlsson
+ * Copyright (c) 2016 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.array;
 
@@ -46,9 +43,9 @@ import java.util.function.ToIntFunction;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
-import net.mintern.primitive.Primitive;
 import net.mintern.primitive.comparators.IntComparator;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayFactory;
@@ -58,6 +55,8 @@ import org.briljantframework.primitive.IntList;
 import org.briljantframework.sort.QuickSort;
 
 /**
+ * This class provides a skeletal implementation of an int array.
+ * 
  * @author Isak Karlsson
  */
 public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> implements IntArray {
@@ -93,20 +92,13 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public int compare(int a, int b) {
-    return Integer.compare(get(a), get(b));
+  public void set(int[] toIndex, IntArray from, int fromIndex) {
+    set(toIndex, from.get(fromIndex));
   }
 
   @Override
-  public IntArray slice(BooleanArray bits) {
-    Check.shape(this, bits);
-    IntList list = new IntList();
-    for (int i = 0; i < size(); i++) {
-      if (bits.get(i)) {
-        list.add(get(i));
-      }
-    }
-    return bj.newVector(Arrays.copyOf(list.elementData, list.size()));
+  public void set(int toIndex, IntArray from, int[] fromIndex) {
+    set(toIndex, from.get(fromIndex));
   }
 
   @Override
@@ -114,13 +106,13 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
     return new AsDoubleArray(getArrayFactory(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
-      protected void setElement(int i, double value) {
-        AbstractIntArray.this.setElement(i, (int) value);
+      protected double getElement(int i) {
+        return AbstractIntArray.this.getElement(i);
       }
 
       @Override
-      protected double getElement(int i) {
-        return AbstractIntArray.this.getElement(i);
+      protected void setElement(int i, double value) {
+        AbstractIntArray.this.setElement(i, (int) value);
       }
 
       @Override
@@ -183,13 +175,13 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
     return new AsComplexArray(getArrayFactory(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
-      public void setElement(int index, Complex value) {
-        AbstractIntArray.this.setElement(index, (int) value.getReal());
+      public Complex getElement(int index) {
+        return Complex.valueOf(AbstractIntArray.this.getElement(index));
       }
 
       @Override
-      public Complex getElement(int index) {
-        return Complex.valueOf(AbstractIntArray.this.getElement(index));
+      public void setElement(int index, Complex value) {
+        AbstractIntArray.this.setElement(index, (int) value.getReal());
       }
 
       @Override
@@ -272,7 +264,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void assign(int[] data) {
-    Check.size(this.size(), data.length);
+    Check.dimension(this.size(), data.length);
     for (int i = 0; i < data.length; i++) {
       set(i, data[i]);
     }
@@ -286,50 +278,55 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public void assign(IntArray matrix, IntUnaryOperator operator) {
-    Check.shape(this, matrix);
+  public void assign(IntArray array, IntUnaryOperator operator) {
+    Check.dimension(this, array);
     for (int i = 0; i < size(); i++) {
-      set(i, operator.applyAsInt(matrix.get(i)));
+      set(i, operator.applyAsInt(array.get(i)));
     }
   }
 
   @Override
-  public void assign(IntArray matrix, IntBinaryOperator combine) {
-    Check.shape(this, matrix);
+  public void combineAssign(IntArray array, IntBinaryOperator combine) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.dimension(this, array);
     for (int i = 0; i < size(); i++) {
-      set(i, combine.applyAsInt(get(i), matrix.get(i)));
+      set(i, combine.applyAsInt(get(i), array.get(i)));
     }
   }
 
   @Override
-  public void assign(ComplexArray matrix, ToIntFunction<? super Complex> function) {
-    Check.size(this, matrix);
+  public void assign(ComplexArray array, ToIntFunction<? super Complex> function) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.size(this, array);
     for (int i = 0; i < size(); i++) {
-      set(i, function.applyAsInt(matrix.get(i)));
+      set(i, function.applyAsInt(array.get(i)));
     }
   }
 
   @Override
-  public void assign(DoubleArray matrix, DoubleToIntFunction function) {
-    Check.size(this, matrix);
-    for (int i = 0; i < matrix.size(); i++) {
-      set(i, function.applyAsInt(matrix.get(i)));
+  public void assign(DoubleArray array, DoubleToIntFunction function) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.size(this, array);
+    for (int i = 0; i < array.size(); i++) {
+      set(i, function.applyAsInt(array.get(i)));
     }
   }
 
   @Override
-  public void assign(LongArray matrix, LongToIntFunction operator) {
-    Check.size(this, matrix);
+  public void assign(LongArray array, LongToIntFunction operator) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.size(this, array);
     for (int i = 0; i < size(); i++) {
-      set(i, operator.applyAsInt(matrix.get(i)));
+      set(i, operator.applyAsInt(array.get(i)));
     }
   }
 
   @Override
-  public void assign(BooleanArray matrix, ToIntObjIntBiFunction<Boolean> function) {
-    Check.shape(this, matrix);
+  public void assign(BooleanArray array, ToIntObjIntBiFunction<Boolean> function) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.dimension(this, array);
     for (int i = 0; i < size(); i++) {
-      set(i, function.applyAsInt(matrix.get(i), get(i)));
+      set(i, function.applyAsInt(array.get(i), get(i)));
     }
   }
 
@@ -351,7 +348,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public LongArray mapToLong(IntToLongFunction function) {
-    LongArray matrix = bj.newLongArray(getShape());
+    LongArray matrix = factory.newLongArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsLong(get(i)));
     }
@@ -360,7 +357,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public DoubleArray mapToDouble(IntToDoubleFunction function) {
-    DoubleArray matrix = bj.newDoubleArray(getShape());
+    DoubleArray matrix = factory.newDoubleArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsDouble(get(i)));
     }
@@ -369,7 +366,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public ComplexArray mapToComplex(IntFunction<Complex> function) {
-    ComplexArray matrix = bj.newComplexArray();
+    ComplexArray matrix = factory.newComplexArray();
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.apply(get(i)));
     }
@@ -394,12 +391,12 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
         builder.add(value);
       }
     }
-    return bj.newVector(Arrays.copyOf(builder.elementData, builder.size()));
+    return factory.newIntVector(Arrays.copyOf(builder.elementData, builder.size()));
   }
 
   @Override
   public BooleanArray where(IntPredicate predicate) {
-    BooleanArray bits = bj.newBooleanArray();
+    BooleanArray bits = factory.newBooleanArray();
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i)));
     }
@@ -407,11 +404,12 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public BooleanArray where(IntArray matrix, IntBiPredicate predicate) {
-    Check.shape(this, matrix);
-    BooleanArray bits = bj.newBooleanArray();
+  public BooleanArray where(IntArray array, IntBiPredicate predicate) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.dimension(this, array);
+    BooleanArray bits = factory.newBooleanArray();
     for (int i = 0; i < size(); i++) {
-      bits.set(i, predicate.test(get(i), matrix.get(i)));
+      bits.set(i, predicate.test(get(i), array.get(i)));
     }
     return bits;
   }
@@ -439,7 +437,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   @Override
   public IntArray reduceVectors(int dim, ToIntFunction<? super IntArray> accumulator) {
     Check.argument(dim < dims(), INVALID_DIMENSION, dim, dims());
-    IntArray reduced = newEmptyArray(Indexer.remove(getShape(), dim));
+    IntArray reduced = newEmptyArray(ArrayUtils.remove(getShape(), dim));
     int vectors = vectors(dim);
     for (int i = 0; i < vectors; i++) {
       int value = accumulator.applyAsInt(getVector(dim, i));
@@ -449,13 +447,8 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public final int get(int index) {
-    return getElement(Indexer.linearized(index, getOffset(), stride, shape));
-  }
-
-  @Override
   public final void set(int index, int value) {
-    setElement(Indexer.linearized(index, getOffset(), stride, shape), value);
+    setElement(StrideUtils.index(index, getOffset(), stride, shape), value);
   }
 
   @Override
@@ -472,12 +465,17 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   public final void set(int[] ix, int value) {
     Check.argument(ix.length == dims());
-    setElement(Indexer.columnMajorStride(ix, getOffset(), stride), value);
+    setElement(StrideUtils.index(ix, getOffset(), stride), value);
   }
 
   public final int get(int... ix) {
     Check.argument(ix.length == dims());
-    return getElement(Indexer.columnMajorStride(ix, getOffset(), stride));
+    return getElement(StrideUtils.index(ix, getOffset(), stride));
+  }
+
+  @Override
+  public final int get(int index) {
+    return getElement(StrideUtils.index(index, getOffset(), stride, shape));
   }
 
   @Override
@@ -531,7 +529,9 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
       @Override
       protected Integer getElement(int i) {
         return AbstractIntArray.this.getElement(i);
-      }      @Override
+      }
+
+      @Override
       protected int elementSize() {
         return AbstractIntArray.this.elementSize();
       }
@@ -547,25 +547,22 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void sort(IntComparator cmp) {
-    if (stride(0) == 1 && dims() == 1) {
-      Primitive.sort(data(), 0, size(), cmp);
-    } else {
-      QuickSort.quickSort(0, size(), cmp::compare, this);
-    }
+    QuickSort.quickSort(0, size(), (left, right) -> cmp.compare(get(left), get(right)), this);
   }
 
   @Override
   public IntArray times(IntArray other) {
-    return times(1, other, 1);
+    return times(1, other);
   }
 
   @Override
-  public IntArray times(int alpha, IntArray other, int beta) {
+  public IntArray times(int alpha, IntArray other) {
+    other = ShapeUtils.broadcastIfSensible(this, other);
     Check.size(this, other);
     IntArray m = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
-        m.set(i, j, alpha * get(i, j) * other.get(i, j) * beta);
+        m.set(i, j, alpha * get(i, j) * other.get(i, j));
       }
     }
     return m;
@@ -600,7 +597,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void plusAssign(IntArray other) {
-    assign(other, Integer::sum);
+    combineAssign(other, Integer::sum);
   }
 
   @Override
@@ -610,6 +607,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public IntArray plus(int alpha, IntArray other) {
+    other = ShapeUtils.broadcastIfSensible(this, other);
     Check.size(this, other);
     IntArray matrix = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
@@ -632,6 +630,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public IntArray minus(int alpha, IntArray other) {
+    other = ShapeUtils.broadcastIfSensible(this, other);
     Check.size(this, other);
     IntArray matrix = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
@@ -644,7 +643,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void minusAssign(IntArray other) {
-    assign(other, (a, b) -> a - b);
+    combineAssign(other, (a, b) -> a - b);
   }
 
   @Override
@@ -670,6 +669,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public IntArray div(IntArray other) {
+    other = ShapeUtils.broadcastIfSensible(this, other);
     Check.size(this, other);
     IntArray matrix = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
@@ -691,7 +691,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void divAssign(IntArray other) {
-    assign(other, (a, b) -> a / b);
+    combineAssign(other, (a, b) -> a / b);
   }
 
   @Override
@@ -722,9 +722,9 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
     return n;
   }
 
-  protected abstract void setElement(int i, int value);
-
   protected abstract int getElement(int i);
+
+  protected abstract void setElement(int i, int value);
 
   @Override
   public int hashCode() {

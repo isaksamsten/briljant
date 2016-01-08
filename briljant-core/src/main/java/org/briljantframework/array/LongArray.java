@@ -1,25 +1,22 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Isak Karlsson
+ * Copyright (c) 2016 Isak Karlsson
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.briljantframework.array;
 
@@ -36,11 +33,15 @@ import java.util.function.LongUnaryOperator;
 import java.util.function.ToLongFunction;
 import java.util.stream.LongStream;
 
+import net.mintern.primitive.comparators.LongComparator;
+
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Listable;
 import org.briljantframework.function.LongBiPredicate;
 
 /**
+ * A n-dimensional array of long values.
+ * 
  * @author Isak Karlsson
  */
 public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listable<Long> {
@@ -56,21 +57,21 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
   }
 
   /**
+   * @see Arrays#newLongVector(long...)
+   */
+  static LongArray of(long... data) {
+    return Arrays.newLongVector(data);
+  }
+
+  // Assignments
+
+  /**
    * Assign {@code value} to {@code this}
    *
    * @param value the value to assign
    * @return receiver modified
    */
   LongArray assign(long value);
-
-  // Assignments
-
-  /**
-   * @see Arrays#newLongVector(long...)
-   */
-  static LongArray of(long... data) {
-    return Arrays.newLongVector(data);
-  }
 
   void assign(long[] values);
 
@@ -86,19 +87,19 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
   /**
    * Assign {@code matrix} to {@code this}, applying {@code operator} to each value.
    *
-   * @param matrix the matrix
+   * @param array the matrix
    * @param operator the operator
    * @return receiver modified
    */
-  LongArray assign(LongArray matrix, LongUnaryOperator operator);
+  LongArray assign(LongArray array, LongUnaryOperator operator);
 
-  LongArray assign(LongArray matrix, LongBinaryOperator combine);
+  LongArray combineAssign(LongArray array, LongBinaryOperator combine);
 
-  LongArray assign(ComplexArray matrix, ToLongFunction<? super Complex> function);
+  LongArray assign(ComplexArray array, ToLongFunction<? super Complex> function);
 
-  LongArray assign(IntArray matrix, IntToLongFunction operator);
+  LongArray assign(IntArray array, IntToLongFunction operator);
 
-  LongArray assign(DoubleArray matrix, DoubleToLongFunction function);
+  LongArray assign(DoubleArray array, DoubleToLongFunction function);
 
   // Transform
 
@@ -143,7 +144,7 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
 
   BooleanArray where(LongPredicate predicate);
 
-  BooleanArray where(LongArray matrix, LongBiPredicate predicate);
+  BooleanArray where(LongArray array, LongBiPredicate predicate);
 
   long reduce(long identity, LongBinaryOperator reduce);
 
@@ -189,6 +190,12 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
 
   void set(int row, int column, long value);
 
+  default void sort() {
+    sort(Long::compare);
+  }
+
+  void sort(LongComparator comparator);
+
   LongStream stream();
 
   List<Long> toList();
@@ -206,16 +213,13 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
   LongArray times(LongArray other);
 
   /**
-   * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.times(alpha).times(other.times(beta))}, but in one
-   * pass.
+   * Element wise multiplication.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  LongArray times(long alpha, LongArray other, long beta);
+  LongArray times(long alpha, LongArray other);
 
   /**
    * Element wise <u>m</u>ultiplication
@@ -242,16 +246,13 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
   LongArray plus(long scalar);
 
   /**
-   * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.times(alpha).plus(other.times(beta))}, but in one
-   * pass.
+   * Element wise addition.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  LongArray plus(long alpha, LongArray other, long beta);
+  LongArray plus(long alpha, LongArray other);
 
   /**
    * Element wise subtraction. {@code this - other}.
@@ -270,16 +271,13 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
   LongArray minus(long scalar);
 
   /**
-   * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.times(alpha).minus(other.times(beta))}, but in one
-   * pass.
+   * Element wise subtraction.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  LongArray minus(long alpha, LongArray other, long beta);
+  LongArray minus(long alpha, LongArray other);
 
   /**
    * <u>R</u>eversed element wise subtraction. {@code scalar - this}.
@@ -322,4 +320,6 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
    * @return a new matrix
    */
   LongArray negate();
+
+  long[] data();
 }

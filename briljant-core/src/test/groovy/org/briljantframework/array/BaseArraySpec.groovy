@@ -101,8 +101,8 @@ class BaseArraySpec extends Specification {
     then:
     a.shape == [1, 3] as int[]
     b.shape == [3, 1] as int[]
-    a == bj.newMatrix([value] as int[][])
-    b == bj.newMatrix([value] as int[][]).transpose()
+    a == bj.newIntMatrix([value] as int[][])
+    b == bj.newIntMatrix([value] as int[][]).transpose()
 
     where:
     row | value
@@ -122,8 +122,8 @@ class BaseArraySpec extends Specification {
     then: "the column has the correct values and shape"
     a.shape == [3, 1] as int[]
     b.shape == [1, 3] as int[]
-    a == bj.newMatrix([value] as int[][]).transpose()
-    b == bj.newMatrix([value] as int[][])
+    a == bj.newIntMatrix([value] as int[][]).transpose()
+    b == bj.newIntMatrix([value] as int[][])
 
     where:
     column | value
@@ -168,7 +168,7 @@ class BaseArraySpec extends Specification {
 
     then:
     y.shape == [3, 2, 2] as int[]
-    y == bj.newVector(value as int[]).reshape(y.shape)
+    y == bj.newIntVector(value as int[]).reshape(y.shape)
 
     where:
     value = [0, 4, 8, 2, 6, 10, 1, 5, 9, 3, 7, 11]
@@ -188,9 +188,9 @@ class BaseArraySpec extends Specification {
 
     where:
     range             | selected
-    bj.range(0, 3)    | bj.newVector([0, 1, 2] as int[])
-    bj.range(1, 5)    | bj.newVector([1, 2, 3, 4] as int[])
-    bj.range(2, 7, 2) | bj.newVector([2, 4, 6] as int[])
+    bj.range(0, 3)    | bj.newIntVector([0, 1, 2] as int[])
+    bj.range(1, 5)    | bj.newIntVector([1, 2, 3, 4] as int[])
+    bj.range(2, 7, 2) | bj.newIntVector([2, 4, 6] as int[])
   }
 
   def "Selecting a range of elements from a 2d-array should return a view of the selected elements"() {
@@ -233,81 +233,13 @@ class BaseArraySpec extends Specification {
     bj.range(2 * 2 * 2 * 2).reshape(2, 2, 2, 2) | [bj.range(2), bj.range(1)]
   }
 
-  def "When selecting a set of indexes a correct copy should be returned"() {
-    given:
-    def i = bj.range(2 * 3 * 4).reshape(2, 3, 4)
-
-    when:
-    def x = i.select(indexes)
-
-    then:
-    x == result
-
-    where:
-    indexes                  | result
-    [[1, 1]]                 | bj.newVector(1, 1, 3, 3,
-                                            5, 5, 7, 7,
-                                            9, 9, 11, 11,
-                                            13, 13, 15, 15,
-                                            17, 17, 19, 19,
-                                            21, 21, 23, 23).reshape(2, 3, 4)
-    [[1, 1], [0, 2]]         | bj.newVector(1, 5, 7, 11,
-                                            13, 17, 19, 23).reshape(2, 4)
-    [[1, 1], [1, 1], [1, 3]] | bj.newVector(9, 21)
-  }
-
-  def "Selecting a set of indexes should work for vectors"() {
-    given:
-    def i = bj.range(6)
-
-    when:
-    def x = i.select(indexes)
-
-    then:
-    x == result
-
-    where:
-    indexes              | result
-    [[1, 1, 1, 2]]       | bj.newVector(1, 1, 1, 2)
-    [[0, 1, 2, 4, 5, 5]] | bj.newVector(0, 1, 2, 4, 5, 5)
-  }
-
-  def "An exception is thrown if a selected index is out of bounds"() {
-    when:
-    i.select(indexes)
-
-    then:
-    thrown(IndexOutOfBoundsException)
-
-    where:
-    indexes              | i
-    [[0, 0], [2, 2]]     | bj.range(2 * 2).reshape(2, 2)
-    [[2, 2]]             | bj.range(2)
-    [[0], [1], [2], [5]] | bj.range(2 * 2 * 3 * 2).reshape(2, 2, 3, 2)
-    [[0, 1, 3]]          | bj.range(3 * 3 * 3).reshape(3, 3, 3)
-  }
-
-  def "A null pointer exception is thrown if a null key is selected"() {
-    when:
-    i.select(indexes)
-
-    then:
-    thrown(NullPointerException)
-
-    where:
-    indexes       | i
-    [[null]]      | bj.range(3)
-    [[0], [null]] | bj.range(2 * 2).reshape(2, 2)
-  }
-
-
   def "Reshaping an array should change the dimensions"() {
     expect:
     array.dims() == 1
     array.reshape(shape).shape == shape
     array.reshape(shape).dims() == 4
     array.reshape(shape).size() == 2 * 3 * 4 * 5
-    array.reshape(shape).reshape(Indexer.reverse(shape)).shape == Indexer.reverse(shape)
+    array.reshape(shape).reshape(StrideUtils.reverse(shape)).shape == StrideUtils.reverse(shape)
 
     where:
     array << getArrays(2 * 3 * 4 * 5);
@@ -348,36 +280,36 @@ class BaseArraySpec extends Specification {
     where:
     range << getRangeArrays(8)
     slice0 << [
-        bj.newVector([false, false, false, false] as boolean[]).reshape(2, 2),
-        bj.newVector([0, 2, 4, 6] as int[]).reshape(2, 2),
-        bj.newVector([0, 2, 4, 6] as double[]).reshape(2, 2),
-        bj.newVector([0, 2, 4, 6] as long[]).reshape(2, 2),
-        bj.newVector([Complex.valueOf(0), Complex.valueOf(2),
-                      Complex.valueOf(4), Complex.valueOf(6)] as Complex[]).reshape(2, 2),
+        bj.newBooleanVector([false, false, false, false] as boolean[]).reshape(2, 2),
+        bj.newIntVector([0, 2, 4, 6] as int[]).reshape(2, 2),
+        bj.newDoubleVector([0, 2, 4, 6] as double[]).reshape(2, 2),
+        bj.newLongVector([0, 2, 4, 6] as long[]).reshape(2, 2),
+        bj.newComplexVector([Complex.valueOf(0), Complex.valueOf(2),
+                             Complex.valueOf(4), Complex.valueOf(6)] as Complex[]).reshape(2, 2),
     ]
     slice0T << [
-        bj.newVector([false, false, false, false] as boolean[]).reshape(2, 2),
-        bj.newVector([0, 4, 2, 6] as int[]).reshape(2, 2),
-        bj.newVector([0, 4, 2, 6] as double[]).reshape(2, 2),
-        bj.newVector([0, 4, 2, 6] as long[]).reshape(2, 2),
-        bj.newVector([Complex.valueOf(0), Complex.valueOf(4),
-                      Complex.valueOf(2), Complex.valueOf(6)] as Complex[]).reshape(2, 2),
+        bj.newBooleanVector([false, false, false, false] as boolean[]).reshape(2, 2),
+        bj.newIntVector([0, 4, 2, 6] as int[]).reshape(2, 2),
+        bj.newDoubleVector([0, 4, 2, 6] as double[]).reshape(2, 2),
+        bj.newLongVector([0, 4, 2, 6] as long[]).reshape(2, 2),
+        bj.newComplexVector([Complex.valueOf(0), Complex.valueOf(4),
+                             Complex.valueOf(2), Complex.valueOf(6)] as Complex[]).reshape(2, 2),
     ]
     slice1 << [
-        bj.newVector([true, false, false, false] as boolean[]).reshape(2, 2),
-        bj.newVector([1, 3, 5, 7] as int[]).reshape(2, 2),
-        bj.newVector([1, 3, 5, 7] as double[]).reshape(2, 2),
-        bj.newVector([1, 3, 5, 7] as long[]).reshape(2, 2),
-        bj.newVector([Complex.valueOf(1), Complex.valueOf(3),
-                      Complex.valueOf(5), Complex.valueOf(7)] as Complex[]).reshape(2, 2),
+        bj.newBooleanVector([true, false, false, false] as boolean[]).reshape(2, 2),
+        bj.newIntVector([1, 3, 5, 7] as int[]).reshape(2, 2),
+        bj.newDoubleVector([1, 3, 5, 7] as double[]).reshape(2, 2),
+        bj.newLongVector([1, 3, 5, 7] as long[]).reshape(2, 2),
+        bj.newComplexVector([Complex.valueOf(1), Complex.valueOf(3),
+                             Complex.valueOf(5), Complex.valueOf(7)] as Complex[]).reshape(2, 2),
     ]
     slice1T << [
-        bj.newVector([true, false, false, false] as boolean[]).reshape(2, 2),
-        bj.newVector([1, 5, 3, 7] as int[]).reshape(2, 2),
-        bj.newVector([1, 5, 3, 7] as double[]).reshape(2, 2),
-        bj.newVector([1, 5, 3, 7] as long[]).reshape(2, 2),
-        bj.newVector([Complex.valueOf(1), Complex.valueOf(5),
-                      Complex.valueOf(3), Complex.valueOf(7)] as Complex[]).reshape(2, 2),
+        bj.newBooleanVector([true, false, false, false] as boolean[]).reshape(2, 2),
+        bj.newIntVector([1, 5, 3, 7] as int[]).reshape(2, 2),
+        bj.newDoubleVector([1, 5, 3, 7] as double[]).reshape(2, 2),
+        bj.newLongVector([1, 5, 3, 7] as long[]).reshape(2, 2),
+        bj.newComplexVector([Complex.valueOf(1), Complex.valueOf(5),
+                             Complex.valueOf(3), Complex.valueOf(7)] as Complex[]).reshape(2, 2),
     ]
   }
 
@@ -390,20 +322,20 @@ class BaseArraySpec extends Specification {
 
     where:
     dim | idx | vector
-    0   | 0   | bj.newVector([0.0, 1.0] as double[])
-    0   | 1   | bj.newVector([2.0, 3.0] as double[])
-    0   | 2   | bj.newVector([4.0, 5.0] as double[])
-    0   | 3   | bj.newVector([6.0, 7.0] as double[])
+    0   | 0   | bj.newDoubleVector([0.0, 1.0] as double[])
+    0   | 1   | bj.newDoubleVector([2.0, 3.0] as double[])
+    0   | 2   | bj.newDoubleVector([4.0, 5.0] as double[])
+    0   | 3   | bj.newDoubleVector([6.0, 7.0] as double[])
 
-    1   | 0   | bj.newVector([0.0, 2] as double[])
-    1   | 1   | bj.newVector([1.0, 3] as double[])
-    1   | 2   | bj.newVector([4.0, 6] as double[])
-    1   | 3   | bj.newVector([5.0, 7] as double[])
+    1   | 0   | bj.newDoubleVector([0.0, 2] as double[])
+    1   | 1   | bj.newDoubleVector([1.0, 3] as double[])
+    1   | 2   | bj.newDoubleVector([4.0, 6] as double[])
+    1   | 3   | bj.newDoubleVector([5.0, 7] as double[])
 
-    2   | 0   | bj.newVector([0.0, 4] as double[])
-    2   | 1   | bj.newVector([1.0, 5] as double[])
-    2   | 2   | bj.newVector([2.0, 6] as double[])
-    2   | 3   | bj.newVector([3.0, 7] as double[])
+    2   | 0   | bj.newDoubleVector([0.0, 4] as double[])
+    2   | 1   | bj.newDoubleVector([1.0, 5] as double[])
+    2   | 2   | bj.newDoubleVector([2.0, 6] as double[])
+    2   | 3   | bj.newDoubleVector([3.0, 7] as double[])
   }
 
   def "Array#getVector returns the correct vector when the array is a matrix"() {
@@ -492,11 +424,11 @@ class BaseArraySpec extends Specification {
     shape = shape as int[]
     if (value instanceof List) {
       return [
-          bj.newVector(value.collect {it == 1} as boolean[]).reshape(shape),
-          bj.newVector(value as int[]).reshape(shape),
-          bj.newVector(value as double[]).reshape(shape),
-          bj.newVector(value as long[]).reshape(shape),
-          bj.newVector(value.collect {Complex.valueOf(it)} as Complex[]).reshape(shape)
+          bj.newBooleanVector(value.collect {it == 1} as boolean[]).reshape(shape),
+          bj.newIntVector(value as int[]).reshape(shape),
+          bj.newDoubleVector(value as double[]).reshape(shape),
+          bj.newLongVector(value as long[]).reshape(shape),
+          bj.newComplexVector(value.collect {Complex.valueOf(it)} as Complex[]).reshape(shape)
       ]
     } else {
       return [
