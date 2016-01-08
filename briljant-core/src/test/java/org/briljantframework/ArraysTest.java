@@ -95,9 +95,9 @@ public class ArraysTest {
     int n = 3;
     IntArray x = Arrays.range(m * n).reshape(m, n);
     List<IntArray> split = Arrays.vsplit(x, 3);
-    assertEquals(Arrays.newIntVector(0, 1, 6, 7, 12, 13).reshape(2, 3), split.get(0));
-    assertEquals(Arrays.newIntVector(2, 3, 8, 9, 14, 15).reshape(2, 3), split.get(1));
-    assertEquals(Arrays.newIntVector(4, 5, 10, 11, 16, 17).reshape(2, 3), split.get(2));
+    assertEquals(Arrays.intVector(0, 1, 6, 7, 12, 13).reshape(2, 3), split.get(0));
+    assertEquals(Arrays.intVector(2, 3, 8, 9, 14, 15).reshape(2, 3), split.get(1));
+    assertEquals(Arrays.intVector(4, 5, 10, 11, 16, 17).reshape(2, 3), split.get(2));
   }
 
   @Test
@@ -105,7 +105,7 @@ public class ArraysTest {
     IntArray x = Arrays.range(6 * 3 * 3).reshape(6, 3, 3);
     List<IntArray> split = Arrays.vsplit(x, 3);
     assertEquals(
-        Arrays.newIntVector(2, 3, 8, 9, 14, 15, 20, 21, 26, 27, 32, 33, 38, 39, 44, 45, 50, 51)
+        Arrays.intVector(2, 3, 8, 9, 14, 15, 20, 21, 26, 27, 32, 33, 38, 39, 44, 45, 50, 51)
             .reshape(2, 3, 3), split.get(1));
   }
 
@@ -115,9 +115,9 @@ public class ArraysTest {
     int n = 3;
     IntArray x = Arrays.range(n * m).reshape(n, m);
     List<IntArray> split = Arrays.hsplit(x, 3);
-    assertEquals(Arrays.newIntVector(0, 1, 2, 3, 4, 5).reshape(3, 2), split.get(0));
-    assertEquals(Arrays.newIntVector(6, 7, 8, 9, 10, 11).reshape(3, 2), split.get(1));
-    assertEquals(Arrays.newIntVector(12, 13, 14, 15, 16, 17).reshape(3, 2), split.get(2));
+    assertEquals(Arrays.intVector(0, 1, 2, 3, 4, 5).reshape(3, 2), split.get(0));
+    assertEquals(Arrays.intVector(6, 7, 8, 9, 10, 11).reshape(3, 2), split.get(1));
+    assertEquals(Arrays.intVector(12, 13, 14, 15, 16, 17).reshape(3, 2), split.get(2));
   }
 
   @Test
@@ -131,8 +131,8 @@ public class ArraysTest {
   @Test
   public void testRepeat() throws Exception {
     IntArray x = Arrays.range(3 * 3).reshape(3, 3);
-    assertEquals(Arrays.newIntVector(0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6,
-        7, 7, 7, 8, 8, 8), Arrays.repeat(x, 3));
+    assertEquals(Arrays.intVector(0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6,
+                                  7, 7, 7, 8, 8, 8), Arrays.repeat(x, 3));
   }
 
   @Test
@@ -140,8 +140,8 @@ public class ArraysTest {
     IntArray x = Arrays.range(3 * 3 * 3).reshape(3, 3, 3);
     IntArray repeatDim2 = Arrays.repeat(2, x, 3);
     IntArray repeatDim1 = Arrays.repeat(1, x, 3);
-    assertEquals(Arrays.newIntVector(3, 4, 5), repeatDim2.getVector(0, 1));
-    assertEquals(Arrays.newIntVector(1, 1, 1, 4, 4, 4, 7, 7, 7), repeatDim1.getVector(1, 1));
+    assertEquals(Arrays.intVector(3, 4, 5), repeatDim2.getVector(0, 1));
+    assertEquals(Arrays.intVector(1, 1, 1, 4, 4, 4, 7, 7, 7), repeatDim1.getVector(1, 1));
   }
 
   @Test
@@ -149,28 +149,28 @@ public class ArraysTest {
     IntArray x = Arrays.range(2 * 2 * 2).reshape(4, 2);
     IntArray tile = Arrays.tile(x, 2, 2, 2);
     assertArrayEquals(new int[] {2, 8, 4}, tile.getShape());
-    assertEquals(Arrays.newIntVector(0, 4, 0, 4), tile.getVector(2, 0));
-    assertEquals(Arrays.newIntVector(1, 5, 1, 5), tile.getVector(2, 2));
-    assertEquals(Arrays.newIntVector(2, 6, 2, 6), tile.getVector(2, 4));
-    assertEquals(Arrays.newIntVector(3, 7, 3, 7), tile.getVector(2, 6));
-    assertEquals(Arrays.newIntVector(0, 4, 0, 4), tile.getVector(2, 8));
-    assertEquals(Arrays.newIntVector(1, 5, 1, 5), tile.getVector(2, 10));
+    assertEquals(Arrays.intVector(0, 4, 0, 4), tile.getVector(2, 0));
+    assertEquals(Arrays.intVector(1, 5, 1, 5), tile.getVector(2, 2));
+    assertEquals(Arrays.intVector(2, 6, 2, 6), tile.getVector(2, 4));
+    assertEquals(Arrays.intVector(3, 7, 3, 7), tile.getVector(2, 6));
+    assertEquals(Arrays.intVector(0, 4, 0, 4), tile.getVector(2, 8));
+    assertEquals(Arrays.intVector(1, 5, 1, 5), tile.getVector(2, 10));
   }
 
   @Test
   public void testTile() throws Exception {
-    IntArray a = Arrays.newIntVector(0, 1, 2);
-    IntArray a2 = Arrays.newIntVector(0, 1, 2, 0, 1, 2);
+    IntArray a = Arrays.intVector(0, 1, 2);
+    IntArray a2 = Arrays.intVector(0, 1, 2, 0, 1, 2);
     assertEquals(a2, Arrays.tile(a, 2));
 
     IntArray a22 = Arrays.tile(a, 2, 2);
     assertEquals(a2, a22.getVector(1, 0));
     assertEquals(a2, a22.getVector(1, 1));
 
-    DoubleArray b = Arrays.newDoubleMatrix(new double[][] { {1, 2}, {3, 4}});
+    DoubleArray b = Arrays.doubleMatrix(new double[][] {{1, 2}, {3, 4}});
     DoubleArray bexpected =
-        Arrays.newDoubleMatrix(new double[][] { {1, 2, 1, 2}, {3, 4, 3, 4}, {1, 2, 1, 2},
-            {3, 4, 3, 4}});
+        Arrays.doubleMatrix(new double[][] {{1, 2, 1, 2}, {3, 4, 3, 4}, {1, 2, 1, 2},
+                                            {3, 4, 3, 4}});
 
     assertEquals(bexpected, Arrays.tile(b, 2, 2));
   }

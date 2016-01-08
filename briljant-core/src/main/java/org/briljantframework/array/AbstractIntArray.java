@@ -278,50 +278,55 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public void assign(IntArray matrix, IntUnaryOperator operator) {
-    Check.dimension(this, matrix);
+  public void assign(IntArray array, IntUnaryOperator operator) {
+    Check.dimension(this, array);
     for (int i = 0; i < size(); i++) {
-      set(i, operator.applyAsInt(matrix.get(i)));
+      set(i, operator.applyAsInt(array.get(i)));
     }
   }
 
   @Override
-  public void assign(IntArray matrix, IntBinaryOperator combine) {
-    Check.dimension(this, matrix);
+  public void combineAssign(IntArray array, IntBinaryOperator combine) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.dimension(this, array);
     for (int i = 0; i < size(); i++) {
-      set(i, combine.applyAsInt(get(i), matrix.get(i)));
+      set(i, combine.applyAsInt(get(i), array.get(i)));
     }
   }
 
   @Override
-  public void assign(ComplexArray matrix, ToIntFunction<? super Complex> function) {
-    Check.size(this, matrix);
+  public void assign(ComplexArray array, ToIntFunction<? super Complex> function) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.size(this, array);
     for (int i = 0; i < size(); i++) {
-      set(i, function.applyAsInt(matrix.get(i)));
+      set(i, function.applyAsInt(array.get(i)));
     }
   }
 
   @Override
-  public void assign(DoubleArray matrix, DoubleToIntFunction function) {
-    Check.size(this, matrix);
-    for (int i = 0; i < matrix.size(); i++) {
-      set(i, function.applyAsInt(matrix.get(i)));
+  public void assign(DoubleArray array, DoubleToIntFunction function) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.size(this, array);
+    for (int i = 0; i < array.size(); i++) {
+      set(i, function.applyAsInt(array.get(i)));
     }
   }
 
   @Override
-  public void assign(LongArray matrix, LongToIntFunction operator) {
-    Check.size(this, matrix);
+  public void assign(LongArray array, LongToIntFunction operator) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.size(this, array);
     for (int i = 0; i < size(); i++) {
-      set(i, operator.applyAsInt(matrix.get(i)));
+      set(i, operator.applyAsInt(array.get(i)));
     }
   }
 
   @Override
-  public void assign(BooleanArray matrix, ToIntObjIntBiFunction<Boolean> function) {
-    Check.dimension(this, matrix);
+  public void assign(BooleanArray array, ToIntObjIntBiFunction<Boolean> function) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.dimension(this, array);
     for (int i = 0; i < size(); i++) {
-      set(i, function.applyAsInt(matrix.get(i), get(i)));
+      set(i, function.applyAsInt(array.get(i), get(i)));
     }
   }
 
@@ -399,11 +404,12 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public BooleanArray where(IntArray matrix, IntBiPredicate predicate) {
-    Check.dimension(this, matrix);
+  public BooleanArray where(IntArray array, IntBiPredicate predicate) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.dimension(this, array);
     BooleanArray bits = factory.newBooleanArray();
     for (int i = 0; i < size(); i++) {
-      bits.set(i, predicate.test(get(i), matrix.get(i)));
+      bits.set(i, predicate.test(get(i), array.get(i)));
     }
     return bits;
   }
@@ -546,16 +552,17 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public IntArray times(IntArray other) {
-    return times(1, other, 1);
+    return times(1, other);
   }
 
   @Override
-  public IntArray times(int alpha, IntArray other, int beta) {
+  public IntArray times(int alpha, IntArray other) {
+    other = ShapeUtils.broadcastIfSensible(this, other);
     Check.size(this, other);
     IntArray m = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
-        m.set(i, j, alpha * get(i, j) * other.get(i, j) * beta);
+        m.set(i, j, alpha * get(i, j) * other.get(i, j));
       }
     }
     return m;
@@ -590,7 +597,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void plusAssign(IntArray other) {
-    assign(other, Integer::sum);
+    combineAssign(other, Integer::sum);
   }
 
   @Override
@@ -600,6 +607,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public IntArray plus(int alpha, IntArray other) {
+    other = ShapeUtils.broadcastIfSensible(this, other);
     Check.size(this, other);
     IntArray matrix = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
@@ -622,6 +630,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public IntArray minus(int alpha, IntArray other) {
+    other = ShapeUtils.broadcastIfSensible(this, other);
     Check.size(this, other);
     IntArray matrix = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
@@ -634,7 +643,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void minusAssign(IntArray other) {
-    assign(other, (a, b) -> a - b);
+    combineAssign(other, (a, b) -> a - b);
   }
 
   @Override
@@ -660,6 +669,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public IntArray div(IntArray other) {
+    other = ShapeUtils.broadcastIfSensible(this, other);
     Check.size(this, other);
     IntArray matrix = newEmptyArray(getShape());
     for (int j = 0; j < columns(); j++) {
@@ -681,7 +691,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void divAssign(IntArray other) {
-    assign(other, (a, b) -> a / b);
+    combineAssign(other, (a, b) -> a / b);
   }
 
   @Override

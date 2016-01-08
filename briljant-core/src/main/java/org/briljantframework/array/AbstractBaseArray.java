@@ -142,11 +142,9 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   @Override
   public void assign(E o) {
-    if (!isVector() || !o.isVector()) {
-      o = broadcast(o, getShape());
-    }
+    o = ShapeUtils.broadcastIfSensible(this, o);
     Check.size(this, o);
-    for (int i = 0; i < o.size(); i++) {
+    for (int i = 0, size = size(); i < size; i++) {
       set(i, o, i);
     }
   }

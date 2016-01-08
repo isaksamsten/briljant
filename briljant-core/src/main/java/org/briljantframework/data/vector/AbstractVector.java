@@ -390,7 +390,7 @@ public abstract class AbstractVector implements Vector {
   @Override
   public <U> Array<U> toArray(Class<U> cls) {
     final VectorLocationGetter get = loc();
-    Array<U> n = Arrays.newArray(size());
+    Array<U> n = Arrays.array(size());
     for (int i = 0; i < size(); i++) {
       n.set(i, get.get(cls, i));
     }

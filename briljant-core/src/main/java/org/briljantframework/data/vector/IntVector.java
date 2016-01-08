@@ -204,7 +204,7 @@ public class IntVector extends AbstractVector implements Transferable {
 
   @Override
   public IntArray toIntArray() throws IllegalTypeException {
-    return Arrays.newIntVector(java.util.Arrays.copyOf(buffer, size()));
+    return Arrays.intVector(java.util.Arrays.copyOf(buffer, size()));
   }
 
   public static final class Builder extends AbstractBuilder {

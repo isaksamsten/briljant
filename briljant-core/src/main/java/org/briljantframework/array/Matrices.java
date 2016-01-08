@@ -59,7 +59,7 @@ public class Matrices {
    */
   public static ComplexArray toArray(FieldMatrix<Complex> matrix) {
     ComplexArray array =
-        Arrays.newComplexArray(matrix.getRowDimension(), matrix.getColumnDimension());
+        Arrays.complexArray(matrix.getRowDimension(), matrix.getColumnDimension());
     matrix.walkInOptimizedOrder(new DefaultFieldMatrixPreservingVisitor<Complex>(Complex.ZERO) {
       @Override
       public void visit(int row, int column, Complex value) {
@@ -77,7 +77,7 @@ public class Matrices {
    */
   public static DoubleArray toArray(RealMatrix matrix) {
     DoubleArray array =
-        Arrays.newDoubleArray(matrix.getRowDimension(), matrix.getColumnDimension());
+        Arrays.doubleArray(matrix.getRowDimension(), matrix.getColumnDimension());
     matrix.walkInOptimizedOrder(new DefaultRealMatrixPreservingVisitor() {
       @Override
       public void visit(int row, int column, double value) {
@@ -283,6 +283,7 @@ public class Matrices {
       }
 
       @Override
+      @Deprecated
       public RealVector ebeDivide(RealVector v) throws DimensionMismatchException {
         if (v.getDimension() != array.size()) {
           throw new DimensionMismatchException(v.getDimension(), array.size());
@@ -295,6 +296,7 @@ public class Matrices {
       }
 
       @Override
+      @Deprecated
       public RealVector ebeMultiply(RealVector v) throws DimensionMismatchException {
         if (v.getDimension() != array.size()) {
           throw new DimensionMismatchException(v.getDimension(), array.size());

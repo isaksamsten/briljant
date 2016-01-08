@@ -179,7 +179,7 @@ public class DoubleVector extends AbstractVector implements Transferable {
 
   @Override
   public DoubleArray toDoubleArray() {
-    return Arrays.newDoubleVector(java.util.Arrays.copyOf(buffer, size()));
+    return Arrays.doubleVector(java.util.Arrays.copyOf(buffer, size()));
   }
 
   @Override

@@ -44,7 +44,8 @@ import org.briljantframework.function.ToIntObjIntBiFunction;
 
 /**
  * Special indexer for inserting new dimensions and selecting everything along a specified dimension
- * akin to {@code ..., : and np.newaxis} in <a href="http://numpy.org">Numpy</a>.
+ * akin to {@code ..., : and np.newaxis} in <a href="http://numpy.org">Numpy</a>. All methods throw
+ * an exception.
  * 
  * <p/>
  * Example
@@ -119,7 +120,14 @@ public final class BasicIndex implements Range {
    */
   public static final BasicIndex __ = ALL;
 
+  /**
+   * Special selector that inserts a new dimension of size 1 along the indicated dimension.
+   */
   public static final BasicIndex NEW_DIMENSION = null;
+
+  /**
+   * @see #NEW_DIMENSION
+   */
   public static final BasicIndex newdim = NEW_DIMENSION;
 
   private BasicIndex() {}
@@ -164,32 +172,32 @@ public final class BasicIndex implements Range {
   }
 
   @Override
-  public void assign(IntArray matrix, IntUnaryOperator operator) {
+  public void assign(IntArray array, IntUnaryOperator operator) {
     throw unsupported();
   }
 
   @Override
-  public void assign(IntArray matrix, IntBinaryOperator combine) {
+  public void combineAssign(IntArray array, IntBinaryOperator combine) {
     throw unsupported();
   }
 
   @Override
-  public void assign(ComplexArray matrix, ToIntFunction<? super Complex> function) {
+  public void assign(ComplexArray array, ToIntFunction<? super Complex> function) {
     throw unsupported();
   }
 
   @Override
-  public void assign(DoubleArray matrix, DoubleToIntFunction function) {
+  public void assign(DoubleArray array, DoubleToIntFunction function) {
     throw unsupported();
   }
 
   @Override
-  public void assign(LongArray matrix, LongToIntFunction operator) {
+  public void assign(LongArray array, LongToIntFunction operator) {
     throw unsupported();
   }
 
   @Override
-  public void assign(BooleanArray matrix, ToIntObjIntBiFunction<Boolean> function) {
+  public void assign(BooleanArray array, ToIntObjIntBiFunction<Boolean> function) {
     throw unsupported();
   }
 
@@ -234,7 +242,7 @@ public final class BasicIndex implements Range {
   }
 
   @Override
-  public BooleanArray where(IntArray matrix, IntBiPredicate predicate) {
+  public BooleanArray where(IntArray array, IntBiPredicate predicate) {
     throw unsupported();
   }
 
@@ -329,7 +337,7 @@ public final class BasicIndex implements Range {
   }
 
   @Override
-  public IntArray times(int alpha, IntArray other, int beta) {
+  public IntArray times(int alpha, IntArray other) {
     throw unsupported();
   }
 

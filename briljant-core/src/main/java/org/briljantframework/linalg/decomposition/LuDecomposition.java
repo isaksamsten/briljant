@@ -99,7 +99,7 @@ public class LuDecomposition {
   }
 
   private DoubleArray computeUpper() {
-    DoubleArray upperMatrix = Arrays.newDoubleArray(lu.rows(), lu.columns());
+    DoubleArray upperMatrix = Arrays.doubleArray(lu.rows(), lu.columns());
     for (int i = 0; i < lu.rows(); i++) {
       for (int j = i; j < lu.columns(); j++) {
         upperMatrix.set(i, j, lu.get(i, j));
@@ -114,7 +114,7 @@ public class LuDecomposition {
   }
 
   private DoubleArray computeLower() {
-    DoubleArray lowerMatrix = Arrays.newDoubleArray(lu.rows(), lu.columns());
+    DoubleArray lowerMatrix = Arrays.doubleArray(lu.rows(), lu.columns());
     for (int i = 0; i < lu.rows(); i++) {
       for (int j = i; j < lu.columns(); j++) {
         int ii = lu.rows() - 1 - i;

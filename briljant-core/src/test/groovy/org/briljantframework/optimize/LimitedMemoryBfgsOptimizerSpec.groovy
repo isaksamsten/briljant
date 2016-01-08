@@ -76,7 +76,7 @@ class LimitedMemoryBfgsOptimizerSpec extends Specification {
         return f;
       }
     }
-    def x = Arrays.newDoubleArray(100)
+    def x = Arrays.doubleArray(100)
     for (int i = 1; i <= x.size(); i += 2) {
       x.set(i - 1, -1.2)
       x.set(i + 1 - 1, 1.0)

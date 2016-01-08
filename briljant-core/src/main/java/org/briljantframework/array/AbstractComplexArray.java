@@ -105,55 +105,61 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray assign(ComplexArray matrix, UnaryOperator<Complex> operator) {
-    Check.size(this, matrix);
+  public ComplexArray assign(ComplexArray array, UnaryOperator<Complex> operator) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.size(this, array);
     for (int i = 0; i < size(); i++) {
-      set(i, operator.apply(matrix.get(i)));
+      set(i, operator.apply(array.get(i)));
     }
     return this;
   }
 
   @Override
-  public ComplexArray assign(ComplexArray matrix, BinaryOperator<Complex> combine) {
-    Check.dimension(this, matrix);
+  public ComplexArray combineAssign(ComplexArray array, BinaryOperator<Complex> combine) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.dimension(this, array);
     for (int i = 0; i < size(); i++) {
-      set(i, combine.apply(get(i), matrix.get(i)));
+      set(i, combine.apply(get(i), array.get(i)));
     }
     return this;
   }
 
   @Override
-  public ComplexArray assign(DoubleArray matrix) {
-    Check.argument(matrix.size() == size());
+  public ComplexArray assign(DoubleArray array) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.argument(array.size() == size());
     for (int i = 0; i < size(); i++) {
-      set(i, Complex.valueOf(matrix.get(i)));
+      set(i, Complex.valueOf(array.get(i)));
     }
     return this;
   }
 
   @Override
-  public ComplexArray assign(DoubleArray matrix, DoubleFunction<Complex> operator) {
-    Check.argument(matrix.size() == size());
+  public ComplexArray assign(DoubleArray array, DoubleFunction<Complex> operator) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.argument(array.size() == size());
     for (int i = 0; i < size(); i++) {
-      set(i, operator.apply(matrix.get(i)));
+      set(i, operator.apply(array.get(i)));
     }
     return this;
   }
 
   @Override
-  public ComplexArray assign(LongArray matrix, LongFunction<Complex> operator) {
-    Check.size(this, matrix);
+  public ComplexArray assign(LongArray array, LongFunction<Complex> operator) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.size(this, array);
     for (int i = 0; i < size(); i++) {
-      set(i, operator.apply(matrix.get(i)));
+      set(i, operator.apply(array.get(i)));
     }
     return this;
   }
 
   @Override
-  public ComplexArray assign(IntArray matrix, IntFunction<Complex> operator) {
-    Check.size(this, matrix);
+  public ComplexArray assign(IntArray array, IntFunction<Complex> operator) {
+    array = ShapeUtils.broadcastIfSensible(this, array);
+    Check.size(this, array);
     for (int i = 0; i < size(); i++) {
-      set(i, operator.apply(matrix.get(i)));
+      set(i, operator.apply(array.get(i)));
     }
     return this;
   }
@@ -397,15 +403,16 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public ComplexArray times(ComplexArray other) {
-    return times(Complex.ONE, other, Complex.ONE);
+    return times(Complex.ONE, other);
   }
 
   @Override
-  public ComplexArray times(Complex alpha, ComplexArray other, Complex beta) {
+  public ComplexArray times(Complex alpha, ComplexArray other) {
+    other = ShapeUtils.broadcastIfSensible(this, other);
     Check.dimension(this, other);
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
-      m.set(i, alpha.multiply(get(i)).multiply(beta).multiply(other.get(i)));
+      m.set(i, alpha.multiply(get(i)).multiply(other.get(i)));
     }
     return m;
   }
@@ -421,7 +428,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public ComplexArray plus(ComplexArray other) {
-    return plus(Complex.ONE, other, Complex.ONE);
+    return plus(Complex.ONE, other);
   }
 
   @Override
@@ -434,18 +441,19 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray plus(Complex alpha, ComplexArray other, Complex beta) {
+  public ComplexArray plus(Complex alpha, ComplexArray other) {
+    other = ShapeUtils.broadcastIfSensible(this, other);
     Check.dimension(this, other);
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
-      m.set(i, get(i).multiply(alpha).add(other.get(i).multiply(beta)));
+      m.set(i, get(i).multiply(alpha).add(other.get(i)));
     }
     return m;
   }
 
   @Override
   public ComplexArray minus(ComplexArray other) {
-    return minus(Complex.ONE, other, Complex.ONE);
+    return minus(Complex.ONE, other);
   }
 
   @Override
@@ -458,11 +466,12 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray minus(Complex alpha, ComplexArray other, Complex beta) {
+  public ComplexArray minus(Complex alpha, ComplexArray other) {
+    other = ShapeUtils.broadcastIfSensible(this, other);
     Check.size(this, other);
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
-      m.set(i, alpha.multiply(get(i)).subtract(beta.multiply(other.get(i))));
+      m.set(i, alpha.multiply(get(i)).subtract(other.get(i)));
     }
     return m;
   }
@@ -478,6 +487,8 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public ComplexArray div(ComplexArray other) {
+    other = ShapeUtils.broadcastIfSensible(this, other);
+    Check.size(this, other);
     ComplexArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, get(i).divide(other.get(i)));
@@ -633,13 +644,13 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
         getMajorStrideIndex()) {
 
       @Override
-      public void setElement(int index, int value) {
-        AbstractComplexArray.this.setElement(index, Complex.valueOf(value));
+      public int getElement(int index) {
+        return (int) AbstractComplexArray.this.getElement(index).getReal();
       }
 
       @Override
-      public int getElement(int index) {
-        return (int) AbstractComplexArray.this.getElement(index).getReal();
+      public void setElement(int index, int value) {
+        AbstractComplexArray.this.setElement(index, Complex.valueOf(value));
       }
 
       @Override

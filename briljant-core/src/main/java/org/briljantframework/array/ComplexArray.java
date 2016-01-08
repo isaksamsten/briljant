@@ -52,7 +52,7 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
   }
 
   static ComplexArray zeros(int... shape) {
-    return Arrays.newComplexArray(shape);
+    return Arrays.complexArray(shape);
   }
 
   /**
@@ -64,14 +64,14 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
   ComplexArray assign(Complex value);
 
   /**
-   * @see Arrays#newComplexVector(Complex...)
+   * @see Arrays#complexVector(Complex...)
    */
   static ComplexArray of(Complex... data) {
-    return Arrays.newComplexVector(data);
+    return Arrays.complexVector(data);
   }
 
   static ComplexArray of(double... real) {
-    return Arrays.newComplexArray(real);
+    return Arrays.complexVector(real);
   }
 
   void assign(double[] value);
@@ -94,34 +94,34 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
   /**
    * Assign {@code matrix} to {@code this}, applying {@code operator} to each value.
    *
-   * @param matrix the matrix
+   * @param array the matrix
    * @param operator the operator
    * @return receiver modified
    */
-  ComplexArray assign(ComplexArray matrix, UnaryOperator<Complex> operator);
+  ComplexArray assign(ComplexArray array, UnaryOperator<Complex> operator);
 
-  ComplexArray assign(ComplexArray matrix, BinaryOperator<Complex> combine);
+  ComplexArray combineAssign(ComplexArray array, BinaryOperator<Complex> combine);
 
   /**
    * Assign {@code matrix} to this complex matrix.
    *
-   * @param matrix matrix of real values
+   * @param array matrix of real values
    * @return receiver modified
    */
-  ComplexArray assign(DoubleArray matrix);
+  ComplexArray assign(DoubleArray array);
 
   /**
    * Assign {@code matrix} to this complex matrix transforming each element.
    *
-   * @param matrix the matrix
+   * @param array the matrix
    * @param operator the operator
    * @return receiver modified
    */
-  ComplexArray assign(DoubleArray matrix, DoubleFunction<Complex> operator);
+  ComplexArray assign(DoubleArray array, DoubleFunction<Complex> operator);
 
-  ComplexArray assign(LongArray matrix, LongFunction<Complex> operator);
+  ComplexArray assign(LongArray array, LongFunction<Complex> operator);
 
-  ComplexArray assign(IntArray matrix, IntFunction<Complex> operator);
+  ComplexArray assign(IntArray array, IntFunction<Complex> operator);
 
   /**
    * Perform {@code operator} element wise to receiver.
@@ -290,16 +290,13 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
   ComplexArray times(ComplexArray other);
 
   /**
-   * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.times(alpha).times(other.times(beta))}, but in one
-   * pass.
+   * Element wise multiplication.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  ComplexArray times(Complex alpha, ComplexArray other, Complex beta);
+  ComplexArray times(Complex alpha, ComplexArray other);
 
   /**
    * Element wise <u>m</u>ultiplication
@@ -326,16 +323,13 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
   ComplexArray plus(Complex scalar);
 
   /**
-   * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.times(alpha).plus(other.times(beta))}, but in one
-   * pass.
+   * Element wise addition.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  ComplexArray plus(Complex alpha, ComplexArray other, Complex beta);
+  ComplexArray plus(Complex alpha, ComplexArray other);
 
   /**
    * Element wise subtraction. {@code this - other}.
@@ -354,16 +348,13 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
   ComplexArray minus(Complex scalar);
 
   /**
-   * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.times(alpha).minus(other.times(beta))}, but in one
-   * pass.
+   * Element wise subtraction.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  ComplexArray minus(Complex alpha, ComplexArray other, Complex beta);
+  ComplexArray minus(Complex alpha, ComplexArray other);
 
   /**
    * <u>R</u>eversed element wise subtraction. {@code scalar - this}.

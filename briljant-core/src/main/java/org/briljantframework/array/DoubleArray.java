@@ -59,7 +59,7 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
    * @see org.briljantframework.array.api.ArrayFactory#newDoubleVector(double[])
    */
   static DoubleArray of(double... data) {
-    return Arrays.newDoubleVector(data);
+    return Arrays.doubleVector(data);
   }
 
   /**
@@ -86,10 +86,8 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
   }
 
   static DoubleArray zeros(int... shape) {
-    return Arrays.newDoubleArray(shape);
+    return Arrays.doubleArray(shape);
   }
-
-  void set(int index, double value);
 
   /**
    * @see Arrays#linspace(double, double, int)
@@ -97,6 +95,8 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
   static DoubleArray linspace(double start, double end, int size) {
     return Arrays.linspace(start, end, size);
   }
+
+  void set(int index, double value);
 
   /**
    * Assign {@code value} to {@code this}
@@ -123,16 +123,16 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
   /**
    * Assign {@code matrix} to {@code this}, applying {@code operator} to each value.
    *
-   * @param matrix the matrix
+   * @param array the matrix
    * @param operator the operator
    */
-  void assign(DoubleArray matrix, DoubleUnaryOperator operator);
+  void assign(DoubleArray array, DoubleUnaryOperator operator);
 
-  void assign(IntArray matrix, IntToDoubleFunction function);
+  void assign(IntArray array, IntToDoubleFunction function);
 
-  void assign(LongArray matrix, LongToDoubleFunction function);
+  void assign(LongArray array, LongToDoubleFunction function);
 
-  void assign(ComplexArray matrix, ToDoubleFunction<? super Complex> function);
+  void assign(ComplexArray array, ToDoubleFunction<? super Complex> function);
 
   /**
    * Combine this with the given array assigning the results
@@ -426,16 +426,13 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
   // Arithmetical operations ///////////
 
   /**
-   * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.times(alpha).times(other.times(beta))}, but in one
-   * pass.
+   * Element wise multiplication.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  DoubleArray times(double alpha, DoubleArray other, double beta);
+  DoubleArray times(double alpha, DoubleArray other);
 
   /**
    * Element wise <u>m</u>ultiplication
@@ -464,16 +461,13 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
   void plusAssign(double scalar);
 
   /**
-   * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.times(alpha).plus(other.times(beta))}, but in one
-   * pass.
-   *
+   * Element wise addition.
+   * 
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  DoubleArray plus(double alpha, DoubleArray other, double beta);
+  DoubleArray plus(double alpha, DoubleArray other);
 
   /**
    * Element wise subtraction. {@code this - other}.
@@ -496,10 +490,9 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  DoubleArray minus(double alpha, DoubleArray other, double beta);
+  DoubleArray minus(double alpha, DoubleArray other);
 
   /**
    * <u>R</u>eversed element wise subtraction. {@code scalar - this}.

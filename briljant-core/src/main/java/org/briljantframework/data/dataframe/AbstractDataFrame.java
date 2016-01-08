@@ -562,7 +562,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public <T, R> Array<R> toArray(Class<T> type, Function<? super T, ? extends R> function) {
-    Array<R> matrix = Arrays.newArray(rows(), columns());
+    Array<R> matrix = Arrays.array(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(i, j, function.apply(getAt(type, i, j)));
@@ -578,7 +578,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DoubleArray toDoubleArray(DoubleUnaryOperator operator) {
-    DoubleArray matrix = Arrays.newDoubleArray(rows(), columns());
+    DoubleArray matrix = Arrays.doubleArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {
       for (int i = 0; i < rows(); i++) {
         matrix.set(i, j, operator.applyAsDouble(getAsDoubleAt(i, j)));

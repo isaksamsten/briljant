@@ -198,11 +198,6 @@ public class BaseArrayFactory implements ArrayFactory {
   }
 
   @Override
-  public Range range() {
-    return range(0, -1, -1);
-  }
-
-  @Override
   public DoubleArray linspace(double start, double end, int size) {
     DoubleArray values = newDoubleArray(size);
     double step = (end - start) / (size - 1);

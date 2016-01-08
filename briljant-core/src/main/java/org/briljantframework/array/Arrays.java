@@ -120,7 +120,7 @@ public final class Arrays {
   /**
    * @see org.briljantframework.array.api.ArrayFactory#newArray(int...)
    */
-  public static <T> Array<T> newArray(int... shape) {
+  public static <T> Array<T> array(int... shape) {
     return ARRAY_FACTORY.newArray(shape);
   }
 
@@ -128,14 +128,14 @@ public final class Arrays {
    * @see org.briljantframework.array.api.ArrayFactory#newVector(Object[])
    */
   @SafeVarargs
-  public static <T> Array<T> newVector(T... data) {
+  public static <T> Array<T> vector(T... data) {
     return ARRAY_FACTORY.newVector(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#newMatrix(Object[][])
    */
-  public static <T> Array<T> newMatrix(T[][] data) {
+  public static <T> Array<T> matrix(T[][] data) {
     return ARRAY_FACTORY.newMatrix(data);
   }
 
@@ -163,14 +163,14 @@ public final class Arrays {
   /**
    * @see org.briljantframework.array.api.ArrayFactory#newDoubleVector(double[])
    */
-  public static DoubleArray newDoubleVector(double... data) {
+  public static DoubleArray doubleVector(double... data) {
     return ARRAY_FACTORY.newDoubleVector(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#newDoubleMatrix(double[][])
    */
-  public static DoubleArray newDoubleMatrix(double[][] data) {
+  public static DoubleArray doubleMatrix(double[][] data) {
     return ARRAY_FACTORY.newDoubleMatrix(data);
   }
 
@@ -247,7 +247,7 @@ public final class Arrays {
    * @return a new 1d-array
    */
   public static DoubleArray rand(int size, RealDistribution distribution) {
-    DoubleArray array = newDoubleArray(size);
+    DoubleArray array = doubleArray(size);
     array.assign(distribution::sample);
     return array;
   }
@@ -255,7 +255,7 @@ public final class Arrays {
   /**
    * @see org.briljantframework.array.api.ArrayFactory#newDoubleArray(int...)
    */
-  public static DoubleArray newDoubleArray(int... shape) {
+  public static DoubleArray doubleArray(int... shape) {
     return ARRAY_FACTORY.newDoubleArray(shape);
   }
 
@@ -282,50 +282,43 @@ public final class Arrays {
   /**
    * @see org.briljantframework.array.api.ArrayFactory#newComplexArray(int...)
    */
-  public static ComplexArray newComplexArray(int... shape) {
+  public static ComplexArray complexArray(int... shape) {
     return ARRAY_FACTORY.newComplexArray(shape);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#newComplexVector(double[])
    */
-  public static ComplexArray newComplexArray(double[] data) {
+  public static ComplexArray complexVector(double... data) {
     return ARRAY_FACTORY.newComplexVector(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#newComplexVector(org.apache.commons.math3.complex.Complex[])
    */
-  public static ComplexArray newComplexVector(Complex... data) {
+  public static ComplexArray complexVector(Complex... data) {
     return ARRAY_FACTORY.newComplexVector(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#newComplexMatrix(org.apache.commons.math3.complex.Complex[][])
    */
-  public static ComplexArray newComplexMatrix(Complex[][] data) {
+  public static ComplexArray complexMatrix(Complex[][] data) {
     return ARRAY_FACTORY.newComplexMatrix(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#newIntVector(int[])
    */
-  public static IntArray newIntVector(int... data) {
+  public static IntArray intVector(int... data) {
     return ARRAY_FACTORY.newIntVector(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#newIntMatrix(int[][])
    */
-  public static IntArray newIntMatrix(int[][] data) {
+  public static IntArray intMatrix(int[][] data) {
     return ARRAY_FACTORY.newIntMatrix(data);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayFactory#range()
-   */
-  public static Range range() {
-    return ARRAY_FACTORY.range();
   }
 
   /**
@@ -1737,7 +1730,7 @@ public final class Arrays {
         : 0)) {
       throw new MultiDimensionMismatchException(a, b);
     }
-    DoubleArray c = newDoubleArray(m, n);
+    DoubleArray c = doubleArray(m, n);
     gemm(transA, transB, alpha, a, b, 1, c);
     return c;
   }
@@ -1827,7 +1820,7 @@ public final class Arrays {
     a = a.isVector() ? a : a.ravel();
     b = b.isVector() ? b : b.ravel();
 
-    DoubleArray out = newDoubleArray(a.size(), b.size());
+    DoubleArray out = doubleArray(a.size(), b.size());
     ger(1, a, b, out);
     return out;
   }
@@ -2380,7 +2373,7 @@ public final class Arrays {
   public static DoubleArray select(DoubleBiPredicate predicate, DoubleArray x, DoubleArray y) {
     Check.size(x, y);
     int size = x.size();
-    DoubleArray selected = newDoubleArray(size);
+    DoubleArray selected = doubleArray(size);
     for (int i = 0; i < size; i++) {
       double a = x.get(i);
       double b = y.get(i);

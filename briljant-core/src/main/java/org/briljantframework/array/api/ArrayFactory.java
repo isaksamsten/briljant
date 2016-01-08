@@ -251,8 +251,6 @@ public interface ArrayFactory {
    */
   Range range(int end);
 
-  Range range();
-
   /**
    * Return a row vector of linearly spaced values
    *

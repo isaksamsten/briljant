@@ -36,7 +36,7 @@ public abstract class EigenDecomposition {
     DoubleArray imagEigenvalues = getImagEigenvalues();
     Check.state(realEigenvalues.size() == imagEigenvalues.size());
     int m = realEigenvalues.size();
-    DoubleArray d = Arrays.newDoubleArray(m, m);
+    DoubleArray d = Arrays.doubleArray(m, m);
     for (int i = 0; i < m; i++) {
       if (Precision.compareTo(imagEigenvalues.get(i), 0.0, EPSILON) > 0) {
         d.set(i, i + 1, imagEigenvalues.get(i));

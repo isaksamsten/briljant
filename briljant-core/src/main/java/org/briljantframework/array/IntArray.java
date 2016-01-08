@@ -59,18 +59,18 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listab
   }
 
   /**
+   * @see Arrays#intVector(int...)
+   */
+  static IntArray of(int... data) {
+    return Arrays.intVector(data);
+  }
+
+  /**
    * Assign {@code value} to {@code this}
    *
    * @param value the value to assign
    */
   void assign(int value);
-
-  /**
-   * @see Arrays#newIntVector(int...)
-   */
-  static IntArray of(int... data) {
-    return Arrays.newIntVector(data);
-  }
 
   void assign(int[] data);
 
@@ -89,25 +89,25 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listab
    * @param operator the operator
    * @return receiver modified
    */
-  void assign(IntArray matrix, IntUnaryOperator operator);
+  void assign(IntArray array, IntUnaryOperator operator);
 
   /**
    * Assign {@code matrix} to {@code this}, applying {@code combine} to combine the i:th value of
    * {@code this} and {@code matrix}
    *
-   * @param matrix the matrix
+   * @param array the matrix
    * @param combine the combiner
    * @return receiver modified
    */
-  void assign(IntArray matrix, IntBinaryOperator combine);
+  void combineAssign(IntArray array, IntBinaryOperator combine);
 
-  void assign(ComplexArray matrix, ToIntFunction<? super Complex> function);
+  void assign(ComplexArray array, ToIntFunction<? super Complex> function);
 
-  void assign(DoubleArray matrix, DoubleToIntFunction function);
+  void assign(DoubleArray array, DoubleToIntFunction function);
 
-  void assign(LongArray matrix, LongToIntFunction operator);
+  void assign(LongArray array, LongToIntFunction operator);
 
-  void assign(BooleanArray matrix, ToIntObjIntBiFunction<Boolean> function);
+  void assign(BooleanArray array, ToIntObjIntBiFunction<Boolean> function);
 
   void apply(IntUnaryOperator operator);
 
@@ -151,7 +151,7 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listab
 
   BooleanArray where(IntPredicate predicate);
 
-  BooleanArray where(IntArray matrix, IntBiPredicate predicate);
+  BooleanArray where(IntArray array, IntBiPredicate predicate);
 
   void forEachPrimitive(IntConsumer consumer);
 
@@ -224,16 +224,13 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listab
   IntArray times(IntArray other);
 
   /**
-   * Element wise multiplication. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.times(alpha).times(other.times(beta))}, but in one
-   * pass.
+   * Element wise multiplication.
    *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
-   * @param beta scaling for {@code other}
    * @return a new matrix
    */
-  IntArray times(int alpha, IntArray other, int beta);
+  IntArray times(int alpha, IntArray other);
 
   /**
    * Element wise <u>m</u>ultiplication

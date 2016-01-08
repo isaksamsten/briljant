@@ -47,18 +47,18 @@ import org.briljantframework.Listable;
 public interface Array<T> extends BaseArray<Array<T>>, Listable<T> {
 
   /**
-   * @see Arrays#newVector(Object[])
+   * @see Arrays#vector(Object[])
    */
   @SafeVarargs
   static <T> Array<T> of(T... data) {
-    return Arrays.newVector(data);
+    return Arrays.vector(data);
   }
 
   /**
-   * @see Arrays#newArray(int...)
+   * @see Arrays#array(int...)
    */
   static <T> Array<T> empty(int... shape) {
-    return Arrays.newArray(shape);
+    return Arrays.array(shape);
   }
 
   /**
