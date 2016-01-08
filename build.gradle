@@ -157,9 +157,18 @@ def getVersionName() {
     standardOutput = stdout
   }
   def version = stdout.toString().trim()
+  stdout = new ByteArrayOutputStream()
+  exec {
+    commandLine "git", "log", "-n", "1", "--pretty=%d HEAD"
+    standardOutput = stdout
+  }
+  def isRelease = stdout.toString().trim().contains("master")
+  if (version.contains("-")) {
+    version =  "${version.substring(0, version.lastIndexOf("-"))}"
+  }
 
   // The version is a snapshot if it does not have a 'clean' tag
-  if (version.contains("-")) {
+  if (!isRelease) {
     version = "${version.substring(0, version.indexOf("-"))}-SNAPSHOT"
   }
   return version
