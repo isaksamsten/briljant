@@ -23,6 +23,8 @@ package org.briljantframework.groovy.data;
 import org.briljantframework.data.parser.SqlParser;
 
 /**
+ * Set the property of a SQL parser
+ * 
  * @author Isak Karlsson
  */
 public class SettingsExtensions {

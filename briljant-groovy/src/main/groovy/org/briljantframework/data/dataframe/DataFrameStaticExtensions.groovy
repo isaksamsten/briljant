@@ -25,6 +25,8 @@ import org.briljantframework.data.parser.Parser
 import org.briljantframework.data.parser.SqlParser
 
 /**
+ * Static extension for loading CSV and SQL files
+ *
  * @author Isak Karlsson
  */
 class DataFrameStaticExtensions {
@@ -49,6 +51,15 @@ class DataFrameStaticExtensions {
     return parser.parse()
   }
 
+  /**
+   * Read a SQL query to construct a data frame.
+   *
+   * @param self the data frame
+   * @param closure a closure for setting properties of the SqlParser
+   * @return a data frame
+   * @see SqlParser
+   * @see SqlParser.Settings
+   */
   static DataFrame readSQL(DataFrame self, @DelegatesTo(SqlParser.Settings) Closure closure = {}) {
     def parser = new SqlParser()
     parser.settings.with closure

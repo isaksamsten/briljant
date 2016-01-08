@@ -25,15 +25,32 @@ import org.briljantframework.data.index.DataFrameLocationGetter
 import org.briljantframework.data.vector.Vector
 
 /**
- * Created by isak on 03/09/15.
+ * Extensions to support common Groovy idioms when working with {@link DataFrameLocationGetter data frame location getters}.
+ *
+ * @author Isak Karlsson
  */
 @CompileStatic
 class DataFrameLocationGetterExtensions {
 
+  /**
+   * Get the vector at the specified location
+   *
+   * @param self the data frame
+   * @param column the column location
+   * @return a vector
+   */
   static Vector getAt(DataFrameLocationGetter self, int column) {
     return self.get(column)
   }
 
+  /**
+   * Get the value at the specified location
+   *
+   * @param self the data frame
+   * @param row the row
+   * @param column the column
+   * @return a value
+   */
   static Object getAt(DataFrameLocationGetter self, int row, int column) {
     return self.get(Object, row, column)
   }

@@ -32,7 +32,6 @@ class VectorExtensionsSpec extends Specification {
     def v = Vector.of(1, 2, 3, 4, 5, 6, 7)
 
     then:
-    println v
     for (int i = 0; i < v.size(); i++) {
       println v.getAt(i)
     }

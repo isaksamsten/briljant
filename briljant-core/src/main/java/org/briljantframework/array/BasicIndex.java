@@ -61,15 +61,6 @@ import org.briljantframework.function.ToIntObjIntBiFunction;
  *     x.get(IntArray.of(0, 4).reshape(2, 1), all);
  *   }
  * }
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
  * </pre>
  * 
  * which would produce
@@ -664,7 +655,7 @@ public final class BasicIndex implements Range {
 
   @Override
   public IntArray asInt() {
-    throw unsupported();
+    return this;
   }
 
   @Override

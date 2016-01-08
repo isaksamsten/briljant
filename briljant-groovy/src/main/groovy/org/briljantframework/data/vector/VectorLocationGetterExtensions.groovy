@@ -24,7 +24,9 @@ import groovy.transform.CompileStatic
 import org.briljantframework.data.index.VectorLocationGetter
 
 /**
- * Created by isak on 03/09/15.
+ * Extensions to support common Groovy idioms when working with {@link VectorLocationGetter vector location getters}.
+ *
+ * @author Isak Karlsson
  */
 @CompileStatic
 class VectorLocationGetterExtensions {
