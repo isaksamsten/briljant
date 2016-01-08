@@ -1,8 +1,8 @@
 # Briljant Framework
 
-![Build status](https://travis-ci.org/briljant/briljant.svg?branch=0.1.6) [![Join the chat at https://gitter.im/briljant/briljant](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/briljant/briljant?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
+![Build status](https://travis-ci.org/briljant/briljant.svg?branch=0.1.7) [![Join the chat at https://gitter.im/briljant/briljant](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/briljant/briljant?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
 
-Briljant (0.1.6) is a [MIT](http://https://opensource.org/licenses/MIT)
+Briljant (0.1.7) is a [MIT](http://https://opensource.org/licenses/MIT)
 licensed framework for [Numpy](http://www.numpy.org/)-like nd-arrays
 and [R](https://www.r-project.org/)-like data frames and vectors for
 the [JVM](https://en.wikipedia.org/wiki/Java_virtual_machine) written
@@ -146,7 +146,7 @@ array([[[a, b],
 Briljant also provides facilities to adapt arrays to 
 [https://commons.apache.org/proper/commons-math/](Apache Commons Math) matrices and vectors,
 allowing us to leverage a large body of their linear algebra routines. For example, given
-`DoubleArray array = DoubleArray.linspace(-1, 1, 1000000).reshape(1000, 1000);` we can
+`DoubleArray array = Arrays.linspace(-1, 1, 1000000).reshape(1000, 1000);` we can
 decompose it as:
  
 ```
@@ -183,7 +183,7 @@ or `pom.xml`
          <snapshots/>
     </repository>
     
-The latest version is `0.1.6-SNAPSHOT`.
+The latest version is `0.1.7-SNAPSHOT`.
 
 ### Building from source
 
@@ -202,7 +202,7 @@ In your `build.gradle` or `pom.xml` reference
     <dependency>
         <groupId>org.briljantframework</groupId>
         <artifactId>briljant-core</artifactId>
-        <version>0.1.6-SNAPSHOT</version>
+        <version>0.1.7-SNAPSHOT</version>
     </dependency>
 
 Also don't forget to include maven local. (`mavenLocal()` in gradle).
