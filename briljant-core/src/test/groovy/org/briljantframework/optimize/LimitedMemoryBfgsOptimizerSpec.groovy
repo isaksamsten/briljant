@@ -45,7 +45,7 @@ class LimitedMemoryBfgsOptimizerSpec extends Specification {
     optimizer.optimize(d, x)
 
     then:
-    x.mapToLong {it -> Math.round it} == Arrays.newLongVector([-3, 3] as long[])
+    x.mapToLong {it -> Math.round it} == Arrays.longVector([-3, 3] as long[])
   }
 
   def "test limited memory optimizer with gradient cost"() {

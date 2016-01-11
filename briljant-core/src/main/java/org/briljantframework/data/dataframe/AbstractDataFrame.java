@@ -401,7 +401,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public <T> BooleanArray where(Class<T> cls, Predicate<? super T> predicate) {
-    BooleanArray array = Arrays.newBooleanArray(rows(), columns());
+    BooleanArray array = Arrays.booleanArray(rows(), columns());
     for (int i = 0; i < rows(); i++) {
       for (int j = 0; j < columns(); j++) {
         array.set(i, j, predicate.test(loc().get(cls, i, j)));

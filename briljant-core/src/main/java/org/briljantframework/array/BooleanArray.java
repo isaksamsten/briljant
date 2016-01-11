@@ -43,7 +43,7 @@ public interface BooleanArray extends BaseArray<BooleanArray>, Iterable<Boolean>
   }
 
   static BooleanArray falses(int... shape) {
-    return Arrays.newBooleanArray(shape);
+    return Arrays.booleanArray(shape);
   }
 
   /**
@@ -54,10 +54,10 @@ public interface BooleanArray extends BaseArray<BooleanArray>, Iterable<Boolean>
   void assign(boolean value);
 
   /**
-   * @see Arrays#newBooleanVector(boolean[])
+   * @see Arrays#booleanVector(boolean[])
    */
   static BooleanArray of(boolean... data) {
-    return Arrays.newBooleanVector(data);
+    return Arrays.booleanVector(data);
   }
 
   static BooleanArray of(int... data) {

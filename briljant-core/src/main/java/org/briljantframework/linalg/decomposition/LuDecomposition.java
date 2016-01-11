@@ -76,6 +76,14 @@ public class LuDecomposition {
     return pivots;
   }
 
+  public DoubleArray getPermutation() {
+    DoubleArray perm = Arrays.doubleArray(pivots.size(), pivots.size());
+    for (int i = 0; i < pivots.size(); ++i) {
+      perm.set(i, pivots.get(i), 1.0);
+    }
+    return perm;
+  }
+
   public boolean isNonSingular() {
     if (!this.nonSingular.isPresent()) {
       if (!lu.isSquare()) {

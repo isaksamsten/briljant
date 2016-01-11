@@ -86,7 +86,7 @@ public abstract class AbstractVector implements Vector {
 
   @Override
   public <T> BooleanArray where(Class<T> cls, Predicate<? super T> predicate) {
-    BooleanArray array = Arrays.newBooleanArray(size());
+    BooleanArray array = Arrays.booleanArray(size());
     for (int i = 0; i < size(); i++) {
       array.set(i, predicate.test(loc().get(cls, i)));
     }

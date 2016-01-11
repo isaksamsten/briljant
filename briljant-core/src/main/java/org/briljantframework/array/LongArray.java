@@ -53,14 +53,14 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listabl
   }
 
   static LongArray zeros(int... shape) {
-    return Arrays.newLongArray(shape);
+    return Arrays.longArray(shape);
   }
 
   /**
-   * @see Arrays#newLongVector(long...)
+   * @see Arrays#longVector(long...)
    */
   static LongArray of(long... data) {
-    return Arrays.newLongVector(data);
+    return Arrays.longVector(data);
   }
 
   // Assignments

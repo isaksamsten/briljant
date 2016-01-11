@@ -55,7 +55,7 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listab
   }
 
   static IntArray zeros(int... shape) {
-    return Arrays.newIntArray(shape);
+    return Arrays.intArray(shape);
   }
 
   /**

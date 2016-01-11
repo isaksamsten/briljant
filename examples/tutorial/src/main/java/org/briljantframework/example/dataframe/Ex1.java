@@ -1,7 +1,6 @@
 package org.briljantframework.example.dataframe;
 
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.dataframe.MixedDataFrame;
 import org.briljantframework.data.vector.Vector;
 
 /**
@@ -11,22 +10,19 @@ public class Ex1 {
 
   public static void main(String[] args) {
     Vector cars = Vector.of("Volvo", "BMW", "Saab");
-    DataFrame engines = MixedDataFrame.of(
-        "Brand", cars,
-        "Engine Size", Vector.of("large", "small", "tiny"),
-        "Breaking Horse Powers", Vector.of(100, 22, 3)
-    );
+    DataFrame engines =
+        DataFrame.of("Brand", cars, "Engine Size", Vector.of("large", "small", "tiny"),
+            "Breaking Horse Powers", Vector.of(100, 22, 3));
 
-    DataFrame sizes = MixedDataFrame.of(
-        "Brand", cars,
-        "wheel", Vector.of(21, 22, 33),
-        "length", Vector.of(10, 20, 30.0));
+    DataFrame sizes =
+        DataFrame.of("Brand", cars, "wheel", Vector.of(21, 22, 33), "length",
+            Vector.of(10, 20, 30.0));
 
     System.out.println(engines);
     System.out.println(sizes);
 
     System.out.println(engines.join(sizes, "Brand"));
 
-//    System.out.println(DataFrames.innerJoin(engines, sizes, Arrays.asList(0)));
+    // System.out.println(DataFrames.innerJoin(engines, sizes, Arrays.asList(0)));
   }
 }
