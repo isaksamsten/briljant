@@ -3,7 +3,7 @@
   <groupId>org.briljantframework</groupId>
   <artifactId>briljant</artifactId>
   <packaging>pom</packaging>
-  <version>0.3</version>
+  <version>0.3-SNAPSHOT</version>
 
   <name>Briljant framework</name>
   <description>Briljant framework</description>
