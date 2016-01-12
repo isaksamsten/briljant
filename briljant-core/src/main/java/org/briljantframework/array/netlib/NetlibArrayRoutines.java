@@ -40,12 +40,12 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
 
   @Override
   public double inner(DoubleArray a, DoubleArray b) {
-    if (a instanceof NetlibDoubleArray && b instanceof NetlibDoubleArray) {
+    if (isContinuousNetlibArray(a) && isContinuousNetlibArray(b)) {
       Check.argument(a.isVector() && b.isVector(), VECTOR_REQUIRED);
       Check.size(a, b);
       int n = a.size();
-      return blas.ddot(n, a.data(), a.getOffset(), a.getMajorStride(), b.data(), b.getOffset(),
-          b.getMajorStride());
+      return blas.ddot(n, a.data(), a.getOffset(), getVectorMajorStride(a), b.data(),
+          b.getOffset(), getVectorMajorStride(b));
     } else {
       return super.inner(a, b);
     }
@@ -53,9 +53,9 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
 
   @Override
   public double norm2(DoubleArray a) {
-    if (a instanceof NetlibDoubleArray) {
+    if (isContinuousNetlibArray(a)) {
       Check.argument(a.isVector(), VECTOR_REQUIRED);
-      return blas.dnrm2(a.size(), a.data(), a.getOffset(), a.getMajorStride());
+      return blas.dnrm2(a.size(), a.data(), a.getOffset(), getVectorMajorStride(a));
     } else {
       return super.norm2(a);
     }
@@ -63,9 +63,9 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
 
   @Override
   public double asum(DoubleArray a) {
-    if (a instanceof NetlibDoubleArray) {
+    if (isContinuousNetlibArray(a)) {
       Check.argument(a.isVector(), VECTOR_REQUIRED);
-      return blas.dasum(a.size(), a.data(), a.getOffset(), a.getMajorStride());
+      return blas.dasum(a.size(), a.data(), a.getOffset(), getVectorMajorStride(a));
     } else {
       return super.asum(a);
     }
@@ -73,9 +73,9 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
 
   @Override
   public int iamax(DoubleArray a) {
-    if (a instanceof NetlibDoubleArray) {
+    if (isContinuousNetlibArray(a)) {
       Check.argument(a.isVector(), VECTOR_REQUIRED);
-      return blas.idamax(a.size(), a.data(), a.getOffset(), a.getMajorStride());
+      return blas.idamax(a.size(), a.data(), a.getOffset(), getVectorMajorStride(a));
     } else {
       return super.iamax(a);
     }
@@ -83,9 +83,9 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
 
   @Override
   public void scal(double alpha, DoubleArray a) {
-    if (a instanceof NetlibDoubleArray && alpha != 1) {
+    if (isContinuousNetlibArray(a) && alpha != 1) {
       Check.argument(a.isVector(), VECTOR_REQUIRED);
-      blas.dscal(a.size(), alpha, a.data(), a.getOffset(), a.getMajorStride());
+      blas.dscal(a.size(), alpha, a.data(), a.getOffset(), getVectorMajorStride(a));
     } else {
       super.scal(alpha, a);
     }
@@ -95,12 +95,12 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
   public void axpy(double alpha, DoubleArray x, DoubleArray y) {
     if (alpha == 0) {
       return;
-    }
-    if (x instanceof NetlibDoubleArray && y instanceof NetlibDoubleArray) {
-      Check.argument(x.isVector() && y.isVector());
+    } // TODO: 11/01/16 we need alternative treatment of transposed vectors
+    if (isContinuousNetlibArray(x) && isContinuousNetlibArray(y)) {
+      Check.argument(x.isVector() && y.isVector(), VECTOR_REQUIRED);
       Check.size(x, y);
-      blas.daxpy(x.size(), alpha, x.data(), x.getOffset(), x.getMajorStride(), y.data(),
-          y.getOffset(), y.getMajorStride());
+      blas.daxpy(x.size(), alpha, x.data(), x.getOffset(), getVectorMajorStride(x), y.data(),
+          y.getOffset(), getVectorMajorStride(y));
     } else {
       super.axpy(alpha, x, y);
     }
@@ -195,6 +195,29 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
           from.size());
     } else {
       super.copy(from, to);
+    }
+  }
+
+  private boolean isContinuousNetlibArray(DoubleArray x) {
+    return x instanceof NetlibDoubleArray && x.stride(0) == 1;
+  }
+
+  private int getVectorMajorStride(BaseArray<?> array) {
+    switch (array.dims()) {
+      case 1:
+        return array.stride(0);
+      case 2:
+        // take the second stride of row-vectors
+        if (array.size(0) == 1 && array.size(1) >= 1) {
+          return array.stride(1);
+        } else if (array.size(0) >= 1 && array.size(1) == 1) {
+          return array.stride(0);
+        } else {
+          throw new IllegalArgumentException("Can't get vector stride of Matrix");
+        }
+      default:
+        throw new IllegalArgumentException(String.format("Can't get vector stride of %dd-array",
+            array.dims()));
     }
   }
 

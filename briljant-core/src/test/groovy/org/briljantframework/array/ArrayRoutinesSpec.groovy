@@ -88,6 +88,7 @@ abstract class ArrayRoutinesSpec extends Specification {
     bjr.axpy(alpha, x, y)
 
     then:
+    println("$alpha, $x, $y => $result")
     y == result
 
     where:
@@ -247,15 +248,4 @@ abstract class ArrayRoutinesSpec extends Specification {
     bj.newIntVector([1, 2, 3, 4, 5, -2] as int[])          | -2    | 5
     bj.newLongVector([1, 2, 3, -22] as long[])             | -22   | 3
   }
-
-  def "sorting returns a sorted array"() {
-    expect:
-    bjr.sort(array) == sorted
-
-    where:
-    array                            | sorted
-    bj.newVector("a", "c", "b", "d") | bj.newVector("a", "b", "c", "d")
-  }
-
-
 }

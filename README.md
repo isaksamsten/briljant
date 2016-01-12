@@ -187,7 +187,7 @@ The latest version is `0.2-SNAPSHOT`.
 
 ### Building from source
 
-Since Briljant is built using [Gradle](https://gradle.org/) it is
+Since Briljant is built using [Maven](https://maven.org/) it is
 simple to build from source and reference the binaries from your
 project. First we need to clone the repository
 
@@ -195,7 +195,7 @@ project. First we need to clone the repository
 
 Then building the source code is as simple as
 
-    gradle install
+    maven clean install
 
 In your `build.gradle` or `pom.xml` reference
 
@@ -205,7 +205,7 @@ In your `build.gradle` or `pom.xml` reference
         <version>0.2-SNAPSHOT</version>
     </dependency>
 
-Also don't forget to include maven local. (`mavenLocal()` in gradle).
+Also don't forget to include maven local. (`mavenLocal()` in Gradle).
 
 ## Contribute
 
@@ -215,11 +215,10 @@ of development the code is changing rapidly so please talk to use before
 commiting to som major work!
 
 We prefer developing in [IntellijIDEA](http://www.jetbrains.com/idea/), to
-import the project use the ``gradle`` importer:
+import the project use the ``maven`` importer:
 
 * File > Import Project
-* Import project from external module (select Gradle)
-* Check "use default gradle wrapper"
+* Import project from external module (select Maven)
 
 ### Commit strategy
 

@@ -52,18 +52,18 @@ class LimitedMemoryBfgsOptimizerSpec extends Specification {
     given:
     DifferentialMultivariateFunction d = new DifferentialMultivariateFunction() {
 
-//      @Override
-//      double gradientCost(DoubleArray x, DoubleArray g) {
-//        double f = 0.0;
-//        for (int j = 1; j <= x.size(); j += 2) {
-//          double t1 = 1.0 - x.get(j - 1);
-//          double t2 = 10.0 * (x.get(j) - x.get(j - 1) * x.get(j - 1));
-//          g.set(j + 1 - 1, 20.0 * t2);
-//          g.set(j - 1, -2.0 * (x.get(j - 1) * g.get(j + 1 - 1) + t1));
-//          f = f + t1 * t1 + t2 * t2;
-//        }
-//        return f;
-//      }
+      @Override
+      double gradientCost(DoubleArray x, DoubleArray g) {
+        double f = 0.0;
+        for (int j = 1; j <= x.size(); j += 2) {
+          double t1 = 1.0 - x.get(j - 1);
+          double t2 = 10.0 * (x.get(j) - x.get(j - 1) * x.get(j - 1));
+          g.set(j + 1 - 1, 20.0 * t2);
+          g.set(j - 1, -2.0 * (x.get(j - 1) * g.get(j + 1 - 1) + t1));
+          f = f + t1 * t1 + t2 * t2;
+        }
+        return f;
+      }
 
       @Override
       double cost(DoubleArray x) {

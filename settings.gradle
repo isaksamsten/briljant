@@ -1,6 +1,0 @@
-rootProject.name = 'briljantframework'
-
-include 'briljant-core'
-include 'briljant-dataset'
-include 'briljant-groovy'
-include 'briljant-kotlin'
