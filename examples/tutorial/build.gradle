@@ -1,16 +1,30 @@
 apply plugin: 'java'
-apply plugin: 'maven'
+apply plugin: 'application'
 
 group = "org.briljantframework.example.tutorial"
 version = '1.9'
 
+/// The gradle wrapper
+task createWrapper(type: Wrapper) {
+  gradleVersion = '2.9'
+}
+
+
+configurations.all {
+  // check for updates every build
+  resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
 sourceCompatibility = 1.8
 
+mainClassName = "org.briljantframework.example.array.Perf"
+
 repositories {
-    mavenCentral()
-    mavenLocal()
+  mavenCentral()
+  maven {url "https://oss.sonatype.org/content/repositories/snapshots"}
 }
 
 dependencies {
-    compile group: 'org.briljantframework', name: 'briljant-stats', version: '0.1-SNAPSHOT'
+  compile group: 'org.briljantframework', name: 'briljant-core', version: '0.2-SNAPSHOT',
+          changing: true
 }

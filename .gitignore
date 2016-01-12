@@ -27,6 +27,9 @@ hs_err_pid*
 .gradle/
 build/
 
+# maven
+target/
+
 # Mongo Explorer plugin:
 .idea/mongoSettings.xml
 

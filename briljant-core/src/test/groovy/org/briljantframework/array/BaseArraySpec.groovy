@@ -208,9 +208,9 @@ class BaseArraySpec extends Specification {
 
     where:
     ranges                           | selected
-    [bj.range(2), bj.range(3)]       | bj.newVector(0, 1, 3, 4, 6, 7).reshape(2, 3)
-    [bj.range(1, 3), bj.range(2)]    | bj.newVector(1, 2, 4, 5).reshape(2, 2)
-    [bj.range(2), bj.range(0, 5, 2)] | bj.newVector(0, 1, 6, 7, 12, 13).reshape(2, 3)
+    [bj.range(2), bj.range(3)]       | bj.newIntVector(0, 1, 3, 4, 6, 7).reshape(2, 3)
+    [bj.range(1, 3), bj.range(2)]    | bj.newIntVector(1, 2, 4, 5).reshape(2, 2)
+    [bj.range(2), bj.range(0, 5, 2)] | bj.newIntVector(0, 1, 6, 7, 12, 13).reshape(2, 3)
   }
 
   def "Selecting a range of elements from a nd-array should return a view of the selected elements"() {
@@ -347,12 +347,12 @@ class BaseArraySpec extends Specification {
 
     where:
     dim | idx | vector
-    1   | 0   | bj.newVector(0, 2, 4)
-    1   | 1   | bj.newVector(1, 3, 5)
+    1   | 0   | bj.newIntVector(0, 2, 4)
+    1   | 1   | bj.newIntVector(1, 3, 5)
 
-    0   | 0   | bj.newVector(0, 1)
-    0   | 1   | bj.newVector(2, 3)
-    0   | 2   | bj.newVector(4, 5)
+    0   | 0   | bj.newIntVector(0, 1)
+    0   | 1   | bj.newIntVector(2, 3)
+    0   | 2   | bj.newIntVector(4, 5)
   }
 
   def "Array#getVector returns the correct vector when the array is transposed"() {
@@ -367,24 +367,24 @@ class BaseArraySpec extends Specification {
 
     where:
     dim | idx | vector
-    0   | 0   | bj.newVector(0, 6)
-    0   | 1   | bj.newVector(1, 7)
-    0   | 2   | bj.newVector(2, 8)
-    0   | 3   | bj.newVector(3, 9)
-    0   | 4   | bj.newVector(4, 10)
-    0   | 5   | bj.newVector(5, 11)
+    0   | 0   | bj.newIntVector(0, 6)
+    0   | 1   | bj.newIntVector(2, 8)
+    0   | 2   | bj.newIntVector(4, 10)
+    0   | 3   | bj.newIntVector(1, 7)
+    0   | 4   | bj.newIntVector(3, 9)
+    0   | 5   | bj.newIntVector(5, 11)
 
-    1   | 0   | bj.newVector(0, 2, 4)
-    1   | 1   | bj.newVector(1, 3, 5)
-    1   | 2   | bj.newVector(6, 8, 10)
-    1   | 3   | bj.newVector(7, 9, 11)
+    1   | 0   | bj.newIntVector(0, 2, 4)
+    1   | 1   | bj.newIntVector(6, 8, 10)
+    1   | 2   | bj.newIntVector(1, 3, 5)
+    1   | 3   | bj.newIntVector(7, 9, 11)
 
-    2   | 0   | bj.newVector(0, 1)
-    2   | 1   | bj.newVector(2, 3)
-    2   | 2   | bj.newVector(4, 5)
-    2   | 3   | bj.newVector(6, 7)
-    2   | 4   | bj.newVector(8, 9)
-    2   | 5   | bj.newVector(10, 11)
+    2   | 0   | bj.newIntVector(0, 1)
+    2   | 1   | bj.newIntVector(6, 7)
+    2   | 2   | bj.newIntVector(2, 3)
+    2   | 3   | bj.newIntVector(8, 9)
+    2   | 4   | bj.newIntVector(4, 5)
+    2   | 5   | bj.newIntVector(10, 11)
   }
 
   def "Array#getVector returns the correct vector when a slice is selected"() {

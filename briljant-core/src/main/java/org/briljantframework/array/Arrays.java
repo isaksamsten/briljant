@@ -64,13 +64,13 @@ import org.briljantframework.sort.QuickSort;
  * <pre>
  * ArrayBackend backend = new BaseArrayBackend();
  * ArrayFactory factory = backend.getArrayFactory();
- * 
+ *
  * DoubleArray x = factory.newDoubleArray(3, 3);
  * x.assign(10);
- * 
+ *
  * // assuming that Arrays are using the default NetlibArrayBackend
  * DoubleArray y = Arrays.newDoubleArray(3, 3);
- * 
+ *
  * // This will be slow since the array created by the BaseArrayBackend
  * // cannot be used by the NetlibArrayBackend
  * Arrays.dot(x, y);
@@ -115,7 +115,8 @@ public final class Arrays {
     linalg = backend.getLinearAlgebraRoutines();
   }
 
-  private Arrays() {}
+  private Arrays() {
+  }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#newArray(int...)
@@ -248,7 +249,9 @@ public final class Arrays {
    */
   public static DoubleArray rand(int size, RealDistribution distribution) {
     DoubleArray array = doubleArray(size);
-    array.assign(distribution::sample);
+    for (int i = 0; i < size; i++) {
+      array.set(i, distribution.sample());
+    }
     return array;
   }
 
@@ -337,7 +340,7 @@ public final class Arrays {
 
   public static IntArray randi(int size, int l, int u) {
     RealDistribution distribution = new UniformRealDistribution(l, u);
-    IntArray array = newIntArray(size);
+    IntArray array = intArray(size);
     array.assign(() -> (int) Math.round(distribution.sample()));
     return array;
   }
@@ -345,49 +348,49 @@ public final class Arrays {
   /**
    * @see org.briljantframework.array.api.ArrayFactory#newIntArray(int...)
    */
-  public static IntArray newIntArray(int... shape) {
+  public static IntArray intArray(int... shape) {
     return ARRAY_FACTORY.newIntArray(shape);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#newLongArray(int...)
    */
-  public static LongArray newLongArray(int... shape) {
+  public static LongArray longArray(int... shape) {
     return ARRAY_FACTORY.newLongArray(shape);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#newLongVector(long[])
    */
-  public static LongArray newLongVector(long... data) {
+  public static LongArray longVector(long... data) {
     return ARRAY_FACTORY.newLongVector(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#newLongMatrix(long[][])
    */
-  public static LongArray newLongMatrix(long[][] data) {
+  public static LongArray longMatrix(long[][] data) {
     return ARRAY_FACTORY.newLongMatrix(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#newBooleanArray(int...)
    */
-  public static BooleanArray newBooleanArray(int... shape) {
+  public static BooleanArray booleanArray(int... shape) {
     return ARRAY_FACTORY.newBooleanArray(shape);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#newBooleanVector(boolean[])
    */
-  public static BooleanArray newBooleanVector(boolean[] data) {
+  public static BooleanArray booleanVector(boolean[] data) {
     return ARRAY_FACTORY.newBooleanVector(data);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#newBooleanMatrix(boolean[][])
    */
-  public static BooleanArray newBooleanMatrix(boolean[][] data) {
+  public static BooleanArray booleanMatrix(boolean[][] data) {
     return ARRAY_FACTORY.newBooleanMatrix(data);
   }
 
@@ -1207,7 +1210,7 @@ public final class Arrays {
 
   /**
    * Broadcast the given arrays against each other.
-   * 
+   *
    * @param arrays the arrays to broadcast
    * @param <E> the array type
    * @return a list of broadcasted array views
@@ -1253,7 +1256,7 @@ public final class Arrays {
       public E get(int index) {
         E x = arrays.get(index);
         return x.asView(newShape,
-            StrideUtils.broadcastStrides(x.getStride(), x.getShape(), newShape));
+                        StrideUtils.broadcastStrides(x.getStride(), x.getShape(), newShape));
       }
 
       @Override
@@ -1316,8 +1319,8 @@ public final class Arrays {
     Check.argument(newShape.length > 0 && x.dims() <= newShape.length, "to few new dimensions");
     int[] oldShape = x.getShape();
     Check.argument(ShapeUtils.isBroadcastCompatible(oldShape, newShape),
-        "Can't broadcast array with shape %s to %s", java.util.Arrays.toString(oldShape),
-        java.util.Arrays.toString(newShape));
+                   "Can't broadcast array with shape %s to %s", java.util.Arrays.toString(oldShape),
+                   java.util.Arrays.toString(newShape));
 
     int[] oldStrides = x.getStride();
     if (java.util.Arrays.equals(oldShape, newShape)) {
@@ -1350,7 +1353,7 @@ public final class Arrays {
 
   /**
    * Transpose the given array while permuting the dimensions.
-   * 
+   *
    * @param array the array
    * @param permute the new indices for the dimensions
    * @param <E> the array type
@@ -1717,7 +1720,7 @@ public final class Arrays {
    *      DoubleArray)
    */
   public static DoubleArray dot(ArrayOperation transA, ArrayOperation transB, DoubleArray a,
-      double alpha, DoubleArray b) {
+                                double alpha, DoubleArray b) {
     Check.argument(a.isMatrix() && b.isMatrix(), "require 2d-arrays");
     int m = a.size(transA == ArrayOperation.KEEP ? 0 : 1);
     int bm = b.size(transB == ArrayOperation.KEEP ? 0 : 1);
@@ -1727,7 +1730,7 @@ public final class Arrays {
       throw new IllegalArgumentException("empty result");
     }
     if (b.size(transB == ArrayOperation.KEEP ? 0 : 1) != a.size(transA == ArrayOperation.KEEP ? 1
-        : 0)) {
+                                                                                              : 0)) {
       throw new MultiDimensionMismatchException(a, b);
     }
     DoubleArray c = doubleArray(m, n);
@@ -1740,7 +1743,7 @@ public final class Arrays {
    *      double, DoubleArray)
    */
   public static void gemm(ArrayOperation transA, ArrayOperation transB, double alpha,
-      DoubleArray a, DoubleArray b, double beta, DoubleArray c) {
+                          DoubleArray a, DoubleArray b, double beta, DoubleArray c) {
     ARRAY_ROUTINES.gemm(transA, transB, alpha, a, b, beta, c);
   }
 
@@ -1768,7 +1771,7 @@ public final class Arrays {
    * @see #dot(ArrayOperation, ArrayOperation, DoubleArray, double, DoubleArray)
    */
   public static DoubleArray dot(ArrayOperation transA, ArrayOperation transB, DoubleArray a,
-      DoubleArray b) {
+                                DoubleArray b) {
     return dot(transA, transB, a, 1.0, b);
   }
 
@@ -1897,7 +1900,7 @@ public final class Arrays {
    *      org.briljantframework.array.DoubleArray)
    */
   public static void gemv(ArrayOperation transA, double alpha, DoubleArray a, DoubleArray x,
-      double beta, DoubleArray y) {
+                          double beta, DoubleArray y) {
     ARRAY_ROUTINES.gemv(transA, alpha, a, x, beta, y);
   }
 

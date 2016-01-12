@@ -2,7 +2,7 @@
 
 ![Build status](https://travis-ci.org/briljant/briljant.svg?branch=0.2) [![Join the chat at https://gitter.im/briljant/briljant](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/briljant/briljant?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
 
-Briljant (0.2) is a [MIT](http://https://opensource.org/licenses/MIT)
+Briljant (0.3) is a [MIT](http://https://opensource.org/licenses/MIT)
 licensed framework for [Numpy](http://www.numpy.org/)-like nd-arrays
 and [R](https://www.r-project.org/)-like data frames and vectors for
 the [JVM](https://en.wikipedia.org/wiki/Java_virtual_machine) written
@@ -183,11 +183,11 @@ or `pom.xml`
          <snapshots/>
     </repository>
     
-The latest version is `0.2-SNAPSHOT`.
+The latest version is `0.3-SNAPSHOT`.
 
 ### Building from source
 
-Since Briljant is built using [Gradle](https://gradle.org/) it is
+Since Briljant is built using [Maven](https://maven.org/) it is
 simple to build from source and reference the binaries from your
 project. First we need to clone the repository
 
@@ -195,17 +195,17 @@ project. First we need to clone the repository
 
 Then building the source code is as simple as
 
-    gradle install
+    maven clean install
 
 In your `build.gradle` or `pom.xml` reference
 
     <dependency>
         <groupId>org.briljantframework</groupId>
         <artifactId>briljant-core</artifactId>
-        <version>0.2-SNAPSHOT</version>
+        <version>0.3-SNAPSHOT</version>
     </dependency>
 
-Also don't forget to include maven local. (`mavenLocal()` in gradle).
+Also don't forget to include maven local. (`mavenLocal()` in Gradle).
 
 ## Contribute
 
@@ -215,11 +215,10 @@ of development the code is changing rapidly so please talk to use before
 commiting to som major work!
 
 We prefer developing in [IntellijIDEA](http://www.jetbrains.com/idea/), to
-import the project use the ``gradle`` importer:
+import the project use the ``maven`` importer:
 
 * File > Import Project
-* Import project from external module (select Gradle)
-* Check "use default gradle wrapper"
+* Import project from external module (select Maven)
 
 ### Commit strategy
 

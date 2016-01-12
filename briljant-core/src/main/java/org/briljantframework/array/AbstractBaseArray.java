@@ -184,7 +184,6 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     if (newShape.length == 0 || (newShape.length == 1 && newShape[0] == -1)) {
       if (isContiguous()) {
         newShape = new int[] {size()};
-        return asView(getOffset(), newShape, StrideUtils.computeStride(newShape));
       } else {
         return copy().reshape(newShape);
       }
