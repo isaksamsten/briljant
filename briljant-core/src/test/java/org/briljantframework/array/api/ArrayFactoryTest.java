@@ -26,7 +26,6 @@ import static org.junit.Assert.assertEquals;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.IntArray;
 import org.junit.Test;
 
 /**
@@ -34,14 +33,37 @@ import org.junit.Test;
  */
 public abstract class ArrayFactoryTest {
 
+  /**
+   * @return the array factor under test
+   */
+  public abstract ArrayFactory getFactory();
+
+  @Test
+  public void testNewMatrix() throws Exception {
+    String[][] data = { {"Hello", "world", "this"}, {"is", "not", "fun"}};
+    Array<String> array = getFactory().newMatrix(data);
+    assertEquals(
+        getFactory().newVector("Hello", "is", "world", "not", "this", "fun").reshape(2, 3), array);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNewMatrix_illegal_row() throws Exception {
+    String[][] data = { {"a", "b"}, {"c", "d", "e"}};
+    getFactory().newMatrix(data);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNewMatrix_empty() throws Exception {
+    String[][] data = { };
+    getFactory().newMatrix(data);
+  }
+
   @Test
   public void testArrayGet_BooleanArray() throws Exception {
     Array<Integer> a = getFactory().range(3 * 3).reshape(3, 3).boxed();
     Array<Integer> x = a.get(a.where(i -> i > 2));
     assertEquals(getFactory().newVector(3, 4, 5, 6, 7, 8), x);
   }
-
-  public abstract ArrayFactory getFactory();
 
   @Test
   public void testArraySet_BooleanArray() throws Exception {
@@ -84,14 +106,7 @@ public abstract class ArrayFactoryTest {
 
   }
 
-  @Test
-  public void testGetVector() throws Exception {
-    DoubleArray x = DoubleArray.of(1, 2, 3, 4);
-    DoubleArray y = DoubleArray.zeros(4);
-    Arrays.axpy(2, x, y);
-    System.out.println(y);
-  }
-
+  // TODO: 15/01/16 fix these tests
   @Test
   public void testName() throws Exception {
     DoubleArray x = Arrays.linspace(0, 9, 10).reshape(2, 5).getRow(0).transpose();
@@ -101,6 +116,14 @@ public abstract class ArrayFactoryTest {
     System.out.println(y);
 
     Arrays.axpy(1, x, y);
+    System.out.println(y);
+  }
+
+  @Test
+  public void testGetVector() throws Exception {
+    DoubleArray x = DoubleArray.of(1, 2, 3, 4);
+    DoubleArray y = DoubleArray.zeros(4);
+    Arrays.axpy(2, x, y);
     System.out.println(y);
   }
 
@@ -120,9 +143,8 @@ public abstract class ArrayFactoryTest {
     Arrays.axpy(alpha, x.ravel(), y.ravel());
     System.out.println(y);
 
-
     for (int i = 0; i < x.size(); i++) {
-      System.out.println(x.data()[x.getOffset() + i*3] + " + " + y.data()[y.getOffset() + i]);
+      System.out.println(x.data()[x.getOffset() + i * 3] + " + " + y.data()[y.getOffset() + i]);
     }
 
   }

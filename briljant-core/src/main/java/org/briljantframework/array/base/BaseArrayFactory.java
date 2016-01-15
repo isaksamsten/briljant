@@ -21,6 +21,7 @@
 package org.briljantframework.array.base;
 
 import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.Check;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.BooleanArray;
@@ -49,7 +50,20 @@ public class BaseArrayFactory implements ArrayFactory {
 
   @Override
   public <T> Array<T> newMatrix(T[][] data) {
-    throw new UnsupportedOperationException();
+    Check.argument(data.length > 0, "illegal row count");
+    Check.argument(data[0].length > 0, "illegal column count");
+
+    int m = data.length;
+    int n = data[0].length;
+    Array<T> array = newArray(m, n);
+    for (int i = 0; i < m; i++) {
+      T[] row = data[i];
+      Check.argument(row.length == n, "illegal row count");
+      for (int j = 0; j < n; j++) {
+        array.set(i, j, row[j]);
+      }
+    }
+    return array;
   }
 
   @Override
