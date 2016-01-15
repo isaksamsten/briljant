@@ -148,10 +148,10 @@ public final class Arrays {
   }
 
   /**
-   * @see org.briljantframework.array.api.ArrayFactory#zero(int...)
+   * @see org.briljantframework.array.api.ArrayFactory#zeros(int...)
    */
-  public static DoubleArray zero(int... shape) {
-    return ARRAY_FACTORY.zero(shape);
+  public static DoubleArray zeros(int... shape) {
+    return ARRAY_FACTORY.zeros(shape);
   }
 
   /**

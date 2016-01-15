@@ -188,7 +188,7 @@ public interface ArrayFactory {
 
   DoubleArray ones(int... shape);
 
-  DoubleArray zero(int... shape);
+  DoubleArray zeros(int... shape);
 
   /**
    * Extract or create a diagonal matrix

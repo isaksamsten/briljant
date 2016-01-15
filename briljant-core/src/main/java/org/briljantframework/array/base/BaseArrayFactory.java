@@ -164,7 +164,7 @@ public class BaseArrayFactory implements ArrayFactory {
   }
 
   @Override
-  public DoubleArray zero(int... shape) {
+  public DoubleArray zeros(int... shape) {
     return newDoubleArray(shape);
   }
 
