@@ -68,12 +68,25 @@ public class BaseArrayFactory implements ArrayFactory {
 
   @Override
   public <T> Array<T> newArray(int... shape) {
-    return new BaseReferenceArray<T>(this, shape);
+    return new BaseReferenceArray<>(this, shape);
   }
 
   @Override
   public BooleanArray newBooleanMatrix(boolean[][] data) {
-    return null;
+    Check.argument(data.length > 0, "illegal row count");
+    Check.argument(data[0].length > 0, "illegal column count");
+
+    int m = data.length;
+    int n = data[0].length;
+    BooleanArray array = newBooleanArray(m, n);
+    for (int i = 0; i < m; i++) {
+      boolean[] row = data[i];
+      Check.argument(row.length == n, "illegal row count");
+      for (int j = 0; j < n; j++) {
+        array.set(i, j, row[j]);
+      }
+    }
+    return array;
   }
 
   @Override
@@ -88,15 +101,20 @@ public class BaseArrayFactory implements ArrayFactory {
 
   @Override
   public IntArray newIntMatrix(int[][] data) {
-    int rows = data.length;
-    int columns = data[0].length;
-    IntArray x = newIntArray(rows, columns);
-    for (int i = 0; i < rows; i++) {
-      for (int j = 0; j < columns; j++) {
-        x.set(i, j, data[i][j]);
+    Check.argument(data.length > 0, "illegal row count");
+    Check.argument(data[0].length > 0, "illegal column count");
+
+    int m = data.length;
+    int n = data[0].length;
+    IntArray array = newIntArray(m, n);
+    for (int i = 0; i < m; i++) {
+      int[] row = data[i];
+      Check.argument(row.length == n, "illegal row count");
+      for (int j = 0; j < n; j++) {
+        array.set(i, j, row[j]);
       }
     }
-    return x;
+    return array;
   }
 
   @Override
@@ -111,7 +129,20 @@ public class BaseArrayFactory implements ArrayFactory {
 
   @Override
   public LongArray newLongMatrix(long[][] data) {
-    return null;
+    Check.argument(data.length > 0, "illegal row count");
+    Check.argument(data[0].length > 0, "illegal column count");
+
+    int m = data.length;
+    int n = data[0].length;
+    LongArray array = newLongArray(m, n);
+    for (int i = 0; i < m; i++) {
+      long[] row = data[i];
+      Check.argument(row.length == n, "illegal row count");
+      for (int j = 0; j < n; j++) {
+        array.set(i, j, row[j]);
+      }
+    }
+    return array;
   }
 
   @Override
@@ -126,15 +157,20 @@ public class BaseArrayFactory implements ArrayFactory {
 
   @Override
   public DoubleArray newDoubleMatrix(double[][] data) {
-    int rows = data.length;
-    int cols = data[0].length;
-    DoubleArray x = newDoubleArray(rows, cols);
-    for (int i = 0; i < rows; i++) {
-      for (int j = 0; j < cols; j++) {
-        x.set(i, j, data[i][j]);
+    Check.argument(data.length > 0, "illegal row count");
+    Check.argument(data[0].length > 0, "illegal column count");
+
+    int m = data.length;
+    int n = data[0].length;
+    DoubleArray array = newDoubleArray(m, n);
+    for (int i = 0; i < m; i++) {
+      double[] row = data[i];
+      Check.argument(row.length == n, "illegal row count");
+      for (int j = 0; j < n; j++) {
+        array.set(i, j, row[j]);
       }
     }
-    return x;
+    return array;
   }
 
   @Override
@@ -149,7 +185,20 @@ public class BaseArrayFactory implements ArrayFactory {
 
   @Override
   public ComplexArray newComplexMatrix(Complex[][] data) {
-    throw new UnsupportedOperationException(); // TODO: 01/12/15 Implement me
+    Check.argument(data.length > 0, "illegal row count");
+    Check.argument(data[0].length > 0, "illegal column count");
+
+    int m = data.length;
+    int n = data[0].length;
+    ComplexArray array = newComplexArray(m, n);
+    for (int i = 0; i < m; i++) {
+      Complex[] row = data[i];
+      Check.argument(row.length == n, "illegal row count");
+      for (int j = 0; j < n; j++) {
+        array.set(i, j, row[j]);
+      }
+    }
+    return array;
   }
 
   @Override
@@ -228,9 +277,5 @@ public class BaseArrayFactory implements ArrayFactory {
     DoubleArray eye = newDoubleArray(size, size);
     eye.getDiagonal().assign(1);
     return eye;
-  }
-
-  public ComplexArray newMatrix(Complex[][] data) {
-    return null;
   }
 }
