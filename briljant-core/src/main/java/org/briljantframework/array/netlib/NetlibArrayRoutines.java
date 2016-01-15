@@ -194,10 +194,10 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
 
   @Override
   public <T extends BaseArray<T>> void copy(T from, T to) {
-    if (from instanceof NetlibDoubleArray && to instanceof NetlibDoubleArray && isView(from)
-        && isView(to)) {
-      System.arraycopy(((NetlibDoubleArray) from).data(), 0, ((NetlibDoubleArray) to).data(), 0,
-          from.size());
+    if (from instanceof NetlibDoubleArray && to instanceof NetlibDoubleArray && !from.isView()
+        && from.stride(0) == 1 && !to.isView() && to.stride(0) == 1) {
+      System.arraycopy(((NetlibDoubleArray) from).data(), from.getOffset(),
+          ((NetlibDoubleArray) to).data(), to.getOffset(), from.size());
     } else {
       super.copy(from, to);
     }
@@ -226,7 +226,4 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
     }
   }
 
-  private <T extends BaseArray<T>> boolean isView(T array) {
-    return !(array.isContiguous() && array.stride(0) == 1);
-  }
 }

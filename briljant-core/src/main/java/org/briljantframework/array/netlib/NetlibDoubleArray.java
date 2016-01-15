@@ -83,6 +83,7 @@ class NetlibDoubleArray extends AbstractDoubleArray {
 
   @Override
   public DoubleArray copy() {
+    // This will speed up copying of
     if (dims() == 1 && stride(0) == 1 && getOffset() == 0) {
       return new NetlibDoubleArray(getArrayBackend(), Arrays.copyOf(data, size()));
     }
@@ -96,6 +97,16 @@ class NetlibDoubleArray extends AbstractDoubleArray {
     } else {
       super.sort(cmp);
     }
+  }
+
+  @Override
+  public void timesAssign(double scalar) {
+    getArrayBackend().getArrayRoutines().scal(scalar, this);
+  }
+
+  @Override
+  public void plusAssign(DoubleArray other) {
+    getArrayBackend().getArrayRoutines().axpy(1, other, this);
   }
 
   @Override
