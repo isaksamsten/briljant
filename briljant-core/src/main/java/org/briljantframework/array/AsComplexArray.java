@@ -21,7 +21,7 @@
 package org.briljantframework.array;
 
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.array.api.ArrayBackend;
 
 /**
  * Class for views over complex arrays.
@@ -30,13 +30,13 @@ import org.briljantframework.array.api.ArrayFactory;
  */
 abstract class AsComplexArray extends AbstractComplexArray {
 
-  AsComplexArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
+  AsComplexArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride) {
     super(bj, offset, shape, stride, majorStride);
   }
 
   @Override
   public ComplexArray asView(int offset, int[] shape, int[] stride) {
-    return new AsComplexArray(getArrayFactory(), offset, shape, stride, majorStride) {
+    return new AsComplexArray(getArrayBackend(), offset, shape, stride, majorStride) {
       @Override
       protected void setElement(int i, Complex value) {
         AsComplexArray.this.setElement(i, value);
@@ -56,7 +56,7 @@ abstract class AsComplexArray extends AbstractComplexArray {
 
   @Override
   public ComplexArray newEmptyArray(int... shape) {
-    return getArrayFactory().newComplexArray(shape);
+    return getArrayBackend().getArrayFactory().newComplexArray(shape);
   }
 
   @Override

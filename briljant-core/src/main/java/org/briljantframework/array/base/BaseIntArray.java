@@ -25,6 +25,7 @@ import net.mintern.primitive.comparators.IntComparator;
 
 import org.briljantframework.array.AbstractIntArray;
 import org.briljantframework.array.IntArray;
+import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 
 /**
@@ -34,22 +35,22 @@ class BaseIntArray extends AbstractIntArray {
 
   private final int[] data;
 
-  BaseIntArray(ArrayFactory bj, int size) {
+  BaseIntArray(ArrayBackend bj, int size) {
     super(bj, new int[] {size});
     this.data = new int[size];
   }
 
-  BaseIntArray(ArrayFactory bj, int[] shape) {
+  BaseIntArray(ArrayBackend bj, int[] shape) {
     super(bj, shape);
     this.data = new int[size()];
   }
 
-  BaseIntArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride, int[] data) {
+  BaseIntArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride, int[] data) {
     super(bj, offset, shape, stride, majorStride);
     this.data = data;
   }
 
-  BaseIntArray(ArrayFactory bj, boolean ignore, int[] data) {
+  BaseIntArray(ArrayBackend bj, boolean ignore, int[] data) {
     super(bj, new int[] {data.length});
     this.data = data;
   }
@@ -64,13 +65,13 @@ class BaseIntArray extends AbstractIntArray {
   }
 
   @Override
-  public void setElement(int index, int value) {
-    data[index] = value;
+  public int getElement(int index) {
+    return data[index];
   }
 
   @Override
-  public int getElement(int index) {
-    return data[index];
+  public void setElement(int index, int value) {
+    data[index] = value;
   }
 
   @Override
@@ -80,12 +81,12 @@ class BaseIntArray extends AbstractIntArray {
 
   @Override
   public IntArray asView(int offset, int[] shape, int[] stride) {
-    return new BaseIntArray(getArrayFactory(), offset, shape, stride, majorStride, data);
+    return new BaseIntArray(getArrayBackend(), offset, shape, stride, majorStride, data);
   }
 
   @Override
   public IntArray newEmptyArray(int... shape) {
-    return new BaseIntArray(getArrayFactory(), shape);
+    return new BaseIntArray(getArrayBackend(), shape);
   }
 
   @Override

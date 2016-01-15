@@ -50,6 +50,7 @@ import net.mintern.primitive.comparators.LongComparator;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
+import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.exceptions.MultiDimensionMismatchException;
 import org.briljantframework.function.LongBiPredicate;
@@ -63,13 +64,13 @@ import org.briljantframework.sort.QuickSort;
  */
 public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> implements LongArray {
 
-  protected AbstractLongArray(ArrayFactory bj, int[] shape) {
-    super(bj, shape);
+  protected AbstractLongArray(ArrayBackend backend, int[] shape) {
+    super(backend, shape);
   }
 
-  protected AbstractLongArray(ArrayFactory bj, int offset, int[] shape, int[] stride,
+  protected AbstractLongArray(ArrayBackend backend, int offset, int[] shape, int[] stride,
       int majorStride) {
-    super(bj, offset, shape, stride, majorStride);
+    super(backend, offset, shape, stride, majorStride);
   }
 
   @Override
@@ -106,7 +107,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
 
   @Override
   public DoubleArray asDouble() {
-    return new AsDoubleArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsDoubleArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
       protected double getElement(int i) {
@@ -127,7 +128,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
 
   @Override
   public IntArray asInt() {
-    return new AsIntArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsIntArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
       public LongArray asLong() {
@@ -160,7 +161,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
 
   @Override
   public BooleanArray asBoolean() {
-    return new AsBooleanArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsBooleanArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
 
       @Override
@@ -182,7 +183,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
 
   @Override
   public ComplexArray asComplex() {
-    return new AsComplexArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsComplexArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
       public Complex getElement(int index) {
@@ -213,7 +214,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   @Override
   public BooleanArray lt(LongArray other) {
     Check.size(this, other);
-    BooleanArray bits = getArrayFactory().newBooleanArray(getShape());
+    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) < other.get(i));
@@ -224,7 +225,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   @Override
   public BooleanArray gt(LongArray other) {
     Check.size(this, other);
-    BooleanArray bits = getArrayFactory().newBooleanArray(getShape());
+    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) > other.get(i));
@@ -235,7 +236,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   @Override
   public BooleanArray eq(LongArray other) {
     Check.size(this, other);
-    BooleanArray bits = getArrayFactory().newBooleanArray(getShape());
+    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) == other.get(i));
@@ -246,7 +247,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   @Override
   public BooleanArray lte(LongArray other) {
     Check.size(this, other);
-    BooleanArray bits = getArrayFactory().newBooleanArray(getShape());
+    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) <= other.get(i));
@@ -257,7 +258,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   @Override
   public BooleanArray gte(LongArray other) {
     Check.size(this, other);
-    BooleanArray bits = getArrayFactory().newBooleanArray(getShape());
+    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) >= other.get(i));
@@ -350,7 +351,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
 
   @Override
   public IntArray mapToInt(LongToIntFunction map) {
-    IntArray matrix = factory.newIntArray(3, 3);
+    IntArray matrix = getArrayBackend().getArrayFactory().newIntArray(3, 3);
     for (int i = 0; i < size(); i++) {
       matrix.set(i, map.applyAsInt(get(i)));
     }
@@ -359,7 +360,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
 
   @Override
   public DoubleArray mapToDouble(LongToDoubleFunction map) {
-    DoubleArray matrix = factory.newDoubleArray(getShape());
+    DoubleArray matrix = getArrayBackend().getArrayFactory().newDoubleArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, map.applyAsDouble(get(i)));
     }
@@ -368,7 +369,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
 
   @Override
   public ComplexArray mapToComplex(LongFunction<Complex> map) {
-    ComplexArray matrix = factory.newComplexArray();
+    ComplexArray matrix = getArrayBackend().getArrayFactory().newComplexArray();
     for (int i = 0; i < size(); i++) {
       matrix.set(i, map.apply(get(i)));
     }
@@ -377,7 +378,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
 
   @Override
   public <T> Array<T> mapToObj(LongFunction<? extends T> mapper) {
-    Array<T> array = getArrayFactory().newArray(getShape());
+    Array<T> array = getArrayBackend().getArrayFactory().newArray(getShape());
     for (int i = 0; i < size(); i++) {
       array.set(i, mapper.apply(get(i)));
     }
@@ -393,7 +394,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
 
   @Override
   public BooleanArray where(LongPredicate predicate) {
-    BooleanArray bits = factory.newBooleanArray();
+    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray();
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i)));
     }
@@ -404,7 +405,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   public BooleanArray where(LongArray array, LongBiPredicate predicate) {
     array = ShapeUtils.broadcastIfSensible(this, array);
     Check.dimension(this, array);
-    BooleanArray bits = factory.newBooleanArray();
+    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray();
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), array.get(i)));
     }
@@ -799,7 +800,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
     }
 
     public LongArray build() {
-      return factory.newLongVector(Arrays.copyOf(buffer, size));
+      return getArrayBackend().getArrayFactory().newLongVector(Arrays.copyOf(buffer, size));
     }
   }
 }

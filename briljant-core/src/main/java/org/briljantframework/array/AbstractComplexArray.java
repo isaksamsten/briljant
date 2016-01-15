@@ -47,6 +47,7 @@ import java.util.stream.StreamSupport;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
+import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 
 /**
@@ -57,17 +58,17 @@ import org.briljantframework.array.api.ArrayFactory;
 public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArray> implements
     ComplexArray {
 
-  protected AbstractComplexArray(ArrayFactory bj, int size) {
-    super(bj, new int[] {size});
+  protected AbstractComplexArray(ArrayBackend backend, int size) {
+    super(backend, new int[] {size});
   }
 
-  public AbstractComplexArray(ArrayFactory bj, int[] shape) {
-    super(bj, shape);
+  public AbstractComplexArray(ArrayBackend backend, int[] shape) {
+    super(backend, shape);
   }
 
-  public AbstractComplexArray(ArrayFactory bj, int offset, int[] shape, int[] stride,
+  public AbstractComplexArray(ArrayBackend backend, int offset, int[] shape, int[] stride,
       int majorStride) {
-    super(bj, offset, shape, stride, majorStride);
+    super(backend, offset, shape, stride, majorStride);
   }
 
   @Override
@@ -175,7 +176,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public IntArray mapToInt(ToIntFunction<Complex> function) {
-    IntArray matrix = factory.newIntArray(getShape());
+    IntArray matrix = getArrayBackend().getArrayFactory().newIntArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsInt(get(i)));
     }
@@ -184,7 +185,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public LongArray mapToLong(ToLongFunction<Complex> function) {
-    LongArray matrix = factory.newLongArray(getShape());
+    LongArray matrix = getArrayBackend().getArrayFactory().newLongArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsLong(get(i)));
     }
@@ -193,7 +194,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public DoubleArray mapToDouble(ToDoubleFunction<Complex> function) {
-    DoubleArray matrix = factory.newDoubleArray(getShape());
+    DoubleArray matrix = getArrayBackend().getArrayFactory().newDoubleArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsDouble(get(i)));
     }
@@ -202,7 +203,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public <T> Array<T> mapToObj(Function<Complex, ? extends T> mapper) {
-    Array<T> array = getArrayFactory().newArray(getShape());
+    Array<T> array = getArrayBackend().getArrayFactory().newArray(getShape());
     for (int i = 0; i < size(); i++) {
       array.set(i, mapper.apply(get(i)));
     }
@@ -230,7 +231,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public BooleanArray where(Predicate<Complex> predicate) {
-    BooleanArray bits = factory.newBooleanArray(getShape());
+    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i)));
     }
@@ -239,7 +240,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   public BooleanArray where(ComplexArray other, BiPredicate<Complex, Complex> predicate) {
     Check.size(this, other);
-    BooleanArray bits = factory.newBooleanArray(getShape());
+    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), other.get(i)));
     }
@@ -335,7 +336,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public Array<Complex> boxed() {
-    return new AsArray<Complex>(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsArray<Complex>(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStride()) {
 
       @Override
@@ -618,7 +619,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public DoubleArray asDouble() {
-    return new AsDoubleArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsDoubleArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
 
       @Override
@@ -640,7 +641,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public IntArray asInt() {
-    return new AsIntArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsIntArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
 
       @Override
@@ -662,7 +663,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public LongArray asLong() {
-    return new AsLongArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsLongArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
       public void setElement(int index, long value) {
@@ -683,7 +684,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public BooleanArray asBoolean() {
-    return new AsBooleanArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsBooleanArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
 
       @Override
@@ -771,8 +772,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
     private List<Complex> buffer = new ArrayList<>();
 
     public ComplexArray build() {
-      return factory.newComplexVector(buffer.toArray(new Complex[buffer.size()]));
-      // new BaseComplexMatrix(buffer.toArray(new Complex[buffer.size()]), buffer.size(), 1);
+      return getArrayBackend().getArrayFactory().newComplexVector(buffer.toArray(new Complex[buffer.size()]));
     }
 
     public void add(Complex value) {

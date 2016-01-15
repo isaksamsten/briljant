@@ -25,6 +25,7 @@ import net.mintern.primitive.comparators.DoubleComparator;
 
 import org.briljantframework.array.AbstractDoubleArray;
 import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 
 /**
@@ -34,30 +35,30 @@ class BaseDoubleArray extends AbstractDoubleArray {
 
   private double[] data;
 
-  BaseDoubleArray(ArrayFactory bj, int[] shape) {
+  BaseDoubleArray(ArrayBackend bj, int[] shape) {
     super(bj, shape);
     this.data = new double[size()];
   }
 
-  BaseDoubleArray(ArrayFactory bj, double[] data) {
+  BaseDoubleArray(ArrayBackend bj, double[] data) {
     super(bj, new int[] {data.length});
     this.data = data;
   }
 
-  private BaseDoubleArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride,
-      double[] data) {
+  private BaseDoubleArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
+                          double[] data) {
     super(bj, offset, shape, stride, majorStride);
     this.data = data;
   }
 
   @Override
   public DoubleArray asView(int offset, int[] shape, int[] stride) {
-    return new BaseDoubleArray(getArrayFactory(), offset, shape, stride, majorStride, data);
+    return new BaseDoubleArray(getArrayBackend(), offset, shape, stride, majorStride, data);
   }
 
   @Override
   public DoubleArray newEmptyArray(int... shape) {
-    return new BaseDoubleArray(getArrayFactory(), shape);
+    return new BaseDoubleArray(getArrayBackend(), shape);
   }
 
   @Override

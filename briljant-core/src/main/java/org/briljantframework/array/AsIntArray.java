@@ -20,7 +20,7 @@
  */
 package org.briljantframework.array;
 
-import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.array.api.ArrayBackend;
 
 /**
  * Class for views over int arrays.
@@ -29,13 +29,13 @@ import org.briljantframework.array.api.ArrayFactory;
  */
 abstract class AsIntArray extends AbstractIntArray {
 
-  AsIntArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
-    super(bj, offset, shape, stride, majorStride);
+  AsIntArray(ArrayBackend backend, int offset, int[] shape, int[] stride, int majorStride) {
+    super(backend, offset, shape, stride, majorStride);
   }
 
   @Override
   public IntArray asView(int offset, int[] shape, int[] stride) {
-    return new AsIntArray(getArrayFactory(), offset, shape, stride, majorStride) {
+    return new AsIntArray(getArrayBackend(), offset, shape, stride, majorStride) {
       @Override
       protected void setElement(int i, int value) {
         AsIntArray.this.setElement(i, value);
@@ -55,7 +55,7 @@ abstract class AsIntArray extends AbstractIntArray {
 
   @Override
   public IntArray newEmptyArray(int... shape) {
-    return getArrayFactory().newIntArray(shape);
+    return getArrayBackend().getArrayFactory().newIntArray(shape);
   }
 
   @Override

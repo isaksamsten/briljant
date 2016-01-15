@@ -48,6 +48,7 @@ import net.mintern.primitive.comparators.IntComparator;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
+import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.function.ToIntObjIntBiFunction;
@@ -61,11 +62,11 @@ import org.briljantframework.sort.QuickSort;
  */
 public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> implements IntArray {
 
-  protected AbstractIntArray(ArrayFactory bj, int[] shape) {
+  protected AbstractIntArray(ArrayBackend bj, int[] shape) {
     super(bj, shape);
   }
 
-  protected AbstractIntArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
+  protected AbstractIntArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride) {
     super(bj, offset, shape, stride, majorStride);
   }
 
@@ -103,7 +104,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public DoubleArray asDouble() {
-    return new AsDoubleArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsDoubleArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
       protected double getElement(int i) {
@@ -129,7 +130,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public LongArray asLong() {
-    return new AsLongArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsLongArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
       public void setElement(int index, long value) {
@@ -150,7 +151,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public BooleanArray asBoolean() {
-    return new AsBooleanArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsBooleanArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
 
       @Override
@@ -172,7 +173,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public ComplexArray asComplex() {
-    return new AsComplexArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsComplexArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
       public Complex getElement(int index) {
@@ -203,7 +204,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   @Override
   public BooleanArray lt(IntArray other) {
     Check.size(this, other);
-    BooleanArray bits = getArrayFactory().newBooleanArray(getShape());
+    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) < other.get(i));
@@ -214,7 +215,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   @Override
   public BooleanArray gt(IntArray other) {
     Check.size(this, other);
-    BooleanArray bits = getArrayFactory().newBooleanArray(getShape());
+    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) > other.get(i));
@@ -225,7 +226,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   @Override
   public BooleanArray eq(IntArray other) {
     Check.size(this, other);
-    BooleanArray bits = getArrayFactory().newBooleanArray(getShape());
+    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) == other.get(i));
@@ -236,7 +237,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   @Override
   public BooleanArray lte(IntArray other) {
     Check.size(this, other);
-    BooleanArray bits = getArrayFactory().newBooleanArray(getShape());
+    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) <= other.get(i));
@@ -247,7 +248,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   @Override
   public BooleanArray gte(IntArray other) {
     Check.size(this, other);
-    BooleanArray bits = getArrayFactory().newBooleanArray(getShape());
+    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
     int m = size();
     for (int i = 0; i < m; i++) {
       bits.set(i, get(i) >= other.get(i));
@@ -348,7 +349,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public LongArray mapToLong(IntToLongFunction function) {
-    LongArray matrix = factory.newLongArray(getShape());
+    LongArray matrix = getArrayBackend().getArrayFactory().newLongArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsLong(get(i)));
     }
@@ -357,7 +358,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public DoubleArray mapToDouble(IntToDoubleFunction function) {
-    DoubleArray matrix = factory.newDoubleArray(getShape());
+    DoubleArray matrix = getArrayBackend().getArrayFactory().newDoubleArray(getShape());
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.applyAsDouble(get(i)));
     }
@@ -366,7 +367,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public ComplexArray mapToComplex(IntFunction<Complex> function) {
-    ComplexArray matrix = factory.newComplexArray();
+    ComplexArray matrix = getArrayBackend().getArrayFactory().newComplexArray();
     for (int i = 0; i < size(); i++) {
       matrix.set(i, function.apply(get(i)));
     }
@@ -375,7 +376,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public <U> Array<U> mapToObj(IntFunction<? extends U> function) {
-    Array<U> array = getArrayFactory().newArray(getShape());
+    Array<U> array = getArrayBackend().getArrayFactory().newArray(getShape());
     for (int i = 0; i < size(); i++) {
       array.set(i, function.apply(get(i)));
     }
@@ -391,12 +392,12 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
         builder.add(value);
       }
     }
-    return factory.newIntVector(Arrays.copyOf(builder.elementData, builder.size()));
+    return getArrayBackend().getArrayFactory().newIntVector(Arrays.copyOf(builder.elementData, builder.size()));
   }
 
   @Override
   public BooleanArray where(IntPredicate predicate) {
-    BooleanArray bits = factory.newBooleanArray();
+    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray();
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i)));
     }
@@ -407,7 +408,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   public BooleanArray where(IntArray array, IntBiPredicate predicate) {
     array = ShapeUtils.broadcastIfSensible(this, array);
     Check.dimension(this, array);
-    BooleanArray bits = factory.newBooleanArray();
+    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray();
     for (int i = 0; i < size(); i++) {
       bits.set(i, predicate.test(get(i), array.get(i)));
     }

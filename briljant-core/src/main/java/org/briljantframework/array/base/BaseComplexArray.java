@@ -25,6 +25,7 @@ import java.util.Objects;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.array.AbstractComplexArray;
 import org.briljantframework.array.ComplexArray;
+import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 
 /**
@@ -35,35 +36,35 @@ class BaseComplexArray extends AbstractComplexArray {
   private Complex[] data;
   private Complex defaultValue = Complex.ZERO;
 
-  BaseComplexArray(ArrayFactory bj, int size) {
+  BaseComplexArray(ArrayBackend bj, int size) {
     super(bj, size);
     this.data = new Complex[size];
   }
 
-  BaseComplexArray(ArrayFactory bj, Complex[] data) {
+  BaseComplexArray(ArrayBackend bj, Complex[] data) {
     super(bj, Objects.requireNonNull(data).length);
     this.data = data;
   }
 
-  BaseComplexArray(ArrayFactory bj, int[] shape) {
+  BaseComplexArray(ArrayBackend bj, int[] shape) {
     super(bj, shape);
     this.data = new Complex[size()];
   }
 
-  BaseComplexArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride,
-      Complex[] data) {
+  BaseComplexArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
+                   Complex[] data) {
     super(bj, offset, shape, stride, majorStride);
     this.data = data;
   }
 
   @Override
   public ComplexArray asView(int offset, int[] shape, int[] stride) {
-    return new BaseComplexArray(getArrayFactory(), offset, shape, stride, majorStride, data);
+    return new BaseComplexArray(getArrayBackend(), offset, shape, stride, majorStride, data);
   }
 
   @Override
   public ComplexArray newEmptyArray(int... shape) {
-    return new BaseComplexArray(getArrayFactory(), shape);
+    return new BaseComplexArray(getArrayBackend(), shape);
   }
 
   @Override

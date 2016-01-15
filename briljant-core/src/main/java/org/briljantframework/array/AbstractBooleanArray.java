@@ -38,7 +38,7 @@ import java.util.stream.StreamSupport;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
-import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.primitive.ArrayAllocations;
 
 /**
@@ -49,17 +49,17 @@ import org.briljantframework.primitive.ArrayAllocations;
 public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArray> implements
     BooleanArray {
 
-  protected AbstractBooleanArray(ArrayFactory bj, int size) {
-    super(bj, new int[] {size});
+  protected AbstractBooleanArray(ArrayBackend backend, int size) {
+    super(backend, new int[] {size});
   }
 
-  public AbstractBooleanArray(ArrayFactory bj, int[] shape) {
-    super(bj, shape);
+  public AbstractBooleanArray(ArrayBackend backend, int[] shape) {
+    super(backend, shape);
   }
 
-  public AbstractBooleanArray(ArrayFactory bj, int offset, int[] shape, int[] stride,
+  public AbstractBooleanArray(ArrayBackend backend, int offset, int[] shape, int[] stride,
       int majorStride) {
-    super(bj, offset, shape, stride, majorStride);
+    super(backend, offset, shape, stride, majorStride);
   }
 
   @Override
@@ -89,16 +89,16 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public DoubleArray asDouble() {
-    return new AsDoubleArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsDoubleArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
-      @Override
-      public void setElement(int index, double value) {
-        AbstractBooleanArray.this.setElement(index, value == 1);
-      }
-
       @Override
       public double getElement(int index) {
         return AbstractBooleanArray.this.getElement(index) ? 1 : 0;
+      }
+
+      @Override
+      public void setElement(int index, double value) {
+        AbstractBooleanArray.this.setElement(index, value == 1);
       }
 
       @Override
@@ -110,18 +110,18 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public IntArray asInt() {
-    return new AsIntArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsIntArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
-
-      @Override
-      public void setElement(int index, int value) {
-        AbstractBooleanArray.this.setElement(index, value == 1);
-      }
 
       @Override
       public int getElement(int index) {
         return AbstractBooleanArray.this.getElement(index) ? 1 : 0;
 
+      }
+
+      @Override
+      public void setElement(int index, int value) {
+        AbstractBooleanArray.this.setElement(index, value == 1);
       }
 
       @Override
@@ -133,7 +133,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public LongArray asLong() {
-    return new AsLongArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsLongArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
 
       @Override
@@ -161,16 +161,16 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public ComplexArray asComplex() {
-    return new AsComplexArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsComplexArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
-      @Override
-      public void setElement(int index, Complex value) {
-        AbstractBooleanArray.this.setElement(index, value.equals(Complex.ONE));
-      }
-
       @Override
       public Complex getElement(int index) {
         return AbstractBooleanArray.this.getElement(index) ? Complex.ONE : Complex.ZERO;
+      }
+
+      @Override
+      public void setElement(int index, Complex value) {
+        AbstractBooleanArray.this.setElement(index, value.equals(Complex.ONE));
       }
 
       @Override
@@ -201,7 +201,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public BooleanArray eq(BooleanArray other) {
-    BooleanArray bits = getArrayFactory().newBooleanArray(getShape());
+    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       bits.set(i, get(i) == other.get(i));
     }
@@ -389,14 +389,11 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public Array<Boolean> boxed() {
-    return new AsArray<Boolean>(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsArray<Boolean>(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStride()) {
       @Override
       public BooleanArray asBoolean() {
         return AbstractBooleanArray.this;
-      }      @Override
-      protected int elementSize() {
-        return AbstractBooleanArray.this.elementSize();
       }
 
       @Override
@@ -409,7 +406,10 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
         return AbstractBooleanArray.this.getElement(i);
       }
 
-
+      @Override
+      protected int elementSize() {
+        return AbstractBooleanArray.this.elementSize();
+      }
     };
   }
 
@@ -522,7 +522,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
     }
 
     public BooleanArray build() {
-      return factory.newBooleanVector(Arrays.copyOf(buffer, size));
+      return getArrayBackend().getArrayFactory().newBooleanVector(Arrays.copyOf(buffer, size));
     }
   }
 

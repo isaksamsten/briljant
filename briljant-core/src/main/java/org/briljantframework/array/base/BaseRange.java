@@ -27,6 +27,7 @@ import net.mintern.primitive.comparators.IntComparator;
 import org.briljantframework.array.AbstractIntArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.Range;
+import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 
 /**
@@ -36,8 +37,8 @@ class BaseRange extends AbstractIntArray implements Range {
 
   private final int start, end, step;
 
-  public BaseRange(ArrayFactory bj, int start, int end, int step) {
-    super(bj, new int[] {getSize(start, end, step)});
+  public BaseRange(ArrayBackend backend, int start, int end, int step) {
+    super(backend, new int[] {getSize(start, end, step)});
     this.start = start;
     this.end = end;
     this.step = step;
@@ -55,8 +56,8 @@ class BaseRange extends AbstractIntArray implements Range {
     }
   }
 
-  public BaseRange(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride,
-      int start, int end, int step) {
+  public BaseRange(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
+                   int start, int end, int step) {
     super(bj, offset, shape, stride, majorStride);
     this.start = start;
     this.end = end;
@@ -65,13 +66,13 @@ class BaseRange extends AbstractIntArray implements Range {
 
   @Override
   public IntArray asView(int offset, int[] shape, int[] stride) {
-    return new BaseRange(getArrayFactory(), offset, shape, stride, majorStride, start(), end(),
+    return new BaseRange(getArrayBackend(), offset, shape, stride, majorStride, start(), end(),
         step());
   }
 
   @Override
   public IntArray newEmptyArray(int... shape) {
-    return new BaseIntArray(getArrayFactory(), shape);
+    return new BaseIntArray(getArrayBackend(), shape);
   }
 
   @Override

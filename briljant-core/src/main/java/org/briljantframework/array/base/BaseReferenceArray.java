@@ -23,7 +23,7 @@ package org.briljantframework.array.base;
 import org.briljantframework.array.AbstractArray;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.ShapeUtils;
-import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.array.api.ArrayBackend;
 
 /**
  * @author Isak Karlsson
@@ -32,23 +32,23 @@ class BaseReferenceArray<T> extends AbstractArray<T> {
 
   private final T[] data;
 
-  BaseReferenceArray(ArrayFactory bj, T[] data) {
+  BaseReferenceArray(ArrayBackend bj, T[] data) {
     this(bj, new int[] {data.length}, data);
   }
 
-  BaseReferenceArray(ArrayFactory bj, int[] shape, T[] data) {
+  BaseReferenceArray(ArrayBackend bj, int[] shape, T[] data) {
     super(bj, shape);
     this.data = data;
   }
 
-  BaseReferenceArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride,
+  BaseReferenceArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
       T[] data) {
     super(bj, offset, shape, stride, majorStride);
     this.data = data;
   }
 
   @SuppressWarnings("unchecked")
-  public BaseReferenceArray(BaseArrayFactory bj, int[] shape) {
+  public BaseReferenceArray(ArrayBackend bj, int[] shape) {
     super(bj, shape);
     this.data = (T[]) new Object[ShapeUtils.size(shape)];
   }
@@ -60,14 +60,14 @@ class BaseReferenceArray<T> extends AbstractArray<T> {
 
   @Override
   public Array<T> asView(int offset, int[] shape, int[] stride) {
-    return new BaseReferenceArray<>(getArrayFactory(), offset, shape, stride, majorStride, data);
+    return new BaseReferenceArray<>(getArrayBackend(), offset, shape, stride, majorStride, data);
   }
 
   @Override
   public Array<T> newEmptyArray(int... shape) {
     @SuppressWarnings("unchecked")
     T[] data = (T[]) new Object[ShapeUtils.size(shape)];
-    return new BaseReferenceArray<>(getArrayFactory(), shape, data);
+    return new BaseReferenceArray<>(getArrayBackend(), shape, data);
   }
 
   @Override

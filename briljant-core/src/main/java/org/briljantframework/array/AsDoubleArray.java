@@ -20,7 +20,7 @@
  */
 package org.briljantframework.array;
 
-import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.array.api.ArrayBackend;
 
 /**
  * Class for views over double arrays.
@@ -29,13 +29,13 @@ import org.briljantframework.array.api.ArrayFactory;
  */
 abstract class AsDoubleArray extends AbstractDoubleArray {
 
-  AsDoubleArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
+  AsDoubleArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride) {
     super(bj, offset, shape, stride, majorStride);
   }
 
   @Override
   public DoubleArray asView(int offset, int[] shape, int[] stride) {
-    return new AsDoubleArray(getArrayFactory(), offset, shape, stride, majorStride) {
+    return new AsDoubleArray(getArrayBackend(), offset, shape, stride, majorStride) {
       @Override
       protected double getElement(int i) {
         return AsDoubleArray.this.getElement(i);
@@ -55,7 +55,7 @@ abstract class AsDoubleArray extends AbstractDoubleArray {
 
   @Override
   public DoubleArray newEmptyArray(int... shape) {
-    return getArrayFactory().newDoubleArray(shape);
+    return getArrayBackend().getArrayFactory().newDoubleArray(shape);
   }
 
   @Override

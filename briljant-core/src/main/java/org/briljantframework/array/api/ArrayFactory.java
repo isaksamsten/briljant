@@ -45,7 +45,7 @@ public interface ArrayFactory {
    * @param <T> the class
    * @return a new array
    */
-  <T> Array<T> newVector(T... data);
+  <T> Array<T> newVector(T[] data);
 
   /**
    * Create a new array from the given data.

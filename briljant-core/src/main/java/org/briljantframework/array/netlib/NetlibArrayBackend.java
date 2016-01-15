@@ -67,7 +67,7 @@ public class NetlibArrayBackend implements ArrayBackend {
   @Override
   public ArrayFactory getArrayFactory() {
     if (arrayFactory == null) {
-      arrayFactory = new NetlibArrayFactory();
+      arrayFactory = new NetlibArrayFactory(this);
     }
     return arrayFactory;
   }
@@ -75,7 +75,7 @@ public class NetlibArrayBackend implements ArrayBackend {
   @Override
   public ArrayRoutines getArrayRoutines() {
     if (arrayRoutines == null) {
-      arrayRoutines = new NetlibArrayRoutines();
+      arrayRoutines = new NetlibArrayRoutines(this);
     }
     return arrayRoutines;
   }

@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.briljantframework.Check;
+import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 
 /**
@@ -57,9 +58,9 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   protected static final String REQUIRE_ND = "Require %dd-array";
 
   /**
-   * The array factor associated with this array
+   * The array backend associated with this array
    */
-  protected final ArrayFactory factory;
+  protected final ArrayBackend backend;
 
   /**
    * The index of the major stride
@@ -88,12 +89,12 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   /**
    * Construct an empty base array with the specified shape.
-   *
-   * @param factory the array factor
+   * 
+   * @param backend the array factor
    * @param shape the shape
    */
-  protected AbstractBaseArray(ArrayFactory factory, int[] shape) {
-    this.factory = Objects.requireNonNull(factory);
+  protected AbstractBaseArray(ArrayBackend backend, int[] shape) {
+    this.backend = Objects.requireNonNull(backend);
     this.shape = shape.clone();
     this.stride = StrideUtils.computeStride(shape);
     this.size = ShapeUtils.size(shape);
@@ -104,16 +105,16 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   /**
    * Construct an empty base array with the specified offset (i.e., where elements start), shape,
    * stride and majorStride
-   *
-   * @param factory the factory
+   * 
+   * @param backend the factory
    * @param offset the offset
    * @param shape the shape (<strong>not copied</strong>)
    * @param stride the stride (<strong>not copied</strong>)
    * @param majorStride the major stride index
    */
-  protected AbstractBaseArray(ArrayFactory factory, int offset, int[] shape, int[] stride,
+  protected AbstractBaseArray(ArrayBackend backend, int offset, int[] shape, int[] stride,
       int majorStride) {
-    this.factory = factory;
+    this.backend = backend;
     this.shape = shape;
     this.stride = stride;
     this.size = ShapeUtils.size(shape);
@@ -121,8 +122,24 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     this.majorStride = majorStride;
   }
 
+  /**
+   * Returns the array factory
+   * 
+   * @deprecated use {@link #getArrayBackend()}
+   * @return the array factory
+   */
+  @Deprecated
   protected final ArrayFactory getArrayFactory() {
-    return factory;
+    return getArrayBackend().getArrayFactory();
+  }
+
+  /**
+   * Returns the array backend
+   * 
+   * @return the array backend
+   */
+  public ArrayBackend getArrayBackend() {
+    return backend;
   }
 
   @Override

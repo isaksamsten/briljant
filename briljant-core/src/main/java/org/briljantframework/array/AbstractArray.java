@@ -44,6 +44,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
+import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.data.index.ObjectComparator;
 
@@ -57,12 +58,12 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   private final Comparator<T> comparator = ObjectComparator.getInstance();
 
-  protected AbstractArray(ArrayFactory bj, int[] shape) {
-    super(bj, shape);
+  protected AbstractArray(ArrayBackend backend, int[] shape) {
+    super(backend, shape);
   }
 
-  protected AbstractArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
-    super(bj, offset, shape, stride, majorStride);
+  protected AbstractArray(ArrayBackend backend, int offset, int[] shape, int[] stride, int majorStride) {
+    super(backend, offset, shape, stride, majorStride);
   }
 
   @Override
@@ -214,7 +215,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   @Override
   public DoubleArray mapToDouble(ToDoubleFunction<? super T> f) {
-    DoubleArray array = getArrayFactory().newDoubleArray(getShape());
+    DoubleArray array = getArrayBackend().getArrayFactory().newDoubleArray(getShape());
     for (int i = 0; i < size(); i++) {
       array.set(i, f.applyAsDouble(get(i)));
     }
@@ -223,7 +224,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   @Override
   public LongArray mapToLong(ToLongFunction<? super T> f) {
-    LongArray array = getArrayFactory().newLongArray(getShape());
+    LongArray array = getArrayBackend().getArrayFactory().newLongArray(getShape());
     for (int i = 0; i < size(); i++) {
       array.set(i, f.applyAsLong(get(i)));
     }
@@ -232,7 +233,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   @Override
   public IntArray mapToInt(ToIntFunction<? super T> f) {
-    IntArray array = getArrayFactory().newIntArray(getShape());
+    IntArray array = getArrayBackend().getArrayFactory().newIntArray(getShape());
     for (int i = 0; i < size(); i++) {
       array.set(i, f.applyAsInt(get(i)));
     }
@@ -241,7 +242,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   @Override
   public ComplexArray mapToComplex(Function<? super T, Complex> f) {
-    ComplexArray array = getArrayFactory().newComplexArray(getShape());
+    ComplexArray array = getArrayBackend().getArrayFactory().newComplexArray(getShape());
     for (int i = 0; i < size(); i++) {
       array.set(i, f.apply(get(i)));
     }
@@ -250,7 +251,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   @Override
   public <U> Array<U> map(Function<? super T, ? extends U> f) {
-    Array<U> array = getArrayFactory().newArray(getShape());
+    Array<U> array = getArrayBackend().getArrayFactory().newArray(getShape());
     for (int i = 0; i < size(); i++) {
       array.set(i, f.apply(get(i)));
     }
@@ -266,7 +267,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   @Override
   public DoubleArray asDouble(ToDoubleFunction<? super T> to, DoubleFunction<T> from) {
-    return new AsDoubleArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsDoubleArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
       protected double getElement(int i) {
@@ -294,7 +295,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   @Override
   public IntArray asInt(ToIntFunction<? super T> to, IntFunction<T> from) {
-    return new AsIntArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsIntArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
       protected void setElement(int i, int value) {
@@ -322,7 +323,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   @Override
   public LongArray asLong(ToLongFunction<? super T> to, LongFunction<T> from) {
-    return new AsLongArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsLongArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
       protected void setElement(int i, long value) {
@@ -350,7 +351,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   @Override
   public BooleanArray asBoolean(Function<? super T, Boolean> to, Function<Boolean, T> from) {
-    return new AsBooleanArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsBooleanArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
       protected boolean getElement(int i) {
@@ -378,7 +379,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   @Override
   public ComplexArray asComplex(Function<? super T, Complex> to, Function<Complex, T> from) {
-    return new AsComplexArray(getArrayFactory(), getOffset(), getShape(), getStride(),
+    return new AsComplexArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
       protected Complex getElement(int i) {
@@ -432,7 +433,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   @Override
   public BooleanArray where(Predicate<T> predicate) {
-    BooleanArray array = getArrayFactory().newBooleanArray(getShape());
+    BooleanArray array = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       array.set(i, predicate.test(get(i)));
     }
@@ -442,7 +443,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   @Override
   public BooleanArray where(Array<T> other, BiPredicate<T, T> predicate) {
     Check.dimension(this, other);
-    BooleanArray array = getArrayFactory().newBooleanArray(getShape());
+    BooleanArray array = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       array.set(i, predicate.test(get(i), other.get(i)));
     }

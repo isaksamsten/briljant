@@ -24,6 +24,7 @@ import java.util.Objects;
 
 import org.briljantframework.array.AbstractBooleanArray;
 import org.briljantframework.array.BooleanArray;
+import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 
 /**
@@ -33,35 +34,35 @@ class BaseBooleanArray extends AbstractBooleanArray {
 
   private final boolean[] data;
 
-  BaseBooleanArray(ArrayFactory bj, int size) {
-    super(bj, size);
+  BaseBooleanArray(ArrayBackend backend, int size) {
+    super(backend, size);
     data = new boolean[size];
   }
 
-  BaseBooleanArray(ArrayFactory bj, boolean[] data) {
-    super(bj, Objects.requireNonNull(data).length);
+  BaseBooleanArray(ArrayBackend backend, boolean[] data) {
+    super(backend, Objects.requireNonNull(data).length);
     this.data = data;
   }
 
-  public BaseBooleanArray(ArrayFactory bj, int[] shape) {
+  public BaseBooleanArray(ArrayBackend bj, int[] shape) {
     super(bj, shape);
     this.data = new boolean[size()];
   }
 
-  public BaseBooleanArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride,
-      boolean[] data) {
+  public BaseBooleanArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
+                          boolean[] data) {
     super(bj, offset, shape, stride, majorStride);
     this.data = data;
   }
 
   @Override
   public BooleanArray asView(int offset, int[] shape, int[] stride) {
-    return new BaseBooleanArray(getArrayFactory(), offset, shape, stride, majorStride, data);
+    return new BaseBooleanArray(getArrayBackend(), offset, shape, stride, majorStride, data);
   }
 
   @Override
   public BooleanArray newEmptyArray(int... shape) {
-    return new BaseBooleanArray(getArrayFactory(), shape);
+    return new BaseBooleanArray(getArrayBackend(), shape);
   }
 
   @Override

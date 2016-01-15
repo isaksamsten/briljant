@@ -20,7 +20,7 @@
  */
 package org.briljantframework.array;
 
-import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.array.api.ArrayBackend;
 
 /**
  * Class for views over long arrays.
@@ -29,13 +29,13 @@ import org.briljantframework.array.api.ArrayFactory;
  */
 abstract class AsLongArray extends AbstractLongArray {
 
-  AsLongArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
-    super(bj, offset, shape, stride, majorStride);
+  AsLongArray(ArrayBackend backend, int offset, int[] shape, int[] stride, int majorStride) {
+    super(backend, offset, shape, stride, majorStride);
   }
 
   @Override
   public LongArray asView(int offset, int[] shape, int[] stride) {
-    return new AsLongArray(getArrayFactory(), offset, shape, stride, majorStride) {
+    return new AsLongArray(getArrayBackend(), offset, shape, stride, majorStride) {
       @Override
       protected void setElement(int i, long value) {
         AsLongArray.this.setElement(i, value);
@@ -55,7 +55,7 @@ abstract class AsLongArray extends AbstractLongArray {
 
   @Override
   public LongArray newEmptyArray(int... shape) {
-    return getArrayFactory().newLongArray(shape);
+    return getArrayBackend().getArrayFactory().newLongArray(shape);
   }
 
   @Override

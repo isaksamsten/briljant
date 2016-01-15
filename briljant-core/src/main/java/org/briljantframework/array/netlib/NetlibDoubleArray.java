@@ -28,7 +28,7 @@ import net.mintern.primitive.comparators.DoubleComparator;
 
 import org.briljantframework.array.AbstractDoubleArray;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.array.api.ArrayBackend;
 
 import com.github.fommil.netlib.BLAS;
 
@@ -40,40 +40,40 @@ class NetlibDoubleArray extends AbstractDoubleArray {
   private static BLAS blas = BLAS.getInstance();
   private final double[] data;
 
-  NetlibDoubleArray(ArrayFactory bj, int size) {
-    super(bj, new int[] {size});
+  NetlibDoubleArray(ArrayBackend backend, int size) {
+    super(backend, new int[] {size});
     data = new double[size];
   }
 
-  NetlibDoubleArray(ArrayFactory bj, double[] data) {
+  NetlibDoubleArray(ArrayBackend bj, double[] data) {
     super(bj, new int[] {Objects.requireNonNull(data).length});
     this.data = data;
   }
 
-  public NetlibDoubleArray(ArrayFactory bj, int[] shape) {
+  public NetlibDoubleArray(ArrayBackend bj, int[] shape) {
     super(bj, shape);
     this.data = new double[size()];
   }
 
-  public NetlibDoubleArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride,
+  public NetlibDoubleArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
       double[] data) {
     super(bj, offset, shape, stride, majorStride);
     this.data = data;
   }
 
-  public NetlibDoubleArray(ArrayFactory bj, double[] data, int rows, int columns) {
+  public NetlibDoubleArray(ArrayBackend bj, double[] data, int rows, int columns) {
     super(bj, new int[] {rows, columns});
     this.data = data;
   }
 
   @Override
   public DoubleArray asView(int offset, int[] shape, int[] stride) {
-    return new NetlibDoubleArray(getArrayFactory(), offset, shape, stride, majorStride, data);
+    return new NetlibDoubleArray(getArrayBackend(), offset, shape, stride, majorStride, data);
   }
 
   @Override
   public DoubleArray newEmptyArray(int... shape) {
-    return new NetlibDoubleArray(getArrayFactory(), shape);
+    return new NetlibDoubleArray(getArrayBackend(), shape);
   }
 
   @Override
@@ -84,7 +84,7 @@ class NetlibDoubleArray extends AbstractDoubleArray {
   @Override
   public DoubleArray copy() {
     if (dims() == 1 && stride(0) == 1 && getOffset() == 0) {
-      return new NetlibDoubleArray(getArrayFactory(), Arrays.copyOf(data, size()));
+      return new NetlibDoubleArray(getArrayBackend(), Arrays.copyOf(data, size()));
     }
     return super.copy();
   }

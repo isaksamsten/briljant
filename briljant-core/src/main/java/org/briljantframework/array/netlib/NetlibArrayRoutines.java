@@ -24,6 +24,7 @@ import org.briljantframework.Check;
 import org.briljantframework.array.ArrayOperation;
 import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.base.BaseArrayRoutines;
 
 import com.github.fommil.netlib.BLAS;
@@ -37,6 +38,10 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
 
   protected static final String VECTOR_REQUIRED = "vector required";
   private final static BLAS blas = BLAS.getInstance();
+
+  protected NetlibArrayRoutines(ArrayBackend backend) {
+    super(backend);
+  }
 
   @Override
   public double inner(DoubleArray a, DoubleArray b) {

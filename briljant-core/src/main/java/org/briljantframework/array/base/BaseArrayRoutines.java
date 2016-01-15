@@ -37,6 +37,7 @@ import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
+import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayRoutines;
 import org.briljantframework.complex.MutableComplex;
 import org.briljantframework.exceptions.MultiDimensionMismatchException;
@@ -51,8 +52,11 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   protected static final double LOG_2 = Math.log(2);
   protected static final double EPS = 1e-10;
+  protected final ArrayBackend backend;
 
-  protected BaseArrayRoutines() {}
+  protected BaseArrayRoutines(ArrayBackend backend) {
+    this.backend = backend;
+  }
 
   @Override
   public double mean(DoubleArray x) {

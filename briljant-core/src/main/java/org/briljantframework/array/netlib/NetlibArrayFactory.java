@@ -21,6 +21,7 @@
 package org.briljantframework.array.netlib;
 
 import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.base.BaseArrayFactory;
 
 /**
@@ -28,15 +29,17 @@ import org.briljantframework.array.base.BaseArrayFactory;
  */
 class NetlibArrayFactory extends BaseArrayFactory {
 
-  public NetlibArrayFactory() {}
+  public NetlibArrayFactory(ArrayBackend backend) {
+    super(backend);
+  }
 
   @Override
   public DoubleArray newDoubleVector(double[] data) {
-    return new NetlibDoubleArray(this, data);
+    return new NetlibDoubleArray(backend, data);
   }
 
   @Override
   public DoubleArray newDoubleArray(int... shape) {
-    return new NetlibDoubleArray(this, shape);
+    return new NetlibDoubleArray(backend, shape);
   }
 }

@@ -30,6 +30,7 @@ import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
 import org.briljantframework.array.Range;
+import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 
 /**
@@ -39,13 +40,15 @@ import org.briljantframework.array.api.ArrayFactory;
  */
 public class BaseArrayFactory implements ArrayFactory {
 
-  protected BaseArrayFactory() {
+  protected final ArrayBackend backend;
 
+  protected BaseArrayFactory(ArrayBackend backend) {
+    this.backend = backend;
   }
 
   @Override
   public <T> Array<T> newVector(T[] data) {
-    return new BaseReferenceArray<T>(this, data);
+    return new BaseReferenceArray<T>(backend, data);
   }
 
   @Override
@@ -68,7 +71,7 @@ public class BaseArrayFactory implements ArrayFactory {
 
   @Override
   public <T> Array<T> newArray(int... shape) {
-    return new BaseReferenceArray<>(this, shape);
+    return new BaseReferenceArray<>(backend, shape);
   }
 
   @Override
@@ -91,12 +94,12 @@ public class BaseArrayFactory implements ArrayFactory {
 
   @Override
   public BooleanArray newBooleanVector(boolean[] data) {
-    return new BaseBooleanArray(this, data);
+    return new BaseBooleanArray(backend, data);
   }
 
   @Override
   public BooleanArray newBooleanArray(int... shape) {
-    return new BaseBooleanArray(this, shape);
+    return new BaseBooleanArray(backend, shape);
   }
 
   @Override
@@ -119,12 +122,12 @@ public class BaseArrayFactory implements ArrayFactory {
 
   @Override
   public IntArray newIntVector(int[] data) {
-    return new BaseIntArray(this, true, data);
+    return new BaseIntArray(backend, true, data);
   }
 
   @Override
   public IntArray newIntArray(int... shape) {
-    return new BaseIntArray(this, shape);
+    return new BaseIntArray(backend, shape);
   }
 
   @Override
@@ -147,12 +150,12 @@ public class BaseArrayFactory implements ArrayFactory {
 
   @Override
   public LongArray newLongVector(long[] data) {
-    return new BaseLongArray(this, data);
+    return new BaseLongArray(backend, data);
   }
 
   @Override
   public LongArray newLongArray(int... shape) {
-    return new BaseLongArray(this, shape);
+    return new BaseLongArray(backend, shape);
   }
 
   @Override
@@ -175,12 +178,12 @@ public class BaseArrayFactory implements ArrayFactory {
 
   @Override
   public DoubleArray newDoubleVector(double[] data) {
-    return new BaseDoubleArray(this, data);
+    return new BaseDoubleArray(backend, data);
   }
 
   @Override
   public DoubleArray newDoubleArray(int... shape) {
-    return new BaseDoubleArray(this, shape);
+    return new BaseDoubleArray(backend, shape);
   }
 
   @Override
@@ -203,7 +206,7 @@ public class BaseArrayFactory implements ArrayFactory {
 
   @Override
   public ComplexArray newComplexVector(Complex[] data) {
-    return new BaseComplexArray(this, data);
+    return new BaseComplexArray(backend, data);
   }
 
   public ComplexArray newComplexVector(double... data) {
@@ -216,7 +219,7 @@ public class BaseArrayFactory implements ArrayFactory {
 
   @Override
   public ComplexArray newComplexArray(int... shape) {
-    return new BaseComplexArray(this, shape);
+    return new BaseComplexArray(backend, shape);
   }
 
   @Override
@@ -247,7 +250,7 @@ public class BaseArrayFactory implements ArrayFactory {
 
   @Override
   public Range range(int start, int end, int step) {
-    return new BaseRange(this, start, end, step);
+    return new BaseRange(backend, start, end, step);
   }
 
   @Override

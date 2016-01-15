@@ -20,7 +20,7 @@
  */
 package org.briljantframework.array;
 
-import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.array.api.ArrayBackend;
 
 /**
  * Class for views over arrays.
@@ -29,18 +29,18 @@ import org.briljantframework.array.api.ArrayFactory;
  */
 abstract class AsArray<T> extends AbstractArray<T> {
 
-  AsArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
-    super(bj, offset, shape, stride, majorStride);
+  AsArray(ArrayBackend backend, int offset, int[] shape, int[] stride, int majorStride) {
+    super(backend, offset, shape, stride, majorStride);
   }
 
   AsArray(AbstractBaseArray<?> array) {
-    super(array.getArrayFactory(), array.getOffset(), array.getShape(), array.getStride(), array
+    super(array.getArrayBackend(), array.getOffset(), array.getShape(), array.getStride(), array
         .getMajorStrideIndex());
   }
 
   @Override
   public Array<T> asView(int offset, int[] shape, int[] stride) {
-    return new AsArray<T>(getArrayFactory(), offset, shape, stride, majorStride) {
+    return new AsArray<T>(getArrayBackend(), offset, shape, stride, majorStride) {
       @Override
       protected int elementSize() {
         return AsArray.this.elementSize();
@@ -60,6 +60,6 @@ abstract class AsArray<T> extends AbstractArray<T> {
 
   @Override
   public Array<T> newEmptyArray(int... shape) {
-    return getArrayFactory().newArray(shape);
+    return getArrayBackend().getArrayFactory().newArray(shape);
   }
 }

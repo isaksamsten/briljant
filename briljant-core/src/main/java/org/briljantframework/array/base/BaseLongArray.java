@@ -27,6 +27,7 @@ import net.mintern.primitive.comparators.LongComparator;
 
 import org.briljantframework.array.AbstractLongArray;
 import org.briljantframework.array.LongArray;
+import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 
 /**
@@ -36,17 +37,17 @@ class BaseLongArray extends AbstractLongArray {
 
   private long[] data;
 
-  BaseLongArray(ArrayFactory bj, int[] shape) {
+  BaseLongArray(ArrayBackend bj, int[] shape) {
     super(bj, shape);
     this.data = new long[size()];
   }
 
-  BaseLongArray(ArrayFactory bj, long[] data) {
+  BaseLongArray(ArrayBackend bj, long[] data) {
     super(bj, new int[] {Objects.requireNonNull(data).length});
     this.data = data;
   }
 
-  BaseLongArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride, long[] data) {
+  BaseLongArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride, long[] data) {
     super(bj, offset, shape, stride, majorStride);
     this.data = data;
   }
@@ -72,12 +73,12 @@ class BaseLongArray extends AbstractLongArray {
 
   @Override
   public LongArray asView(int offset, int[] shape, int[] stride) {
-    return new BaseLongArray(getArrayFactory(), offset, shape, stride, majorStride, data);
+    return new BaseLongArray(getArrayBackend(), offset, shape, stride, majorStride, data);
   }
 
   @Override
   public LongArray newEmptyArray(int... shape) {
-    return new BaseLongArray(getArrayFactory(), shape);
+    return new BaseLongArray(getArrayBackend(), shape);
   }
 
   @Override

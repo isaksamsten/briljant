@@ -64,13 +64,13 @@ import org.briljantframework.sort.QuickSort;
  * <pre>
  * ArrayBackend backend = new BaseArrayBackend();
  * ArrayFactory factory = backend.getArrayFactory();
- *
+ * 
  * DoubleArray x = factory.newDoubleArray(3, 3);
  * x.assign(10);
- *
+ * 
  * // assuming that Arrays are using the default NetlibArrayBackend
  * DoubleArray y = Arrays.newDoubleArray(3, 3);
- *
+ * 
  * // This will be slow since the array created by the BaseArrayBackend
  * // cannot be used by the NetlibArrayBackend
  * Arrays.dot(x, y);
@@ -115,8 +115,7 @@ public final class Arrays {
     linalg = backend.getLinearAlgebraRoutines();
   }
 
-  private Arrays() {
-  }
+  private Arrays() {}
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#newArray(int...)
@@ -1256,7 +1255,7 @@ public final class Arrays {
       public E get(int index) {
         E x = arrays.get(index);
         return x.asView(newShape,
-                        StrideUtils.broadcastStrides(x.getStride(), x.getShape(), newShape));
+            StrideUtils.broadcastStrides(x.getStride(), x.getShape(), newShape));
       }
 
       @Override
@@ -1319,8 +1318,8 @@ public final class Arrays {
     Check.argument(newShape.length > 0 && x.dims() <= newShape.length, "to few new dimensions");
     int[] oldShape = x.getShape();
     Check.argument(ShapeUtils.isBroadcastCompatible(oldShape, newShape),
-                   "Can't broadcast array with shape %s to %s", java.util.Arrays.toString(oldShape),
-                   java.util.Arrays.toString(newShape));
+        "Can't broadcast array with shape %s to %s", java.util.Arrays.toString(oldShape),
+        java.util.Arrays.toString(newShape));
 
     int[] oldStrides = x.getStride();
     if (java.util.Arrays.equals(oldShape, newShape)) {
@@ -1720,7 +1719,7 @@ public final class Arrays {
    *      DoubleArray)
    */
   public static DoubleArray dot(ArrayOperation transA, ArrayOperation transB, DoubleArray a,
-                                double alpha, DoubleArray b) {
+      double alpha, DoubleArray b) {
     Check.argument(a.isMatrix() && b.isMatrix(), "require 2d-arrays");
     int m = a.size(transA == ArrayOperation.KEEP ? 0 : 1);
     int bm = b.size(transB == ArrayOperation.KEEP ? 0 : 1);
@@ -1730,7 +1729,7 @@ public final class Arrays {
       throw new IllegalArgumentException("empty result");
     }
     if (b.size(transB == ArrayOperation.KEEP ? 0 : 1) != a.size(transA == ArrayOperation.KEEP ? 1
-                                                                                              : 0)) {
+        : 0)) {
       throw new MultiDimensionMismatchException(a, b);
     }
     DoubleArray c = doubleArray(m, n);
@@ -1743,7 +1742,7 @@ public final class Arrays {
    *      double, DoubleArray)
    */
   public static void gemm(ArrayOperation transA, ArrayOperation transB, double alpha,
-                          DoubleArray a, DoubleArray b, double beta, DoubleArray c) {
+      DoubleArray a, DoubleArray b, double beta, DoubleArray c) {
     ARRAY_ROUTINES.gemm(transA, transB, alpha, a, b, beta, c);
   }
 
@@ -1771,7 +1770,7 @@ public final class Arrays {
    * @see #dot(ArrayOperation, ArrayOperation, DoubleArray, double, DoubleArray)
    */
   public static DoubleArray dot(ArrayOperation transA, ArrayOperation transB, DoubleArray a,
-                                DoubleArray b) {
+      DoubleArray b) {
     return dot(transA, transB, a, 1.0, b);
   }
 
@@ -1900,7 +1899,7 @@ public final class Arrays {
    *      org.briljantframework.array.DoubleArray)
    */
   public static void gemv(ArrayOperation transA, double alpha, DoubleArray a, DoubleArray x,
-                          double beta, DoubleArray y) {
+      double beta, DoubleArray y) {
     ARRAY_ROUTINES.gemv(transA, alpha, a, x, beta, y);
   }
 

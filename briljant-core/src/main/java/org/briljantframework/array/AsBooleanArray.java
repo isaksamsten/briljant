@@ -20,7 +20,7 @@
  */
 package org.briljantframework.array;
 
-import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.array.api.ArrayBackend;
 
 /**
  * Class for views over boolean arrays.
@@ -29,13 +29,13 @@ import org.briljantframework.array.api.ArrayFactory;
  */
 abstract class AsBooleanArray extends AbstractBooleanArray {
 
-  AsBooleanArray(ArrayFactory bj, int offset, int[] shape, int[] stride, int majorStride) {
-    super(bj, offset, shape, stride, majorStride);
+  AsBooleanArray(ArrayBackend backend, int offset, int[] shape, int[] stride, int majorStride) {
+    super(backend, offset, shape, stride, majorStride);
   }
 
   @Override
   public BooleanArray asView(int offset, int[] shape, int[] stride) {
-    return new AsBooleanArray(getArrayFactory(), offset, shape, stride, majorStride) {
+    return new AsBooleanArray(getArrayBackend(), offset, shape, stride, majorStride) {
       @Override
       protected boolean getElement(int i) {
         return AsBooleanArray.this.getElement(i);
@@ -55,7 +55,7 @@ abstract class AsBooleanArray extends AbstractBooleanArray {
 
   @Override
   public BooleanArray newEmptyArray(int... shape) {
-    return getArrayFactory().newBooleanArray(shape);
+    return getArrayBackend().getArrayFactory().newBooleanArray(shape);
   }
 
   @Override

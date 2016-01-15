@@ -49,7 +49,7 @@ public class BaseArrayBackend implements ArrayBackend {
   @Override
   public ArrayFactory getArrayFactory() {
     if (arrayFactory == null) {
-      arrayFactory = new BaseArrayFactory();
+      arrayFactory = new BaseArrayFactory(this);
     }
     return arrayFactory;
   }
@@ -57,7 +57,7 @@ public class BaseArrayBackend implements ArrayBackend {
   @Override
   public ArrayRoutines getArrayRoutines() {
     if (arrayRoutines == null) {
-      arrayRoutines = new BaseArrayRoutines();
+      arrayRoutines = new BaseArrayRoutines(this);
     }
     return arrayRoutines;
   }
