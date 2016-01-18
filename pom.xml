@@ -33,6 +33,7 @@
   <modules>
     <module>briljant-core</module>
     <module>briljant-dataset</module>
+    <module>briljant-kotlin</module>
   </modules>
 
   <properties>
