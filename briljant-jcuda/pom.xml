@@ -1,0 +1,119 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.briljantframework</groupId>
+    <artifactId>briljant</artifactId>
+    <version>0.3-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>briljant-jcuda</artifactId>
+  <packaging>jar</packaging>
+  <name>Briljant JCuda</name>
+  <description>Speed up array routines using GPU:s</description>
+
+  <properties>
+    <jcuda.version>0.7.5</jcuda.version>
+  </properties>
+
+  <build>
+    <resources>
+      <!-- Include the external jar folder as a resource to include the
+      jcuda license when building and including the binaries -->
+      <resource>
+        <filtering>true</filtering>
+        <directory>${project.basedir}/jar</directory>
+        <targetPath>${project.build.outputDirectory}/jcuda</targetPath>
+        <includes>
+          <include>jcuda-license.txt</include>
+        </includes>
+      </resource>
+    </resources>
+
+    <plugins>
+      <!-- Include the required binaries during build since they are not available in central -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.10</version>
+        <executions>
+          <execution>
+            <id>unpack-jcuda</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+              <stripVersion>true</stripVersion>
+              <excludeTransitive>true</excludeTransitive>
+              <includeArtifactIds>jcuda,jcublas</includeArtifactIds>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>2.4</version>
+        <executions>
+          <execution>
+            <id>install-jcuda</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>install-file</goal>
+            </goals>
+            <configuration>
+              <groupId>org.jcuda</groupId>
+              <artifactId>jcuda</artifactId>
+              <version>${jcuda.version}</version>
+              <packaging>jar</packaging>
+              <file>${pom.basedir}/jar/jcuda-${jcuda.version}.jar</file>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>install-jcuda-jcublas</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>install-file</goal>
+            </goals>
+            <configuration>
+              <groupId>org.jcuda</groupId>
+              <artifactId>jcublas</artifactId>
+              <version>${jcuda.version}</version>
+              <packaging>jar</packaging>
+              <file>${pom.basedir}/jar/jcublas-${jcuda.version}.jar</file>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>briljant-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- These dependencies are installed during initialization. -->
+    <!-- They are also not exported but bundled during build -->
+    <dependency>
+      <groupId>org.jcuda</groupId>
+      <artifactId>jcuda</artifactId>
+      <version>${jcuda.version}</version>
+      <!--<scope>provided</scope>-->
+    </dependency>
+
+    <dependency>
+      <groupId>org.jcuda</groupId>
+      <artifactId>jcublas</artifactId>
+      <version>${jcuda.version}</version>
+      <!--<scope>provided</scope>-->
+    </dependency>
+  </dependencies>
+</project>
