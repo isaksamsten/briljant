@@ -186,8 +186,59 @@ public interface ArrayFactory {
    */
   ComplexArray newComplexArray(int... shape);
 
+  /**
+   * Create a 1d-array with values sampled from the normal (gaussian) distribution with mean
+   * {@code 0} and standard deviation {@code 1}.
+   *
+   * <p>
+   * Example
+   *
+   * <pre>
+   * {@code
+   * > Arrays.randn(9).reshape(3, 3);
+   * array([[0.168, -0.297, -0.374],
+   *        [1.030, -1.465,  0.636],
+   *        [0.957, -0.990,  0.498]] type: double)
+   * }
+   * </pre>
+   *
+   * @param size the size of the array
+   * @return a new 1d-array
+   */
+  DoubleArray randn(int size);
+
+  /**
+   * Create a 1d-array with values sampled uniformly from the range {@code [-1, 1]}
+   * <p>
+   * Example
+   *
+   * <pre>
+   * {@code
+   * > Arrays.rand(4).reshape(2,2)
+   * array([[0.467, 0.898],
+   *        [0.568, 0.103]] type: double)
+   * }
+   * </pre>
+   *
+   * @param size the size of the array
+   * @return a new 1d-array
+   */
+  DoubleArray rand(int size);
+
+  /**
+   * Creates a double array initialized with ones.
+   * 
+   * @param shape the shape of the array
+   * @return a new double array
+   */
   DoubleArray ones(int... shape);
 
+  /**
+   * Creates a double array initialized with zeroes.
+   * 
+   * @param shape the shape of the array
+   * @return a new double array
+   */
   DoubleArray zeros(int... shape);
 
   /**

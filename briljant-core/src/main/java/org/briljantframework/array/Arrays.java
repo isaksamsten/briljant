@@ -35,7 +35,6 @@ import net.mintern.primitive.comparators.IntComparator;
 import net.mintern.primitive.comparators.LongComparator;
 
 import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.distribution.RealDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.apache.commons.math3.exception.NotStrictlyPositiveException;
@@ -98,7 +97,6 @@ public final class Arrays {
    */
   public static final LinearAlgebraRoutines linalg;
 
-  private static final RealDistribution normalDistribution = new NormalDistribution(0, 1);
   private static final RealDistribution uniformDistribution = new UniformRealDistribution(-1, 1);
   private static final ArrayFactory ARRAY_FACTORY;
   private static final ArrayRoutines ARRAY_ROUTINES;
@@ -217,26 +215,17 @@ public final class Arrays {
   }
 
   /**
-   * Create a 1d-array with values sampled from the normal (gaussian) distribution with mean
-   * {@code 0} and standard deviation {@code 1}.
-   *
-   * <p>
-   * Example
-   *
-   * <pre>
-   * {@code
-   * > Arrays.randn(9).reshape(3, 3);
-   * array([[0.168, -0.297, -0.374],
-   *        [1.030, -1.465,  0.636],
-   *        [0.957, -0.990,  0.498]] type: double)
-   * }
-   * </pre>
-   *
-   * @param size the size of the array
-   * @return a new 1d-array
+   * @see ArrayFactory#rand(int)
+   */
+  public static DoubleArray rand(int size) {
+    return ARRAY_FACTORY.rand(size);
+  }
+
+  /**
+   * @see ArrayFactory#randn(int)
    */
   public static DoubleArray randn(int size) {
-    return rand(size, normalDistribution);
+    return ARRAY_FACTORY.randn(size);
   }
 
   /**
@@ -259,26 +248,6 @@ public final class Arrays {
    */
   public static DoubleArray doubleArray(int... shape) {
     return ARRAY_FACTORY.newDoubleArray(shape);
-  }
-
-  /**
-   * Create a 1d-array with values sampled uniformly from the range {@code [-1, 1]}
-   * <p>
-   * Example
-   *
-   * <pre>
-   * {@code
-   * > Arrays.rand(4).reshape(2,2)
-   * array([[0.467, 0.898],
-   *        [0.568, 0.103]] type: double)
-   * }
-   * </pre>
-   *
-   * @param size the size of the array
-   * @return a new 1d-array
-   */
-  public static DoubleArray rand(int size) {
-    return rand(size, uniformDistribution);
   }
 
   /**

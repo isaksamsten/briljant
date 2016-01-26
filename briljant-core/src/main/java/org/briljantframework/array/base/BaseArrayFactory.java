@@ -21,6 +21,9 @@
 package org.briljantframework.array.base;
 
 import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.distribution.RealDistribution;
+import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.briljantframework.Check;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.BaseArray;
@@ -39,6 +42,22 @@ import org.briljantframework.array.api.ArrayFactory;
  * @author Isak Karlsson
  */
 public class BaseArrayFactory implements ArrayFactory {
+
+  private static final ThreadLocal<RealDistribution> normalDistribution =
+      new ThreadLocal<RealDistribution>() {
+        @Override
+        protected RealDistribution initialValue() {
+          return new NormalDistribution(0, 1);
+        }
+      };
+
+  private static final ThreadLocal<RealDistribution> uniformDistribution =
+      new ThreadLocal<RealDistribution>() {
+        @Override
+        protected RealDistribution initialValue() {
+          return new UniformRealDistribution(0, 1);
+        }
+      };
 
   protected final ArrayBackend backend;
 
@@ -220,6 +239,26 @@ public class BaseArrayFactory implements ArrayFactory {
   @Override
   public ComplexArray newComplexArray(int... shape) {
     return new BaseComplexArray(backend, shape);
+  }
+
+  @Override
+  public DoubleArray randn(int size) {
+    RealDistribution distribution = normalDistribution.get();
+    DoubleArray array = newDoubleArray(size);
+    for (int i = 0; i < size; i++) {
+      array.set(i, distribution.sample());
+    }
+    return array;
+  }
+
+  @Override
+  public DoubleArray rand(int size) {
+    RealDistribution distribution = uniformDistribution.get();
+    DoubleArray array = newDoubleArray(size);
+    for (int i = 0; i < size; i++) {
+      array.set(i, distribution.sample());
+    }
+    return array;
   }
 
   @Override
