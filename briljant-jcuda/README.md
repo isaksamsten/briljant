@@ -9,12 +9,12 @@ and packages these at deployment time.
 ## Installation
 
 Since this backend is experimental, it is hidden behind a Maven
-profile enabled using the `-P`-flag. To install, use `mvn clean
+profile and enabled using the `-P`-flag. To install, use `mvn clean
 install -Pjcuda` and include
 `org.briljantframework:briljant-jcuda:0.3-SNAPSHOT` in your build
-file. Also don't forget to install the appropriate driver for your
+file. Also don't forget to install appropriate driver for your
 system.
 
-Note that it is only tested on OSX (10.11), which have some issues
-with SIP enabled.
+Note that it is only tested on OSX (10.11), which has some issues
+when SIP is enabled.
 
