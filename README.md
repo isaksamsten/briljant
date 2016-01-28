@@ -207,29 +207,26 @@ In your `build.gradle` or `pom.xml` reference
 
 Also don't forget to include maven local. (`mavenLocal()` in Gradle).
 
+If you want to include the experimental
+[CUDA](http://www.nvidia.com/object/cuda_home_new.html)-support you
+need to initialize the [JCuda](http://jcuda.org) dependencies and
+enable the `jcuda` Maven profile
+
+    mvn initialize -Pjcuda
+
+and then install as before but including `-Pjcuda`, i.e.,
+
+    mvn clean install -Pjcuda
+
 ## Contribute
 
-We would love your contributions! Come talk to us in our [chat
-room](https://gitter.im/isakkarlsson/briljant). Beware that in the current phase
-of development the code is changing rapidly so please talk to use before
-commiting to som major work!
-
-We prefer developing in [IntellijIDEA](http://www.jetbrains.com/idea/), to
-import the project use the ``maven`` importer:
-
-* File > Import Project
-* Import project from external module (select Maven)
-
-### Commit strategy
-
-This project employs this [git branching
-model](http://nvie.com/posts/a-successful-git-branching-model/).  In essence,
-the major work is committed to the `develop`-branch and once a release version
-is ready `master` and `develop` are merged.  Major features reside in there own
-branches which are merged to `develop` once completed.
+We would love your contributions! Come talk to us in our
+[chat room](https://gitter.im/isakkarlsson/briljant). Beware that in
+the current phase of development the code is changing rapidly so
+please talk to use before commiting to some major work!
 
 ## TODO
 
- * Improve testing
- * Assess the performance
- * Clean up the API for first release
+- [ ] Improve testing, esp., the BLAS integration
+- [ ] Increase the number of supported LAPACK routines
+- [ ] Implement the CUDA integration
