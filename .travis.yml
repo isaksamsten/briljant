@@ -2,5 +2,5 @@ language: java
 jdk:
   - oraclejdk8
 before_install:
-  - mvn initialize
+  - mvn initialize -Pjcuda
 install: mvn install -DskipTests=true -Dgpg.skip=true -Pjcuda
