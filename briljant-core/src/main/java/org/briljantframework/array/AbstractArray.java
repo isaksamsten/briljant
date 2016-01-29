@@ -25,6 +25,7 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiPredicate;
@@ -45,7 +46,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.data.index.ObjectComparator;
 
 /**
@@ -62,7 +62,8 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
     super(backend, shape);
   }
 
-  protected AbstractArray(ArrayBackend backend, int offset, int[] shape, int[] stride, int majorStride) {
+  protected AbstractArray(ArrayBackend backend, int offset, int[] shape, int[] stride,
+      int majorStride) {
     super(backend, offset, shape, stride, majorStride);
   }
 
@@ -298,13 +299,13 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
     return new AsIntArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
-      protected void setElement(int i, int value) {
-        AbstractArray.this.setElement(i, from.apply(value));
+      protected int getElement(int i) {
+        return to.applyAsInt(AbstractArray.this.getElement(i));
       }
 
       @Override
-      protected int getElement(int i) {
-        return to.applyAsInt(AbstractArray.this.getElement(i));
+      protected void setElement(int i, int value) {
+        AbstractArray.this.setElement(i, from.apply(value));
       }
 
       @Override
@@ -415,20 +416,6 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
       }
     }
     return convertToArray(list);
-  }
-
-  /**
-   * Converts a list to an array.
-   *
-   * @param list the list
-   * @return an array (as created by {@link #newEmptyArray(int...)})
-   */
-  protected Array<T> convertToArray(List<T> list) {
-    Array<T> array = newEmptyArray(list.size());
-    for (int i = 0; i < array.size(); i++) {
-      array.set(i, list.get(i));
-    }
-    return array;
   }
 
   @Override
@@ -549,8 +536,6 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
         AbstractArray.this.set(index, element);
         return oldElement;
       }
-
-
     };
   }
 
@@ -562,6 +547,25 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
       array[i] = get(i);
     }
     return (T[]) array;
+  }
+
+  /**
+   * Converts a list to an array.
+   *
+   * @param list the list
+   * @return an array (as created by {@link #newEmptyArray(int...)})
+   */
+  protected Array<T> convertToArray(List<T> list) {
+    Array<T> array = newEmptyArray(list.size());
+    for (int i = 0; i < array.size(); i++) {
+      array.set(i, list.get(i));
+    }
+    return array;
+  }
+
+  @Override
+  public Iterator<T> iterator() {
+    return toList().iterator();
   }
 
   protected abstract void setElement(int i, T value);

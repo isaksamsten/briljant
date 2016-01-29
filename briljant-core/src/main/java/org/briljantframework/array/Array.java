@@ -44,7 +44,7 @@ import org.briljantframework.Listable;
  * @author Isak Karlsson
  * @see BaseArray
  */
-public interface Array<T> extends BaseArray<Array<T>>, Listable<T> {
+public interface Array<T> extends BaseArray<Array<T>>, Listable<T>, Iterable<T> {
 
   /**
    * @see Arrays#vector(Object[])
