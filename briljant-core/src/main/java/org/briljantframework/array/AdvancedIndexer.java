@@ -30,32 +30,18 @@ import org.briljantframework.primitive.IntList;
  * An advanced indexer holds {@code n} int arrays of the same {@link #getShape() shape} used for
  * indexing index an array with {@code n} dimensions.
  *
- * <p/> This array
- *
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  * @see BasicIndex
  */
-public class AdvancedIndexer {
+public final class AdvancedIndexer {
 
   private final IntArray[] index;
   private final int[] shape;
 
-  private AdvancedIndexer(IntArray[] index, int[] shape) {
-    this.index = index;
-    this.shape = shape;
-  }
-
-  /**
-   * Returns an advanced indexer using the given arrays
-   *
-   * @param array the array to index
-   * @param arrays the arrays used for indexing
-   * @return a new indexer if advanced indexing is required; null otherwise (if all arrays are basic
-   *         indexers)
-   */
-  public static AdvancedIndexer getIndexer(BaseArray<?> array, List<? extends IntArray> arrays) {
+  public AdvancedIndexer(BaseArray<?> array, List<? extends IntArray> arrays) {
     if (arrays.stream().allMatch(AdvancedIndexer::isBasicIndexer)) {
-      return null;
+      this.index = null;
+      this.shape = null;
     } else {
       int[] shape = array.getShape();
       List<IntArray> advancedIndexes = new ArrayList<>();
@@ -156,17 +142,31 @@ public class AdvancedIndexer {
         }
       }
 
-      return new AdvancedIndexer(indexArrays, newShape);
+      this.index = indexArrays;
+      this.shape = newShape;
     }
   }
 
-  private static IntArray broadcastCompatible(IntArray i, int[] compatibleShape, int[] newShape) {
+  /**
+   * Returns an advanced indexer using the given arrays
+   *
+   * @param array  the array to index
+   * @param arrays the arrays used for indexing
+   * @return a new indexer if advanced indexing is required; null otherwise (if all arrays are basic
+   * indexers)
+   */
+  @Deprecated
+  public static AdvancedIndexer getIndexer(BaseArray<?> array, List<? extends IntArray> arrays) {
+    return new AdvancedIndexer(array, arrays);
+  }
+
+  private IntArray broadcastCompatible(IntArray i, int[] compatibleShape, int[] newShape) {
     return Arrays.broadcast(i.reshape(compatibleShape), newShape);
   }
 
   /**
    * Returns true if the given array is a basic indexer
-   * 
+   *
    * @param indexer the indexer
    * @return true if basic; false otherwise
    */
@@ -174,15 +174,32 @@ public class AdvancedIndexer {
     return (indexer instanceof Range && indexer.dims() == 1) || indexer == BasicIndex.ALL;
   }
 
+  public boolean isBasicIndexer() {
+    return index == null;
+  }
+
   public IntArray getIndex(int i) {
+    if (index == null) {
+      throw illegalStateBasicIndexer();
+    }
     return index[i];
   }
 
-  public IntArray[] getIndex() {
-    return index;
+  public int size() {
+    if (index == null) {
+      throw illegalStateBasicIndexer();
+    }
+    return index.length;
   }
 
   public int[] getShape() {
-    return shape;
+    if (shape == null) {
+      throw illegalStateBasicIndexer();
+    }
+    return shape.clone();
+  }
+
+  private IllegalStateException illegalStateBasicIndexer() {
+    return new IllegalStateException("basic indexer");
   }
 }

@@ -57,11 +57,12 @@ public final class Vectors {
 
   private Vectors() {}
 
-  public static <T, V extends Vector.Builder> Collector<T, ?, Vector> collector(Supplier<V> supplier) {
+  public static <T, V extends Vector.Builder> Collector<T, ?, Vector> collector(
+      Supplier<V> supplier) {
     return Collector.of(supplier, Vector.Builder::add, (left, right) -> {
       left.addAll(right.getView());
       return left;
-    }, Vector.Builder::build);
+    } , Vector.Builder::build);
   }
 
   public static DoubleVector rand(int size, RealDistribution source) {
@@ -444,7 +445,6 @@ public final class Vectors {
   public static double max(Vector v) {
     return v.doubleStream().filter(Is::NA).max().orElse(Na.DOUBLE);
   }
-
 
   /**
    * <p>

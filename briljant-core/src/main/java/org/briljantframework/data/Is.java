@@ -164,16 +164,6 @@ public final class Is {
   }
 
   /**
-   * Check if vector is NA-vector
-   *
-   * @param vector the vector
-   * @return true/false
-   */
-  public static boolean NA(Vector vector) {
-    return vector.size() == 0 || vector.stream(Logical.class).allMatch(Is::NA);
-  }
-
-  /**
    * Check if value is NA
    *
    * @param value the value

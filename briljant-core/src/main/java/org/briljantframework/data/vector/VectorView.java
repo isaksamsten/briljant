@@ -64,6 +64,10 @@ public abstract class VectorView extends AbstractVector {
     return parent.toArray(cls).get(Arrays.range(offset, size())); // TODO: check
   }
 
+  public Vector getDelegate() {
+    return parent;
+  }
+
   @Override
   public int size() {
     return length;

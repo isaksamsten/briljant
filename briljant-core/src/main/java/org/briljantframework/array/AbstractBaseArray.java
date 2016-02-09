@@ -89,7 +89,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   /**
    * Construct an empty base array with the specified shape.
-   * 
+   *
    * @param backend the array factor
    * @param shape the shape
    */
@@ -105,7 +105,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   /**
    * Construct an empty base array with the specified offset (i.e., where elements start), shape,
    * stride and majorStride
-   * 
+   *
    * @param backend the factory
    * @param offset the offset
    * @param shape the shape (<strong>not copied</strong>)
@@ -124,7 +124,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   /**
    * Returns the array factory
-   * 
+   *
    * @deprecated use {@link #getArrayBackend()}
    * @return the array factory
    */
@@ -135,7 +135,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   /**
    * Returns the array backend
-   * 
+   *
    * @return the array backend
    */
   public ArrayBackend getArrayBackend() {
@@ -326,8 +326,8 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
       int step = r.step();
 
       Check.argument(step > 0, "Illegal step size in dimension %s", step);
-      Check
-          .argument(start >= 0 && start <= start + end, ILLEGAL_DIMENSION_INDEX, start, i, size(i));
+      Check.argument(start >= 0 && start <= start + end, ILLEGAL_DIMENSION_INDEX, start, i,
+          size(i));
       Check.argument(end <= size(i), ILLEGAL_DIMENSION_INDEX, end, i, size(i));
       offset += start * stride[i];
       shape[i] = end;
@@ -383,12 +383,11 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     Check.argument(arrays.size() <= dims(), "too many indicies for array");
     Check.argument(arrays.size() > 0, "too few indices for array");
 
-    AdvancedIndexer indexer = AdvancedIndexer.getIndexer(this, arrays);
-    if (indexer == null) {
+    AdvancedIndexer indexer = new AdvancedIndexer(this, arrays);
+    if (indexer.isBasicIndexer()) {
       List<Range> ranges = arrays.stream().map(Range.class::cast).collect(Collectors.toList());
       return getView(ranges);
     } else {
-      IntArray[] indexArrays = indexer.getIndex();
       int[] newShape = indexer.getShape();
       // Since it's faster to linearly iterate a flat array we postpone reshaping it
       E to = newEmptyArray(ShapeUtils.size(newShape));
@@ -398,16 +397,18 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
       int size = to.size();
       for (int i = 0; i < size; i++) {
         for (int j = 0; j < dims; j++) {
-          int idx = indexArrays[j].get(i);
+          int idx = indexer.getIndex(j).get(i);
           if (idx >= 0 && idx < size(j)) {
             fromIndex[j] = idx;
           } else {
-            throw new IndexOutOfBoundsException(String.format(ILLEGAL_DIMENSION_INDEX, idx, j,
-                size(j)));
+            throw new IndexOutOfBoundsException(
+                String.format(ILLEGAL_DIMENSION_INDEX, idx, j, size(j)));
           }
         }
         to.set(i, from, fromIndex);
       }
+
+      // reshape the array to the intended shape
       return to.reshape(newShape);
     }
 
@@ -418,25 +419,25 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     Check.argument(arrays.size() <= dims(), "too many indicies for array");
     Check.argument(arrays.size() > 0, "too few indices for array");
 
-    AdvancedIndexer indexer = AdvancedIndexer.getIndexer(this, arrays);
-    if (indexer == null) {
+    AdvancedIndexer indexer = new AdvancedIndexer(this, arrays);
+    if (indexer.isBasicIndexer()) {
+      // if we got a basic indexer simply select the intended region and assign the value
       List<Range> ranges = arrays.stream().map(Range.class::cast).collect(Collectors.toList());
       getView(ranges).assign(value);
     } else {
-      IntArray[] indexArrays = indexer.getIndex();
-      int[] shape = indexer.getShape();
-      value = broadcast(value, shape);
+      // broadcast the value to the indexer shape
+      value = org.briljantframework.array.Arrays.broadcast(value, indexer.getShape());
       int size = value.size();
       int dims = dims();
       int[] toIndex = new int[dims];
       for (int i = 0; i < size; i++) {
         for (int j = 0; j < dims; j++) {
-          int idx = indexArrays[j].get(i);
+          int idx = indexer.getIndex(j).get(i);
           if (idx >= 0 && idx < size(j)) {
             toIndex[j] = idx;
           } else {
-            throw new IndexOutOfBoundsException(String.format(ILLEGAL_DIMENSION_INDEX, idx, j,
-                size(j)));
+            throw new IndexOutOfBoundsException(
+                String.format(ILLEGAL_DIMENSION_INDEX, idx, j, size(j)));
           }
         }
         set(toIndex, value, i);
@@ -449,9 +450,8 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     Check.state(isMatrix(), "Can only get view from 2d-arrays");
     Check.argument(rowOffset + rows <= rows() && colOffset + columns <= columns(),
         "Selected view is to large");
-    return asView(getOffset() + rowOffset * stride(0) + colOffset * stride(1), new int[] {rows,
-        columns}, getStride() // change the major stride
-    );
+    return asView(getOffset() + rowOffset * stride(0) + colOffset * stride(1),
+        new int[] {rows, columns}, getStride());
   }
 
   @Override
@@ -497,13 +497,13 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   @Override
   public final int rows() {
-    Check.state(isMatrix(), "Can only get number of rows of 2-d array");
+    Check.state(isMatrix(), "Can only get number of rows of 2-d arrays");
     return shape[0];
   }
 
   @Override
   public final int columns() {
-    Check.state(isMatrix(), "Can only get number of columns of 2-d array");
+    Check.state(isMatrix(), "Can only get number of columns of 2-d arrays");
     return shape[1];
   }
 
@@ -514,7 +514,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   @Override
   public final boolean isVector() {
-    return dims() == 1 || (dims() == 2 && (rows() == 1 || columns() == 1));
+    return dims() == 1 || (isMatrix() && (rows() == 1 || columns() == 1));
   }
 
   @Override
@@ -529,8 +529,8 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   @Override
   public boolean isView() {
-    return !(isContiguous() && offset == 0 && Arrays.equals(stride,
-        StrideUtils.computeStride(shape)));
+    return !(isContiguous() && offset == 0
+        && Arrays.equals(stride, StrideUtils.computeStride(shape)));
   }
 
   @Override
@@ -540,12 +540,11 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   @Override
   public final E transpose() {
+    // TODO: consider using the implementation provided in Arrays#transpose
     if (dims() == 1) {
       return asView(getOffset(), getShape(), getStride());
     } else {
-      return asView(getOffset(), StrideUtils.reverse(shape), StrideUtils.reverse(stride)
-      // , majorStride == 0 ? dims() - 1 : 0 // change the major stride
-      );
+      return asView(getOffset(), StrideUtils.reverse(shape), StrideUtils.reverse(stride));
     }
   }
 
