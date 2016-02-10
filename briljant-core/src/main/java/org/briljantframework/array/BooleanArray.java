@@ -27,14 +27,12 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
-import org.briljantframework.Listable;
-
 /**
  * A n-dimensional array of complex values.
  * 
  * @author Isak Karlsson
  */
-public interface BooleanArray extends BaseArray<BooleanArray>, Iterable<Boolean>, Listable<Boolean> {
+public interface BooleanArray extends BaseArray<BooleanArray>, Iterable<Boolean> {
 
   static BooleanArray trues(int... shape) {
     BooleanArray array = falses(shape);

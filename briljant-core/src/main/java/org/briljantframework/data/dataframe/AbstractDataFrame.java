@@ -43,7 +43,6 @@ import java.util.stream.Collector;
 import net.mintern.primitive.comparators.IntComparator;
 
 import org.briljantframework.Check;
-import org.briljantframework.array.Array;
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.DoubleArray;
@@ -555,28 +554,6 @@ public abstract class AbstractDataFrame implements DataFrame {
     return shallowCopy(getColumnIndex(), getIndex());
   }
 
-  @Override
-  public final <T> Array<T> toArray(Class<T> type) {
-    return toArray(type, UnaryOperator.identity());
-  }
-
-  @Override
-  public <T, R> Array<R> toArray(Class<T> type, Function<? super T, ? extends R> function) {
-    Array<R> matrix = Arrays.array(rows(), columns());
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        matrix.set(i, j, function.apply(getAt(type, i, j)));
-      }
-    }
-    return matrix;
-  }
-
-  @Override
-  public final DoubleArray toDoubleArray() {
-    return toDoubleArray(DoubleUnaryOperator.identity());
-  }
-
-  @Override
   public DoubleArray toDoubleArray(DoubleUnaryOperator operator) {
     DoubleArray matrix = Arrays.doubleArray(rows(), columns());
     for (int j = 0; j < columns(); j++) {

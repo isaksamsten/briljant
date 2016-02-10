@@ -23,8 +23,6 @@ package org.briljantframework.data.vector;
 import java.util.stream.IntStream;
 
 import org.briljantframework.Check;
-import org.briljantframework.array.Arrays;
-import org.briljantframework.array.IntArray;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.Transferable;
@@ -33,7 +31,6 @@ import org.briljantframework.data.index.IntIndex;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.resolver.Resolve;
 import org.briljantframework.data.resolver.Resolver;
-import org.briljantframework.exceptions.IllegalTypeException;
 import org.briljantframework.primitive.ArrayAllocations;
 
 /**
@@ -200,11 +197,6 @@ public class IntVector extends AbstractVector implements Transferable {
   @Override
   public final VectorType getType() {
     return VectorType.INT;
-  }
-
-  @Override
-  public IntArray toIntArray() throws IllegalTypeException {
-    return Arrays.intVector(java.util.Arrays.copyOf(buffer, size()));
   }
 
   public static final class Builder extends AbstractBuilder {

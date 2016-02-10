@@ -22,9 +22,6 @@ package org.briljantframework.data.vector;
 
 import java.util.Objects;
 
-import org.briljantframework.array.Array;
-import org.briljantframework.array.Arrays;
-
 /**
  * Provides a view over a vector.
  * 
@@ -57,11 +54,6 @@ public abstract class VectorView extends AbstractVector {
   @Override
   public boolean hasNA() {
     return parent.hasNA();
-  }
-
-  @Override
-  public <U> Array<U> toArray(Class<U> cls) {
-    return parent.toArray(cls).get(Arrays.range(offset, size())); // TODO: check
   }
 
   public Vector getDelegate() {

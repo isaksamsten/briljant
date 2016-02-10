@@ -20,14 +20,10 @@
  */
 package org.briljantframework.data.index;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import net.mintern.primitive.comparators.IntComparator;
 
-import org.briljantframework.Listable;
 import org.briljantframework.array.Range;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.sort.Swappable;
@@ -36,7 +32,7 @@ import org.briljantframework.sort.Swappable;
  * An immutable index which maps an object to a location and a location to an object.
  * 
  * <p/>
- * An index also defines an iteration order which can be altered using
+ * The index defines an iteration order which can be altered using
  * {@link Index.Builder#sortIterationOrder(IntComparator)}.
  *
  * @author Isak Karlsson
@@ -71,21 +67,32 @@ public interface Index extends List<Object>, Iterable<Object> {
    * @param collection a collection
    * @return a new index
    */
-  static Index of(Collection<Object> collection) {
+  static Index of(Collection<?> collection) {
     return ObjectIndex.of(collection);
   }
 
   /**
-   * Return an index from the given listable collection
+   * Return an index from the given iterable
    *
-   * @param listable a listable collection (i.e. a collection which can be transformed into a list)
+   * @param iterable the iterable
    * @return a new index
    */
-  static Index of(Listable<?> listable) {
-    if (listable instanceof Range && ((Range) listable).step() == 1) {
-      return new IntIndex(((Range) listable).start(), ((Range) listable).end());
+  @Deprecated
+  static Index of(Iterable<?> iterable) {
+    if (iterable instanceof Range && ((Range) iterable).step() == 1) {
+      return new IntIndex(((Range) iterable).start(), ((Range) iterable).end());
     }
-    return of(listable.toList());
+    return of(new AbstractCollection() {
+      @Override
+      public Iterator<?> iterator() {
+        return iterable.iterator();
+      }
+
+      @Override
+      public int size() {
+        throw new UnsupportedOperationException();
+      }
+    });
   }
 
   /**
@@ -93,7 +100,7 @@ public interface Index extends List<Object>, Iterable<Object> {
    *
    * @param values the values
    * @return a new index
-   */
+   */ // TODO(isak) no vararg; rename copyOf
   static Index of(Object... values) {
     return ObjectIndex.of(values);
   }

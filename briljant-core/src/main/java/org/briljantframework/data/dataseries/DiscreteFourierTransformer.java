@@ -31,6 +31,7 @@ import org.briljantframework.data.dataframe.transform.InvertibleTransformer;
 import org.briljantframework.data.vector.DoubleVector;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.data.vector.Vectors;
 
 /**
  * Performs a discrete fourier transformation.
@@ -43,7 +44,7 @@ public class DiscreteFourierTransformer implements InvertibleTransformer {
   public DataFrame transform(DataFrame x) {
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(Complex.class);
     for (Vector row : x.getRecords()) {
-      DoubleArray timeDomain = row.toDoubleArray();
+      DoubleArray timeDomain = Vectors.toDoubleArray(row);
       ComplexArray frequencyDomain = fft(timeDomain);
       Vector.Builder rowBuilder = VectorType.of(Complex.class).newBuilder(timeDomain.size());
       for (int i = 0; i < frequencyDomain.size(); i++) {
@@ -58,7 +59,7 @@ public class DiscreteFourierTransformer implements InvertibleTransformer {
   public DataFrame inverseTransform(DataFrame x) {
     DataSeriesCollection.Builder builder = new DataSeriesCollection.Builder(Double.class);
     for (Vector row : x.getRecords()) {
-      ComplexArray timeDomain = row.toComplexArray();
+      ComplexArray timeDomain = Vectors.toComplexArray(row);
       DoubleArray frequencyDomain = ifft(timeDomain).asDouble();
       Vector.Builder rowBuilder = new DoubleVector.Builder();
       for (int i = 0; i < frequencyDomain.size(); i++) {

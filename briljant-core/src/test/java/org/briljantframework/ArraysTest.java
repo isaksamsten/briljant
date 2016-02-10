@@ -25,6 +25,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import com.google.common.base.Predicates;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.ComplexArray;
@@ -36,8 +39,6 @@ import org.junit.Test;
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
 public class ArraysTest {
-
-
 
   @Test
   public void testSwapdimensions() throws Exception {

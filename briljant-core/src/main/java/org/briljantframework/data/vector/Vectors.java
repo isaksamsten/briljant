@@ -31,13 +31,19 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
+import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.distribution.RealDistribution;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.Check;
+import org.briljantframework.array.Array;
+import org.briljantframework.array.ComplexArray;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.Transferable;
@@ -50,19 +56,20 @@ import org.briljantframework.statistics.FastStatistics;
 
 /**
  * Utilities for handling vectors.
- * 
+ *
  * @author Isak Karlsson
  */
 public final class Vectors {
 
-  private Vectors() {}
+  private Vectors() {
+  }
 
   public static <T, V extends Vector.Builder> Collector<T, ?, Vector> collector(
       Supplier<V> supplier) {
     return Collector.of(supplier, Vector.Builder::add, (left, right) -> {
       left.addAll(right.getView());
       return left;
-    } , Vector.Builder::build);
+    }, Vector.Builder::build);
   }
 
   public static DoubleVector rand(int size, RealDistribution source) {
@@ -73,10 +80,58 @@ public final class Vectors {
     return v.build();
   }
 
+  public static <T> void copy(Class<T> t, Vector src, int srcStart, Array<T> dest, int destStart, int length) {
+    Check.argument(src.size() <= srcStart + length, "illegal source");
+    Check.argument(dest.size() <= destStart + length, "illegal destination");
+    for (int i = srcStart; i < length; i++) {
+      dest.set(destStart++, src.loc().get(t, i));
+    }
+  }
+
+  public static <T> void copy(Class<T> t, Vector src, Array<T> dest) {
+    copy(t, src, 0, dest, 0, src.size());
+  }
+
+  public static void copy(Vector src, int srcStart, DoubleArray dest, int destStart, int length) {
+    Check.argument(src.size() <= srcStart + length, "illegal source");
+    Check.argument(dest.size() <= destStart + length, "illegal destination");
+    for (int i = srcStart; i < length; i++) {
+      dest.set(destStart++, src.loc().getAsDouble(i));
+    }
+  }
+
+  public static <T> void copy(Vector src, DoubleArray dest) {
+    copy(src, 0, dest, 0, src.size());
+  }
+
+  public static <T> Array<T> toArray(Class<T> t, Vector v) {
+    return Array.copyOf(v.toList(t));
+  }
+
+  public static DoubleArray toDoubleArray(Vector v, DoubleUnaryOperator operator) {
+    DoubleArray a = DoubleArray.zeros(v.size());
+    for (int i = 0; i < v.size(); i++) {
+      a.set(i, operator.applyAsDouble(v.loc().getAsDouble(i)));
+    }
+    return a;
+  }
+
+  public static DoubleArray toDoubleArray(Vector v) {
+    return toDoubleArray(v, DoubleUnaryOperator.identity());
+  }
+
+  public static ComplexArray toComplexArray(Vector v) {
+    return ComplexArray.copyOf(v.toList(Complex.class));
+  }
+
+  public static IntArray toIntArray(Vector v) {
+    return IntArray.copyOf(v.toList(Integer.class));
+  }
+
   /**
    * Return a string representation of a vector
-   * 
-   * @param v the vector
+   *
+   * @param v   the vector
    * @param max the maximum number of elements to print before truncating
    * @return a string representation
    */
@@ -134,9 +189,9 @@ public final class Vectors {
    * given {@code Vector a}, {@code Vector b} and the index {@code i}, {@code find(a, b, i)} should
    * be preferred over {@code find(a, b.loc().get(i))}.
    *
-   * @param haystack the vector to search
+   * @param haystack     the vector to search
    * @param needleSource the source of the needle
-   * @param needle the needle in the source
+   * @param needle       the needle in the source
    * @return the (first) index of {@code needleSource.get(needle)} in {@code haystack} or {@code -1}
    */
   public static int find(Vector haystack, Vector needleSource, int needle) {
@@ -153,7 +208,7 @@ public final class Vectors {
    * found.
    *
    * @param haystack the haystack
-   * @param needle the needle
+   * @param needle   the needle
    * @return the index of {@code needle} or {@code -1}
    */
   @Deprecated
@@ -170,7 +225,7 @@ public final class Vectors {
   /**
    * Finds the index of the first value for which {@code predicate} returns true.
    *
-   * @param vector the vector
+   * @param vector    the vector
    * @param predicate the predicate
    * @return the index or {@code -1} if no value matched the predicate {@code true}
    */
@@ -188,7 +243,7 @@ public final class Vectors {
    * {@code end}.
    *
    * @param start the start value
-   * @param stop the end value
+   * @param stop  the end value
    * @return a vector
    */
   public static Vector linspace(double start, double stop) {
@@ -200,14 +255,14 @@ public final class Vectors {
    * Create a vector of length {@code num} with evenly spaced values between {@code start} and
    * {@code end}.
    * </p>
-   *
+   * <p>
    * <p>
    * Returns a vector of {@link VectorType#DOUBLE}
    * </p>
    *
    * @param start the start value
-   * @param stop the end value
-   * @param num the number of steps (i.e. intermediate values)
+   * @param stop  the end value
+   * @param num   the number of steps (i.e. intermediate values)
    * @return a vector
    */
   public static Vector linspace(double start, double stop, int num) {
@@ -227,12 +282,12 @@ public final class Vectors {
    * Split {@code vector} into {@code chunks}. Handles the case when {@code vector.size()} is not
    * evenly dividable by chunks by making some chunks larger.
    * </p>
-   *
+   * <p>
    * <p>
    * This implementation is lazy, i.e. chunking is done 'on-the-fly'. To get a list, {@code new
    * ArrayList<>(Vectors.split(vec, 10))}
    * </p>
-   *
+   * <p>
    * <p>
    * Ensures that {@code vector.getType()} is preserved.
    * </p>
@@ -287,7 +342,7 @@ public final class Vectors {
   /**
    * <p>
    * Computes the population standard deviation of {@code vector}.
-   *
+   * <p>
    * <p>
    * A vector of all {@code NA} returns {@code NA}
    *
@@ -319,12 +374,12 @@ public final class Vectors {
    * <p>
    * Computes the population standard deviation of {@code vector} using an already computed
    * {@code mean}.
-   *
+   * <p>
    * <p>
    * A vector of all {@code NA} returns {@code NA}
    *
    * @param vector the vector
-   * @param mean the mean
+   * @param mean   the mean
    * @return the standard deviation
    */
   public static double std(Vector vector, double mean) {
@@ -335,12 +390,12 @@ public final class Vectors {
   /**
    * <p>
    * Computes the population variance of {@code vector} using an already computed {@code mean}.
-   *
+   * <p>
    * <p>
    * A vector of all {@code NA} returns {@code NA}
    *
    * @param vector the vector
-   * @param mean the mean
+   * @param mean   the mean
    * @return the variance; or NA
    */
   public static double var(Vector vector, double mean) {
@@ -359,7 +414,7 @@ public final class Vectors {
   /**
    * <p>
    * Computes the population variance of {@code vector}.
-   *
+   * <p>
    * <p>
    * A vector of all {@code NA} returns {@code NA}
    *
@@ -373,7 +428,7 @@ public final class Vectors {
   /**
    * <p>
    * Computes the sample mean of {@code vector}.
-   *
+   * <p>
    * <p>
    * A vector of all {@code NA} returns {@code NA}
    *
@@ -449,17 +504,17 @@ public final class Vectors {
   /**
    * <p>
    * Returns a vector consisting of the unique values in {@code vectors}
-   *
+   * <p>
    * <p>
    * For example, given {@code a, b} and {@code c}
-   * 
+   * <p>
    * <pre>
    * {
    *   &#064;code
    *   Vector a = new IntVector(1, 2, 3, 4);
    *   Vector b = new IntVector(2, 3, 4, 5);
    *   Vector c = new IntVector(3, 4, 5, 6);
-   * 
+   *
    *   Vector d = Vectors.unique(a, b, c);
    *   // d == [1,2,3,4,5,6];
    * }
@@ -485,14 +540,14 @@ public final class Vectors {
   /**
    * <p>
    * Counts the number of occurrences for each value (of type {@code T}) in {@code vector}
-   *
+   * <p>
    * <p>
    * Since {@link Vector#get(Class, Object)} returns {@code NA} if value is not an instance of
    * {@code T}, the resulting {@code Map} might contain a {@code null} key
    *
-   * @param cls the class
+   * @param cls    the class
    * @param vector the vector
-   * @param <T> the type
+   * @param <T>    the type
    * @return a map of values to counts
    */
   public static <T> Map<T, Integer> count(Class<T> cls, Vector vector) {
@@ -530,7 +585,7 @@ public final class Vectors {
   }
 
   /**
-   * @param vector the vector
+   * @param vector     the vector
    * @param comparator the comparator
    * @return the indexes of {@code vector} sorted according to {@code comparator} by value
    */
@@ -592,12 +647,12 @@ public final class Vectors {
    * Returns an unmodifiable, identity, vector-builder which returns the argument when building a
    * vector. All mutators of the returned builder throws
    * {@link java.lang.UnsupportedOperationException}.
-   *
+   * <p>
    * <p>
    * This can be useful when copying a vector from one
    * {@linkplain org.briljantframework.data.dataframe.DataFrame.Builder DataFrame-builder} to
    * another without adding new values.
-   *
+   * <p>
    * <p>
    * Vectors marked with the {@link org.briljantframework.data.Transferable}-interface will be
    * <em>transfered</em> without copying when built.

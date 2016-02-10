@@ -41,7 +41,6 @@ import net.mintern.primitive.comparators.DoubleComparator;
 
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
-import org.briljantframework.Listable;
 import org.briljantframework.function.DoubleBiPredicate;
 
 /**
@@ -49,7 +48,7 @@ import org.briljantframework.function.DoubleBiPredicate;
  *
  * @author Isak Karlsson
  */
-public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, Listable<Double> {
+public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double> {
 
   static DoubleArray ones(int... shape) {
     return Arrays.ones(shape);
@@ -60,6 +59,20 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, L
    */
   static DoubleArray of(double... data) {
     return Arrays.doubleVector(data);
+  }
+
+  /**
+   * Returns a double array consisting of the given elements, in order.
+   * 
+   * @param elements the elements
+   * @return a new double array
+   */
+  static DoubleArray copyOf(List<? extends Double> elements) {
+    DoubleArray a = DoubleArray.zeros(elements.size());
+    for (int i = 0; i < elements.size(); i++) {
+      a.set(i, elements.get(i));
+    }
+    return a;
   }
 
   /**

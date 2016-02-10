@@ -36,14 +36,13 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.Listable;
 
 /**
  * A n-dimensional array of double values.
  *
  * @author Isak Karlsson
  */
-public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>, Listable<Complex> {
+public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex> {
 
   static ComplexArray ones(int... shape) {
     ComplexArray array = zeros(shape);
@@ -53,6 +52,14 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
 
   static ComplexArray zeros(int... shape) {
     return Arrays.complexArray(shape);
+  }
+
+  static ComplexArray copyOf(List<Complex> elements) {
+    ComplexArray a = zeros(elements.size());
+    for (int i = 0; i < elements.size(); i++) {
+      a.set(i, elements.get(i));
+    }
+    return a;
   }
 
   /**

@@ -24,8 +24,6 @@ import java.util.stream.DoubleStream;
 
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.briljantframework.Check;
-import org.briljantframework.array.Arrays;
-import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.Transferable;
@@ -176,11 +174,6 @@ public class DoubleVector extends AbstractVector implements Transferable {
   }
 
   // Specialized double method
-
-  @Override
-  public DoubleArray toDoubleArray() {
-    return Arrays.doubleVector(java.util.Arrays.copyOf(buffer, size()));
-  }
 
   @Override
   public double sum() {

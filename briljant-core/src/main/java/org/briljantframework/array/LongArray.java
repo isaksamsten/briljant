@@ -36,7 +36,6 @@ import java.util.stream.LongStream;
 import net.mintern.primitive.comparators.LongComparator;
 
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.Listable;
 import org.briljantframework.function.LongBiPredicate;
 
 /**
@@ -44,7 +43,7 @@ import org.briljantframework.function.LongBiPredicate;
  * 
  * @author Isak Karlsson
  */
-public interface LongArray extends BaseArray<LongArray>, Iterable<Long>, Listable<Long> {
+public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
 
   static LongArray ones(int... shape) {
     LongArray array = zeros(shape);

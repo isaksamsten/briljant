@@ -26,9 +26,14 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
 
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.Check;
+import org.briljantframework.array.Array;
+import org.briljantframework.array.Arrays;
+import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.Collectors;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
@@ -44,6 +49,8 @@ import org.briljantframework.data.index.Index;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.VectorType;
 import org.briljantframework.data.vector.Vectors;
+
+import javax.xml.crypto.Data;
 
 /**
  * Utility methods for handling {@code DataFrame}s
@@ -245,6 +252,80 @@ public final class DataFrames {
    */
   public static DataFrame dropIncompleteCases(DataFrame x) {
     return removeIncompleteCases.transform(x);
+  }
+
+  /**
+   * Return the data frame as an {@link Array} applying the supplied function to each element.
+   *
+   * @param t the class
+   * @param function the function
+   * @param <T> the input type
+   * @param <R> the output type
+   * @return a new array
+   */
+  public static <T, R> Array<R> toArray(Class<T> t, DataFrame x,
+      Function<? super T, ? extends R> function) {
+    Array<R> array = Arrays.array(x.rows(), x.columns());
+    for (int j = 0; j < x.columns(); j++) {
+      for (int i = 0; i < x.rows(); i++) {
+        array.set(i, j, function.apply(x.loc().get(t, i, j)));
+      }
+    }
+    return array;
+  }
+
+  /**
+   * Return the data frame as an {@linkplain Array array}
+   *
+   * <pre>
+   * DataFrame df = DataFrame.of(&quot;A&quot;, Vector.of(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;), &quot;B&quot;, Vector.of(1, 2, 3));
+   * DataFrames.toArray(String.class, df);
+   * DataFrames.toArray(Double.class, df);
+   * </pre>
+   *
+   * produces,
+   *
+   * <pre>
+   * array([[a, 1],
+   *        [b, 2],
+   *        [c, 3]])
+   *
+   * array([[NaN, 1.0],
+   *        [NaN, 2.0],
+   *        [NaN, 3.0]])
+   * </pre>
+   *
+   * Note that the array is populated with {@code NA} if the conversion fails; also note that this
+   * will result in surprising results if the type is Integer, where {@code NA} is represented as
+   * {@code Integer.MIN_VALUE}; use {@link org.briljantframework.data.Is#NA(Object)} to find
+   * {@code NA} values in the resulting array
+   *
+   * @param t the type of the array
+   * @param <T> the type
+   * @return an array with the given type
+   */
+  public static <T> Array<T> toArray(Class<T> t, DataFrame x) {
+    return toArray(t, x, Function.identity());
+  }
+
+  /**
+   * Return this data frame as a double array applying the given function to each element
+   *
+   * @param operator the operator
+   * @return a new double array
+   */
+  public static DoubleArray toDoubleArray(DataFrame x, DoubleUnaryOperator operator) {
+    DoubleArray array = Arrays.doubleArray(x.rows(), x.columns());
+    for (int j = 0; j < x.columns(); j++) {
+      for (int i = 0; i < x.rows(); i++) {
+        array.set(i, j, operator.applyAsDouble(x.loc().getAsDouble(i, j)));
+      }
+    }
+    return array;
+  }
+
+  public static DoubleArray toDoubleArray(DataFrame x) {
+    return toDoubleArray(x, DoubleUnaryOperator.identity());
   }
 
   /**

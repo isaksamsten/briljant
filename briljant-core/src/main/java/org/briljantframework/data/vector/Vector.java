@@ -40,14 +40,8 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
-import org.briljantframework.Listable;
-import org.briljantframework.array.Array;
 import org.briljantframework.array.BooleanArray;
-import org.briljantframework.array.ComplexArray;
-import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.IntArray;
 import org.briljantframework.data.Collectors;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.SortOrder;
@@ -55,7 +49,6 @@ import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.VectorLocationGetter;
 import org.briljantframework.data.index.VectorLocationSetter;
 import org.briljantframework.data.reader.DataEntry;
-import org.briljantframework.exceptions.IllegalTypeException;
 
 /**
  * A vector is an homogeneous (i.e. with values of only one (minus)type) and immutable (i.e. the
@@ -81,7 +74,7 @@ import org.briljantframework.exceptions.IllegalTypeException;
  *
  * @author Isak Karlsson
  */
-public interface Vector extends Serializable, Listable<Object> {
+public interface Vector extends Serializable {
 
   /**
    * Construct a vector of values. The type of vector is inferred from the values.
@@ -91,6 +84,7 @@ public interface Vector extends Serializable, Listable<Object> {
    */
   @SafeVarargs
   static <T> Vector of(T... array) {
+    // TODO(isak) this should not use a generic array and rely on the component type
     Vector.Builder builder = Vector.Builder.of(array.getClass().getComponentType());
     builder.addAll(array);
     return builder.build();
@@ -102,23 +96,30 @@ public interface Vector extends Serializable, Listable<Object> {
    * @return an empty vector
    */
   static Vector empty() {
+    // TODO(isak) rename of()
     return SingletonVector.empty();
   }
 
-  static Vector fromIterable(Iterable<Object> values) {
-    return fromIterable(Object.class, values);
+  /**
+   * Returns a vector with {@code Object}-type containing the given elements.
+   * 
+   * @param elements the elements
+   * @return a new vector
+   */
+  static Vector copyOf(Iterable<Object> elements) {
+    return copyOf(Object.class, elements);
   }
 
   /**
-   * Creates a vector of the values in the iterable
+   * Returns a vector with {@code T}-type containing the given elements
    *
    * @param values the specified values
    * @return a new vector with the specified values
    */
-  static <T> Vector fromIterable(Class<T> cls, Iterable<T> values) {
+  static <T> Vector copyOf(Class<T> cls, Iterable<T> values) {
     Iterator<T> it = values.iterator();
     if (!it.hasNext()) {
-      return singleton(null);
+      return empty();
     }
 
     Vector.Builder builder = new GenericVector.Builder(cls);
@@ -129,11 +130,11 @@ public interface Vector extends Serializable, Listable<Object> {
   }
 
   /**
-   * Creates a one element vector with the specified value
+   * Return a one element vector with the specified value
    *
    * @param value the value
    * @return a one element vector
-   */
+   */ // TODO(isak) rename to of(..)
   static Vector singleton(Object value) {
     return singleton(value, 1);
   }
@@ -144,27 +145,24 @@ public interface Vector extends Serializable, Listable<Object> {
    * @param value the value
    * @param size the size of the vector
    * @return a new vector
-   */
+   */ // TODO(isak) rename to withRepeated() or something
   static Vector singleton(Object value, int size) {
     return new SingletonVector(value, size);
   }
 
   /**
-   * Creates a vector with the specified size consisting of the values given by the supplier
+   * Return a vector with the specified size consisting of the values given by the supplier
    *
    * <pre>
-   * {
-   *   &#064;code
-   *   Vector.Builder b;
-   *   for (int i = 0; i &lt; size; i++) {
-   *     b.plus(supplier.get());
-   *   }
+   * Vector.Builder b;
+   * for (int i = 0; i &lt; size; i++) {
+   *   b.plus(supplier.get());
    * }
    * </pre>
-   */
+   */ // TODO(isak) rename to withRepeated() or something
   static Vector fromSupplier(Supplier<Object> supplier, int size) {
     if (size < 1) {
-      throw new UnsupportedOperationException();
+      return empty();
     }
     Object value = supplier.get();
     Vector.Builder builder = VectorType.of(value).newBuilder().add(value);
@@ -175,10 +173,10 @@ public interface Vector extends Serializable, Listable<Object> {
   }
 
   /**
-   * Returns a boolean array of the elements for which the predicate return {@code true}.
+   * Returns a boolean array of the elements for which the predicate returns {@code true}.
    * 
    * @param predicate the predicate
-   * @return a boolean vector
+   * @return a boolean array
    * @see #where(Class, Predicate)
    */
   default BooleanArray where(Predicate<? super Object> predicate) {
@@ -191,10 +189,16 @@ public interface Vector extends Serializable, Listable<Object> {
    * @param <T> the type
    * @param cls the type
    * @param predicate the predicate
-   * @return a boolean vector
+   * @return a boolean array
    */
   <T> BooleanArray where(Class<T> cls, Predicate<? super T> predicate);
 
+  /**
+   * Returns a vector consisting of only the elements for which the predicate returns true.
+   * 
+   * @param predicate the predicate
+   * @return a vector
+   */
   default Vector filter(Predicate<? super Object> predicate) {
     return filter(Object.class, predicate);
   }
@@ -210,6 +214,8 @@ public interface Vector extends Serializable, Listable<Object> {
    */
   <T> Vector filter(Class<T> cls, Predicate<? super T> predicate);
 
+  // TODO(isak) move to separate class
+  @Deprecated
   <T> Vector filterWithIndex(Class<T> cls, BiPredicate<Object, ? super T> predicate);
 
   default Vector map(Function<Object, ?> operator) {
@@ -249,17 +255,12 @@ public interface Vector extends Serializable, Listable<Object> {
    */
   <T> Vector map(Class<T> cls, Function<? super T, ?> operator);
 
+  // TODO(isak) move to separate class
+  @Deprecated
   <T> Vector mapWithIndex(Class<T> cls, BiFunction<Object, ? super T, ?> operator);
 
+  // TODO(isak) rename zipWith
   Vector combine(Vector other, BiFunction<? super Object, ? super Object, ?> combiner);
-
-  default Vector plus(Object other) {
-    return plus(singleton(other, size()));
-  }
-
-  default Vector plus(Vector other) {
-    return combine(Object.class, other, Combine.add());
-  }
 
   /**
    * Combine two vectors using the specified combination function. For example, concatenating two
@@ -276,16 +277,17 @@ public interface Vector extends Serializable, Listable<Object> {
    * @param combiner the combiner
    * @param <T> a type
    * @return a new vector
-   */
+   */ // TODO zipWith
   <T> Vector combine(Class<T> cls, Vector other,
       BiFunction<? super T, ? super T, ? extends T> combiner);
 
-  /**
-   * Returns the size of the vector
-   *
-   * @return size
-   */
-  int size();
+  default Vector plus(Object other) {
+    return plus(singleton(other, size()));
+  }
+
+  default Vector plus(Vector other) {
+    return combine(Object.class, other, Combine.add());
+  }
 
   default Vector times(Number other) {
     return times(singleton(other, size()));
@@ -320,6 +322,13 @@ public interface Vector extends Serializable, Listable<Object> {
   }
 
   /**
+   * Returns the size of the vector
+   *
+   * @return size
+   */
+  int size();
+
+  /**
    * Sort the vector in its <i>natural order</i> in ascending or descending order
    *
    * <p>
@@ -331,21 +340,21 @@ public interface Vector extends Serializable, Listable<Object> {
   Vector sort(SortOrder order);
 
   /**
-   * Sort the vector using the the specified comparator and the defined type
-   *
-   * @param cls the type of elements
-   * @param cmp the comparator
-   * @return a new sorted vector
-   */
-  <T> Vector sort(Class<T> cls, Comparator<T> cmp);
-
-  /**
    * Sort the vector according to the natural sort order of the specified comparable
    *
    * @param cls the comparable type
    * @return a new vector sorted
    */
   <T extends Comparable<T>> Vector sort(Class<T> cls);
+
+  /**
+   * Sort the vector using the the specified comparator and the defined type
+   *
+   * @param cls the type of elements
+   * @param cmp the comparator
+   * @return a new sorted vector
+   */ // TODO(isak) rename sortBy
+  <T> Vector sort(Class<T> cls, Comparator<T> cmp);
 
   /**
    * Return a vector of the {@code n} first elements
@@ -446,6 +455,7 @@ public interface Vector extends Serializable, Listable<Object> {
    */
   int getAsInt(Object key);
 
+  @Deprecated
   double getAsDouble(Object key, double defaultValue);
 
   /**
@@ -489,6 +499,7 @@ public interface Vector extends Serializable, Listable<Object> {
    */
   boolean isNA(Object key);
 
+  @Deprecated
   int compare(Object a, Object b);
 
   /**
@@ -511,104 +522,30 @@ public interface Vector extends Serializable, Listable<Object> {
 
   Vector copy();
 
-  default <T> Listable<T> toListable(Class<T> cls) {
-    return () -> toList(cls);
-  }
-
-  <T> List<T> toList(Class<T> cls);
-
   default List<Object> toList() {
     return toList(Object.class);
   }
 
+  <T> List<T> toList(Class<T> cls);
+
+  /**
+   * Return a stream of the elements in this vector.
+   *
+   * @param cls the element type
+   * @return a stream
+   */
   <T> Stream<T> stream(Class<T> cls);
 
+  /**
+   * Returns a stream of the elements in this vector as ints.
+   *
+   * @return a stream of the elements in this vector as ints.
+   */
   IntStream intStream();
 
   DoubleStream doubleStream();
 
   LongStream longStream();
-
-  /**
-   * Copies the contents of this vector to the given array.
-   * 
-   * @param cls the type
-   * @param array the array
-   * @param <U> the type
-   */
-  <U> void toArray(Class<U> cls, Array<U> array);
-
-  /**
-   * Copies the contents of this vector to the given array.
-   *
-   * @param array the array
-   */
-  void toArray(Array<Object> array);
-
-  /**
-   * Copies the contents of this vector to the given array.
-   *
-   * @param array the array
-   */
-  void toArray(DoubleArray array);
-
-  /**
-   * Copies the contents of this vector to the given array.
-   *
-   * @param array the array
-   */
-  void toArray(IntArray array);
-
-  /**
-   * Copies the contents of this vector to the given array.
-   *
-   * @param array the array
-   */
-  void toArray(ComplexArray array);
-
-  /**
-   * The default implementation is equivalent to calling {@code toArray(Double.class).asDouble()}.
-   *
-   * @see #toArray(Class)
-   */
-  default DoubleArray toDoubleArray() throws IllegalTypeException {
-    return toArray(Double.class).asDouble();
-  }
-
-  /**
-   * <p>
-   * Copies this vector to a {@link org.briljantframework.array.Array}. An appropriate
-   * specialization of the {@link org.briljantframework.array.BaseArray} interface should be
-   * preferred. For example, a {@link org.briljantframework.data.vector.DoubleVector} should return
-   * a {@link org.briljantframework.array.DoubleArray} implementation.
-   *
-   * <pre>
-   * Vector a = new DoubleVector(1, 2, 3, 4, 5);
-   * DoubleMatrix mat = a.toArray(Double.class).asDouble();
-   * double sum = mat.reduce(0, Double::sum);
-   * </pre>
-   *
-   * @return this vector as an {@linkplain org.briljantframework.array.Array array}
-   */
-  <U> Array<U> toArray(Class<U> cls);
-
-  /**
-   * The default implementation is equivalent to calling {@code toArray(Integer.class).asInt()}.
-   *
-   * @see #toArray(Class)
-   */
-  default IntArray toIntArray() throws IllegalTypeException {
-    return toArray(Integer.class).asInt();
-  }
-
-  /**
-   * The default implementation is equivalent to calling {@code toArray(Complex.class).asComplex()}.
-   *
-   * @see #toArray(Class)
-   */
-  default ComplexArray toComplexArray() throws IllegalTypeException {
-    return toArray(Complex.class).asComplex();
-  }
 
   default Vector abs() {
     return map(Double.class, Na.ignore(v -> Math.abs(v)));
@@ -784,13 +721,13 @@ public interface Vector extends Serializable, Listable<Object> {
   }
 
   default <T extends Comparable<T>> T min(Class<T> cls) {
-    return collect(cls, Collectors.withFinisher(
-        java.util.stream.Collectors.minBy(Comparable::compareTo), Optional::get));
+    return collect(cls, Collectors
+        .withFinisher(java.util.stream.Collectors.minBy(Comparable::compareTo), Optional::get));
   }
 
   default <T extends Comparable<T>> T max(Class<T> cls) {
-    return collect(cls, Collectors.withFinisher(
-        java.util.stream.Collectors.minBy(Comparable::compareTo), Optional::get));
+    return collect(cls, Collectors
+        .withFinisher(java.util.stream.Collectors.minBy(Comparable::compareTo), Optional::get));
   }
 
   /**

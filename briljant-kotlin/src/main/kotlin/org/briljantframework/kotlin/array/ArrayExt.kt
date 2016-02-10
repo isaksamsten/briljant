@@ -9,6 +9,8 @@ import org.briljantframework.array.DoubleArray
  */
 
 fun main(args: Array<String>) {
+
+//    listOf<>()
     val y = vector("a", "b", "c", "d")
     val f = intVector(1, 2, 3, 4, 5, 6, 7, 8).reshape(4, 2)
     println(y.reshape(2, 2))

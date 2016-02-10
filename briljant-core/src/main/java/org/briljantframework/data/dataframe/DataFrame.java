@@ -619,8 +619,8 @@ public interface DataFrame extends Iterable<Object> {
    * Drop the columns for which the specified predicat returns true.
    *
    * <pre>
-   * DataFrame df = DataFrame.of(&quot;A&quot;, Vector.of(1, 2, 3), &quot;B&quot;, Vector.of(1, null, 3))
-   *     .drop(Vector::hasNA);
+   * DataFrame df =
+   *     DataFrame.of(&quot;A&quot;, Vector.of(1, 2, 3), &quot;B&quot;, Vector.of(1, null, 3)).drop(Vector::hasNA);
    * </pre>
    *
    * produces,
@@ -957,74 +957,6 @@ public interface DataFrame extends Iterable<Object> {
    */
   Builder newCopyBuilder();
 
-  /**
-   * Returns {@code this} DataFrame as an {@linkplain org.briljantframework.array.Array array}.
-   *
-   * @return this data frame as a matrix
-   */
-  default Array<Object> toArray() {
-    return toArray(Object.class);
-  }
-
-  /**
-   * Return this data frame as an {@linkplain Array array}
-   *
-   * <pre>
-   * DataFrame df = DataFrame.of(&quot;A&quot;, Vector.of(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;), &quot;B&quot;, Vector.of(1, 2, 3));
-   * df.toArray(String.class);
-   * df.toArray(Double.class);
-   * </pre>
-   *
-   * produces,
-   *
-   * <pre>
-   * array([[a, 1],
-   *        [b, 2],
-   *        [c, 3]])
-   * 
-   * array([[NaN, 1.0],
-   *        [NaN, 2.0],
-   *        [NaN, 3.0]])
-   * </pre>
-   *
-   * Note that the array is populated with {@code NA} if the conversion fails; also note that this
-   * will result in surprising results if the type is Integer, where {@code NA} is represented as
-   * {@code Integer.MIN_VALUE}; use {@link org.briljantframework.data.Is#NA(Object)} to find
-   * {@code NA} values in the resulting array
-   *
-   * @param type the type of the array
-   * @param <T> the type
-   * @return an array with the given type
-   */
-  <T> Array<T> toArray(Class<T> type);
-
-  /**
-   * Return this data frame as an {@link Array} applying the supplied function to each element.
-   *
-   * @param type the class
-   * @param function the function
-   * @param <T> the input type
-   * @param <R> the output type
-   * @return a new array
-   */
-  <T, R> Array<R> toArray(Class<T> type, Function<? super T, ? extends R> function);
-
-  // Operations
-
-  /**
-   * Return this data frame as a double array
-   *
-   * @return a new double array
-   */
-  DoubleArray toDoubleArray();
-
-  /**
-   * Return this data frame as a double array applying the given function to each element
-   *
-   * @param operator the operator
-   * @return a new double array
-   */
-  DoubleArray toDoubleArray(DoubleUnaryOperator operator);
 
   /**
    * Return a stream over the records in this data frame. For example, we could filter the records
@@ -1055,13 +987,6 @@ public interface DataFrame extends Iterable<Object> {
   }
 
   /**
-   * Return a collection of records.
-   *
-   * @return an (immutable) collection of rows
-   */
-  List<Vector> getRecords();
-
-  /**
    * Return a parallel stream of the records of this data frame
    *
    * @return a parallel stream of the records of this data frame
@@ -1069,6 +994,13 @@ public interface DataFrame extends Iterable<Object> {
   default Stream<Vector> parallelStream() {
     return StreamSupport.stream(getRecords().spliterator(), true);
   }
+
+  /**
+   * Return a collection of records.
+   *
+   * @return an (immutable) collection of rows
+   */
+  List<Vector> getRecords();
 
   /**
    * Reset the index of this data frame. This will create a new data frame with an additional column
@@ -1197,10 +1129,8 @@ public interface DataFrame extends Iterable<Object> {
    * @return a vector of the minimum value of each column in the data frame
    */
   default Vector min() {
-    return collect(
-        Object.class,
-        org.briljantframework.data.Collectors.withFinisher(
-            Collectors.minBy(ObjectComparator.getInstance()), Optional::get));
+    return collect(Object.class, org.briljantframework.data.Collectors
+        .withFinisher(Collectors.minBy(ObjectComparator.getInstance()), Optional::get));
   }
 
   /**
@@ -1235,10 +1165,8 @@ public interface DataFrame extends Iterable<Object> {
    * @return a vector of the maximum value of each column in the data frame
    */
   default Vector max() {
-    return collect(
-        Object.class,
-        org.briljantframework.data.Collectors.withFinisher(
-            Collectors.maxBy(ObjectComparator.getInstance()), Optional::get));
+    return collect(Object.class, org.briljantframework.data.Collectors
+        .withFinisher(Collectors.maxBy(ObjectComparator.getInstance()), Optional::get));
   }
 
   /**

@@ -45,13 +45,10 @@ import net.mintern.primitive.comparators.IntComparator;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.BooleanArray;
-import org.briljantframework.array.ComplexArray;
-import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.Collectors;
 import org.briljantframework.data.Is;
@@ -346,55 +343,12 @@ public abstract class AbstractVector implements Vector {
     return stream(Number.class).mapToLong(Number::longValue);
   }
 
-  @Override
   public <U> void toArray(Class<U> cls, Array<U> array) {
     final VectorLocationGetter get = loc();
     int size = Math.min(size(), array.size());
     for (int i = 0; i < size; i++) {
       array.set(i, get.get(cls, i));
     }
-  }
-
-  @Override
-  public void toArray(Array<Object> array) {
-    toArray(Object.class, array);
-  }
-
-  @Override
-  public void toArray(DoubleArray array) {
-    final VectorLocationGetter getter = loc();
-    int size = Math.min(size(), array.size());
-    for (int i = 0; i < size; i++) {
-      array.set(i, getter.getAsDouble(i));
-    }
-  }
-
-  @Override
-  public void toArray(IntArray array) {
-    final VectorLocationGetter getter = loc();
-    int size = Math.min(size(), array.size());
-    for (int i = 0; i < size; i++) {
-      array.set(i, getter.getAsInt(i));
-    }
-  }
-
-  @Override
-  public void toArray(ComplexArray array) {
-    final VectorLocationGetter getter = loc();
-    int size = Math.min(size(), array.size());
-    for (int i = 0; i < size; i++) {
-      array.set(i, getter.get(Complex.class, i));
-    }
-  }
-
-  @Override
-  public <U> Array<U> toArray(Class<U> cls) {
-    final VectorLocationGetter get = loc();
-    Array<U> n = Arrays.array(size());
-    for (int i = 0; i < size(); i++) {
-      n.set(i, get.get(cls, i));
-    }
-    return n;
   }
 
   @Override

@@ -36,7 +36,6 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.Listable;
 
 /**
  * A multidimensional array of reference types.
@@ -44,7 +43,7 @@ import org.briljantframework.Listable;
  * @author Isak Karlsson
  * @see BaseArray
  */
-public interface Array<T> extends BaseArray<Array<T>>, Listable<T>, Iterable<T> {
+public interface Array<T> extends BaseArray<Array<T>>, Iterable<T> {
 
   /**
    * @see Arrays#vector(Object[])
@@ -59,6 +58,20 @@ public interface Array<T> extends BaseArray<Array<T>>, Listable<T>, Iterable<T> 
    */
   static <T> Array<T> empty(int... shape) {
     return Arrays.array(shape);
+  }
+
+  /**
+   * Returns a new array containing the given elements, in order.
+   *
+   * @param elements the elements
+   * @return a new array
+   */
+  static <T> Array<T> copyOf(List<? extends T> elements) {
+    Array<T> a = empty(elements.size());
+    for (int i = 0; i < elements.size(); i++) {
+      a.set(i, elements.get(i));
+    }
+    return a;
   }
 
   /**

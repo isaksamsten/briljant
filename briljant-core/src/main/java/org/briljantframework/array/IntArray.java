@@ -37,7 +37,6 @@ import java.util.stream.IntStream;
 import net.mintern.primitive.comparators.IntComparator;
 
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.Listable;
 import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.function.ToIntObjIntBiFunction;
 
@@ -46,7 +45,7 @@ import org.briljantframework.function.ToIntObjIntBiFunction;
  * 
  * @author Isak Karlsson
  */
-public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listable<Integer> {
+public interface IntArray extends BaseArray<IntArray>, Iterable<Integer> {
 
   static IntArray ones(int... shape) {
     IntArray array = zeros(shape);
@@ -63,6 +62,20 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer>, Listab
    */
   static IntArray of(int... data) {
     return Arrays.intVector(data);
+  }
+
+  /**
+   * Returns a new int array consisting of the given elements, in order.
+   * 
+   * @param elements the elements
+   * @return a new array
+   */
+  static IntArray copyOf(List<Integer> elements) {
+    IntArray a = zeros(elements.size());
+    for (int i = 0; i < elements.size(); i++) {
+      a.set(i, elements.get(i));
+    }
+    return a;
   }
 
   /**
