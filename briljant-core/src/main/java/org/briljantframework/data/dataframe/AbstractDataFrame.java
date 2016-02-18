@@ -148,9 +148,8 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DataFrame join(JoinType type, DataFrame other) {
-    Joiner joiner =
-        type.getJoinOperation()
-            .createJoiner(JoinUtils.createJoinKeys(getIndex(), other.getIndex()));
+    Joiner joiner = type.getJoinOperation()
+        .createJoiner(JoinUtils.createJoinKeys(getIndex(), other.getIndex()));
     return joiner.join(this, other, Collections.emptyList());
   }
 
@@ -978,7 +977,9 @@ public abstract class AbstractDataFrame implements DataFrame {
      */
     protected abstract void setNaAt(int r, int c);
 
-    protected abstract void removeAt(int c);    @Override
+    protected abstract void removeAt(int c);
+
+    @Override
     public final DataFrameLocationSetter loc() {
       return loc;
     }

@@ -819,7 +819,7 @@ public interface Vector extends Serializable {
     /**
      * Recommended initial capacity
      */
-    int INITIAL_CAPACITY = 50;
+    int INITIAL_CAPACITY = 5;
 
     /**
      * Construct a builder for the specified type

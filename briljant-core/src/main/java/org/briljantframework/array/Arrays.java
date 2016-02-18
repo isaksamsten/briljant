@@ -27,6 +27,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.function.DoublePredicate;
+import java.util.function.IntPredicate;
+import java.util.function.LongPredicate;
 import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
 
@@ -35,7 +37,9 @@ import net.mintern.primitive.comparators.IntComparator;
 import net.mintern.primitive.comparators.LongComparator;
 
 import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.distribution.IntegerDistribution;
 import org.apache.commons.math3.distribution.RealDistribution;
+import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.apache.commons.math3.exception.NotStrictlyPositiveException;
 import org.briljantframework.Check;
@@ -63,13 +67,13 @@ import org.briljantframework.sort.QuickSort;
  * <pre>
  * ArrayBackend backend = new BaseArrayBackend();
  * ArrayFactory factory = backend.getArrayFactory();
- * 
+ *
  * DoubleArray x = factory.newDoubleArray(3, 3);
  * x.assign(10);
- * 
+ *
  * // assuming that Arrays are using the default NetlibArrayBackend
  * DoubleArray y = Arrays.newDoubleArray(3, 3);
- * 
+ *
  * // This will be slow since the array created by the BaseArrayBackend
  * // cannot be used by the NetlibArrayBackend
  * Arrays.dot(x, y);
@@ -101,6 +105,7 @@ public final class Arrays {
   private static final ArrayFactory ARRAY_FACTORY;
   private static final ArrayRoutines ARRAY_ROUTINES;
 
+  // TODO(isak): allow for swapping array backends
   static {
     ArrayBackend backend =
         StreamSupport.stream(ServiceLoader.load(ArrayBackend.class).spliterator(), false)
@@ -180,70 +185,6 @@ public final class Arrays {
   }
 
   /**
-   * Return a coordinate array from coordinate vectors (arrays with d > 1 are raveled)
-   *
-   * @param first the first array
-   * @param rest rest of the arrays
-   * @param <S> the class of arrays
-   * @return a list of coordinate arrays (with shape
-   *         {@code [first.size(), rest[0].size(), ..., rest[rest.length - 1].size()]}
-   */
-  @SafeVarargs
-  public static <S extends BaseArray<S>> List<S> meshgrid(S first, S... rest) {
-    List<S> arrays = new ArrayList<>();
-    arrays.add(first);
-    Collections.addAll(arrays, rest);
-
-    int[] shape = new int[arrays.size()];
-    for (int i = 0; i < arrays.size(); i++) {
-      shape[i] = arrays.get(i).size();
-    }
-
-    List<S> newArrays = new ArrayList<>();
-    for (S array : arrays) {
-      newArrays.add(array.newEmptyArray(shape));
-    }
-
-    for (int i = 0; i < newArrays.size(); i++) {
-      S newArray = newArrays.get(i);
-      S array = arrays.get(i);
-      for (int j = 0, vectors = newArray.vectors(i); j < vectors; j++) {
-        newArray.getVector(i, j).assign(array);
-      }
-    }
-    return Collections.unmodifiableList(newArrays);
-  }
-
-  /**
-   * @see ArrayFactory#rand(int)
-   */
-  public static DoubleArray rand(int size) {
-    return ARRAY_FACTORY.rand(size);
-  }
-
-  /**
-   * @see ArrayFactory#randn(int)
-   */
-  public static DoubleArray randn(int size) {
-    return ARRAY_FACTORY.randn(size);
-  }
-
-  /**
-   * Create a 1d-array with values sampled from the specified distribution.
-   *
-   * @param size the size of the array
-   * @param distribution the distribution to sample from
-   * @return a new 1d-array
-   */
-  public static DoubleArray rand(int size, RealDistribution distribution) {
-    DoubleArray array = doubleArray(size);
-    for (int i = 0; i < size; i++) {
-      array.set(i, distribution.sample());
-    }
-    return array;
-  }
-
-  /**
    * @see org.briljantframework.array.api.ArrayFactory#newDoubleArray(int...)
    */
   public static DoubleArray doubleArray(int... shape) {
@@ -293,6 +234,13 @@ public final class Arrays {
   }
 
   /**
+   * @see org.briljantframework.array.api.ArrayFactory#range(int)
+   */
+  public static Range range(int end) {
+    return ARRAY_FACTORY.range(end);
+  }
+
+  /**
    * @see org.briljantframework.array.api.ArrayFactory#range(int, int)
    */
   public static Range range(int start, int end) {
@@ -304,13 +252,6 @@ public final class Arrays {
    */
   public static Range range(int start, int end, int step) {
     return ARRAY_FACTORY.range(start, end, step);
-  }
-
-  public static IntArray randi(int size, int l, int u) {
-    RealDistribution distribution = new UniformRealDistribution(l, u);
-    IntArray array = intArray(size);
-    array.assign(() -> (int) Math.round(distribution.sample()));
-    return array;
   }
 
   /**
@@ -360,6 +301,61 @@ public final class Arrays {
    */
   public static BooleanArray booleanMatrix(boolean[][] data) {
     return ARRAY_FACTORY.newBooleanMatrix(data);
+  }
+
+  /**
+   * @see ArrayFactory#rand(int)
+   */
+  public static DoubleArray rand(int size) {
+    return ARRAY_FACTORY.rand(size);
+  }
+
+  /**
+   * @see ArrayFactory#randn(int)
+   */
+  public static DoubleArray randn(int size) {
+    return ARRAY_FACTORY.randn(size);
+  }
+
+  /**
+   * Create a 1d-array with values sampled from the specified distribution.
+   *
+   * @param size the size of the array
+   * @param distribution the distribution to sample from
+   * @return a new 1d-array
+   */
+  public static DoubleArray rand(int size, RealDistribution distribution) {
+    DoubleArray array = doubleArray(size);
+    for (int i = 0; i < size; i++) {
+      array.set(i, distribution.sample());
+    }
+    return array;
+  }
+
+  /**
+   * Returns a 1d-array with values sampled from the specified distribution.
+   * 
+   * @param size the size
+   * @param distribution the distribution
+   * @return
+   */
+  public static IntArray rand(int size, IntegerDistribution distribution) {
+    IntArray array = intArray(size);
+    array.assign(distribution::sample);
+    return array;
+  }
+
+  /**
+   * Creates a 1d-array with values sampled in the given range
+   *
+   * @param size the size of the array
+   * @param lower the lower bound
+   * @param upper the upper bound
+   * @return a new array
+   */
+  @Deprecated
+  public static IntArray randi(int size, int lower, int upper) {
+    return rand(size, new UniformIntegerDistribution(lower, upper));
   }
 
   /**
@@ -674,6 +670,162 @@ public final class Arrays {
     return ARRAY_ROUTINES.cumsum(dim, x);
   }
 
+  public static DoubleArray cos(ComplexArray array) {
+    return ARRAY_ROUTINES.abs(array);
+  }
+
+  public static DoubleArray sqrt(DoubleArray array) {
+    return ARRAY_ROUTINES.sqrt(array);
+  }
+
+  public static DoubleArray pow(DoubleArray in, double power) {
+    return ARRAY_ROUTINES.pow(in, power);
+  }
+
+  public static DoubleArray log2(DoubleArray array) {
+    return ARRAY_ROUTINES.log2(array);
+  }
+
+  public static DoubleArray acos(DoubleArray array) {
+    return ARRAY_ROUTINES.acos(array);
+  }
+
+  public static DoubleArray cosh(DoubleArray array) {
+    return ARRAY_ROUTINES.cosh(array);
+  }
+
+  public static DoubleArray signum(DoubleArray in) {
+    return ARRAY_ROUTINES.signum(in);
+  }
+
+  public static DoubleArray cos(DoubleArray array) {
+    return ARRAY_ROUTINES.cos(array);
+  }
+
+  public static DoubleArray asin(DoubleArray array) {
+    return ARRAY_ROUTINES.asin(array);
+  }
+
+  public static LongArray abs(LongArray array) {
+    return ARRAY_ROUTINES.abs(array);
+  }
+
+  public static DoubleArray cbrt(DoubleArray array) {
+    return ARRAY_ROUTINES.cbrt(array);
+  }
+
+  public static DoubleArray abs(DoubleArray array) {
+    return ARRAY_ROUTINES.abs(array);
+  }
+
+  public static DoubleArray ceil(DoubleArray array) {
+    return ARRAY_ROUTINES.ceil(array);
+  }
+
+  public static DoubleArray sinh(DoubleArray array) {
+    return ARRAY_ROUTINES.sinh(array);
+  }
+
+  public static DoubleArray log(DoubleArray array) {
+    return ARRAY_ROUTINES.log(array);
+  }
+
+  public static DoubleArray tanh(DoubleArray array) {
+    return ARRAY_ROUTINES.tanh(array);
+  }
+
+  public static DoubleArray sin(DoubleArray array) {
+    return ARRAY_ROUTINES.sin(array);
+  }
+
+  public static DoubleArray scalb(DoubleArray array, int scaleFactor) {
+    return ARRAY_ROUTINES.scalb(array, scaleFactor);
+  }
+
+  public static DoubleArray exp(DoubleArray array) {
+    return ARRAY_ROUTINES.exp(array);
+  }
+
+  public static DoubleArray log10(DoubleArray in) {
+    return ARRAY_ROUTINES.log10(in);
+  }
+
+  public static DoubleArray floor(DoubleArray array) {
+    return ARRAY_ROUTINES.floor(array);
+  }
+
+  public static DoubleArray tan(DoubleArray array) {
+    return ARRAY_ROUTINES.tan(array);
+  }
+
+  public static IntArray abs(IntArray array) {
+    return ARRAY_ROUTINES.abs(array);
+  }
+
+  public static LongArray round(DoubleArray in) {
+    return ARRAY_ROUTINES.round(in);
+  }
+
+  public static DoubleArray atan(DoubleArray array) {
+    return ARRAY_ROUTINES.atan(array);
+  }
+
+  public static ComplexArray sinh(ComplexArray array) {
+    return ARRAY_ROUTINES.sinh(array);
+  }
+
+  public static ComplexArray exp(ComplexArray array) {
+    return ARRAY_ROUTINES.exp(array);
+  }
+
+  public static ComplexArray acos(ComplexArray array) {
+    return ARRAY_ROUTINES.acos(array);
+  }
+
+  public static ComplexArray sin(ComplexArray array) {
+    return ARRAY_ROUTINES.sin(array);
+  }
+
+  public static DoubleArray abs(ComplexArray array) {
+    return ARRAY_ROUTINES.abs(array);
+  }
+
+  public static ComplexArray sqrt(ComplexArray array) {
+    return ARRAY_ROUTINES.sqrt(array);
+  }
+
+  public static ComplexArray log(ComplexArray array) {
+    return ARRAY_ROUTINES.log(array);
+  }
+
+  public static ComplexArray floor(ComplexArray array) {
+    return ARRAY_ROUTINES.floor(array);
+  }
+
+  public static ComplexArray tan(ComplexArray array) {
+    return ARRAY_ROUTINES.tan(array);
+  }
+
+  public static ComplexArray tanh(ComplexArray array) {
+    return ARRAY_ROUTINES.tanh(array);
+  }
+
+  public static ComplexArray asin(ComplexArray array) {
+    return ARRAY_ROUTINES.asin(array);
+  }
+
+  public static ComplexArray cosh(ComplexArray array) {
+    return ARRAY_ROUTINES.cosh(array);
+  }
+
+  public static ComplexArray atan(ComplexArray array) {
+    return ARRAY_ROUTINES.atan(array);
+  }
+
+  public static ComplexArray ceil(ComplexArray array) {
+    return ARRAY_ROUTINES.ceil(array);
+  }
+
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#trace(org.briljantframework.array.DoubleArray)
    */
@@ -682,10 +834,45 @@ public final class Arrays {
   }
 
   /**
+   * Returns a coordinate array from coordinate vectors (arrays with d > 1 are raveled)
+   *
+   * @param first the first array
+   * @param rest rest of the arrays
+   * @param <S> the class of arrays
+   * @return a list of coordinate arrays (with shape
+   *         {@code [first.size(), rest[0].size(), ..., rest[rest.length - 1].size()]}
+   */
+  @SafeVarargs
+  public static <S extends BaseArray<S>> List<S> meshgrid(S first, S... rest) {
+    List<S> arrays = new ArrayList<>();
+    arrays.add(first);
+    Collections.addAll(arrays, rest);
+
+    int[] shape = new int[arrays.size()];
+    for (int i = 0; i < arrays.size(); i++) {
+      shape[i] = arrays.get(i).size();
+    }
+
+    List<S> newArrays = new ArrayList<>();
+    for (S array : arrays) {
+      newArrays.add(array.newEmptyArray(shape));
+    }
+
+    for (int i = 0; i < newArrays.size(); i++) {
+      S newArray = newArrays.get(i);
+      S array = arrays.get(i);
+      for (int j = 0, vectors = newArray.vectors(i); j < vectors; j++) {
+        newArray.getVector(i, j).assign(array);
+      }
+    }
+    return Collections.unmodifiableList(newArrays);
+  }
+
+  /**
    * Split an array into multiple sub-arrays vertically (row-wise).
    *
    * <p/>
-   * This is equivalent to {@link #split(BaseArray, int, int)} with dim=0 (default), the array is
+   * This is equivalent to {@link #split(BaseArray, int, int)} with dim=0 (default). The array is
    * always split along the first axis regardless of the array dimension.
    *
    * @param array the array
@@ -714,26 +901,7 @@ public final class Arrays {
    */
   public static <T extends BaseArray<T>> List<T> split(T array, int parts, int dim) {
     Check.argument(array.size(dim) % parts == 0);
-    int[] shape = array.getShape();
-    shape[dim] /= parts;
-
-    return new AbstractList<T>() {
-      @Override
-      public T get(int index) {
-        T empty = array.newEmptyArray(shape);
-        int size = empty.size(dim);
-        int rowPadding = index * size;
-        for (int i = 0; i < size; i++) {
-          empty.select(dim, i).assign(array.select(dim, rowPadding + i));
-        }
-        return empty;
-      }
-
-      @Override
-      public int size() {
-        return parts;
-      }
-    };
+    return new SplitArrayList<>(array, dim, parts);
   }
 
   /**
@@ -792,16 +960,17 @@ public final class Arrays {
    * @see #concatenate(List, int)
    */
   public static <T extends BaseArray<T>> T vstack(List<T> arrays) {
+    List<T> arrayList = arrays instanceof SplitArrayList ? new ArrayList<>(arrays) : arrays;
     return concatenate(new AbstractList<T>() {
       @Override
       public T get(int index) {
-        T v = arrays.get(index);
+        T v = arrayList.get(index);
         return v.isVector() ? v.reshape(v.size(), 1) : v;
       }
 
       @Override
       public int size() {
-        return arrays.size();
+        return arrayList.size();
       }
     }, 0);
   }
@@ -819,7 +988,8 @@ public final class Arrays {
     int[] shape = prototype.getShape();
     shape[dim] = 0;
 
-    // TODO: 03/12/15 this will be a performance bottleneck for large splitted array lists
+    // tries to resolve the case for lazily splitted arrays
+    arrays = arrays instanceof SplitArrayList ? new ArrayList<>(arrays) : arrays;
     for (T array : arrays) {
       Check.argument(prototype.dims() == array.dims(), "illegal dimension");
       for (int i = 0; i < prototype.dims(); i++) {
@@ -875,6 +1045,7 @@ public final class Arrays {
    * @see #concatenate(List, int)
    */
   public static <T extends BaseArray<T>> T hstack(List<T> arrays) {
+    List<T> arrayList = arrays instanceof SplitArrayList ? new ArrayList<>(arrays) : arrays;
     return concatenate(new AbstractList<T>() {
       @Override
       public T get(int index) {
@@ -905,10 +1076,16 @@ public final class Arrays {
     ARRAY_ROUTINES.swap(a, b);
   }
 
+  /**
+   * Take the specified number of elements from the beginning of the array.
+   * 
+   * @param x the array
+   * @param num the number of elements to take
+   * @param <T> the array type
+   * @return a new array
+   */
   public static <T extends BaseArray<T>> T take(T x, int num) {
-    if (num < 0 || num > x.size()) {
-      throw new IllegalArgumentException();
-    }
+    Check.argument(num > 0 && num <= x.size(), "to few/many elements to take");
     T c = x.newEmptyArray(num);
     for (int i = 0; i < num; i++) {
       c.set(i, x, i);
@@ -1083,7 +1260,7 @@ public final class Arrays {
    * and
    *
    * <pre>
-   * DoubleArray b = Arrays.newDoubleMatrix(new double[][] { {1, 2}, {3, 4}});
+   * DoubleArray b = Arrays.newDoubleMatrix(new double[][] {{1, 2}, {3, 4}});
    * Arrays.tile(b, 2);
    * </pre>
    *
@@ -1139,14 +1316,14 @@ public final class Arrays {
   /*
    * Prepend ones
    */
-  private static int[] prependDimension(int[] arr, int max) {
+  private static int[] prependDimension(int[] shape, int max) {
     int[] newArr = new int[max];
-    int diff = Math.abs(max - arr.length);
+    int diff = Math.abs(max - shape.length);
     for (int i = 0; i < max; i++) {
       if (i < diff) {
         newArr[i] = 1;
       } else {
-        newArr[i] = arr[i - diff];
+        newArr[i] = shape[i - diff];
       }
     }
     return newArr;
@@ -1184,6 +1361,8 @@ public final class Arrays {
    * @return a list of broadcasted array views
    * @see #broadcastArrays(List)
    */
+  @SafeVarargs
+  @SuppressWarnings("varargs")
   public static <E extends BaseArray<E>> List<E> broadcastArrays(E... arrays) {
     return broadcastArrays(java.util.Arrays.asList(arrays));
   }
@@ -1218,20 +1397,8 @@ public final class Arrays {
         }
       }
     }
-    final int[] newShape = shape;
-    return new AbstractList<E>() {
-      @Override
-      public E get(int index) {
-        E x = arrays.get(index);
-        return x.asView(newShape,
-            StrideUtils.broadcastStrides(x.getStride(), x.getShape(), newShape));
-      }
 
-      @Override
-      public int size() {
-        return arrays.size();
-      }
-    };
+    return new BroadcastArrayList<>(arrays, shape);
   }
 
   /**
@@ -1307,7 +1474,7 @@ public final class Arrays {
    * @param a the first dimension
    * @param b the second dimension
    * @param <E> the array type
-   * @return
+   * @return a new array
    */
   public static <E extends BaseArray<E>> E swapDimension(E array, int a, int b) {
     int[] dims = new int[array.dims()];
@@ -1644,6 +1811,166 @@ public final class Arrays {
   }
 
   /**
+   * Return the order of the values in array (with smallest index first).
+   *
+   * @param array the array
+   * @return the indexes in order
+   */
+  public static IntArray order(DoubleArray array) {
+    return order(array, Double::compare);
+  }
+
+  /**
+   * Return the order of the values in the given array (according to the comparator).
+   *
+   * @param array the array
+   * @param cmp the comparator
+   * @return the indexes in order
+   */
+  public static IntArray order(DoubleArray array, DoubleComparator cmp) {
+    IntArray order = Arrays.range(array.size()).copy();
+    order.sort((a, b) -> cmp.compare(array.get(a), array.get(b)));
+    return order;
+  }
+
+  /**
+   * The order of elements along the given dimension.
+   *
+   * @param dim the dimension
+   * @param array the array
+   * @return the order of each dimension
+   */
+  public static IntArray order(int dim, DoubleArray array) {
+    return order(dim, array, Double::compare);
+  }
+
+  /**
+   * The order of elements along the given dimension.
+   *
+   * @param dim the dimension
+   * @param array the array
+   * @param cmp the comparator
+   * @return the order of each dimension
+   */
+  public static IntArray order(int dim, DoubleArray array, DoubleComparator cmp) {
+    int vectors = array.vectors(dim);
+    IntArray order = IntArray.zeros(array.getShape());
+    for (int i = 0; i < vectors; i++) {
+      order.setVector(dim, i, order(array.getVector(dim, i), cmp));
+    }
+    return order;
+  }
+
+  /**
+   * Searches the specified array for the specified object using the binary search algorithm. The
+   * array must be sorted into ascending order
+   *
+   * @param array the array
+   * @param x the element
+   * @return the index of the search key, if it is contained in the list; otherwise,
+   *         <tt>(-(<i>insertion point</i>) - 1)</tt>.
+   * @see Collections#binarySearch(List, Object)
+   */
+  public static <T> int binarySearch(Array<? extends Comparable<? super T>> array, T x) {
+    return Collections.binarySearch(array.toList(), x);
+  }
+
+  /**
+   * Searches the specified array for the specified object using the binary search algorithm. The
+   * array must be sorted into ascending order
+   *
+   * @param array the array
+   * @param x the element
+   * @return the index of the search key, if it is contained in the list; otherwise,
+   *         <tt>(-(<i>insertion point</i>) - 1)</tt>.
+   * @see #binarySearch(Array, Object)
+   */
+  public static int binarySearch(IntArray array, int x) {
+    return binarySearch(array.boxed(), x);
+  }
+
+  /**
+   * Searches the specified array for the specified object using the binary search algorithm. The
+   * array must be sorted into ascending order
+   *
+   * @param array the array
+   * @param x the element
+   * @return the index of the search key, if it is contained in the list; otherwise,
+   *         <tt>(-(<i>insertion point</i>) - 1)</tt>.
+   * @see #binarySearch(Array, Object)
+   */
+  public static int binarySearch(DoubleArray array, double x) {
+    return binarySearch(array.boxed(), x);
+  }
+
+  /**
+   * Locate the insertion point for value in a to maintain sorted order. If value is already present
+   * in the array, the insertion point will be before (to the left of) any existing entries. The
+   * array must be sorted in ascending order.
+   *
+   * @param array the array
+   * @param value the value
+   * @param <T> the class of objects in the array
+   * @return the insertion point of the value
+   */
+  public static <T> int bisectLeft(Array<? extends Comparable<? super T>> array, T value) {
+    int i = Collections.binarySearch(array.toList(), value);
+    if (i < 0) {
+      return -i - 1;
+    } else {
+      return i;
+    }
+  }
+
+  /**
+   * @see #bisectLeft(Array, Object)
+   */
+  public static int bisectLeft(IntArray array, int value) {
+    return bisectLeft(array.boxed(), value);
+  }
+
+  /**
+   * @see #bisectLeft(Array, Object)
+   */
+  public static int bisectLeft(DoubleArray array, double value) {
+    return bisectLeft(array.boxed(), value);
+  }
+
+  /**
+   * Locate the insertion point for value in a to maintain sorted order. If value is already present
+   * in the array, the insertion point will be after (to the right of) any existing entries. The
+   * array must be sorted in ascending order.
+   *
+   * @param array the array
+   * @param value the value
+   * @param <T> the class of objects in the array
+   * @return the insertion point of the value
+   * @see #bisectLeft(Array, Object)
+   */
+  public static <T> int bisectRight(Array<? extends Comparable<? super T>> array, T value) {
+    int i = Collections.binarySearch(array.toList(), value);
+    if (i < 0) {
+      return -i - 1;
+    } else {
+      return i + 1;
+    }
+  }
+
+  /**
+   * @see #bisectRight(Array, Object)
+   */
+  public static int bisectRight(IntArray array, int value) {
+    return bisectRight(array.boxed(), value);
+  }
+
+  /**
+   * @see #bisectRight(Array, Object)
+   */
+  public static int bisectRight(DoubleArray array, double value) {
+    return bisectRight(array.boxed(), value);
+  }
+
+  /**
    * Randomly shuffle the elements in the given array
    *
    * @param x the array
@@ -1689,6 +2016,8 @@ public final class Arrays {
    */
   public static DoubleArray dot(ArrayOperation transA, ArrayOperation transB, DoubleArray a,
       double alpha, DoubleArray b) {
+
+    // TODO(isak): select implementation based on the input
     Check.argument(a.isMatrix() && b.isMatrix(), "require 2d-arrays");
     int m = a.size(transA == ArrayOperation.KEEP ? 0 : 1);
     int bm = b.size(transB == ArrayOperation.KEEP ? 0 : 1);
@@ -1697,22 +2026,13 @@ public final class Arrays {
     if (m == 0 || k == 0 || n == 0 || bm == 0) {
       throw new IllegalArgumentException("empty result");
     }
-    if (b.size(transB == ArrayOperation.KEEP ? 0 : 1) != a.size(transA == ArrayOperation.KEEP ? 1
-        : 0)) {
+    if (b.size(transB == ArrayOperation.KEEP ? 0 : 1) != a
+        .size(transA == ArrayOperation.KEEP ? 1 : 0)) {
       throw new MultiDimensionMismatchException(a, b);
     }
     DoubleArray c = doubleArray(m, n);
     gemm(transA, transB, alpha, a, b, 1, c);
     return c;
-  }
-
-  /**
-   * @see ArrayRoutines#gemm(ArrayOperation, ArrayOperation, double, DoubleArray, DoubleArray,
-   *      double, DoubleArray)
-   */
-  public static void gemm(ArrayOperation transA, ArrayOperation transB, double alpha,
-      DoubleArray a, DoubleArray b, double beta, DoubleArray c) {
-    ARRAY_ROUTINES.gemm(transA, transB, alpha, a, b, beta, c);
   }
 
   /**
@@ -1872,6 +2192,15 @@ public final class Arrays {
     ARRAY_ROUTINES.gemv(transA, alpha, a, x, beta, y);
   }
 
+  /**
+   * @see ArrayRoutines#gemm(ArrayOperation, ArrayOperation, double, DoubleArray, DoubleArray,
+   *      double, DoubleArray)
+   */
+  public static void gemm(ArrayOperation transA, ArrayOperation transB, double alpha, DoubleArray a,
+      DoubleArray b, double beta, DoubleArray c) {
+    ARRAY_ROUTINES.gemm(transA, transB, alpha, a, b, beta, c);
+  }
+
   public static void gemm(double alpha, DoubleArray a, DoubleArray b, double beta, DoubleArray c) {
     gemm(ArrayOperation.KEEP, ArrayOperation.KEEP, alpha, a, b, beta, c);
   }
@@ -1989,329 +2318,6 @@ public final class Arrays {
     return copy;
   }
 
-  /**
-   * Return the order of the values in array (with smallest index first).
-   *
-   * @param array the array
-   * @return the indexes in order
-   */
-  public static IntArray order(DoubleArray array) {
-    return order(array, Double::compare);
-  }
-
-  /**
-   * Return the order of the values in the given array (according to the comparator).
-   *
-   * @param array the array
-   * @param cmp the comparator
-   * @return the indexes in order
-   */
-  public static IntArray order(DoubleArray array, DoubleComparator cmp) {
-    IntArray order = Arrays.range(array.size()).copy();
-    order.sort((a, b) -> cmp.compare(array.get(a), array.get(b)));
-    return order;
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayFactory#range(int)
-   */
-  public static Range range(int end) {
-    return ARRAY_FACTORY.range(end);
-  }
-
-  /**
-   * The order of elements along the given dimension.
-   *
-   * @param dim the dimension
-   * @param array the array
-   * @return the order of each dimension
-   */
-  public static IntArray order(int dim, DoubleArray array) {
-    return order(dim, array, Double::compare);
-  }
-
-  /**
-   * The order of elements along the given dimension.
-   *
-   * @param dim the dimension
-   * @param array the array
-   * @param cmp the comparator
-   * @return the order of each dimension
-   */
-  public static IntArray order(int dim, DoubleArray array, DoubleComparator cmp) {
-    int vectors = array.vectors(dim);
-    IntArray order = IntArray.zeros(array.getShape());
-    for (int i = 0; i < vectors; i++) {
-      order.setVector(dim, i, order(array.getVector(dim, i), cmp));
-    }
-    return order;
-  }
-
-  /**
-   * Searches the specified array for the specified object using the binary search algorithm. The
-   * array must be sorted into ascending order
-   *
-   * @param array the array
-   * @param x the element
-   * @return the index of the search key, if it is contained in the list; otherwise,
-   *         <tt>(-(<i>insertion point</i>) - 1)</tt>.
-   * @see #binarySearch(Array, Object)
-   */
-  public static int binarySearch(IntArray array, int x) {
-    return binarySearch(array.boxed(), x);
-  }
-
-  /**
-   * Searches the specified array for the specified object using the binary search algorithm. The
-   * array must be sorted into ascending order
-   *
-   * @param array the array
-   * @param x the element
-   * @return the index of the search key, if it is contained in the list; otherwise,
-   *         <tt>(-(<i>insertion point</i>) - 1)</tt>.
-   * @see Collections#binarySearch(List, Object)
-   */
-  public static <T> int binarySearch(Array<? extends Comparable<? super T>> array, T x) {
-    return Collections.binarySearch(array.toList(), x);
-  }
-
-  /**
-   * Searches the specified array for the specified object using the binary search algorithm. The
-   * array must be sorted into ascending order
-   *
-   * @param array the array
-   * @param x the element
-   * @return the index of the search key, if it is contained in the list; otherwise,
-   *         <tt>(-(<i>insertion point</i>) - 1)</tt>.
-   * @see #binarySearch(Array, Object)
-   */
-  public static int binarySearch(DoubleArray array, double x) {
-    return binarySearch(array.boxed(), x);
-  }
-
-  /**
-   * @see #bisectLeft(Array, Object)
-   */
-  public static int bisectLeft(IntArray array, int value) {
-    return bisectLeft(array.boxed(), value);
-  }
-
-  /**
-   * Locate the insertion point for value in a to maintain sorted order. If value is already present
-   * in the array, the insertion point will be before (to the left of) any existing entries. The
-   * array must be sorted in ascending order.
-   *
-   * @param array the array
-   * @param value the value
-   * @param <T> the class of objects in the array
-   * @return the insertion point of the value
-   */
-  public static <T> int bisectLeft(Array<? extends Comparable<? super T>> array, T value) {
-    int i = Collections.binarySearch(array.toList(), value);
-    if (i < 0) {
-      return -i - 1;
-    } else {
-      return i;
-    }
-  }
-
-  /**
-   * @see #bisectLeft(Array, Object)
-   */
-  public static int bisectLeft(DoubleArray array, double value) {
-    return bisectLeft(array.boxed(), value);
-  }
-
-  /**
-   * @see #bisectRight(Array, Object)
-   */
-  public static int bisectRight(IntArray array, int value) {
-    return bisectRight(array.boxed(), value);
-  }
-
-  /**
-   * Locate the insertion point for value in a to maintain sorted order. If value is already present
-   * in the array, the insertion point will be after (to the right of) any existing entries. The
-   * array must be sorted in ascending order.
-   *
-   * @param array the array
-   * @param value the value
-   * @param <T> the class of objects in the array
-   * @return the insertion point of the value
-   * @see #bisectLeft(Array, Object)
-   */
-  public static <T> int bisectRight(Array<? extends Comparable<? super T>> array, T value) {
-    int i = Collections.binarySearch(array.toList(), value);
-    if (i < 0) {
-      return -i - 1;
-    } else {
-      return i + 1;
-    }
-  }
-
-  /**
-   * @see #bisectRight(Array, Object)
-   */
-  public static int bisectRight(DoubleArray array, double value) {
-    return bisectRight(array.boxed(), value);
-  }
-
-  public static DoubleArray cos(ComplexArray array) {
-    return ARRAY_ROUTINES.abs(array);
-  }
-
-  public static DoubleArray sqrt(DoubleArray array) {
-    return ARRAY_ROUTINES.sqrt(array);
-  }
-
-  public static DoubleArray pow(DoubleArray in, double power) {
-    return ARRAY_ROUTINES.pow(in, power);
-  }
-
-  public static DoubleArray log2(DoubleArray array) {
-    return ARRAY_ROUTINES.log2(array);
-  }
-
-  public static DoubleArray acos(DoubleArray array) {
-    return ARRAY_ROUTINES.acos(array);
-  }
-
-  public static DoubleArray cosh(DoubleArray array) {
-    return ARRAY_ROUTINES.cosh(array);
-  }
-
-  public static DoubleArray signum(DoubleArray in) {
-    return ARRAY_ROUTINES.signum(in);
-  }
-
-  public static DoubleArray cos(DoubleArray array) {
-    return ARRAY_ROUTINES.cos(array);
-  }
-
-  public static DoubleArray asin(DoubleArray array) {
-    return ARRAY_ROUTINES.asin(array);
-  }
-
-  public static LongArray abs(LongArray array) {
-    return ARRAY_ROUTINES.abs(array);
-  }
-
-  public static DoubleArray cbrt(DoubleArray array) {
-    return ARRAY_ROUTINES.cbrt(array);
-  }
-
-  public static DoubleArray abs(DoubleArray array) {
-    return ARRAY_ROUTINES.abs(array);
-  }
-
-  public static DoubleArray ceil(DoubleArray array) {
-    return ARRAY_ROUTINES.ceil(array);
-  }
-
-  public static DoubleArray sinh(DoubleArray array) {
-    return ARRAY_ROUTINES.sinh(array);
-  }
-
-  public static DoubleArray log(DoubleArray array) {
-    return ARRAY_ROUTINES.log(array);
-  }
-
-  public static DoubleArray tanh(DoubleArray array) {
-    return ARRAY_ROUTINES.tanh(array);
-  }
-
-  public static DoubleArray sin(DoubleArray array) {
-    return ARRAY_ROUTINES.sin(array);
-  }
-
-  public static DoubleArray scalb(DoubleArray array, int scaleFactor) {
-    return ARRAY_ROUTINES.scalb(array, scaleFactor);
-  }
-
-  public static DoubleArray exp(DoubleArray array) {
-    return ARRAY_ROUTINES.exp(array);
-  }
-
-  public static DoubleArray log10(DoubleArray in) {
-    return ARRAY_ROUTINES.log10(in);
-  }
-
-  public static DoubleArray floor(DoubleArray array) {
-    return ARRAY_ROUTINES.floor(array);
-  }
-
-  public static DoubleArray tan(DoubleArray array) {
-    return ARRAY_ROUTINES.tan(array);
-  }
-
-  public static IntArray abs(IntArray array) {
-    return ARRAY_ROUTINES.abs(array);
-  }
-
-  public static LongArray round(DoubleArray in) {
-    return ARRAY_ROUTINES.round(in);
-  }
-
-  public static DoubleArray atan(DoubleArray array) {
-    return ARRAY_ROUTINES.atan(array);
-  }
-
-  public static ComplexArray sinh(ComplexArray array) {
-    return ARRAY_ROUTINES.sinh(array);
-  }
-
-  public static ComplexArray exp(ComplexArray array) {
-    return ARRAY_ROUTINES.exp(array);
-  }
-
-  public static ComplexArray acos(ComplexArray array) {
-    return ARRAY_ROUTINES.acos(array);
-  }
-
-  public static ComplexArray sin(ComplexArray array) {
-    return ARRAY_ROUTINES.sin(array);
-  }
-
-  public static DoubleArray abs(ComplexArray array) {
-    return ARRAY_ROUTINES.abs(array);
-  }
-
-  public static ComplexArray sqrt(ComplexArray array) {
-    return ARRAY_ROUTINES.sqrt(array);
-  }
-
-  public static ComplexArray log(ComplexArray array) {
-    return ARRAY_ROUTINES.log(array);
-  }
-
-  public static ComplexArray floor(ComplexArray array) {
-    return ARRAY_ROUTINES.floor(array);
-  }
-
-  public static ComplexArray tan(ComplexArray array) {
-    return ARRAY_ROUTINES.tan(array);
-  }
-
-  public static ComplexArray tanh(ComplexArray array) {
-    return ARRAY_ROUTINES.tanh(array);
-  }
-
-  public static ComplexArray asin(ComplexArray array) {
-    return ARRAY_ROUTINES.asin(array);
-  }
-
-  public static ComplexArray cosh(ComplexArray array) {
-    return ARRAY_ROUTINES.cosh(array);
-  }
-
-  public static ComplexArray atan(ComplexArray array) {
-    return ARRAY_ROUTINES.atan(array);
-  }
-
-  public static ComplexArray ceil(ComplexArray array) {
-    return ARRAY_ROUTINES.ceil(array);
-  }
-
   public static int arg(Predicate<Boolean> predicate, BooleanArray array) {
     for (int i = 0; i < array.size(); i++) {
       if (predicate.test(array.get(i))) {
@@ -2321,6 +2327,26 @@ public final class Arrays {
     return -1;
   }
 
+  /**
+   * Test if any element in the array fulfill the predicate.
+   * 
+   * @param array the array
+   * @param predicate the predicate
+   * @param <T> the element type
+   * @return true if any element fulfilling the predicate exist
+   */
+  public static <T> boolean any(Array<T> array, Predicate<? super T> predicate) {
+    for (int i = 0; i < array.size(); i++) {
+      if (predicate.test(array.get(i))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * @see #any(Array, Predicate)
+   */
   public static boolean any(DoubleArray array, DoublePredicate predicate) {
     for (int i = 0; i < array.size(); i++) {
       if (predicate.test(array.get(i))) {
@@ -2330,13 +2356,84 @@ public final class Arrays {
     return false;
   }
 
-  public static <S extends BaseArray<S>> S where(BooleanArray c, S x, S y) {
-    Check.dimension(x.size(), y.size());
-    Check.dimension(x.size(), c.size());
+  /**
+   * @see #any(Array, Predicate)
+   */
+  public static boolean any(IntArray array, IntPredicate predicate) {
+    // change if shown to be a bottleneck
+    return any(array.boxed(), predicate::test);
+  }
+
+  /**
+   * @see #any(Array, Predicate)
+   */
+  public static boolean any(LongArray array, LongPredicate predicate) {
+    return any(array.boxed(), predicate::test);
+  }
+
+  /**
+   * @see #any(Array, Predicate)
+   */
+  public static boolean any(ComplexArray array, Predicate<? super Complex> predicate) {
+    return any(array.boxed(), predicate);
+  }
+
+  /**
+   * @see #any(Array, Predicate)
+   */
+  public static boolean any(BooleanArray array) {
+    return any(array.boxed(), (v) -> v);
+  }
+
+  /**
+   * Remove single-dimensional entries from the array.
+   *
+   * @param array the array
+   * @param <E> the array type
+   * @return the input array with the dimensions of size 1 removed.
+   */
+  public static <E extends BaseArray<E>> E squeeze(E array) {
+    int ones = 0;
+    for (int i = 0; i < array.dims(); i++) {
+      if (array.size(i) == 1) {
+        ones++;
+      }
+    }
+
+    if (ones == 0) {
+      return array.asView(array.getShape(), array.getStride());
+    } else {
+      int[] newShape = new int[ones];
+      int[] newStride = new int[ones];
+      int outIndex = 0;
+      for (int i = 0; i < array.dims(); i++) {
+        if (array.size(i) != 1) {
+          newShape[outIndex] = array.size(i);
+          newStride[outIndex] = array.stride(outIndex);
+          outIndex++;
+        }
+      }
+      return array.asView(newShape, newStride);
+    }
+  }
+
+  /**
+   * Returns elements from either of the input arrays depending on the condition
+   * 
+   * @param condition the condition array
+   * @param x the first input
+   * @param y the second input
+   * @param <E> the input type
+   * @return a new array
+   */
+  public static <E extends BaseArray<E>> E where(BooleanArray condition, E x, E y) {
+    int[] shape = condition.getShape();
+    x = broadcast(x, shape); // performs error checking
+    y = broadcast(y, shape);
     int size = x.size();
-    S selected = x.newEmptyArray(size);
+    E selected = x.newEmptyArray(shape);
     for (int i = 0; i < size; i++) {
-      selected.set(i, c.get(i) ? x : y, i);
+      selected.set(i, condition.get(i) ? x : y, i);
     }
     return selected;
   }
@@ -2365,5 +2462,70 @@ public final class Arrays {
       }
     }
     return max;
+  }
+
+  /**
+   * Splits an array into a specified number of parts along the specified dimension.
+   */
+  static class SplitArrayList<T extends BaseArray<T>> extends AbstractList<T> {
+    private final T array;
+    private final int[] shape;
+    private final int dim;
+    private final int parts;
+
+    /**
+     * Note that this constructor, nor any methods perform any error checking. Given arguments are
+     * assumed to be correct, i.e., the specified dimension exists and is evenly divisible by the
+     * number of parts.
+     */
+    public SplitArrayList(T array, int dim, int parts) {
+      this.array = array;
+      this.dim = dim;
+      this.parts = parts;
+
+      this.shape = array.getShape();
+      shape[dim] /= parts;
+    }
+
+    @Override
+    public T get(int index) {
+      T empty = array.newEmptyArray(shape);
+      int size = empty.size(dim);
+      int rowPadding = index * size;
+      for (int i = 0; i < size; i++) {
+        empty.select(dim, i).assign(array.select(dim, rowPadding + i));
+      }
+      return empty;
+    }
+
+    @Override
+    public int size() {
+      return parts;
+    }
+  }
+
+  /**
+   * Broadcast each array to the given shape. Note that neither the constructor nor methods perform
+   * any error checking, i.e., the arguments are assumed to be correct
+   */
+  static class BroadcastArrayList<E extends BaseArray<E>> extends AbstractList<E> {
+    private final List<? extends E> arrays;
+    private final int[] shape;
+
+    public BroadcastArrayList(List<? extends E> arrays, int[] shape) {
+      this.arrays = arrays;
+      this.shape = shape;
+    }
+
+    @Override
+    public E get(int index) {
+      E x = arrays.get(index);
+      return x.asView(shape, StrideUtils.broadcastStrides(x.getStride(), x.getShape(), shape));
+    }
+
+    @Override
+    public int size() {
+      return arrays.size();
+    }
   }
 }

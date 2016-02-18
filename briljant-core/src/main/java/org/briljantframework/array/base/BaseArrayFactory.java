@@ -67,7 +67,7 @@ public class BaseArrayFactory implements ArrayFactory {
 
   @Override
   public <T> Array<T> newVector(T[] data) {
-    return new BaseReferenceArray<T>(backend, data);
+    return new BaseReferenceArray<>(backend, data);
   }
 
   @Override

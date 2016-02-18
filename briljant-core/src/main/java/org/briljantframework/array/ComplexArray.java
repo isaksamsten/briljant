@@ -63,14 +63,6 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
   }
 
   /**
-   * Assign {@code value} to {@code this}
-   *
-   * @param value the value to assign
-   * @return receiver modified
-   */
-  ComplexArray assign(Complex value);
-
-  /**
    * @see Arrays#complexVector(Complex...)
    */
   static ComplexArray of(Complex... data) {
@@ -80,6 +72,14 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
   static ComplexArray of(double... real) {
     return Arrays.complexVector(real);
   }
+
+  /**
+   * Assign {@code value} to {@code this}
+   *
+   * @param value the value to assign
+   * @return receiver modified
+   */
+  ComplexArray assign(Complex value);
 
   void assign(double[] value);
 

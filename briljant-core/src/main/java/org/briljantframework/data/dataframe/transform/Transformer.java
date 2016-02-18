@@ -27,7 +27,7 @@ import org.briljantframework.data.dataframe.DataFrame;
  * A transformer takes a dataset D and applies a transformation, resulting in an new dataset D'
  *
  * @author Isak Karlsson
- */
+ */ // TODO(isak): A transformer should be able to transform a single record
 public interface Transformer {
 
   /**
