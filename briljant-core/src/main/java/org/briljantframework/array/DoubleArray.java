@@ -20,6 +20,7 @@
  */
 package org.briljantframework.array;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleConsumer;
@@ -67,10 +68,11 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double> {
    * @param elements the elements
    * @return a new double array
    */
-  static DoubleArray copyOf(List<? extends Double> elements) {
+  static DoubleArray copyOf(Collection<? extends Number> elements) {
     DoubleArray a = DoubleArray.zeros(elements.size());
-    for (int i = 0; i < elements.size(); i++) {
-      a.set(i, elements.get(i));
+    int i = 0;
+    for (Number element : elements) {
+      a.set(i++, element.doubleValue());
     }
     return a;
   }
