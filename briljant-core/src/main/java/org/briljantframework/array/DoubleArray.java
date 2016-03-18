@@ -22,19 +22,7 @@ package org.briljantframework.array;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.function.DoubleBinaryOperator;
-import java.util.function.DoubleConsumer;
-import java.util.function.DoubleFunction;
-import java.util.function.DoublePredicate;
-import java.util.function.DoubleSupplier;
-import java.util.function.DoubleToIntFunction;
-import java.util.function.DoubleToLongFunction;
-import java.util.function.DoubleUnaryOperator;
-import java.util.function.IntToDoubleFunction;
-import java.util.function.LongToDoubleFunction;
-import java.util.function.ObjDoubleConsumer;
-import java.util.function.Supplier;
-import java.util.function.ToDoubleFunction;
+import java.util.function.*;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 
@@ -42,6 +30,7 @@ import net.mintern.primitive.comparators.DoubleComparator;
 
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
+import org.briljantframework.DoubleSequence;
 import org.briljantframework.function.DoubleBiPredicate;
 
 /**
@@ -49,7 +38,7 @@ import org.briljantframework.function.DoubleBiPredicate;
  *
  * @author Isak Karlsson
  */
-public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double> {
+public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, DoubleSequence {
 
   static DoubleArray ones(int... shape) {
     return Arrays.ones(shape);
@@ -64,7 +53,7 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double> {
 
   /**
    * Returns a double array consisting of the given elements, in order.
-   * 
+   *
    * @param elements the elements
    * @return a new double array
    */
@@ -477,7 +466,7 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double> {
 
   /**
    * Element wise addition.
-   * 
+   *
    * @param alpha scaling for {@code this}
    * @param other the other matrix
    * @return a new matrix
@@ -582,6 +571,11 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double> {
 
   default BooleanArray neq(double v) {
     return where(x -> x != v);
+  }
+
+  @Override
+  default double getAsDouble(int index) {
+    return get(index);
   }
 
   /**

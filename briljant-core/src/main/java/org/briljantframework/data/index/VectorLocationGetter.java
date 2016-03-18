@@ -23,6 +23,7 @@ package org.briljantframework.data.index;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.briljantframework.DoubleSequence;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.vector.Vector;
 
@@ -31,7 +32,7 @@ import org.briljantframework.data.vector.Vector;
  * 
  * @author Isak Karlsson
  */
-public interface VectorLocationGetter extends List<Object> {
+public interface VectorLocationGetter extends DoubleSequence, List<Object> {
 
   default Object get(int i) {
     return get(Object.class, i);
