@@ -158,7 +158,9 @@ public class CsvParser implements Parser {
      * @return this
      */
     public Settings setHeader(List<Object> header) {
-      CsvParser.this.header = new ArrayList<>(header);
+      if (header != null) {
+        CsvParser.this.header = new ArrayList<>(header);
+      }
       return this;
     }
 
