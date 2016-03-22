@@ -36,19 +36,19 @@ class BaseReferenceArray<T> extends AbstractArray<T> {
     this(bj, new int[] {data.length}, data);
   }
 
-  BaseReferenceArray(ArrayBackend bj, int[] shape, T[] data) {
+  private BaseReferenceArray(ArrayBackend bj, int[] shape, T[] data) {
     super(bj, shape);
     this.data = data;
   }
 
-  BaseReferenceArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
-      T[] data) {
+  private BaseReferenceArray(ArrayBackend bj, int offset, int[] shape, int[] stride,
+      int majorStride, T[] data) {
     super(bj, offset, shape, stride, majorStride);
     this.data = data;
   }
 
   @SuppressWarnings("unchecked")
-  public BaseReferenceArray(ArrayBackend bj, int[] shape) {
+  BaseReferenceArray(ArrayBackend bj, int[] shape) {
     super(bj, shape);
     this.data = (T[]) new Object[ShapeUtils.size(shape)];
   }

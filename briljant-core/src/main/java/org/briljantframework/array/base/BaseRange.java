@@ -37,7 +37,7 @@ class BaseRange extends AbstractIntArray implements Range {
 
   private final int start, end, step;
 
-  public BaseRange(ArrayBackend backend, int start, int end, int step) {
+  BaseRange(ArrayBackend backend, int start, int end, int step) {
     super(backend, new int[] {getSize(start, end, step)});
     this.start = start;
     this.end = end;
@@ -56,8 +56,8 @@ class BaseRange extends AbstractIntArray implements Range {
     }
   }
 
-  public BaseRange(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
-                   int start, int end, int step) {
+  private BaseRange(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
+      int start, int end, int step) {
     super(bj, offset, shape, stride, majorStride);
     this.start = start;
     this.end = end;

@@ -42,7 +42,7 @@ import org.briljantframework.data.resolver.Resolver;
  */
 class GenericVector extends AbstractVector implements Transferable {
 
-  private final VectorType type;
+  private final Type type;
   private final Class<?> cls;
   private final List<Object> values;
   private final int size;
@@ -59,14 +59,14 @@ class GenericVector extends AbstractVector implements Transferable {
   private GenericVector(Class<?> cls, List<Object> values, int size, boolean copy) {
     this.cls = cls;
     this.values = copy ? new ArrayList<>(values) : values;
-    this.type = VectorType.of(cls);
+    this.type = Type.of(cls);
     this.size = size;
   }
 
   protected GenericVector(Class<?> cls, List<Object> values, int size, Index index) {
     super(index);
     this.cls = cls;
-    this.type = VectorType.of(cls);
+    this.type = Type.of(cls);
     this.values = values;
     this.size = size;
   }
@@ -77,7 +77,7 @@ class GenericVector extends AbstractVector implements Transferable {
   }
 
   @Override
-  public VectorType getType() {
+  public Type getType() {
     return type;
   }
 

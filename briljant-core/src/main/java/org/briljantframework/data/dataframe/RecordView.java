@@ -25,8 +25,8 @@ import java.util.Set;
 
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.vector.AbstractVector;
+import org.briljantframework.data.vector.Type;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.VectorType;
 
 /**
  * View a row in a data frame.
@@ -37,13 +37,13 @@ class RecordView extends AbstractVector {
 
   private final DataFrame parent;
   private final int row;
-  private final VectorType type;
+  private final Type type;
 
   public RecordView(DataFrame parent, int row) {
     this(parent, row, findUnionType(parent));
   }
 
-  public RecordView(DataFrame parent, int row, VectorType type) {
+  public RecordView(DataFrame parent, int row, Type type) {
     super(parent.getColumnIndex());
     this.parent = parent;
     this.type = type;
@@ -54,12 +54,12 @@ class RecordView extends AbstractVector {
    * For data-frames where the columns have the same type, the type of a record is the same
    * otherwise we return the most generic type (i.e. Object).
    */
-  private static VectorType findUnionType(DataFrame df) {
-    Set<VectorType> types = new HashSet<>();
+  private static Type findUnionType(DataFrame df) {
+    Set<Type> types = new HashSet<>();
     for (Vector column : df.getColumns()) {
       types.add(column.getType());
     }
-    return types.size() == 1 ? types.iterator().next() : VectorType.OBJECT;
+    return types.size() == 1 ? types.iterator().next() : Type.OBJECT;
   }
 
   @Override
@@ -68,7 +68,7 @@ class RecordView extends AbstractVector {
   }
 
   @Override
-  public VectorType getType() {
+  public Type getType() {
     return type;
   }  @Override
   public <T> T getAt(Class<T> cls, int index) {

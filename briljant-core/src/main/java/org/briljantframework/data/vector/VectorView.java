@@ -66,7 +66,7 @@ public abstract class VectorView extends AbstractVector {
   }
 
   @Override
-  public VectorType getType() {
+  public Type getType() {
     return parent.getType();
   }
 

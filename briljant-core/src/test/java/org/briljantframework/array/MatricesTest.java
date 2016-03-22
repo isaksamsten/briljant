@@ -21,6 +21,7 @@
 package org.briljantframework.array;
 
 import org.apache.commons.math3.linear.RealMatrix;
+import org.briljantframework.array.linalg.decomposition.SingularValueDecomposition;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -77,7 +78,7 @@ public class MatricesTest {
     System.out.println((System.nanoTime() - start) / 1e6);
 
     start = System.nanoTime();
-    org.briljantframework.linalg.decomposition.SingularValueDecomposition d =
+    SingularValueDecomposition d =
         Arrays.linalg.svd(array);
     System.out.println((System.nanoTime() - start) / 1e6);
 

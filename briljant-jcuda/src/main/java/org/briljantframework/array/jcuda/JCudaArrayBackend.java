@@ -27,11 +27,8 @@ import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.ArrayRoutines;
-import org.briljantframework.array.base.BaseArrayBackend;
 import org.briljantframework.array.netlib.NetlibArrayBackend;
-import org.briljantframework.linalg.api.LinearAlgebraRoutines;
-
-import java.util.Random;
+import org.briljantframework.array.linalg.api.LinearAlgebraRoutines;
 
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>

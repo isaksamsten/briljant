@@ -23,7 +23,7 @@ package org.briljantframework.array.base;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.ArrayRoutines;
-import org.briljantframework.linalg.api.LinearAlgebraRoutines;
+import org.briljantframework.array.linalg.api.LinearAlgebraRoutines;
 
 /**
  * The base array backend. This backend has the lowest priority.

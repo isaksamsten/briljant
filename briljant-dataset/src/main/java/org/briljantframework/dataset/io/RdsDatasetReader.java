@@ -37,7 +37,7 @@ import java.util.Map;
 
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.StringDataEntry;
-import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.data.vector.Type;
 
 import com.univocity.parsers.common.ParsingContext;
 import com.univocity.parsers.common.processor.RowProcessor;
@@ -67,15 +67,15 @@ public class RdsDatasetReader extends DatasetReader {
 
   private static final char DEFAULT_SEPARATOR = ',';
   private static final String DEFAULT_MISSING_VALUE = "?";
-  private static final Map<String, VectorType> TYPE_MAP;
+  private static final Map<String, Type> TYPE_MAP;
 
   static {
-    Map<String, VectorType> map = new HashMap<>();
-    map.put("numeric", VectorType.DOUBLE);
-    map.put("date", VectorType.of(LocalDate.class));
-    map.put("regressor", VectorType.DOUBLE);
-    map.put("class", VectorType.of(String.class));
-    map.put("categoric", VectorType.of(String.class));
+    Map<String, Type> map = new HashMap<>();
+    map.put("numeric", Type.DOUBLE);
+    map.put("date", Type.of(LocalDate.class));
+    map.put("regressor", Type.DOUBLE);
+    map.put("class", Type.of(String.class));
+    map.put("categoric", Type.of(String.class));
 
     TYPE_MAP = Collections.unmodifiableMap(map);
   }
@@ -136,7 +136,7 @@ public class RdsDatasetReader extends DatasetReader {
   }
 
   @Override
-  protected VectorType readColumnType() throws IOException {
+  protected Type readColumnType() throws IOException {
     throw new UnsupportedOperationException();
   }
 
@@ -146,7 +146,7 @@ public class RdsDatasetReader extends DatasetReader {
   }
 
   @Override
-  public List<VectorType> readColumnTypes() throws IOException {
+  public List<Type> readColumnTypes() throws IOException {
     return processor.columnTypes;
   }
 
@@ -180,7 +180,7 @@ public class RdsDatasetReader extends DatasetReader {
 
     private List<Object> columnNames = null;
 
-    private List<VectorType> columnTypes = null;
+    private List<Type> columnTypes = null;
 
     @Override
     public void processStarted(ParsingContext context) {
@@ -192,7 +192,7 @@ public class RdsDatasetReader extends DatasetReader {
       if (line == 1) {
         columnTypes = new ArrayList<>();
         for (String col : row) {
-          VectorType type = TYPE_MAP.get(col);
+          Type type = TYPE_MAP.get(col);
           if (type == null) {
             throw new ParseException(line, context.currentColumn());
           }

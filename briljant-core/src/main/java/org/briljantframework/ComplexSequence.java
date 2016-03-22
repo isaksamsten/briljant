@@ -18,27 +18,16 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.briljantframework.data.dataframe.transform;
+package org.briljantframework;
 
-import static org.junit.Assert.assertEquals;
+import org.apache.commons.math3.complex.Complex;
 
-import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.vector.Vector;
-import org.junit.Test;
+/**
+ * Created by isak on 3/22/16.
+ */
+public interface ComplexSequence {
 
-public class RemoveIncompleteColumnsTest {
+  int size();
 
-  @Test
-  public void testTransform() throws Exception {
-    DataFrame df =
-        DataFrame.of("a", Vector.of(1, 1, 2, 2, null), "b", Vector.of(1, 2, 3, 4, 5), "c",
-            Vector.of("hello", "a", "b", "c", "d"));
-    Transformer ric = new RemoveIncompleteColumns();
-    DataFrame removed = ric.transform(df);
-
-    assertEquals(2, removed.columns());
-    assertEquals(5, removed.rows());
-    assertEquals(Vector.of(1, 2, 3, 4, 5), df.get("b"));
-    assertEquals(Vector.of("hello", "a", "b", "c", "d"), df.get("c"));
-  }
+  Complex getAsComplex(int i);
 }

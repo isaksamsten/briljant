@@ -38,7 +38,7 @@ final class SingletonVector extends AbstractVector implements Transferable {
   private static final Vector EMPTY = new SingletonVector(null, 0);
 
   private final Object value;
-  private final VectorType type;
+  private final Type type;
   private final int size;
 
   SingletonVector(Object value, int size) {
@@ -50,7 +50,7 @@ final class SingletonVector extends AbstractVector implements Transferable {
     this.value = value;
     this.size = size;
     Class<?> cls = value != null ? value.getClass() : Object.class;
-    type = VectorType.of(cls);
+    type = Type.of(cls);
   }
 
   public static Vector empty() {
@@ -115,7 +115,7 @@ final class SingletonVector extends AbstractVector implements Transferable {
   }
 
   @Override
-  public VectorType getType() {
+  public Type getType() {
     return type;
   }
 }

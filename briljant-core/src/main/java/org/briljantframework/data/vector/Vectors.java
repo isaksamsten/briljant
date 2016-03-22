@@ -257,7 +257,7 @@ public final class Vectors {
    * </p>
    * <p>
    * <p>
-   * Returns a vector of {@link VectorType#DOUBLE}
+   * Returns a vector of {@link Type#DOUBLE}
    * </p>
    *
    * @param start the start value

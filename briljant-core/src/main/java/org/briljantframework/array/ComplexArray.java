@@ -21,28 +21,18 @@
 package org.briljantframework.array;
 
 import java.util.List;
-import java.util.function.BiPredicate;
-import java.util.function.BinaryOperator;
-import java.util.function.DoubleFunction;
-import java.util.function.Function;
-import java.util.function.IntFunction;
-import java.util.function.LongFunction;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.function.ToDoubleFunction;
-import java.util.function.ToIntFunction;
-import java.util.function.ToLongFunction;
-import java.util.function.UnaryOperator;
+import java.util.function.*;
 import java.util.stream.Stream;
 
 import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.ComplexSequence;
 
 /**
  * A n-dimensional array of double values.
  *
  * @author Isak Karlsson
  */
-public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex> {
+public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>, ComplexSequence {
 
   static ComplexArray ones(int... shape) {
     ComplexArray array = zeros(shape);
@@ -281,6 +271,11 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
   Complex get(int i, int j);
 
   Complex get(int... index);
+
+  @Override
+  default Complex getAsComplex(int i) {
+    return get(i);
+  }
 
   Array<Complex> boxed();
 

@@ -450,7 +450,7 @@ subtraction).
 The most common matrix routines (e.g., BLAS level 1, 2 and 3) are
 provided by the ``org.briljantframework.array.api.ArrayRoutines`` class
 and the most common linear algebra routines are provided by the
-``org.briljantframework.linalg.api.LinearAlgebraRoutines``. By default,
+``LinearAlgebraRoutines``. By default,
 ``Arrays`` delegates to, for the current platform chose,
 implementation. However, the user can freely choose between
 implementation by constructing an instance of a ``ArrayBackend``. For

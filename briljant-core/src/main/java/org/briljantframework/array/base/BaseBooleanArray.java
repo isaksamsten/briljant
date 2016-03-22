@@ -44,13 +44,13 @@ class BaseBooleanArray extends AbstractBooleanArray {
     this.data = data;
   }
 
-  public BaseBooleanArray(ArrayBackend bj, int[] shape) {
+  BaseBooleanArray(ArrayBackend bj, int[] shape) {
     super(bj, shape);
     this.data = new boolean[size()];
   }
 
-  public BaseBooleanArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
-                          boolean[] data) {
+  private BaseBooleanArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
+      boolean[] data) {
     super(bj, offset, shape, stride, majorStride);
     this.data = data;
   }

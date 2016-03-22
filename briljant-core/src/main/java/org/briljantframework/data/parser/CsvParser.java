@@ -20,13 +20,7 @@
  */
 package org.briljantframework.data.parser;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +34,7 @@ import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.ObjectIndex;
 import org.briljantframework.data.reader.CsvEntryReader;
 import org.briljantframework.data.reader.DataEntry;
-import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.data.vector.Type;
 
 import com.univocity.parsers.csv.CsvParserSettings;
 
@@ -57,7 +51,7 @@ public class CsvParser implements Parser {
   private int skipRows = -1;
   private String missingValue = "?";
   private List<Object> header = null;
-  private List<VectorType> types = null;
+  private List<Type> types = null;
   private Reader reader;
 
   public CsvParser() {
@@ -102,7 +96,7 @@ public class CsvParser implements Parser {
     // If no types are set, use the entry reader to infer the types
     if (types == null) {
       for (Class<?> type : entryReader.getTypes()) {
-        builder.add(VectorType.of(type));
+        builder.add(Type.of(type));
       }
     } else {
       types.forEach(builder::add);
@@ -160,8 +154,22 @@ public class CsvParser implements Parser {
     public Settings setHeader(List<Object> header) {
       if (header != null) {
         CsvParser.this.header = new ArrayList<>(header);
+      } else {
+        CsvParser.this.header = new ArrayList<>();
       }
       return this;
+    }
+
+    /**
+     * Returns a (mutable) list of header values
+     * 
+     * @return a list of headers
+     */
+    public List<Object> getHeader() {
+      if (header == null) {
+        return setHeader(null).getHeader();
+      }
+      return header;
     }
 
     /**
@@ -182,14 +190,14 @@ public class CsvParser implements Parser {
      * @return this
      */
     public Settings setTypes(List<Class> types) {
-      CsvParser.this.types = types.stream().map(VectorType::of).collect(Collectors.toList());
+      CsvParser.this.types = types.stream().map(Type::of).collect(Collectors.toList());
       return this;
     }
 
     /**
      * @see #setTypes(java.util.List)
      */
-    public Settings setVectorTypes(List<VectorType> types) {
+    public Settings setVectorTypes(List<Type> types) {
       CsvParser.this.types = new ArrayList<>(types);
       return this;
     }

@@ -46,7 +46,7 @@ public class TypeInferenceVectorBuilderTest {
     builder.setNA("key");
     builder.add(1);
     Vector vector = builder.build();
-    assertEquals(VectorType.OBJECT, vector.getType());
+    assertEquals(Type.OBJECT, vector.getType());
     assertEquals(2, vector.size());
   }
 
@@ -54,7 +54,7 @@ public class TypeInferenceVectorBuilderTest {
   public void testAddNA() throws Exception {
     builder.addNA().add(1);
     Vector vector = builder.build();
-    assertEquals(VectorType.INT, vector.getType());
+    assertEquals(Type.INT, vector.getType());
     assertEquals(2, vector.size());
     assertEquals(Arrays.asList(Na.INT, 1), vector.toList(Integer.class));
   }
@@ -63,7 +63,7 @@ public class TypeInferenceVectorBuilderTest {
   public void testAdd_int() throws Exception {
     builder.add(1);
     Vector vector = builder.build();
-    assertEquals(VectorType.INT, vector.getType());
+    assertEquals(Type.INT, vector.getType());
     assertEquals(1, vector.size());
     assertEquals(Collections.singletonList(1), vector.toList(Integer.class));
   }
@@ -72,7 +72,7 @@ public class TypeInferenceVectorBuilderTest {
   public void testAdd_double() throws Exception {
     builder.add(1.0);
     Vector vector = builder.build();
-    assertEquals(VectorType.DOUBLE, vector.getType());
+    assertEquals(Type.DOUBLE, vector.getType());
     assertEquals(1, vector.size());
     assertEquals(Collections.singletonList(1.0), vector.toList(Double.class));
   }
@@ -81,7 +81,7 @@ public class TypeInferenceVectorBuilderTest {
   public void testAdd_ReferenceType() throws Exception {
     builder.add("hello");
     Vector vector = builder.build();
-    assertEquals(VectorType.of(String.class), vector.getType());
+    assertEquals(Type.of(String.class), vector.getType());
     assertEquals(1, vector.size());
     assertEquals(Collections.singletonList("hello"), vector.toList(String.class));
   }

@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReaderException;
 import org.briljantframework.data.reader.StringDataEntry;
-import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.data.vector.Type;
 
 /**
  * @author Isak Karlsson
@@ -45,7 +45,7 @@ import org.briljantframework.data.vector.VectorType;
 public class ArffDatasetReader extends DatasetReader {
 
   private static final String INVALID_TYPE = "Can't understand type %s";
-  private static final Map<String, VectorType> TYPE_MAP;
+  private static final Map<String, Type> TYPE_MAP;
 
   private static Pattern RELATION = Pattern.compile("@relation\\s+.*$", Pattern.CASE_INSENSITIVE);
   private static Pattern ATTRIBUTE = Pattern.compile("@attribute\\s+([a-zA-Z0-9]+)\\s+(.+)$",
@@ -56,13 +56,13 @@ public class ArffDatasetReader extends DatasetReader {
 
   static {
     TYPE_MAP = new HashMap<>();
-    TYPE_MAP.put("real", VectorType.DOUBLE);
-    TYPE_MAP.put("numeric", VectorType.DOUBLE);
+    TYPE_MAP.put("real", Type.DOUBLE);
+    TYPE_MAP.put("numeric", Type.DOUBLE);
   }
 
   private BufferedReader reader;
   private List<Object> columnNames = null;
-  private List<VectorType> columnTypes = null;
+  private List<Type> columnTypes = null;
   private String currentLine = null;
 
   /**
@@ -94,12 +94,12 @@ public class ArffDatasetReader extends DatasetReader {
     while (currentLine != null && (attr = ATTRIBUTE.matcher(currentLine)).matches()) {
       String name = attr.group(1);
       String typeRepr = attr.group(2).trim().toLowerCase();
-      VectorType type = TYPE_MAP.get(typeRepr);
+      Type type = TYPE_MAP.get(typeRepr);
       columnNames.add(name);
       if (type != null) {
         columnTypes.add(type);
       } else if ((NOMINAL.matcher(typeRepr)).matches()) {
-        columnTypes.add(VectorType.of(String.class));
+        columnTypes.add(Type.of(String.class));
       } else {
         throw new IllegalArgumentException(String.format(INVALID_TYPE, typeRepr));
       }
@@ -113,7 +113,7 @@ public class ArffDatasetReader extends DatasetReader {
   }
 
   @Override
-  protected VectorType readColumnType() throws IOException {
+  protected Type readColumnType() throws IOException {
     throw new UnsupportedOperationException();
   }
 
@@ -123,7 +123,7 @@ public class ArffDatasetReader extends DatasetReader {
   }
 
   @Override
-  public List<VectorType> readColumnTypes() throws IOException {
+  public List<Type> readColumnTypes() throws IOException {
     initialize();
     return columnTypes;
   }

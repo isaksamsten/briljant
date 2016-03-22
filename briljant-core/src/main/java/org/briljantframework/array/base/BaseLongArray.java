@@ -47,7 +47,8 @@ class BaseLongArray extends AbstractLongArray {
     this.data = data;
   }
 
-  BaseLongArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride, long[] data) {
+  private BaseLongArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
+      long[] data) {
     super(bj, offset, shape, stride, majorStride);
     this.data = data;
   }

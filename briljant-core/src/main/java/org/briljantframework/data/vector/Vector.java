@@ -165,7 +165,7 @@ public interface Vector extends Serializable {
       return empty();
     }
     Object value = supplier.get();
-    Vector.Builder builder = VectorType.of(value).newBuilder().add(value);
+    Vector.Builder builder = Type.of(value).newBuilder().add(value);
     for (int i = 1; i < size; i++) {
       builder.add(supplier.get());
     }
@@ -516,7 +516,7 @@ public interface Vector extends Serializable {
    *
    * @return the type
    */
-  VectorType getType();
+  Type getType();
 
   <T> Set<Pair<Object, T>> indexSet(Class<T> cls);
 
@@ -826,10 +826,10 @@ public interface Vector extends Serializable {
      *
      * @param cls the class of the builder
      * @return a primitive or reference builder
-     * @see org.briljantframework.data.vector.VectorType#of(Class)
+     * @see Type#of(Class)
      */
     static Builder of(Class<?> cls) {
-      return VectorType.of(cls).newBuilder();
+      return Type.of(cls).newBuilder();
     }
 
     /**
@@ -848,7 +848,7 @@ public interface Vector extends Serializable {
     }
 
     static Builder withCapacity(Class<?> cls, int capacity) {
-      return VectorType.of(cls).newBuilderWithCapacity(capacity);
+      return Type.of(cls).newBuilderWithCapacity(capacity);
     }
 
     /**

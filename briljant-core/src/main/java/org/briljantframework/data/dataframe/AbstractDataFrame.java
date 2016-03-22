@@ -62,11 +62,8 @@ import org.briljantframework.data.index.VectorLocationGetter;
 import org.briljantframework.data.index.VectorLocationSetter;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReader;
-import org.briljantframework.data.vector.Convert;
-import org.briljantframework.data.vector.TypeInferenceVectorBuilder;
-import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.VectorType;
-import org.briljantframework.data.vector.Vectors;
+import org.briljantframework.data.vector.*;
+import org.briljantframework.data.vector.Type;
 import org.briljantframework.primitive.ArrayAllocations;
 import org.briljantframework.primitive.IntList;
 
@@ -818,7 +815,7 @@ public abstract class AbstractDataFrame implements DataFrame {
    */
   protected abstract String toStringAt(int row, int column);
 
-  protected abstract VectorType getTypeAt(int index);
+  protected abstract Type getTypeAt(int index);
 
   /**
    * Constructs a new DataFrame by dropping {@code index}.
@@ -854,7 +851,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     return builder.setIndex(getIndex()).build();
   }
 
-  protected abstract VectorType getMostSpecificColumnType();
+  protected abstract Type getMostSpecificColumnType();
 
   /**
    * This class provides a skeletal implementation of the

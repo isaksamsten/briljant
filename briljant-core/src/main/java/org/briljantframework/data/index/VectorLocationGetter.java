@@ -23,6 +23,8 @@ package org.briljantframework.data.index;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.ComplexSequence;
 import org.briljantframework.DoubleSequence;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.vector.Vector;
@@ -32,7 +34,7 @@ import org.briljantframework.data.vector.Vector;
  * 
  * @author Isak Karlsson
  */
-public interface VectorLocationGetter extends DoubleSequence, List<Object> {
+public interface VectorLocationGetter extends DoubleSequence, ComplexSequence, List<Object> {
 
   default Object get(int i) {
     return get(Object.class, i);
@@ -107,6 +109,11 @@ public interface VectorLocationGetter extends DoubleSequence, List<Object> {
    * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
   int getAsInt(int i);
+
+  @Override
+  default Complex getAsComplex(int i) {
+    return get(Complex.class, i);
+  }
 
   /**
    * Returns true if value at {@code index} is NA

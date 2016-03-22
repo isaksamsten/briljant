@@ -30,7 +30,7 @@ import java.util.NoSuchElementException;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReaderException;
 import org.briljantframework.data.reader.StringDataEntry;
-import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.data.vector.Type;
 
 /**
  * Load a time series as formatted in the <a
@@ -69,11 +69,11 @@ public class MatlabDatasetReader extends DatasetReader {
   }
 
   @Override
-  public VectorType readColumnType() throws IOException {
+  public Type readColumnType() throws IOException {
     initializeValues();
     if (currentType < columns) {
       currentType++;
-      return VectorType.DOUBLE;
+      return Type.DOUBLE;
     } else {
       return null;
     }

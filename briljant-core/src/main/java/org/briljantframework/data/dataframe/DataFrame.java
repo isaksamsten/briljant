@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BinaryOperator;
-import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
@@ -35,9 +34,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.briljantframework.array.Array;
 import org.briljantframework.array.BooleanArray;
-import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.join.JoinType;
@@ -48,7 +45,7 @@ import org.briljantframework.data.index.ObjectComparator;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReader;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.data.vector.Type;
 import org.briljantframework.primitive.ArrayAllocations;
 
 /**
@@ -1242,7 +1239,7 @@ public interface DataFrame extends Iterable<Object> {
      * @param columnType the type of vector
      * @return this modified
      */
-    default Builder set(Object key, VectorType columnType) {
+    default Builder set(Object key, Type columnType) {
       return set(key, columnType.newBuilder());
     }
 
@@ -1268,12 +1265,12 @@ public interface DataFrame extends Iterable<Object> {
 
     /**
      * Adds a new vector builder as an additional column using
-     * {@link org.briljantframework.data.vector.VectorType#newBuilder()}
+     * {@link Type#newBuilder()}
      *
      * @param columnType the type
      * @return receiver modified
      */
-    default Builder add(VectorType columnType) {
+    default Builder add(Type columnType) {
       return add(columnType.newBuilder());
     }
 
@@ -1306,7 +1303,7 @@ public interface DataFrame extends Iterable<Object> {
      * @param recordType the vector type
      * @return this modified
      */
-    default Builder setRecord(Object key, VectorType recordType) {
+    default Builder setRecord(Object key, Type recordType) {
       return setRecord(key, recordType.newBuilder());
     }
 
@@ -1336,7 +1333,7 @@ public interface DataFrame extends Iterable<Object> {
      * @param recordType the vector type
      * @return this modified
      */
-    default Builder addRecord(VectorType recordType) {
+    default Builder addRecord(Type recordType) {
       return addRecord(recordType.newBuilder());
     }
 

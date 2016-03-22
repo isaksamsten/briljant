@@ -45,7 +45,8 @@ class BaseIntArray extends AbstractIntArray {
     this.data = new int[size()];
   }
 
-  BaseIntArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride, int[] data) {
+  private BaseIntArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
+      int[] data) {
     super(bj, offset, shape, stride, majorStride);
     this.data = data;
   }

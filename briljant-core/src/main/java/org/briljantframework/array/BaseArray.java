@@ -20,6 +20,7 @@
  */
 package org.briljantframework.array;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -840,6 +841,21 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * @return a view of the {@code i:th} vector of the {@code d:th} dimension
    */
   S getVector(int dimension, int index);
+
+  /**
+   * Returns a list of vectors along the specified dimension.
+   *
+   * @param dimension the dimension
+   * @return the list of vectors
+   */
+  default List<S> getVectors(int dimension) {
+    int size = vectors(dimension);
+    List<S> vectors = new ArrayList<>();
+    for (int i = 0; i < size; i++) {
+      vectors.add(getVector(dimension, i));
+    }
+    return vectors;
+  }
 
   /**
    * Sets the elements of the {@code i:th} vector in the {@code d:th} dimension to the values of

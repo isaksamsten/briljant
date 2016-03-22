@@ -30,7 +30,7 @@ import java.util.List;
 
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.reader.EntryReader;
-import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.data.vector.Type;
 
 /**
  * The {@code DataFrameInputStream} is supposed to read a {@code DataFrame} from an input source.
@@ -58,7 +58,7 @@ import org.briljantframework.data.vector.VectorType;
  * </code>
  *
  * Entries returned by {@link #next()} are returned in row-major order and typed according to the
- * {@link org.briljantframework.data.vector.VectorType}s returned by {@link #readColumnTypes()}.
+ * {@link Type}s returned by {@link #readColumnTypes()}.
  *
  * For example, given the dataset, where the first and second row are names and types respectively:
  *
@@ -131,7 +131,7 @@ public abstract class DatasetReader extends FilterInputStream implements EntryRe
    *
    * @return a type or {@code null}
    */
-  protected abstract VectorType readColumnType() throws IOException;
+  protected abstract Type readColumnType() throws IOException;
 
   /**
    * Reads the column names from the input stream. Returns {@code null} when there are no more
@@ -144,9 +144,9 @@ public abstract class DatasetReader extends FilterInputStream implements EntryRe
   /**
    * @return a collection of types
    */
-  public List<VectorType> readColumnTypes() throws IOException {
-    List<VectorType> types = new ArrayList<>();
-    for (VectorType type = readColumnType(); type != null; type = readColumnType()) {
+  public List<Type> readColumnTypes() throws IOException {
+    List<Type> types = new ArrayList<>();
+    for (Type type = readColumnType(); type != null; type = readColumnType()) {
       types.add(type);
     }
     return Collections.unmodifiableList(types);

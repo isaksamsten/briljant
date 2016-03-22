@@ -41,16 +41,11 @@ import org.briljantframework.data.dataframe.join.InnerJoin;
 import org.briljantframework.data.dataframe.join.JoinOperation;
 import org.briljantframework.data.dataframe.join.LeftOuterJoin;
 import org.briljantframework.data.dataframe.join.OuterJoin;
-import org.briljantframework.data.dataframe.transform.RemoveIncompleteCases;
-import org.briljantframework.data.dataframe.transform.RemoveIncompleteColumns;
-import org.briljantframework.data.dataframe.transform.Transformer;
 import org.briljantframework.data.index.DataFrameLocationSetter;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.data.vector.Type;
 import org.briljantframework.data.vector.Vectors;
-
-import javax.xml.crypto.Data;
 
 /**
  * Utility methods for handling {@code DataFrame}s
@@ -64,9 +59,7 @@ public final class DataFrames {
   public static final String INNER = "inner";
   public static final String NO_INTERSECTING_COLUMN_NAMES = "No intersecting column names";
   public static final int PER_SLICE = 4;
-  private static final Transformer removeIncompleteColumns = new RemoveIncompleteColumns();
-  private static final Transformer removeIncompleteCases = new RemoveIncompleteCases();
-  private static final Map<String, JoinOperation> joinOperations;
+    private static final Map<String, JoinOperation> joinOperations;
 
   static {
     joinOperations = new HashMap<>();
@@ -140,9 +133,9 @@ public final class DataFrames {
    */
   public static DataFrame summary(DataFrame df) {
     DataFrame.Builder builder = new MixedDataFrame.Builder();
-    builder.set("mean", VectorType.DOUBLE).set("var", VectorType.DOUBLE)
-        .set("std", VectorType.DOUBLE).set("min", VectorType.DOUBLE).set("max", VectorType.DOUBLE)
-        .set("mode", VectorType.OBJECT);
+    builder.set("mean", Type.DOUBLE).set("var", Type.DOUBLE)
+        .set("std", Type.DOUBLE).set("min", Type.DOUBLE).set("max", Type.DOUBLE)
+        .set("mode", Type.OBJECT);
 
     for (Object columnKey : df.getColumnIndex().keySet()) {
       Vector column = df.get(columnKey);
@@ -241,7 +234,7 @@ public final class DataFrames {
    * @return a new data frame with no missing values
    */
   public static DataFrame dropMissingColumns(DataFrame x) {
-    return removeIncompleteColumns.transform(x);
+    throw new UnsupportedOperationException("Not implemented yet");
   }
 
   /**
@@ -251,7 +244,7 @@ public final class DataFrames {
    * @return a new data frame with no missing values
    */
   public static DataFrame dropIncompleteCases(DataFrame x) {
-    return removeIncompleteCases.transform(x);
+    throw new UnsupportedOperationException("not implemented yet");
   }
 
   /**

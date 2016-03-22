@@ -36,8 +36,8 @@ import org.briljantframework.array.IntArray;
 import org.briljantframework.array.Matrices;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.linalg.api.LinearAlgebraRoutines;
-import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
+import org.briljantframework.array.linalg.api.LinearAlgebraRoutines;
+import org.briljantframework.array.linalg.decomposition.SingularValueDecomposition;
 import org.junit.Test;
 
 public class NetlibLinearAlgebraRoutinesTest {

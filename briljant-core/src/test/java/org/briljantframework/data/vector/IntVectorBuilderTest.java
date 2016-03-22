@@ -27,6 +27,6 @@ public class IntVectorBuilderTest extends VectorBuilderTest {
 
   @Override
   Vector.Builder getBuilder() {
-    return VectorType.of(Integer.class).newBuilder();
+    return Type.of(Integer.class).newBuilder();
   }
 }

@@ -25,7 +25,7 @@ import org.briljantframework.data.index.DataFrameLocationGetter;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.vector.AbstractVector;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.data.vector.Type;
 
 /**
  * Create a view of a data frame column.
@@ -35,11 +35,11 @@ import org.briljantframework.data.vector.VectorType;
 class ColumnView extends AbstractVector {
 
   private final DataFrame parent;
-  private final VectorType type;
+  private final Type type;
   private final int column;
   private DataFrameLocationGetter locationGetter;
 
-  public ColumnView(DataFrame parent, VectorType type, int column) {
+  public ColumnView(DataFrame parent, Type type, int column) {
     super(parent.getIndex());
     locationGetter = parent.loc();
     this.parent = parent;
@@ -53,7 +53,7 @@ class ColumnView extends AbstractVector {
   }
 
   @Override
-  public VectorType getType() {
+  public Type getType() {
     return type;
   }  @Override
   public <T> T getAt(Class<T> cls, int index) {

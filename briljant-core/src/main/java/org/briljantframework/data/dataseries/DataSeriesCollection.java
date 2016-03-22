@@ -32,8 +32,8 @@ import org.briljantframework.data.dataframe.AbstractDataFrame;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.vector.Type;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.VectorType;
 
 /**
  * A DataSeries collection is collection of data series, i.e., vectors of the same type - usually
@@ -49,11 +49,11 @@ import org.briljantframework.data.vector.VectorType;
 public class DataSeriesCollection extends AbstractDataFrame {
 
   private final List<Vector> series;
-  private final VectorType type;
+  private final Type type;
 
   private final int columns;
 
-  private DataSeriesCollection(List<Vector> series, VectorType type, int columns,
+  private DataSeriesCollection(List<Vector> series, Type type, int columns,
       Index columnIndex, Index index) {
     super(columnIndex, index);
     Check.argument(series.size() == index.size());
@@ -134,7 +134,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  public VectorType getTypeAt(int index) {
+  public Type getTypeAt(int index) {
     return type;
   }
 
@@ -163,7 +163,7 @@ public class DataSeriesCollection extends AbstractDataFrame {
   }
 
   @Override
-  protected VectorType getMostSpecificColumnType() {
+  protected Type getMostSpecificColumnType() {
     return type;
   }
 
@@ -192,25 +192,25 @@ public class DataSeriesCollection extends AbstractDataFrame {
    *
    * @return the type
    */
-  public VectorType getType() {
+  public Type getType() {
     return type;
   }
 
   public static class Builder extends AbstractBuilder {
 
-    private final VectorType type;
+    private final Type type;
     private List<Vector.Builder> builders;
 
     public Builder(Class<?> cls) {
-      this(VectorType.of(cls));
+      this(Type.of(cls));
     }
 
-    public Builder(VectorType type) {
+    public Builder(Type type) {
       this.type = type;
       this.builders = new ArrayList<>();
     }
 
-    private Builder(DataSeriesCollection df, VectorType type) {
+    private Builder(DataSeriesCollection df, Type type) {
       super(df);
       this.type = type;
       this.builders =

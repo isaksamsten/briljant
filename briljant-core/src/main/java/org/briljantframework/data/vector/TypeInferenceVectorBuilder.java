@@ -56,16 +56,16 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
     return this;
   }
 
-  protected Vector.Builder getObjectBuilder() {
+  private Vector.Builder getObjectBuilder() {
     if (builder == null) {
-      initializeBuilder(VectorType.OBJECT);
+      initializeBuilder(Type.OBJECT);
     }
     return builder;
   }
 
-  private void initializeBuilder(VectorType vectorType) {
+  private void initializeBuilder(Type type) {
     if (builder == null) {
-      builder = vectorType.newBuilder();
+      builder = type.newBuilder();
       for (int i = 0; i < noNaValues; i++) {
         builder.addNA();
       }
@@ -118,7 +118,7 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
       if (Is.NA(value)) {
         noNaValues++;
       } else {
-        builder = VectorType.of(value).newBuilder();
+        builder = Type.of(value).newBuilder();
         for (int i = 0; i < noNaValues; i++) {
           builder.addNA();
         }
@@ -240,7 +240,7 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
     @Override
     public void set(int i, double value) {
       if (builder == null) {
-        builder = VectorType.of(Double.class).newBuilder();
+        builder = Type.of(Double.class).newBuilder();
       }
       builder.loc().set(i, value);
     }
@@ -248,7 +248,7 @@ public final class TypeInferenceVectorBuilder implements Vector.Builder {
     @Override
     public void set(int i, int value) {
       if (builder == null) {
-        builder = VectorType.of(Integer.class).newBuilder();
+        builder = Type.of(Integer.class).newBuilder();
       }
       builder.loc().set(i, value);
     }

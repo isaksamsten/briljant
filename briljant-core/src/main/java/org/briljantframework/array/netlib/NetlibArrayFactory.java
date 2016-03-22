@@ -29,7 +29,7 @@ import org.briljantframework.array.base.BaseArrayFactory;
  */
 class NetlibArrayFactory extends BaseArrayFactory {
 
-  public NetlibArrayFactory(ArrayBackend backend) {
+  NetlibArrayFactory(ArrayBackend backend) {
     super(backend);
   }
 

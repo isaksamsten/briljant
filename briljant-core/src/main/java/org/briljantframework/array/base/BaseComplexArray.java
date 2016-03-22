@@ -26,7 +26,6 @@ import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.array.AbstractComplexArray;
 import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.array.api.ArrayFactory;
 
 /**
  * @author Isak Karlsson
@@ -51,8 +50,8 @@ class BaseComplexArray extends AbstractComplexArray {
     this.data = new Complex[size()];
   }
 
-  BaseComplexArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
-                   Complex[] data) {
+  private BaseComplexArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
+      Complex[] data) {
     super(bj, offset, shape, stride, majorStride);
     this.data = data;
   }

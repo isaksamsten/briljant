@@ -18,7 +18,7 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.briljantframework.linalg.api;
+package org.briljantframework.array.linalg.api;
 
 import java.util.Objects;
 
@@ -29,9 +29,9 @@ import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.linalg.decomposition.EigenDecomposition;
-import org.briljantframework.linalg.decomposition.LuDecomposition;
-import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
+import org.briljantframework.array.linalg.decomposition.EigenDecomposition;
+import org.briljantframework.array.linalg.decomposition.LuDecomposition;
+import org.briljantframework.array.linalg.decomposition.SingularValueDecomposition;
 
 /**
  * Skeletal implementation of linear algebra routines in terms of the LAPACK definitions.

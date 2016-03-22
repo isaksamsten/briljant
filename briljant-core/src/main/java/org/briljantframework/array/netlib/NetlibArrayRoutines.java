@@ -39,7 +39,7 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
   protected static final String VECTOR_REQUIRED = "vector required";
   private final static BLAS blas = BLAS.getInstance();
 
-  protected NetlibArrayRoutines(ArrayBackend backend) {
+  NetlibArrayRoutines(ArrayBackend backend) {
     super(backend);
   }
 

@@ -37,9 +37,9 @@ import org.briljantframework.Check;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.ObjectIndex;
 import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.vector.Type;
 import org.briljantframework.data.vector.TypeInferenceVectorBuilder;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.VectorType;
 
 /**
  * A mixed (i.e. heterogeneous) data frame contains vectors of possibly different types.
@@ -49,7 +49,7 @@ import org.briljantframework.data.vector.VectorType;
 public class MixedDataFrame extends AbstractDataFrame {
 
   private final List<Vector> columns;
-  private final VectorType mostSpecificColumnType;
+  private final Type mostSpecificColumnType;
   private final int rows;
 
   /**
@@ -72,7 +72,7 @@ public class MixedDataFrame extends AbstractDataFrame {
 
     this.columns = new ArrayList<>(vectors.size());
     int rows = 0;
-    Set<VectorType> typeSet = new HashSet<>();
+    Set<Type> typeSet = new HashSet<>();
     for (Vector vector : vectors) {
       if (rows == 0) {
         rows = vector.size();
@@ -83,7 +83,7 @@ public class MixedDataFrame extends AbstractDataFrame {
       this.columns.add(vector);
     }
     this.mostSpecificColumnType =
-        typeSet.size() == 1 ? typeSet.iterator().next() : VectorType.OBJECT;
+        typeSet.size() == 1 ? typeSet.iterator().next() : Type.OBJECT;
     this.rows = rows;
   }
 
@@ -99,7 +99,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     this.columns = new ArrayList<>(vectors.size());
     int rows = 0;
     List<T> columnIndex = new ArrayList<>();
-    Set<VectorType> typeSet = new HashSet<>();
+    Set<Type> typeSet = new HashSet<>();
     for (Map.Entry<T, ? extends Vector> kv : vectors.entrySet()) {
       Vector vector = kv.getValue();
       T key = kv.getKey();
@@ -115,7 +115,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     }
     this.rows = rows;
     this.mostSpecificColumnType =
-        typeSet.size() == 1 ? typeSet.iterator().next() : VectorType.OBJECT;
+        typeSet.size() == 1 ? typeSet.iterator().next() : Type.OBJECT;
     setColumnIndex(ObjectIndex.of(columnIndex));
   }
 
@@ -130,18 +130,18 @@ public class MixedDataFrame extends AbstractDataFrame {
     super(null, null);
     this.columns = columns;
     this.rows = rows;
-    Set<VectorType> typeSet = columns.stream().map(Vector::getType).collect(Collectors.toSet());
+    Set<Type> typeSet = columns.stream().map(Vector::getType).collect(Collectors.toSet());
     this.mostSpecificColumnType =
-        typeSet.size() == 1 ? typeSet.iterator().next() : VectorType.OBJECT;
+        typeSet.size() == 1 ? typeSet.iterator().next() : Type.OBJECT;
   }
 
   private MixedDataFrame(List<Vector> columns, int rows, Index columnIndex, Index index) {
     super(columnIndex, index);
     Check.argument(columns.size() == columnIndex.size());
     Check.argument(index.size() == rows);
-    Set<VectorType> typeSet = columns.stream().map(Vector::getType).collect(Collectors.toSet());
+    Set<Type> typeSet = columns.stream().map(Vector::getType).collect(Collectors.toSet());
     this.mostSpecificColumnType =
-        typeSet.size() == 1 ? typeSet.iterator().next() : VectorType.OBJECT;
+        typeSet.size() == 1 ? typeSet.iterator().next() : Type.OBJECT;
     this.columns = columns;
     this.rows = rows;
 
@@ -355,12 +355,12 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public VectorType getTypeAt(int index) {
+  public Type getTypeAt(int index) {
     return columns.get(index).getType();
   }
 
   @Override
-  protected VectorType getMostSpecificColumnType() {
+  protected Type getMostSpecificColumnType() {
     return mostSpecificColumnType;
   }
 
@@ -377,7 +377,7 @@ public class MixedDataFrame extends AbstractDataFrame {
      *
      * @param types the column types
      */
-    public Builder(VectorType... types) {
+    public Builder(Type... types) {
       this(Arrays.asList(types));
     }
 
@@ -387,8 +387,8 @@ public class MixedDataFrame extends AbstractDataFrame {
      *
      * @param types the column types
      */
-    public Builder(Collection<? extends VectorType> types) {
-      this(types.stream().map(VectorType::newBuilder).toArray(Vector.Builder[]::new));
+    public Builder(Collection<? extends Type> types) {
+      this(types.stream().map(Type::newBuilder).toArray(Vector.Builder[]::new));
     }
 
     /**
@@ -451,7 +451,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     @Override
     public void setAt(int r, int c, Object value) {
       ensureColumnCapacity(c - 1);
-      ensureColumnCapacity(c, VectorType.of(value));
+      ensureColumnCapacity(c, Type.of(value));
       buffers.get(c).loc().set(r, value);
     }
 
@@ -473,7 +473,7 @@ public class MixedDataFrame extends AbstractDataFrame {
       for (int j = 0; j < Math.max(size, columns); j++) {
         if (j < size) {
           Object value = vector.loc().get(Object.class, j);
-          ensureColumnCapacity(j, VectorType.of(value));
+          ensureColumnCapacity(j, Type.of(value));
           setAt(index, j, value);
           // setAt(index, j, vector, j);
         } else {
@@ -577,7 +577,7 @@ public class MixedDataFrame extends AbstractDataFrame {
       return df;
     }
 
-    private void ensureColumnCapacity(int index, VectorType type) {
+    private void ensureColumnCapacity(int index, Type type) {
       int i = buffers.size();
       while (i <= index) {
         buffers.add(type.newBuilder());

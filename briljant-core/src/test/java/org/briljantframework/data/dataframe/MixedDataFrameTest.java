@@ -29,8 +29,8 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Logical;
+import org.briljantframework.data.vector.Type;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.VectorType;
 import org.junit.Test;
 
 /**
@@ -58,17 +58,17 @@ public class MixedDataFrameTest extends DataFrameTest {
     DataFrame.Builder builder = getBuilder();
     builder.loc().setNA(0, 0);
     builder.loc().setNA(0, 4);
-    builder.add(VectorType.DOUBLE);
+    builder.add(Type.DOUBLE);
 
     builder.loc().setNA(5, 5);
 
     DataFrame build = builder.build();
-    // assertEquals(VectorType.OBJECT, build.getTypeAt(0));
-    // assertEquals(VectorType.OBJECT, build.getTypeAt(1));
-    // assertEquals(VectorType.OBJECT, build.getTypeAt(2));
-    // assertEquals(VectorType.OBJECT, build.getTypeAt(3));
-    // assertEquals(VectorType.OBJECT, build.getTypeAt(4));
-    // assertEquals(VectorType.DOUBLE, build.getTypeAt(5));
+    // assertEquals(Type.OBJECT, build.getTypeAt(0));
+    // assertEquals(Type.OBJECT, build.getTypeAt(1));
+    // assertEquals(Type.OBJECT, build.getTypeAt(2));
+    // assertEquals(Type.OBJECT, build.getTypeAt(3));
+    // assertEquals(Type.OBJECT, build.getTypeAt(4));
+    // assertEquals(Type.DOUBLE, build.getTypeAt(5));
     assertTrue(Is.NA(build.loc().getAsDouble(5, 5)));
     assertTrue(Is.NA(build.loc().get(Double.class, 5, 5).doubleValue()));
   }
@@ -90,13 +90,13 @@ public class MixedDataFrameTest extends DataFrameTest {
     builder.loc().set(6, 6, new Date());
 
     DataFrame build = builder.build();
-    // assertEquals(VectorType.DOUBLE, build.getTypeAt(0));
-    // assertEquals(VectorType.INT, build.getTypeAt(1));
-    // assertEquals(VectorType.STRING, build.getTypeAt(2));
-    // assertEquals(VectorType.COMPLEX, build.getTypeAt(3));
-    // assertEquals(VectorType.LOGICAL, build.getTypeAt(4));
-    // assertEquals(VectorType.OBJECT, build.getTypeAt(5));
-    // assertEquals(VectorType.from(Date.class), build.getTypeAt(6));
+    // assertEquals(Type.DOUBLE, build.getTypeAt(0));
+    // assertEquals(Type.INT, build.getTypeAt(1));
+    // assertEquals(Type.STRING, build.getTypeAt(2));
+    // assertEquals(Type.COMPLEX, build.getTypeAt(3));
+    // assertEquals(Type.LOGICAL, build.getTypeAt(4));
+    // assertEquals(Type.OBJECT, build.getTypeAt(5));
+    // assertEquals(Type.from(Date.class), build.getTypeAt(6));
   }
 
   @Test
@@ -109,11 +109,11 @@ public class MixedDataFrameTest extends DataFrameTest {
     builder.add(Vector.of(true, true, false, false, false));
 
     DataFrame build = builder.build();
-    // assertEquals(VectorType.STRING, build.getTypeAt(0));
-    // assertEquals(VectorType.INT, build.getTypeAt(1));
-    // assertEquals(VectorType.DOUBLE, build.getTypeAt(2));
-    // assertEquals(VectorType.COMPLEX, build.getTypeAt(3));
-    // assertEquals(VectorType.LOGICAL, build.getTypeAt(4));
+    // assertEquals(Type.STRING, build.getTypeAt(0));
+    // assertEquals(Type.INT, build.getTypeAt(1));
+    // assertEquals(Type.DOUBLE, build.getTypeAt(2));
+    // assertEquals(Type.COMPLEX, build.getTypeAt(3));
+    // assertEquals(Type.LOGICAL, build.getTypeAt(4));
 
     assertEquals(1, build.loc().getAsInt(0, 1));
     assertEquals(1, build.loc().getAsDouble(0, 2), 0);
@@ -125,12 +125,12 @@ public class MixedDataFrameTest extends DataFrameTest {
   @Test
   public void testBuilderAddBuilder() throws Exception {
     DataFrame.Builder builder = getBuilder();
-    builder.add(VectorType.STRING);
-    builder.add(VectorType.INT);
-    builder.add(VectorType.DOUBLE);
-    builder.add(VectorType.COMPLEX);
-    builder.add(VectorType.LOGICAL);
-    builder.add(VectorType.OBJECT);
+    builder.add(Type.STRING);
+    builder.add(Type.INT);
+    builder.add(Type.DOUBLE);
+    builder.add(Type.COMPLEX);
+    builder.add(Type.LOGICAL);
+    builder.add(Type.OBJECT);
     builder.loc().set(0, 0, "hello");
     builder.loc().set(0, 1, 1);
     builder.loc().set(0, 2, 2);
@@ -139,28 +139,28 @@ public class MixedDataFrameTest extends DataFrameTest {
     builder.loc().set(0, 5, new Date());
 
     DataFrame df = builder.build();
-    // assertEquals(VectorType.STRING, df.getTypeAt(0));
-    // assertEquals(VectorType.INT, df.getTypeAt(1));
+    // assertEquals(Type.STRING, df.getTypeAt(0));
+    // assertEquals(Type.INT, df.getTypeAt(1));
     assertEquals(1, df.loc().getAsInt(0, 1));
-    // assertEquals(VectorType.DOUBLE, df.getTypeAt(2));
+    // assertEquals(Type.DOUBLE, df.getTypeAt(2));
     assertEquals(2, df.loc().getAsDouble(0, 2), 0);
-    // assertEquals(VectorType.COMPLEX, df.getTypeAt(3));
+    // assertEquals(Type.COMPLEX, df.getTypeAt(3));
     assertEquals(Complex.I, df.loc().get(Complex.class, 0, 3));
-    // assertEquals(VectorType.LOGICAL, df.getTypeAt(4));
+    // assertEquals(Type.LOGICAL, df.getTypeAt(4));
     assertEquals(Logical.TRUE, df.loc().get(Logical.class, 0, 4));
-    // assertEquals(VectorType.OBJECT, df.getTypeAt(5));
+    // assertEquals(Type.OBJECT, df.getTypeAt(5));
   }
 
   @Test
   public void testBuilderAddBuilder1() throws Exception {
     DataFrame.Builder builder = getBuilder();
-    builder.add(VectorType.STRING.newBuilder());
-    builder.add(VectorType.INT.newBuilder());
-    builder.add(VectorType.DOUBLE.newBuilder());
-    builder.add(VectorType.COMPLEX.newBuilder());
-    builder.add(VectorType.LOGICAL.newBuilder());
-    builder.add(VectorType.OBJECT.newBuilder());
-    builder.add(VectorType.of(Date.class).newBuilder());
+    builder.add(Type.STRING.newBuilder());
+    builder.add(Type.INT.newBuilder());
+    builder.add(Type.DOUBLE.newBuilder());
+    builder.add(Type.COMPLEX.newBuilder());
+    builder.add(Type.LOGICAL.newBuilder());
+    builder.add(Type.OBJECT.newBuilder());
+    builder.add(Type.of(Date.class).newBuilder());
 
     builder.loc().set(0, 0, "hello");
     builder.loc().set(0, 1, 1);
@@ -173,17 +173,17 @@ public class MixedDataFrameTest extends DataFrameTest {
     builder.loc().set(2, 6, "2015-03-15");
 
     DataFrame build = builder.build();
-    // assertEquals(VectorType.STRING, build.getTypeAt(0));
-    // assertEquals(VectorType.INT, build.getTypeAt(1));
+    // assertEquals(Type.STRING, build.getTypeAt(0));
+    // assertEquals(Type.INT, build.getTypeAt(1));
     assertEquals(1, build.loc().getAsInt(0, 1));
-    // assertEquals(VectorType.DOUBLE, build.getTypeAt(2));
+    // assertEquals(Type.DOUBLE, build.getTypeAt(2));
     assertEquals(2, build.loc().getAsDouble(0, 2), 0);
-    // assertEquals(VectorType.COMPLEX, build.getTypeAt(3));
+    // assertEquals(Type.COMPLEX, build.getTypeAt(3));
     assertEquals(Complex.I, build.loc().get(Complex.class, 0, 3));
-    // assertEquals(VectorType.LOGICAL, build.getTypeAt(4));
+    // assertEquals(Type.LOGICAL, build.getTypeAt(4));
     assertEquals(Logical.TRUE, build.loc().get(Logical.class, 0, 4));
-    // assertEquals(VectorType.OBJECT, build.getTypeAt(5));
-    // assertEquals(VectorType.from(Date.class), build.getTypeAt(6));
+    // assertEquals(Type.OBJECT, build.getTypeAt(5));
+    // assertEquals(Type.from(Date.class), build.getTypeAt(6));
     assertEquals(new Date(321321321738L), build.loc().get(6).loc().get(Date.class, 0));
     assertEquals(1, (int) build.loc().get(Integer.class, 0, 1));
   }

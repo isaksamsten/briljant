@@ -21,8 +21,8 @@
 package org.briljantframework.data.index;
 
 import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.vector.Type;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.VectorType;
 
 /**
  * Provides location based setting of values, records and columns.
@@ -83,7 +83,7 @@ public interface DataFrameLocationSetter {
    */
   void set(int tr, int tc, Vector v, int i);
 
-  default void set(int c, VectorType columnType) {
+  default void set(int c, Type columnType) {
     set(c, columnType.newBuilder());
   }
 
@@ -112,7 +112,7 @@ public interface DataFrameLocationSetter {
    */
   void swap(int a, int b);
 
-  default void setRecord(int index, VectorType type) {
+  default void setRecord(int index, Type type) {
     setRecord(index, type.newBuilder());
   }
 

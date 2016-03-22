@@ -33,17 +33,17 @@ import org.briljantframework.data.index.ObjectComparator;
  * 
  * @author Isak Karlsson
  */
-public abstract class VectorType {
+public abstract class Type {
 
-  public static final VectorType STRING = new GenericVectorType(String.class);
-  public static final VectorType LOGICAL = new GenericVectorType(Logical.class);
-  public static final VectorType INT = new IntVectorType();
-  public static final VectorType LONG = new GenericVectorType(Long.class);
-  public static final VectorType COMPLEX = new GenericVectorType(Complex.class);
-  public static final VectorType DOUBLE = new DoubleVectorType();
-  public static final VectorType OBJECT = new GenericVectorType(Object.class);
+  public static final Type STRING = new GenericType(String.class);
+  public static final Type LOGICAL = new GenericType(Logical.class);
+  public static final Type INT = new IntType();
+  public static final Type LONG = new GenericType(Long.class);
+  public static final Type COMPLEX = new GenericType(Complex.class);
+  public static final Type DOUBLE = new DoubleType();
+  public static final Type OBJECT = new GenericType(Object.class);
 
-  private static final Map<Class<?>, VectorType> CLASS_TO_TYPE;
+  private static final Map<Class<?>, Type> CLASS_TO_TYPE;
 
   static {
     CLASS_TO_TYPE = new IdentityHashMap<>();
@@ -73,7 +73,7 @@ public abstract class VectorType {
    * @param value the value
    * @return a new type
    */
-  public static VectorType of(Object value) {
+  public static Type of(Object value) {
     if (value != null) {
       return of(value.getClass());
     } else {
@@ -87,13 +87,13 @@ public abstract class VectorType {
    * @param cls the specified class
    * @return a type
    */
-  public static VectorType of(Class<?> cls) {
+  public static Type of(Class<?> cls) {
     if (cls == null) {
       return OBJECT;
     } else {
-      VectorType type = CLASS_TO_TYPE.get(cls);
+      Type type = CLASS_TO_TYPE.get(cls);
       if (type == null) {
-        return new GenericVectorType(cls);
+        return new GenericType(cls);
       }
       return type;
     }
@@ -132,10 +132,22 @@ public abstract class VectorType {
    */
   public abstract Vector.Builder newBuilder(int size);
 
-  public boolean isAssignableTo(VectorType type) {
+  /**
+   * Returns true if the specified type is assignable to the current type.
+   * 
+   * @param type the type
+   * @return true if assignable
+   */
+  public boolean isAssignableTo(Type type) {
     return isAssignableTo(type.getDataClass());
   }
 
+  /**
+   * Returns true if the specified class is assignable to the current type.
+   * 
+   * @param cls the class
+   * @return true if assignable
+   */
   public boolean isAssignableTo(Class<?> cls) {
     return cls.isAssignableFrom(getDataClass());
   }
@@ -147,7 +159,7 @@ public abstract class VectorType {
    */
   public abstract Class<?> getDataClass();
 
-  private static class DoubleVectorType extends VectorType {
+  private static class DoubleType extends Type {
 
     @Override
     public DoubleVector.Builder newBuilder() {
@@ -175,7 +187,7 @@ public abstract class VectorType {
     }
   }
 
-  private static class IntVectorType extends VectorType {
+  private static class IntType extends Type {
 
     @Override
     public IntVector.Builder newBuilder() {
@@ -206,12 +218,10 @@ public abstract class VectorType {
   /**
    * @author Isak Karlsson
    */
-  private static class GenericVectorType extends VectorType {
-
-    private final static Comparator<Object> CMP = ObjectComparator.getInstance();
+  private static final class GenericType extends Type {
     private Class<?> cls;
 
-    public GenericVectorType(Class<?> cls) {
+    private GenericType(Class<?> cls) {
       this.cls = cls;
     }
 
@@ -222,7 +232,7 @@ public abstract class VectorType {
 
     @Override
     public boolean equals(Object obj) {
-      return obj instanceof GenericVectorType && ((GenericVectorType) obj).cls.equals(cls);
+      return obj instanceof GenericType && ((GenericType) obj).cls.equals(cls);
     }
 
     @Override

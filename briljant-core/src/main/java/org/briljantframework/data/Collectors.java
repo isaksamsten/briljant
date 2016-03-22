@@ -37,7 +37,7 @@ import org.briljantframework.data.dataframe.MixedDataFrame;
 import org.briljantframework.data.index.ObjectIndex;
 import org.briljantframework.data.vector.TypeInferenceVectorBuilder;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.data.vector.Type;
 import org.briljantframework.data.vector.Vectors;
 import org.briljantframework.statistics.FastStatistics;
 
@@ -133,7 +133,7 @@ public final class Collectors {
    * @return a filter aggregator
    */
   public static <T> Collector<T, ?, Vector> test(Predicate<T> predicate) {
-    return map(() -> VectorType.of(Logical.class).newBuilder(), predicate::test);
+    return map(() -> Type.of(Logical.class).newBuilder(), predicate::test);
   }
 
   /**

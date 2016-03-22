@@ -30,7 +30,7 @@ import java.util.NoSuchElementException;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReaderException;
 import org.briljantframework.data.reader.StringDataEntry;
-import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.data.vector.Type;
 
 /**
  * @author Isak Karlsson
@@ -54,7 +54,7 @@ public class SequenceDatasetReader extends DatasetReader {
   }
 
   @Override
-  public VectorType readColumnType() throws IOException {
+  public Type readColumnType() throws IOException {
     throw new UnsupportedOperationException("Variable data entry sizes");
   }
 

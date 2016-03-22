@@ -50,8 +50,8 @@ import org.briljantframework.statistics.FastStatistics;
  */
 public class BaseArrayRoutines implements ArrayRoutines {
 
-  protected static final double LOG_2 = Math.log(2);
-  protected static final double EPS = 1e-10;
+  private static final double LOG_2 = Math.log(2);
+  private static final double EPS = 1e-10;
   protected final ArrayBackend backend;
 
   protected BaseArrayRoutines(ArrayBackend backend) {

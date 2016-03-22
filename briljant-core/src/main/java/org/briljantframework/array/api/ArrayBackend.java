@@ -20,7 +20,7 @@
  */
 package org.briljantframework.array.api;
 
-import org.briljantframework.linalg.api.LinearAlgebraRoutines;
+import org.briljantframework.array.linalg.api.LinearAlgebraRoutines;
 
 /**
  * An array backend provides {@link ArrayFactory factories}, {@link ArrayRoutines array routines}

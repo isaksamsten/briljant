@@ -49,7 +49,7 @@ import org.briljantframework.array.api.ArrayRoutines;
 import org.briljantframework.array.netlib.NetlibArrayBackend;
 import org.briljantframework.exceptions.MultiDimensionMismatchException;
 import org.briljantframework.function.DoubleBiPredicate;
-import org.briljantframework.linalg.api.LinearAlgebraRoutines;
+import org.briljantframework.array.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.sort.IndexComparator;
 import org.briljantframework.sort.QuickSort;
 

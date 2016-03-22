@@ -50,12 +50,12 @@ class NetlibDoubleArray extends AbstractDoubleArray {
     this.data = data;
   }
 
-  public NetlibDoubleArray(ArrayBackend bj, int[] shape) {
+  NetlibDoubleArray(ArrayBackend bj, int[] shape) {
     super(bj, shape);
     this.data = new double[size()];
   }
 
-  public NetlibDoubleArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
+  private NetlibDoubleArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
       double[] data) {
     super(bj, offset, shape, stride, majorStride);
     this.data = data;

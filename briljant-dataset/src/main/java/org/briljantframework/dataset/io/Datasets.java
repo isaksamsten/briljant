@@ -33,7 +33,7 @@ import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.MixedDataFrame;
 import org.briljantframework.data.dataseries.DataSeriesCollection;
 import org.briljantframework.data.index.ObjectIndex;
-import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.data.vector.Type;
 
 /**
  * This class provides some classical benchmarking datasets
@@ -69,10 +69,10 @@ public class Datasets {
    * @param in the input stream
    * @return a new dataframe
    */
-  public static DataFrame load(Function<Collection<? extends VectorType>, DataFrame.Builder> f,
+  public static DataFrame load(Function<Collection<? extends Type>, DataFrame.Builder> f,
                                DatasetReader in) throws IOException {
     try {
-      Collection<VectorType> types = in.readColumnTypes();
+      Collection<Type> types = in.readColumnTypes();
       Collection<Object> names = in.readColumnIndex();
       DataFrame df = f.apply(types).readAll(in).build();
       df.setColumnIndex(ObjectIndex.of(names));
@@ -102,7 +102,7 @@ public class Datasets {
    * @see #loadIris()
    */
   public static DataFrame loadIris(
-      Function<Collection<? extends VectorType>, DataFrame.Builder> f) {
+      Function<Collection<? extends Type>, DataFrame.Builder> f) {
     return load(f, RdsDatasetReader::new, IRIS);
   }
 
@@ -166,7 +166,7 @@ public class Datasets {
    * @see #loadConnect4()
    */
   public static DataFrame loadConnect4(
-      Function<Collection<? extends VectorType>, DataFrame.Builder> f) {
+      Function<Collection<? extends Type>, DataFrame.Builder> f) {
     return load(f, RdsDatasetReader::new, CONNECT_4);
   }
 
@@ -179,7 +179,7 @@ public class Datasets {
       return DATA_CACHE.get(SYNTHETIC_CONTROL);
     }
     DataFrame frame = loadSyntheticControl(
-        types -> new DataSeriesCollection.Builder(VectorType.DOUBLE)
+        types -> new DataSeriesCollection.Builder(Type.DOUBLE)
     );
     DATA_CACHE.put(SYNTHETIC_CONTROL, frame);
     return frame;
@@ -191,7 +191,7 @@ public class Datasets {
    * @return
    */
   public static DataFrame loadSyntheticControl(
-      Function<Collection<? extends VectorType>, DataFrame.Builder> f) {
+      Function<Collection<? extends Type>, DataFrame.Builder> f) {
     return load(f, MatlabDatasetReader::new, SYNTHETIC_CONTROL);
   }
 
@@ -214,11 +214,11 @@ public class Datasets {
    * @return
    */
   public static DataFrame loadDummy(
-      Function<Collection<? extends VectorType>, DataFrame.Builder> f) {
+      Function<Collection<? extends Type>, DataFrame.Builder> f) {
     return load(f, RdsDatasetReader::new, DUMMY);
   }
 
-  public static DataFrame load(Function<Collection<? extends VectorType>, DataFrame.Builder> f,
+  public static DataFrame load(Function<Collection<? extends Type>, DataFrame.Builder> f,
                                Function<InputStream, DatasetReader> fin, String name) {
     try (DatasetReader dfis = fin.apply(new BufferedInputStream(getResourceAsStream(name)))) {
       return load(f, dfis);

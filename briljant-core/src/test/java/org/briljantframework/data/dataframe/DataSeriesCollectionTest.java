@@ -21,7 +21,7 @@
 package org.briljantframework.data.dataframe;
 
 import org.briljantframework.data.dataseries.DataSeriesCollection;
-import org.briljantframework.data.vector.VectorType;
+import org.briljantframework.data.vector.Type;
 
 /**
  * Created by isak on 17/08/15.
@@ -30,6 +30,6 @@ public class DataSeriesCollectionTest extends DataFrameTest {
 
   @Override
   DataFrame.Builder getBuilder() {
-    return new DataSeriesCollection.Builder(VectorType.OBJECT);
+    return new DataSeriesCollection.Builder(Type.OBJECT);
   }
 }

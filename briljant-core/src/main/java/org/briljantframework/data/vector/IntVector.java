@@ -195,8 +195,8 @@ public class IntVector extends AbstractVector implements Transferable {
   }
 
   @Override
-  public final VectorType getType() {
-    return VectorType.INT;
+  public final Type getType() {
+    return Type.INT;
   }
 
   public static final class Builder extends AbstractBuilder {

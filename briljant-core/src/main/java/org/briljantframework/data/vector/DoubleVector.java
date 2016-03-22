@@ -169,8 +169,8 @@ public class DoubleVector extends AbstractVector implements Transferable {
   }
 
   @Override
-  public VectorType getType() {
-    return VectorType.DOUBLE;
+  public Type getType() {
+    return Type.DOUBLE;
   }
 
   // Specialized double method

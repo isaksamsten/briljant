@@ -24,16 +24,16 @@ import org.briljantframework.array.ArrayOperation;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.linalg.api.AbstractLinearAlgebraRoutines;
-import org.briljantframework.linalg.decomposition.LuDecomposition;
-import org.briljantframework.linalg.decomposition.SingularValueDecomposition;
+import org.briljantframework.array.linalg.api.AbstractLinearAlgebraRoutines;
+import org.briljantframework.array.linalg.decomposition.LuDecomposition;
+import org.briljantframework.array.linalg.decomposition.SingularValueDecomposition;
 
 /**
  * Created by isak on 27/04/15.
  */
 class BaseLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
-  protected BaseLinearAlgebraRoutines(ArrayBackend matrixFactory) {
+  BaseLinearAlgebraRoutines(ArrayBackend matrixFactory) {
     super(matrixFactory);
   }
 
