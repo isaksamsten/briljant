@@ -52,7 +52,7 @@ import org.briljantframework.data.index.IntIndex;
 import org.briljantframework.data.index.VectorLocationSetter;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.sort.QuickSort;
-import org.briljantframework.statistics.FastStatistics;
+import org.briljantframework.data.statistics.FastStatistics;
 
 /**
  * Utilities for handling vectors.

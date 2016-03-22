@@ -18,10 +18,11 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.briljantframework.statistics;
+package org.briljantframework.data.statistics;
 
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummaryValues;
+import org.briljantframework.DoubleSequence;
 
 /**
  * A fast implementation of the {@link StatisticalSummary} interface.
@@ -38,6 +39,12 @@ public class FastStatistics implements StatisticalSummary {
   public void addAll(double[] arr) {
     for (double v : arr) {
       addValue(v);
+    }
+  }
+
+  public void addAll(DoubleSequence arr) {
+    for (int i = 0; i < arr.size(); i++) {
+      addValue(arr.getAsDouble(i));
     }
   }
 

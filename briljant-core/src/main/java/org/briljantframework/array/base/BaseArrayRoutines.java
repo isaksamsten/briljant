@@ -41,7 +41,7 @@ import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayRoutines;
 import org.briljantframework.complex.MutableComplex;
 import org.briljantframework.exceptions.MultiDimensionMismatchException;
-import org.briljantframework.statistics.FastStatistics;
+import org.briljantframework.data.statistics.FastStatistics;
 
 /**
  * Base array routines implemented in Java.

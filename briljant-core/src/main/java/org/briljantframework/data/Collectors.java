@@ -39,7 +39,7 @@ import org.briljantframework.data.vector.TypeInferenceVectorBuilder;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Type;
 import org.briljantframework.data.vector.Vectors;
-import org.briljantframework.statistics.FastStatistics;
+import org.briljantframework.data.statistics.FastStatistics;
 
 /**
  * Define som common collectors for vectors and data frames.
