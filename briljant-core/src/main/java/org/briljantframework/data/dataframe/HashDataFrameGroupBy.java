@@ -37,7 +37,7 @@ import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.VectorLocationGetter;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Vectors;
-import org.briljantframework.primitive.IntList;
+import org.briljantframework.util.primitive.IntList;
 
 /**
  * Grouped data frame index by a HashMap.

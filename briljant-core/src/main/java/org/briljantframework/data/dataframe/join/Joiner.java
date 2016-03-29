@@ -54,7 +54,7 @@ public abstract class Joiner {
    * @param b the second data frame. Uses the indexes from {@link #getRightIndex(int)}
    * @return a new DataFrame
    */
-  public DataFrame join(DataFrame a, DataFrame b, Collection<?> on) {
+  public final DataFrame join(DataFrame a, DataFrame b, Collection<?> on) {
     int size = this.size();
     int indexSize = on.size();
 
@@ -126,15 +126,6 @@ public abstract class Joiner {
     }
   }
 
-  /**
-   * Get the index for the left side of a join. Returns {@code -1}, if the index should not be
-   * included.
-   *
-   * @param i the index {@code 0 ... size()}
-   * @return the index in the resulting container
-   */
-  public abstract int getLeftIndex(int i);
-
   private void appendColumnFromRightIndexIgnoreNA(int size, DataFrame.Builder builder,
       int targetColumn, Vector source) {
     DataFrameLocationSetter loc = builder.loc();
@@ -145,6 +136,15 @@ public abstract class Joiner {
       }
     }
   }
+
+  /**
+   * Get the index for the left side of a join. Returns {@code -1}, if the index should not be
+   * included.
+   *
+   * @param i the index {@code 0 ... size()}
+   * @return the index in the resulting container
+   */
+  public abstract int getLeftIndex(int i);
 
   /**
    * Get the index for the left side of a join. Returns {@code -1}, if the index should not be

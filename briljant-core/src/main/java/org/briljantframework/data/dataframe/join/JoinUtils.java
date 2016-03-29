@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.briljantframework.Check;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.dataframe.DataFrame;
@@ -61,17 +62,6 @@ public class JoinUtils {
     return new IntArray[] {results, counts};
   }
 
-  /**
-   * Create {@code JoinKeys} using the index
-   *
-   * @param a the left data frame
-   * @param b the right data frame
-   * @return a new join key
-   */
-  public static JoinKeys createJoinKeys(DataFrame a, DataFrame b) {
-    return createJoinKeys(a.getIndex(), b.getIndex());
-  }
-
   public static JoinKeys createJoinKeys(List<?> a, List<?> b) {
     int[] left = new int[a.size()];
     int[] right = new int[b.size()];
@@ -82,22 +72,10 @@ public class JoinUtils {
     return new JoinKeys(IntArray.of(left), IntArray.of(right), pool.size());
   }
 
-  private static int computeKeys(List<?> a, int[] left, Map<Object, Integer> pool, int j) {
-    for (int i = 0; i < a.size(); i++) {
-      Object val = a.get(i);
-      int ref = pool.getOrDefault(val, Na.BOXED_INT);
-      if (ref != Na.INT) {
-        left[i] = ref;
-      } else {
-        left[i] = j;
-        pool.put(val, j);
-        j += 1;
-      }
-    }
-    return j;
-  }
-
   public static JoinKeys createJoinKeys(DataFrame a, DataFrame b, Collection<?> on) {
+    Check.argument(!on.isEmpty(), "no keys given");
+    Check.argument(a.getColumnIndex().containsAll(on) && b.getColumnIndex().containsAll(on),
+        "can't find key");
     IntArray left = null;
     IntArray right = null;
 
@@ -124,7 +102,22 @@ public class JoinUtils {
     return new JoinKeys(left, right, noGroups);
   }
 
-  public static JoinKeys createJoinKeys(Vector a, Vector b) {
+  private static int computeKeys(List<?> a, int[] left, Map<Object, Integer> pool, int j) {
+    for (int i = 0; i < a.size(); i++) {
+      Object val = a.get(i);
+      int ref = pool.getOrDefault(val, Na.INT);
+      if (ref != Na.INT) {
+        left[i] = ref;
+      } else {
+        left[i] = j;
+        pool.put(val, j);
+        j += 1;
+      }
+    }
+    return j;
+  }
+
+  private static JoinKeys createJoinKeys(Vector a, Vector b) {
     return createJoinKeys(a.toList(Object.class), b.toList(Object.class));
   }
 

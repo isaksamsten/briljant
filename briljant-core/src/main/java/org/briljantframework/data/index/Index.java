@@ -26,7 +26,7 @@ import net.mintern.primitive.comparators.IntComparator;
 
 import org.briljantframework.array.Range;
 import org.briljantframework.data.SortOrder;
-import org.briljantframework.sort.Swappable;
+import org.briljantframework.util.sort.Swappable;
 
 /**
  * An immutable index which maps an object to a location and a location to an object.

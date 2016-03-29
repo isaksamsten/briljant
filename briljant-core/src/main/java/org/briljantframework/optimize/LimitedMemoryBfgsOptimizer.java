@@ -35,7 +35,7 @@ public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
   private final int memory;
   private final int maxIterations;
   private final double gradientTolerance;
-  private final BacktrackingLineSearch lineSearch = new BacktrackingLineSearch();
+  private final BacktrackingLineSearch lineSearch = BacktrackingLineSearch.getInstance();
 
   public LimitedMemoryBfgsOptimizer(int memory, int maxIterations, double gradientTolerance) {
     Check.argument(memory > 0, "Invalid m: " + memory);
@@ -68,8 +68,8 @@ public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
     double maxStepSize = MAXIMUM_STEP + Math.max(Math.sqrt(sum), n);
     int iter = 1, k = 0;
     while (iter <= maxIterations) {
-      if (Double.isNaN(lineSearch.optimize(function, x, f, gradient, direction, currentSolution,
-          maxStepSize))) {
+      if (Double.isNaN(
+          lineSearch.optimize(function, x, f, gradient, direction, currentSolution, maxStepSize))) {
         break;
       }
       f = function.gradientCost(currentSolution, currentGradient);
@@ -111,7 +111,8 @@ public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
       double scalingFactor = ys / yy;
 
       scales.set(k, 1.0 / ys);
-      direction.assign(gradient, v -> -v);
+      // direction.assign(gradient, v -> -v);
+      Arrays.scal(-1, gradient);
 
       int cp = k;
       int bound = iter > memory ? memory : iter;

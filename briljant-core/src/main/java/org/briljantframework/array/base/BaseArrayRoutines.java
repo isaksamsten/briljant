@@ -39,7 +39,7 @@ import org.briljantframework.array.IntArray;
 import org.briljantframework.array.LongArray;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayRoutines;
-import org.briljantframework.complex.MutableComplex;
+import org.briljantframework.util.complex.MutableComplex;
 import org.briljantframework.exceptions.MultiDimensionMismatchException;
 import org.briljantframework.data.statistics.FastStatistics;
 

@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.briljantframework.sort.Swappable;
+import org.briljantframework.util.sort.Swappable;
 
 /**
  * A multi dimensional array of unknown element type. An nd-array is a (usually fixed size)

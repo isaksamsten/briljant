@@ -51,11 +51,10 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.exceptions.MultiDimensionMismatchException;
 import org.briljantframework.function.LongBiPredicate;
-import org.briljantframework.primitive.ArrayAllocations;
-import org.briljantframework.sort.QuickSort;
+import org.briljantframework.util.primitive.ArrayAllocations;
+import org.briljantframework.util.sort.QuickSort;
 
 /**
  * This class provides a skeletal implementation of a long array.

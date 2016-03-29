@@ -39,7 +39,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.primitive.ArrayAllocations;
+import org.briljantframework.util.primitive.ArrayAllocations;
 
 /**
  * This class provides a skeletal implementation of a boolean array.

@@ -54,8 +54,8 @@ import org.apache.commons.math3.util.Precision;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.function.DoubleBiPredicate;
-import org.briljantframework.primitive.DoubleList;
-import org.briljantframework.sort.QuickSort;
+import org.briljantframework.util.primitive.DoubleList;
+import org.briljantframework.util.sort.QuickSort;
 
 /**
  * This class provides a skeletal implementation of a double array.

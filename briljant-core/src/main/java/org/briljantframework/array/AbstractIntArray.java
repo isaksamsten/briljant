@@ -49,11 +49,10 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.function.ToIntObjIntBiFunction;
-import org.briljantframework.primitive.IntList;
-import org.briljantframework.sort.QuickSort;
+import org.briljantframework.util.primitive.IntList;
+import org.briljantframework.util.sort.QuickSort;
 
 /**
  * This class provides a skeletal implementation of an int array.

@@ -64,8 +64,8 @@ import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReader;
 import org.briljantframework.data.vector.*;
 import org.briljantframework.data.vector.Type;
-import org.briljantframework.primitive.ArrayAllocations;
-import org.briljantframework.primitive.IntList;
+import org.briljantframework.util.primitive.ArrayAllocations;
+import org.briljantframework.util.primitive.IntList;
 
 /**
  * Provides a skeletal implementation of a {@link DataFrame}.

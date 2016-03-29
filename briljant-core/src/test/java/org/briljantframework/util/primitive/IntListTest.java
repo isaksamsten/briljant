@@ -18,14 +18,35 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.briljantframework.sort;
+package org.briljantframework.util.primitive;
+
+import org.briljantframework.data.index.Index;
+import org.briljantframework.data.index.ObjectIndex;
+import org.junit.Test;
 
 /**
- * Comparator to compare values in containers of unknown values.
- *
- * @author Isak Karlsson
+ * Created by isak on 14/09/15.
  */
-public interface IndexComparator<T> {
+public class IntListTest {
 
-  int compare(T c, int a, int b);
+  @Test
+  public void testSort() throws Exception {
+    IntList list = new IntList();
+    list.add(1);
+    list.add(99);
+    list.add(3);
+
+    list.primitiveSort(Integer::compare);
+    System.out.println(list);
+
+    Index.Builder index = new ObjectIndex.Builder();
+    index.add(10);
+    index.add(32);
+    index.add(2);
+
+    int[] values = {1, 99, 3};
+
+    index.sortIterationOrder((a, b) -> Integer.compare(values[a], values[b]));
+    System.out.println(index.build().keySet());
+  }
 }

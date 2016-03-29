@@ -38,7 +38,7 @@ import net.mintern.primitive.comparators.IntComparator;
 
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.vector.Vector;
-import org.briljantframework.primitive.IntList;
+import org.briljantframework.util.primitive.IntList;
 
 /**
  * Index based on a HashMap.

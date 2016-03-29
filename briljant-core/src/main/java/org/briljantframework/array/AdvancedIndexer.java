@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.briljantframework.Check;
-import org.briljantframework.primitive.IntList;
+import org.briljantframework.util.primitive.IntList;
 
 /**
  * An advanced indexer holds {@code n} int arrays of the same {@link #getShape() shape} used for

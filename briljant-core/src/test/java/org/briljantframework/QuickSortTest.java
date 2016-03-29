@@ -27,8 +27,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.briljantframework.sort.QuickSort;
-import org.briljantframework.sort.Swappable;
+import org.briljantframework.util.sort.QuickSort;
+import org.briljantframework.util.sort.Swappable;
 import org.junit.Test;
 
 public class QuickSortTest {

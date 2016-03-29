@@ -46,7 +46,7 @@ import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReader;
 import org.briljantframework.data.vector.Vector;
 import org.briljantframework.data.vector.Type;
-import org.briljantframework.primitive.ArrayAllocations;
+import org.briljantframework.util.primitive.ArrayAllocations;
 
 /**
  * A DataFrame is a 2-dimensional storage of data consisting of (indexed) <em>columns</em> and

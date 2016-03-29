@@ -46,14 +46,14 @@ public interface DifferentialMultivariateFunction extends MultivariateFunction {
    * @return the value at {@code x}
    */
   default double gradientCost(DoubleArray x, DoubleArray gradient) {
-    final double FINITE_DIFFERENCE_THRESHOLD = 1.0E-8;
+    final double finiteDifferenceThreshold = 1.0E-8;
     double f = cost(x);
 
     for (int j = 0; j < x.size(); j++) {
       double temp = x.get(j);
-      double h = FINITE_DIFFERENCE_THRESHOLD * Math.abs(temp);
+      double h = finiteDifferenceThreshold * Math.abs(temp);
       if (h == 0.0) {
-        h = FINITE_DIFFERENCE_THRESHOLD;
+        h = finiteDifferenceThreshold;
       }
       x.set(j, temp + h);
       h = x.get(j) - temp;

@@ -20,6 +20,8 @@
  */
 package org.briljantframework.data.dataframe.join;
 
+import org.briljantframework.Check;
+
 /**
  * @author Isak Karlsson
  */
@@ -28,7 +30,8 @@ class ArrayJoiner extends Joiner {
   private final int[] leftSorted;
   private final int[] rightSorted;
 
-  public ArrayJoiner(int[] leftSorted, int[] rightSorted) {
+  ArrayJoiner(int[] leftSorted, int[] rightSorted) {
+    Check.argument(leftSorted.length == rightSorted.length, "indexers must have the same length.");
     this.leftSorted = leftSorted;
     this.rightSorted = rightSorted;
   }

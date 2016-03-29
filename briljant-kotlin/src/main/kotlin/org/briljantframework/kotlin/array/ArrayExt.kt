@@ -1,8 +1,11 @@
 package org.briljantframework.kotlin.array
 
 import org.briljantframework.array.Arrays.*
-import org.briljantframework.array.BasicIndex.__
+import org.briljantframework.array.BasicIndex.all
 import org.briljantframework.array.DoubleArray
+
+
+
 
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
@@ -10,11 +13,11 @@ import org.briljantframework.array.DoubleArray
 
 fun main(args: Array<String>) {
 
-//    listOf<>()
+    //    listOf<>()
     val y = vector("a", "b", "c", "d")
     val f = intVector(1, 2, 3, 4, 5, 6, 7, 8).reshape(4, 2)
     println(y.reshape(2, 2))
-    println(f[range(3), __])
+    println(f[range(3), all])
     println(f)
     println(f[intVector(0, 1), intVector(0, 1, 0, 1).reshape(2, 2)])
 

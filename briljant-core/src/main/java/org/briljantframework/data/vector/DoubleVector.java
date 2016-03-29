@@ -32,7 +32,7 @@ import org.briljantframework.data.index.IntIndex;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.resolver.Resolve;
 import org.briljantframework.data.resolver.Resolver;
-import org.briljantframework.primitive.ArrayAllocations;
+import org.briljantframework.util.primitive.ArrayAllocations;
 
 /**
  * Vector of {@code double} primitives.

@@ -39,8 +39,13 @@ public class BacktrackingLineSearch {
 
   private final static double RELATIVE_TOLERANCE = Math.ulp(1.0);
   private final static double DECREASE_FRACTION = 1.0E-4;
+  private static final BacktrackingLineSearch INSTANCE = new BacktrackingLineSearch();
 
-  public BacktrackingLineSearch() {}
+  private BacktrackingLineSearch() {}
+
+  public static BacktrackingLineSearch getInstance() {
+    return INSTANCE;
+  }
 
   /**
    * @param function the optimizable multivariate function

@@ -32,7 +32,7 @@ import org.briljantframework.array.IntArray;
  */
 public class InnerJoin implements JoinOperation {
 
-  public static final InnerJoin INSTANCE = new InnerJoin();
+  private static final InnerJoin INSTANCE = new InnerJoin();
 
   private InnerJoin() {}
 
