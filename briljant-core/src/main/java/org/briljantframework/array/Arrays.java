@@ -20,12 +20,11 @@
  */
 package org.briljantframework.array;
 
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.ServiceLoader;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 import java.util.function.DoublePredicate;
 import java.util.function.IntPredicate;
 import java.util.function.LongPredicate;
@@ -46,10 +45,11 @@ import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.ArrayRoutines;
+import org.briljantframework.array.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.array.netlib.NetlibArrayBackend;
+import org.briljantframework.data.statistics.FastStatistics;
 import org.briljantframework.exceptions.MultiDimensionMismatchException;
 import org.briljantframework.function.DoubleBiPredicate;
-import org.briljantframework.array.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.util.sort.IndexComparator;
 import org.briljantframework.util.sort.QuickSort;
 
@@ -119,6 +119,81 @@ public final class Arrays {
   }
 
   private Arrays() {}
+
+  /**
+   * Reads a matrix from an IDX file.
+   * 
+   * @param inputStream the input stream
+   * @return a double matrix
+   * @throws IOException if an IO error occurs
+   */
+  public static DoubleArray readIdx(InputStream inputStream) throws IOException {
+    DataInputStream dis = new DataInputStream(new BufferedInputStream(inputStream));
+    int magic = dis.readInt();
+    int first = magic >> 24 & 0xFF;
+    int second = magic >> 16 & 0xFF;
+    int size = magic >> 8 & 0xFF;
+    int dims = magic & 0xFF;
+
+    Check.state(first == 0 && second == 0);
+    int[] shape = new int[dims];
+    int sum = 1;
+    for (int i = 0; i < dims; i++) {
+      shape[i] = dis.readInt();
+      sum *= shape[i];
+    }
+
+    int[] stride = StrideUtils.computeStride(shape);
+    double[] data = new double[sum];
+    for (int i = 0; i < data.length; i++) {
+      double value;
+      switch (size) {
+        case 0x08:
+          value = dis.readUnsignedByte();
+          break;
+        case 0x09:
+          value = dis.readByte();
+          break;
+        case 0x0B:
+          value = dis.readShort();
+          break;
+        case 0x0C:
+          value = dis.readInt();
+          break;
+        case 0x0D:
+          value = dis.readFloat();
+          break;
+        case 0x0E:
+          value = dis.readDouble();
+          break;
+        default:
+          throw new IllegalStateException("illegal size");
+      }
+      int cindex = StrideUtils.cindex(i, 0, stride, shape);
+      data[cindex] = value;
+    }
+
+    return DoubleArray.of(data).reshape(shape);
+  }
+
+  public static IntArray hist(DoubleArray array, double min, double max, int bins) {
+    IntArray result = IntArray.zeros(bins);
+    double binSize = (max - min) / bins;
+    for (int i = 0; i < array.size(); i++) {
+      double d = array.get(i);
+      int bin = (int) ((d - min) / binSize);
+      if (bin >= 0 && bin < bins) {
+        result.apply(bin, v -> v + 1);
+      }
+    }
+    return result;
+  }
+
+  public static IntArray hist(DoubleArray array, int bins) {
+    FastStatistics statistics = new FastStatistics();
+    statistics.addAll(array);
+    return hist(array, statistics.getMin(), statistics.getMax(), bins);
+  }
 
   /**
    * @see org.briljantframework.array.api.ArrayFactory#newArray(int...)

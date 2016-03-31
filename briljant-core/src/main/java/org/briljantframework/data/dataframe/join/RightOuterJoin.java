@@ -47,7 +47,7 @@ public final class RightOuterJoin implements JoinOperation {
 
     private final Joiner joiner;
 
-    public ReversedJoinerDelegate(Joiner joiner) {
+    ReversedJoinerDelegate(Joiner joiner) {
       this.joiner = joiner;
     }
 

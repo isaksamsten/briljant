@@ -148,6 +148,16 @@ public final class StrideUtils {
     }
   }
 
+  public static int cindex(int index, int offset, int[] stride, int[] shape) {
+    for (int i = stride.length - 1; i >= 0; i--) {
+      int size = shape[i];
+      int sub2 = index / size;
+      offset += (index - size * sub2) * stride[i];
+      index = sub2;
+    }
+    return offset;
+  }
+
   /**
    * Returns the flattened index for a column-major indexed array given {@code row}, {@code column}
    * and the size {@code nrows} and {@code ncols}
@@ -160,11 +170,11 @@ public final class StrideUtils {
    */
   public static int rowMajor(int row, int col, int nrows, int ncols) {
     if (col >= ncols || col < 0) {
-      throw new IllegalArgumentException(String.format(
-          "index out of bounds; value %d out of bound %d", col, ncols));
+      throw new IllegalArgumentException(
+          String.format("index out of bounds; value %d out of bound %d", col, ncols));
     } else if (row >= nrows || row < 0) {
-      throw new IllegalArgumentException(String.format(
-          "index out of bounds; value %d out of bound %d", row, nrows));
+      throw new IllegalArgumentException(
+          String.format("index out of bounds; value %d out of bound %d", row, nrows));
     } else {
       return row * ncols + col;
     }
@@ -182,11 +192,11 @@ public final class StrideUtils {
    */
   public static int columnMajor(int offset, int row, int col, int nrows, int ncols) {
     if (col >= ncols || col < 0) {
-      throw new IllegalArgumentException(String.format(
-          "index out of bounds; value %d out of bound %d", col, ncols));
+      throw new IllegalArgumentException(
+          String.format("index out of bounds; value %d out of bound %d", col, ncols));
     } else if (row >= nrows || row < 0) {
-      throw new IllegalArgumentException(String.format(
-          "index out of bounds; value %d out of bound %d", row, nrows));
+      throw new IllegalArgumentException(
+          String.format("index out of bounds; value %d out of bound %d", row, nrows));
     } else {
       return offset + col * nrows + row;
     }

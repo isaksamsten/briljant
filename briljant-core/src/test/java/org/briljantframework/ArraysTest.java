@@ -23,22 +23,45 @@ package org.briljantframework;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 
-import com.google.common.base.Predicates;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import org.briljantframework.array.Array;
-import org.briljantframework.array.Arrays;
-import org.briljantframework.array.ComplexArray;
-import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.IntArray;
+import org.briljantframework.array.*;
 import org.junit.Test;
 
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
 public class ArraysTest {
+
+  @Test
+  public void ReadIdx() throws Exception {
+    DoubleArray array = Arrays
+        .readIdx(new FileInputStream(new File("/home/isak/Tmp/mnist/train-images-idx3-ubyte")));
+    DoubleArray x = array.select(2);
+
+    System.out.println(Arrays.hist(x, 0, 255, 255));
+
+    // ArrayPrinter.setMinimumTruncateSize(1000000);
+    // ArrayPrinter.setVisiblePerSlice(100000);
+    // ArrayPrinter.setPrintSlices(1000000);
+    // System.out.println(java.util.Arrays.toString(x.getShape()));
+    // System.out.println(x);
+    // BufferedImage img =
+    // new BufferedImage(x.size(0), x.size(1), BufferedImage.TYPE_BYTE_GRAY);
+    //
+    // for (int i = 0; i < x.size(0); i++) {
+    // for (int j = 0; j < x.size(1); j++) {
+    // img.setRGB(i, j, (int) x.get(i, j));
+    // }
+    // }
+    // System.out.println(x.asInt());
+    // JFrame frame = new JFrame();
+    // frame.getContentPane().add(new JLabel(new ImageIcon(img)));
+    // frame.pack();
+    // frame.setVisible(true);
+  }
 
   @Test
   public void testSwapdimensions() throws Exception {
@@ -53,9 +76,8 @@ public class ArraysTest {
   public void testBroadcast_reshape() throws Exception {
     Array<String> a = Array.of("a", "b", "c");
     Array<String> x = Arrays.broadcast(a, 6, 3).reshape(2, 9);
-    assertEquals(
-        Array.of("a", "a", "a", "a", "a", "a", "b", "b", "b", "b", "b", "b", "c", "c", "c", "c",
-            "c", "c").reshape(2, 9), x);
+    assertEquals(Array.of("a", "a", "a", "a", "a", "a", "b", "b", "b", "b", "b", "b", "c", "c", "c",
+        "c", "c", "c").reshape(2, 9), x);
   }
 
   @Test
@@ -107,7 +129,8 @@ public class ArraysTest {
     List<IntArray> split = Arrays.vsplit(x, 3);
     assertEquals(
         Arrays.intVector(2, 3, 8, 9, 14, 15, 20, 21, 26, 27, 32, 33, 38, 39, 44, 45, 50, 51)
-            .reshape(2, 3, 3), split.get(1));
+            .reshape(2, 3, 3),
+        split.get(1));
   }
 
   @Test
@@ -132,8 +155,8 @@ public class ArraysTest {
   @Test
   public void testRepeat() throws Exception {
     IntArray x = Arrays.range(3 * 3).reshape(3, 3);
-    assertEquals(Arrays.intVector(0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6,
-                                  7, 7, 7, 8, 8, 8), Arrays.repeat(x, 3));
+    assertEquals(Arrays.intVector(0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7,
+        7, 7, 8, 8, 8), Arrays.repeat(x, 3));
   }
 
   @Test
@@ -169,9 +192,8 @@ public class ArraysTest {
     assertEquals(a2, a22.getVector(1, 1));
 
     DoubleArray b = Arrays.doubleMatrix(new double[][] {{1, 2}, {3, 4}});
-    DoubleArray bexpected =
-        Arrays.doubleMatrix(new double[][] {{1, 2, 1, 2}, {3, 4, 3, 4}, {1, 2, 1, 2},
-                                            {3, 4, 3, 4}});
+    DoubleArray bexpected = Arrays
+        .doubleMatrix(new double[][] {{1, 2, 1, 2}, {3, 4, 3, 4}, {1, 2, 1, 2}, {3, 4, 3, 4}});
 
     assertEquals(bexpected, Arrays.tile(b, 2, 2));
   }
@@ -249,15 +271,12 @@ public class ArraysTest {
     IntArray concat_1 = Arrays.concatenate(java.util.Arrays.asList(x, x, x), 1);
     IntArray concat_2 = Arrays.concatenate(java.util.Arrays.asList(x, x, x), 2);
 
-    IntArray expected_0 =
-        IntArray.of(0, 1, 0, 1, 0, 1, 2, 3, 2, 3, 2, 3, 4, 5, 4, 5, 4, 5, 6, 7, 6, 7, 6, 7, 8, 9,
-            8, 9, 8, 9, 10, 11, 10, 11, 10, 11);
-    IntArray expected_1 =
-        IntArray.of(0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 6, 7, 4, 5, 6, 7, 4, 5, 6, 7, 8, 9,
-            10, 11, 8, 9, 10, 11, 8, 9, 10, 11);
-    IntArray expected_2 =
-        IntArray.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0,
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
+    IntArray expected_0 = IntArray.of(0, 1, 0, 1, 0, 1, 2, 3, 2, 3, 2, 3, 4, 5, 4, 5, 4, 5, 6, 7, 6,
+        7, 6, 7, 8, 9, 8, 9, 8, 9, 10, 11, 10, 11, 10, 11);
+    IntArray expected_1 = IntArray.of(0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 4, 5, 6, 7, 4, 5, 6, 7, 4,
+        5, 6, 7, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11);
+    IntArray expected_2 = IntArray.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5, 6, 7,
+        8, 9, 10, 11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
 
     assertEquals(expected_0.reshape(6, 2, 3), concat_0);
     assertEquals(expected_1.reshape(2, 6, 3), concat_1);

@@ -54,7 +54,7 @@ public abstract class Joiner {
    * @param b the second data frame. Uses the indexes from {@link #getRightIndex(int)}
    * @return a new DataFrame
    */
-  public final DataFrame join(DataFrame a, DataFrame b, Collection<?> on) {
+  public DataFrame join(DataFrame a, DataFrame b, Collection<?> on) {
     int size = this.size();
     int indexSize = on.size();
 
