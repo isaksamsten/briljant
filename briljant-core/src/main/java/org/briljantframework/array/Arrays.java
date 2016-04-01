@@ -20,10 +20,7 @@
  */
 package org.briljantframework.array;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 import java.util.function.DoublePredicate;
 import java.util.function.IntPredicate;
@@ -47,6 +44,7 @@ import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.ArrayRoutines;
 import org.briljantframework.array.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.array.netlib.NetlibArrayBackend;
+import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.statistics.FastStatistics;
 import org.briljantframework.exceptions.MultiDimensionMismatchException;
 import org.briljantframework.function.DoubleBiPredicate;
@@ -174,6 +172,21 @@ public final class Arrays {
     }
 
     return DoubleArray.of(data).reshape(shape);
+  }
+
+  public static void writeIdx(BaseArray<?> array, OutputStream outputStream) {
+    DataOutputStream dis = new DataOutputStream(new BufferedOutputStream(outputStream));
+    int dims = array.dims();
+    int size;
+    if (array instanceof DoubleArray) {
+      size = 0x0E;
+    } else if (array instanceof IntArray) {
+      size = 0x0C;
+    } else {
+      throw new IllegalArgumentException();
+    }
+    throw new UnsupportedOperationException();
+
   }
 
   public static IntArray hist(DoubleArray array, double min, double max, int bins) {

@@ -111,8 +111,12 @@ public class LimitedMemoryBfgsOptimizer implements NonlinearOptimizer {
       double scalingFactor = ys / yy;
 
       scales.set(k, 1.0 / ys);
+      for (int i = 0; i < gradient.size(); i++) {
+        direction.set(i, -gradient.get(i));
+      }
       // direction.assign(gradient, v -> -v);
-      Arrays.scal(-1, gradient);
+      // Arrays.scal(-1, gradient);
+
 
       int cp = k;
       int bound = iter > memory ? memory : iter;
