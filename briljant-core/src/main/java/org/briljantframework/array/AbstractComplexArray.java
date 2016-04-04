@@ -48,7 +48,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.array.api.ArrayFactory;
 
 /**
  * This class provides a skeletal implementation of a comples array.
@@ -72,11 +71,10 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray assign(Complex value) {
+  public void assign(Complex value) {
     for (int i = 0; i < size(); i++) {
       set(i, value);
     }
-    return this;
   }
 
   @Override
@@ -98,71 +96,64 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray assign(Supplier<Complex> supplier) {
+  public void assign(Supplier<Complex> supplier) {
     for (int i = 0; i < size(); i++) {
       set(i, supplier.get());
     }
-    return this;
   }
 
   @Override
-  public ComplexArray assign(ComplexArray array, UnaryOperator<Complex> operator) {
+  public void assign(ComplexArray array, UnaryOperator<Complex> operator) {
     array = ShapeUtils.broadcastIfSensible(this, array);
     Check.size(this, array);
     for (int i = 0; i < size(); i++) {
       set(i, operator.apply(array.get(i)));
     }
-    return this;
   }
 
   @Override
-  public ComplexArray combineAssign(ComplexArray array, BinaryOperator<Complex> combine) {
+  public void combineAssign(ComplexArray array, BinaryOperator<Complex> combine) {
     array = ShapeUtils.broadcastIfSensible(this, array);
     Check.dimension(this, array);
     for (int i = 0; i < size(); i++) {
       set(i, combine.apply(get(i), array.get(i)));
     }
-    return this;
   }
 
   @Override
-  public ComplexArray assign(DoubleArray array) {
+  public void assign(DoubleArray array) {
     array = ShapeUtils.broadcastIfSensible(this, array);
     Check.argument(array.size() == size());
     for (int i = 0; i < size(); i++) {
       set(i, Complex.valueOf(array.get(i)));
     }
-    return this;
   }
 
   @Override
-  public ComplexArray assign(DoubleArray array, DoubleFunction<Complex> operator) {
+  public void assign(DoubleArray array, DoubleFunction<Complex> operator) {
     array = ShapeUtils.broadcastIfSensible(this, array);
     Check.argument(array.size() == size());
     for (int i = 0; i < size(); i++) {
       set(i, operator.apply(array.get(i)));
     }
-    return this;
   }
 
   @Override
-  public ComplexArray assign(LongArray array, LongFunction<Complex> operator) {
+  public void assign(LongArray array, LongFunction<Complex> operator) {
     array = ShapeUtils.broadcastIfSensible(this, array);
     Check.size(this, array);
     for (int i = 0; i < size(); i++) {
       set(i, operator.apply(array.get(i)));
     }
-    return this;
   }
 
   @Override
-  public ComplexArray assign(IntArray array, IntFunction<Complex> operator) {
+  public void assign(IntArray array, IntFunction<Complex> operator) {
     array = ShapeUtils.broadcastIfSensible(this, array);
     Check.size(this, array);
     for (int i = 0; i < size(); i++) {
       set(i, operator.apply(array.get(i)));
     }
-    return this;
   }
 
   @Override

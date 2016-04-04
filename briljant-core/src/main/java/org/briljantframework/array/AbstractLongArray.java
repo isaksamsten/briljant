@@ -282,61 +282,55 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public LongArray assign(LongSupplier supplier) {
+  public void assign(LongSupplier supplier) {
     for (int i = 0; i < size(); i++) {
       set(i, supplier.getAsLong());
     }
-    return this;
   }
 
   @Override
-  public LongArray assign(LongArray array, LongUnaryOperator operator) {
+  public void assign(LongArray array, LongUnaryOperator operator) {
     array = ShapeUtils.broadcastIfSensible(this, array);
     Check.size(this, array);
     for (int i = 0; i < size(); i++) {
       set(i, operator.applyAsLong(array.get(i)));
     }
-    return this;
   }
 
   @Override
-  public LongArray combineAssign(LongArray array, LongBinaryOperator combine) {
+  public void combineAssign(LongArray array, LongBinaryOperator combine) {
     array = ShapeUtils.broadcastIfSensible(this, array);
     Check.dimension(this, array);
     for (int i = 0; i < size(); i++) {
       set(i, combine.applyAsLong(get(i), array.get(i)));
     }
-    return this;
   }
 
   @Override
-  public LongArray assign(ComplexArray array, ToLongFunction<? super Complex> function) {
+  public void assign(ComplexArray array, ToLongFunction<? super Complex> function) {
     array = ShapeUtils.broadcastIfSensible(this, array);
     Check.size(this, array);
     for (int i = 0; i < size(); i++) {
       set(i, function.applyAsLong(array.get(i)));
     }
-    return this;
   }
 
   @Override
-  public LongArray assign(IntArray array, IntToLongFunction operator) {
+  public void assign(IntArray array, IntToLongFunction operator) {
     array = ShapeUtils.broadcastIfSensible(this, array);
     Check.size(this, array);
     for (int i = 0; i < size(); i++) {
       set(i, operator.applyAsLong(array.get(i)));
     }
-    return this;
   }
 
   @Override
-  public LongArray assign(DoubleArray array, DoubleToLongFunction function) {
+  public void assign(DoubleArray array, DoubleToLongFunction function) {
     array = ShapeUtils.broadcastIfSensible(this, array);
     Check.size(this, array);
     for (int i = 0; i < array.size(); i++) {
       set(i, function.applyAsLong(array.get(i)));
     }
-    return this;
   }
 
   @Override

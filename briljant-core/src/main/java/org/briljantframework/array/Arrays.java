@@ -22,11 +22,8 @@ package org.briljantframework.array;
 
 import java.io.*;
 import java.util.*;
-import java.util.function.DoublePredicate;
-import java.util.function.IntPredicate;
-import java.util.function.LongPredicate;
-import java.util.function.Predicate;
-import java.util.stream.StreamSupport;
+import java.util.function.*;
+import java.util.stream.*;
 
 import net.mintern.primitive.comparators.DoubleComparator;
 import net.mintern.primitive.comparators.IntComparator;
@@ -44,10 +41,12 @@ import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.ArrayRoutines;
 import org.briljantframework.array.linalg.api.LinearAlgebraRoutines;
 import org.briljantframework.array.netlib.NetlibArrayBackend;
-import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.statistics.FastStatistics;
 import org.briljantframework.exceptions.MultiDimensionMismatchException;
 import org.briljantframework.function.DoubleBiPredicate;
+import org.briljantframework.function.IntBiPredicate;
+import org.briljantframework.function.LongBiPredicate;
+import org.briljantframework.function.ToIntObjIntBiFunction;
 import org.briljantframework.util.sort.IndexComparator;
 import org.briljantframework.util.sort.QuickSort;
 
@@ -206,6 +205,39 @@ public final class Arrays {
     FastStatistics statistics = new FastStatistics();
     statistics.addAll(array);
     return hist(array, statistics.getMin(), statistics.getMax(), bins);
+  }
+
+  public static <T> Array<T> unmodifiableArray(Array<T> array) {
+    if (array instanceof UnmodifiableArray) {
+      return array;
+    }
+    return new UnmodifiableArray<>(array);
+  }
+
+  public static DoubleArray unmodifiableArray(DoubleArray array) {
+    if (array instanceof UnmodifiableDoubleArray) {
+      return array;
+    }
+    return new UnmodifiableDoubleArray(array);
+  }
+
+  public static IntArray unmodifiableArray(IntArray array) {
+    if (array instanceof UnmodifiableIntArray) {
+      return array;
+    }
+    return new UnmodifiableIntArray(array);
+  }
+
+  public static LongArray unmodifiableArray(LongArray array) {
+    return new UnmodifiableLongArray(array);
+  }
+
+  public static ComplexArray unmodifiableArray(ComplexArray array) {
+    return new UnmodifiableComplexArray(array);
+  }
+
+  public static BooleanArray unmodifiableArray(BooleanArray array) {
+    return new UnmodifiableBooleanArray(array);
   }
 
   /**
@@ -2614,6 +2646,3445 @@ public final class Arrays {
     @Override
     public int size() {
       return arrays.size();
+    }
+  }
+
+
+  private static class UnmodifiableArray<T> implements Array<T> {
+
+    private final Array<T> array;
+
+    @Override
+    public String toString() {
+      return array.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      return array.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+      return array.hashCode();
+    }
+
+    @Override
+    public void assign(T value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(Supplier<T> supplier) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <U> void assign(Array<U> other, Function<? super U, ? extends T> operator) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DoubleArray mapToDouble(ToDoubleFunction<? super T> f) {
+      return array.mapToDouble(f);
+    }
+
+    @Override
+    public LongArray mapToLong(ToLongFunction<? super T> f) {
+      return array.mapToLong(f);
+    }
+
+    @Override
+    public IntArray mapToInt(ToIntFunction<? super T> f) {
+      return array.mapToInt(f);
+    }
+
+    @Override
+    public ComplexArray mapToComplex(Function<? super T, Complex> f) {
+      return array.mapToComplex(f);
+    }
+
+    @Override
+    public <U> Array<U> map(Function<? super T, ? extends U> f) {
+      return array.map(f);
+    }
+
+    @Override
+    public void apply(UnaryOperator<T> operator) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DoubleArray asDouble(ToDoubleFunction<? super T> to, DoubleFunction<T> from) {
+      return array.asDouble(to, from);
+    }
+
+    @Override
+    public DoubleArray asDouble(ToDoubleFunction<? super T> to) {
+      return array.asDouble(to);
+    }
+
+    @Override
+    public IntArray asInt(ToIntFunction<? super T> to, IntFunction<T> from) {
+      return array.asInt(to, from);
+    }
+
+    @Override
+    public IntArray asInt(ToIntFunction<? super T> to) {
+      return array.asInt(to);
+    }
+
+    @Override
+    public LongArray asLong(ToLongFunction<? super T> to, LongFunction<T> from) {
+      return array.asLong(to, from);
+    }
+
+    @Override
+    public LongArray asLong(ToLongFunction<? super T> to) {
+      return array.asLong(to);
+    }
+
+    @Override
+    public BooleanArray asBoolean(Function<? super T, Boolean> to, Function<Boolean, T> from) {
+      return array.asBoolean(to, from);
+    }
+
+    @Override
+    public BooleanArray asBoolean(Function<? super T, Boolean> to) {
+      return array.asBoolean(to);
+    }
+
+    @Override
+    public ComplexArray asComplex(Function<? super T, Complex> to, Function<Complex, T> from) {
+      return array.asComplex(to, from);
+    }
+
+    @Override
+    public ComplexArray asComplex(Function<? super T, Complex> to) {
+      return array.asComplex(to);
+    }
+
+    @Override
+    public Array<T> filter(Predicate<T> predicate) {
+      return array.filter(predicate);
+    }
+
+    @Override
+    public BooleanArray where(Predicate<T> predicate) {
+      return array.where(predicate);
+    }
+
+    @Override
+    public BooleanArray where(Array<T> other, BiPredicate<T, T> predicate) {
+      return array.where(other, predicate);
+    }
+
+    @Override
+    public T reduce(T initial, BinaryOperator<T> accumulator) {
+      return array.reduce(initial, accumulator);
+    }
+
+    @Override
+    public Array<T> reduceVector(int dim, Function<? super Array<T>, T> accumulator) {
+      return array.reduceVector(dim, accumulator);
+    }
+
+    @Override
+    public T get(int i) {
+      return array.get(i);
+    }
+
+    @Override
+    public void set(int i, T value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public T get(int i, int j) {
+      return array.get(i, j);
+    }
+
+    @Override
+    public void set(int i, int j, T value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public T get(int... index) {
+      return array.get(index);
+    }
+
+    @Override
+    public void set(int[] index, T value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(BooleanArray array, T value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Array<T> get(BooleanArray array) {
+      return this.array.get(array);
+    }
+
+    @Override
+    public Stream<T> stream() {
+      return array.stream();
+    }
+
+    @Override
+    public List<T> toList() {
+      return Collections.unmodifiableList(array.toList());
+    }
+
+    @Override
+    public T[] data() {
+      return array.data().clone();
+    }
+
+    @Override
+    public void set(int toIndex, Array<T> from, int fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int toRow, int toColumn, Array<T> from, int fromRow, int fromColumn) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int[] toIndex, Array<T> from, int[] fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int[] toIndex, Array<T> from, int fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int toIndex, Array<T> from, int[] fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Array<T> reverse() {
+      return array.reverse();
+    }
+
+    @Override
+    public void assign(Array<T> o) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void forEach(int dim, Consumer<Array<T>> consumer) {
+      array.forEach(dim, consumer);
+    }
+
+    @Override
+    public void setColumn(int i, Array<T> vec) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Array<T> getColumn(int index) {
+      return unmodifiableArray(array.getColumn(index));
+    }
+
+    @Override
+    public void setRow(int i, Array<T> vec) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Array<T> getRow(int i) {
+      return unmodifiableArray(array.getRow(i));
+    }
+
+    @Override
+    public Array<T> reshape(int... shape) {
+      return unmodifiableArray(array.reshape(shape));
+    }
+
+    @Override
+    public Array<T> ravel() {
+      return unmodifiableArray(array.ravel());
+    }
+
+    @Override
+    public Array<T> select(int index) {
+      return unmodifiableArray(array.select(index));
+    }
+
+    @Override
+    public Array<T> select(int dimension, int index) {
+      return unmodifiableArray(array.select(dimension, index));
+    }
+
+    @Override
+    public Array<T> getView(Range... indexers) {
+      return unmodifiableArray(array.getView(indexers));
+    }
+
+    @Override
+    public Array<T> getView(List<? extends Range> ranges) {
+      return unmodifiableArray(array.getView(ranges));
+    }
+
+    @Override
+    public Array<T> getVector(int dimension, int index) {
+      return unmodifiableArray(array.getVector(dimension, index));
+    }
+
+    @Override
+    public List<Array<T>> getVectors(int dimension) {
+      List<Array<T>> vectors = array.getVectors(dimension);
+      return new AbstractList<Array<T>>() {
+        @Override
+        public Array<T> get(int index) {
+          return unmodifiableArray(vectors.get(index));
+        }
+
+        @Override
+        public int size() {
+          return vectors.size();
+        }
+      };
+    }
+
+    @Override
+    public void setVector(int dimension, int index, Array<T> other) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Array<T> getDiagonal() {
+      return unmodifiableArray(array.getDiagonal());
+    }
+
+    @Override
+    public Array<T> get(IntArray... arrays) {
+      return unmodifiableArray(array.get(arrays));
+    }
+
+    @Override
+    public Array<T> get(List<? extends IntArray> arrays) {
+      return unmodifiableArray(array.get(arrays));
+    }
+
+    @Override
+    public void set(IntArray[] indexers, Array<T> slice) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(List<? extends IntArray> arrays, Array<T> value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Array<T> getView(int rowOffset, int colOffset, int rows, int columns) {
+      return unmodifiableArray(array.getView(rowOffset, colOffset, rows, columns));
+    }
+
+    @Override
+    public int size() {
+      return array.size();
+    }
+
+    @Override
+    public int size(int dim) {
+      return array.size(dim);
+    }
+
+    @Override
+    public int vectors(int i) {
+      return array.vectors(i);
+    }
+
+    @Override
+    public int stride(int i) {
+      return array.stride(i);
+    }
+
+    @Override
+    public int getOffset() {
+      return array.getOffset();
+    }
+
+    @Override
+    public int[] getShape() {
+      return array.getShape();
+    }
+
+    @Override
+    public int[] getStride() {
+      return array.getStride();
+    }
+
+    @Override
+    public int getMajorStride() {
+      return array.getMajorStride();
+    }
+
+    @Override
+    public boolean isSquare() {
+      return array.isSquare();
+    }
+
+    @Override
+    public int rows() {
+      return array.rows();
+    }
+
+    @Override
+    public int columns() {
+      return array.columns();
+    }
+
+    @Override
+    public int dims() {
+      return array.dims();
+    }
+
+    @Override
+    public boolean isVector() {
+      return array.isVector();
+    }
+
+    @Override
+    public boolean isMatrix() {
+      return array.isMatrix();
+    }
+
+    @Override
+    public Array<T> asView(int[] shape, int[] stride) {
+      return unmodifiableArray(array.asView(shape, stride));
+    }
+
+    @Override
+    public Array<T> asView(int offset, int[] shape, int[] stride) {
+      return unmodifiableArray(array.asView(offset, shape, stride));
+    }
+
+    @Override
+    public Array<T> newEmptyArray(int... shape) {
+      return array.newEmptyArray(shape);
+    }
+
+    @Override
+    public boolean isView() {
+      return array.isView();
+    }
+
+    @Override
+    public DoubleArray asDouble() {
+      return unmodifiableArray(array.asDouble());
+    }
+
+    @Override
+    public IntArray asInt() {
+      return unmodifiableArray(array.asInt());
+    }
+
+    @Override
+    public LongArray asLong() {
+      return unmodifiableArray(array.asLong());
+    }
+
+    @Override
+    public BooleanArray asBoolean() {
+      return unmodifiableArray(array.asBoolean());
+    }
+
+    @Override
+    public ComplexArray asComplex() {
+      return unmodifiableArray(array.asComplex());
+    }
+
+    @Override
+    public boolean isContiguous() {
+      return array.isContiguous();
+    }
+
+    @Override
+    public Array<T> transpose() {
+      return unmodifiableArray(array.transpose());
+    }
+
+    @Override
+    public Array<T> copy() {
+      return array.copy();
+    }
+
+    @Override
+    public BooleanArray lt(Array<T> other) {
+      return array.lt(other);
+    }
+
+    @Override
+    public BooleanArray gt(Array<T> other) {
+      return array.gt(other);
+    }
+
+    @Override
+    public BooleanArray eq(Array<T> other) {
+      return array.eq(other);
+    }
+
+    @Override
+    public BooleanArray lte(Array<T> other) {
+      return array.lte(other);
+    }
+
+    @Override
+    public BooleanArray gte(Array<T> other) {
+      return array.gte(other);
+    }
+
+    @Override
+    public void swap(int a, int b) {
+      array.swap(a, b);
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+      return array.iterator();
+    }
+
+    @Override
+    public void forEach(Consumer<? super T> action) {
+      array.forEach(action);
+    }
+
+    @Override
+    public Spliterator<T> spliterator() {
+      return array.spliterator();
+    }
+
+    UnmodifiableArray(Array<T> array) {
+      this.array = array;
+    }
+  }
+
+
+  private static class UnmodifiableDoubleArray implements DoubleArray {
+    private final DoubleArray array;
+
+    @Override
+    public String toString() {
+      return array.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      return array.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+      return array.hashCode();
+    }
+
+    @Override
+    public void set(int index, double value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(double value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(double[] array) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(DoubleSupplier supplier) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(DoubleArray array, DoubleUnaryOperator operator) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(IntArray array, IntToDoubleFunction function) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(LongArray array, LongToDoubleFunction function) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(ComplexArray array, ToDoubleFunction<? super Complex> function) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void combineAssign(DoubleArray array, DoubleBinaryOperator combine) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DoubleArray combine(DoubleArray array, DoubleBinaryOperator combine) {
+      return this.array.combine(array, combine);
+    }
+
+    @Override
+    public <R, C> R collect(Collector<? super Double, C, R> collector) {
+      return array.collect(collector);
+    }
+
+    @Override
+    public <R> R collect(Supplier<R> supplier, ObjDoubleConsumer<R> consumer) {
+      return array.collect(supplier, consumer);
+    }
+
+    @Override
+    public DoubleArray map(DoubleUnaryOperator operator) {
+      return array.map(operator);
+    }
+
+    @Override
+    public IntArray mapToInt(DoubleToIntFunction function) {
+      return array.mapToInt(function);
+    }
+
+    @Override
+    public LongArray mapToLong(DoubleToLongFunction function) {
+      return array.mapToLong(function);
+    }
+
+    @Override
+    public ComplexArray mapToComplex(DoubleFunction<Complex> function) {
+      return array.mapToComplex(function);
+    }
+
+    @Override
+    public <T> Array<T> mapToObj(DoubleFunction<? extends T> mapper) {
+      return array.mapToObj(mapper);
+    }
+
+    @Override
+    public void apply(DoubleUnaryOperator operator) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DoubleArray filter(DoublePredicate predicate) {
+      return array.filter(predicate);
+    }
+
+    @Override
+    public BooleanArray where(DoubleArray array, DoubleBiPredicate predicate) {
+      return this.array.where(array, predicate);
+    }
+
+    @Override
+    public void forEachDouble(DoubleConsumer consumer) {
+      array.forEachDouble(consumer);
+    }
+
+    @Override
+    public double reduce(double identity, DoubleBinaryOperator reduce) {
+      return array.reduce(identity, reduce);
+    }
+
+    @Override
+    public DoubleArray reduceVectors(int dim, ToDoubleFunction<? super DoubleArray> reduce) {
+      return array.reduceVectors(dim, reduce);
+    }
+
+    @Override
+    public void set(int i, int j, double value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int[] ix, double value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public double get(int index) {
+      return array.get(index);
+    }
+
+    @Override
+    public double get(int i, int j) {
+      return array.get(i, j);
+    }
+
+    @Override
+    public double get(int... ix) {
+      return array.get(ix);
+    }
+
+    @Override
+    public void set(BooleanArray array, double value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DoubleArray get(BooleanArray array) {
+      return this.array.get(array);
+    }
+
+    @Override
+    public void sort() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void sort(DoubleComparator comparator) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DoubleStream stream() {
+      return array.stream();
+    }
+
+    @Override
+    public List<Double> toList() {
+      return Collections.unmodifiableList(array.toList());
+    }
+
+    @Override
+    public Array<Double> boxed() {
+      return unmodifiableArray(array.boxed());
+    }
+
+    @Override
+    public DoubleArray times(DoubleArray other) {
+      return array.times(other);
+    }
+
+    @Override
+    public DoubleArray times(double alpha, DoubleArray other) {
+      return array.times(alpha, other);
+    }
+
+    @Override
+    public DoubleArray times(double scalar) {
+      return array.times(scalar);
+    }
+
+    @Override
+    public void timesAssign(double scalar) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void timesAssign(DoubleArray array) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DoubleArray plus(DoubleArray other) {
+      return array.plus(other);
+    }
+
+    @Override
+    public DoubleArray plus(double scalar) {
+      return array.plus(scalar);
+    }
+
+    @Override
+    public void plusAssign(DoubleArray other) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void plusAssign(double scalar) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DoubleArray plus(double alpha, DoubleArray other) {
+      return array.plus(alpha, other);
+    }
+
+    @Override
+    public DoubleArray minus(double scalar) {
+      return array.minus(scalar);
+    }
+
+    @Override
+    public DoubleArray minus(DoubleArray other) {
+      return array.minus(other);
+    }
+
+    @Override
+    public void minusAssign(double scalar) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void minusAssign(DoubleArray scalar) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DoubleArray minus(double alpha, DoubleArray other) {
+      return array.minus(alpha, other);
+    }
+
+    @Override
+    public DoubleArray reverseMinus(double scalar) {
+      return array.reverseMinus(scalar);
+    }
+
+    @Override
+    public void reverseMinusAssign(double scalar) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DoubleArray div(double other) {
+      return array.div(other);
+    }
+
+    @Override
+    public DoubleArray div(DoubleArray other) {
+      return array.div(other);
+    }
+
+    @Override
+    public void divAssign(DoubleArray other) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void divAssign(double value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DoubleArray reverseDiv(double other) {
+      return array.reverseDiv(other);
+    }
+
+    @Override
+    public void reverseDivAssign(double other) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DoubleArray negate() {
+      return array.negate();
+    }
+
+    @Override
+    public BooleanArray gt(double v) {
+      return array.gt(v);
+    }
+
+    @Override
+    public BooleanArray where(DoublePredicate predicate) {
+      return array.where(predicate);
+    }
+
+    @Override
+    public BooleanArray gte(double v) {
+      return array.gte(v);
+    }
+
+    @Override
+    public BooleanArray lt(double v) {
+      return array.lt(v);
+    }
+
+    @Override
+    public BooleanArray lte(double v) {
+      return array.lte(v);
+    }
+
+    @Override
+    public BooleanArray eq(double v) {
+      return array.eq(v);
+    }
+
+    @Override
+    public BooleanArray neq(double v) {
+      return array.neq(v);
+    }
+
+    @Override
+    public double getAsDouble(int index) {
+      return array.getAsDouble(index);
+    }
+
+    @Override
+    public double[] data() {
+      return array.data().clone();
+    }
+
+    @Override
+    public void set(int toIndex, DoubleArray from, int fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int toRow, int toColumn, DoubleArray from, int fromRow, int fromColumn) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int[] toIndex, DoubleArray from, int[] fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int[] toIndex, DoubleArray from, int fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int toIndex, DoubleArray from, int[] fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DoubleArray reverse() {
+      return unmodifiableArray(array.reverse());
+    }
+
+    @Override
+    public void assign(DoubleArray o) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void forEach(int dim, Consumer<DoubleArray> consumer) {
+      array.forEach(dim, consumer);
+    }
+
+    @Override
+    public void setColumn(int i, DoubleArray vec) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DoubleArray getColumn(int index) {
+      return unmodifiableArray(array.getColumn(index));
+    }
+
+    @Override
+    public void setRow(int i, DoubleArray vec) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DoubleArray getRow(int i) {
+      return unmodifiableArray(array.getRow(i));
+    }
+
+    @Override
+    public DoubleArray reshape(int... shape) {
+      return unmodifiableArray(array.reshape(shape));
+    }
+
+    @Override
+    public DoubleArray ravel() {
+      return unmodifiableArray(array.ravel());
+    }
+
+    @Override
+    public DoubleArray select(int index) {
+      return unmodifiableArray(array.select(index));
+    }
+
+    @Override
+    public DoubleArray select(int dimension, int index) {
+      return unmodifiableArray(array.select(dimension, index));
+    }
+
+    @Override
+    public DoubleArray getView(Range... indexers) {
+      return unmodifiableArray(array.getView(indexers));
+    }
+
+    @Override
+    public DoubleArray getView(List<? extends Range> ranges) {
+      return unmodifiableArray(array.getView(ranges));
+    }
+
+    @Override
+    public DoubleArray getVector(int dimension, int index) {
+      return unmodifiableArray(array.getVector(dimension, index));
+    }
+
+    @Override
+    public List<DoubleArray> getVectors(int dimension) {
+      List<DoubleArray> vectors = array.getVectors(dimension);
+      return new AbstractList<DoubleArray>() {
+        @Override
+        public DoubleArray get(int index) {
+          return unmodifiableArray(vectors.get(index));
+        }
+
+        @Override
+        public int size() {
+          return vectors.size();
+        }
+      };
+    }
+
+    @Override
+    public void setVector(int dimension, int index, DoubleArray other) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DoubleArray getDiagonal() {
+      return unmodifiableArray(array.getDiagonal());
+    }
+
+    @Override
+    public DoubleArray get(IntArray... arrays) {
+      return unmodifiableArray(array.get(arrays));
+    }
+
+    @Override
+    public DoubleArray get(List<? extends IntArray> arrays) {
+      return unmodifiableArray(array.get(arrays));
+    }
+
+    @Override
+    public void set(IntArray[] indexers, DoubleArray slice) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(List<? extends IntArray> arrays, DoubleArray value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public DoubleArray getView(int rowOffset, int colOffset, int rows, int columns) {
+      return unmodifiableArray(array.getView(rowOffset, colOffset, rows, columns));
+    }
+
+    @Override
+    public int size() {
+      return array.size();
+    }
+
+    @Override
+    public int size(int dim) {
+      return array.size(dim);
+    }
+
+    @Override
+    public int vectors(int i) {
+      return array.vectors(i);
+    }
+
+    @Override
+    public int stride(int i) {
+      return array.stride(i);
+    }
+
+    @Override
+    public int getOffset() {
+      return array.getOffset();
+    }
+
+    @Override
+    public int[] getShape() {
+      return array.getShape();
+    }
+
+    @Override
+    public int[] getStride() {
+      return array.getStride();
+    }
+
+    @Override
+    public int getMajorStride() {
+      return array.getMajorStride();
+    }
+
+    @Override
+    public boolean isSquare() {
+      return array.isSquare();
+    }
+
+    @Override
+    public int rows() {
+      return array.rows();
+    }
+
+    @Override
+    public int columns() {
+      return array.columns();
+    }
+
+    @Override
+    public int dims() {
+      return array.dims();
+    }
+
+    @Override
+    public boolean isVector() {
+      return array.isVector();
+    }
+
+    @Override
+    public boolean isMatrix() {
+      return array.isMatrix();
+    }
+
+    @Override
+    public DoubleArray asView(int[] shape, int[] stride) {
+      return unmodifiableArray(array.asView(shape, stride));
+    }
+
+    @Override
+    public DoubleArray asView(int offset, int[] shape, int[] stride) {
+      return unmodifiableArray(array.asView(offset, shape, stride));
+    }
+
+    @Override
+    public DoubleArray newEmptyArray(int... shape) {
+      return array.newEmptyArray(shape);
+    }
+
+    @Override
+    public boolean isView() {
+      return array.isView();
+    }
+
+    @Override
+    public DoubleArray asDouble() {
+      return this;
+    }
+
+    @Override
+    public IntArray asInt() {
+      return unmodifiableArray(array.asInt());
+    }
+
+    @Override
+    public LongArray asLong() {
+      return unmodifiableArray(array.asLong());
+    }
+
+    @Override
+    public BooleanArray asBoolean() {
+      return unmodifiableArray(array.asBoolean());
+    }
+
+    @Override
+    public ComplexArray asComplex() {
+      return unmodifiableArray(array.asComplex());
+    }
+
+    @Override
+    public boolean isContiguous() {
+      return array.isContiguous();
+    }
+
+    @Override
+    public DoubleArray transpose() {
+      return unmodifiableArray(array.transpose());
+    }
+
+    @Override
+    public DoubleArray copy() {
+      return array.copy();
+    }
+
+    @Override
+    public BooleanArray lt(DoubleArray other) {
+      return array.lt(other);
+    }
+
+    @Override
+    public BooleanArray gt(DoubleArray other) {
+      return array.gt(other);
+    }
+
+    @Override
+    public BooleanArray eq(DoubleArray other) {
+      return array.eq(other);
+    }
+
+    @Override
+    public BooleanArray lte(DoubleArray other) {
+      return array.lte(other);
+    }
+
+    @Override
+    public BooleanArray gte(DoubleArray other) {
+      return array.gte(other);
+    }
+
+    @Override
+    public void swap(int a, int b) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Iterator<Double> iterator() {
+      return toList().iterator();
+    }
+
+    @Override
+    public void forEach(Consumer<? super Double> action) {
+      array.forEach(action);
+    }
+
+    @Override
+    public Spliterator<Double> spliterator() {
+      return toList().spliterator();
+    }
+
+    UnmodifiableDoubleArray(DoubleArray array) {
+      this.array = array;
+    }
+  }
+
+
+  private static class UnmodifiableIntArray implements IntArray {
+    private final IntArray array;
+
+    UnmodifiableIntArray(IntArray array) {
+      this.array = array;
+    }
+
+    @Override
+    public String toString() {
+      return array.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      return array.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+      return array.hashCode();
+    }
+
+    @Override
+    public void assign(int value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(int[] data) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(IntSupplier supplier) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(IntArray array, IntUnaryOperator operator) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void combineAssign(IntArray array, IntBinaryOperator combine) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(ComplexArray array, ToIntFunction<? super Complex> function) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(DoubleArray array, DoubleToIntFunction function) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(LongArray array, LongToIntFunction operator) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(BooleanArray array, ToIntObjIntBiFunction<Boolean> function) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void apply(IntUnaryOperator operator) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IntArray map(IntUnaryOperator operator) {
+      return array.map(operator);
+    }
+
+    @Override
+    public LongArray mapToLong(IntToLongFunction function) {
+      return array.mapToLong(function);
+    }
+
+    @Override
+    public DoubleArray mapToDouble(IntToDoubleFunction function) {
+      return array.mapToDouble(function);
+    }
+
+    @Override
+    public ComplexArray mapToComplex(IntFunction<Complex> function) {
+      return array.mapToComplex(function);
+    }
+
+    @Override
+    public <U> Array<U> mapToObj(IntFunction<? extends U> function) {
+      return array.mapToObj(function);
+    }
+
+    @Override
+    public IntArray filter(IntPredicate operator) {
+      return array.filter(operator);
+    }
+
+    @Override
+    public BooleanArray where(IntPredicate predicate) {
+      return array.where(predicate);
+    }
+
+    @Override
+    public BooleanArray where(IntArray array, IntBiPredicate predicate) {
+      return this.array.where(array, predicate);
+    }
+
+    @Override
+    public void forEachPrimitive(IntConsumer consumer) {
+      array.forEachPrimitive(consumer);
+    }
+
+    @Override
+    public int reduce(int identity, IntBinaryOperator reduce) {
+      return array.reduce(identity, reduce);
+    }
+
+    @Override
+    public int reduce(int identity, IntBinaryOperator reduce, IntUnaryOperator map) {
+      return array.reduce(identity, reduce, map);
+    }
+
+    @Override
+    public IntArray reduceVectors(int dim, ToIntFunction<? super IntArray> accumulator) {
+      return array.reduceVectors(dim, accumulator);
+    }
+
+    @Override
+    public void set(int index, int value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int get(int i, int j) {
+      return array.get(i, j);
+    }
+
+    @Override
+    public void set(int row, int column, int value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int[] ix, int value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int get(int... ix) {
+      return array.get(ix);
+    }
+
+    @Override
+    public int get(int index) {
+      return array.get(index);
+    }
+
+    @Override
+    public void apply(int index, IntUnaryOperator operator) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void apply(int i, int j, IntUnaryOperator operator) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IntStream stream() {
+      return array.stream();
+    }
+
+    @Override
+    public List<Integer> toList() {
+      return Collections.unmodifiableList(array.toList());
+    }
+
+    @Override
+    public Array<Integer> boxed() {
+      return unmodifiableArray(array.boxed());
+    }
+
+    @Override
+    public void sort() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void sort(IntComparator cmp) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IntArray times(IntArray other) {
+      return array.times(other);
+    }
+
+    @Override
+    public IntArray times(int alpha, IntArray other) {
+      return array.times(alpha, other);
+    }
+
+    @Override
+    public IntArray times(int scalar) {
+      return array.times(scalar);
+    }
+
+    @Override
+    public IntArray plus(IntArray other) {
+      return array.plus(other);
+    }
+
+    @Override
+    public IntArray plus(int scalar) {
+      return array.plus(scalar);
+    }
+
+    @Override
+    public void plusAssign(IntArray other) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void plusAssign(int scalar) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IntArray plus(int alpha, IntArray other) {
+      return array.plus(alpha, other);
+    }
+
+    @Override
+    public IntArray minus(IntArray other) {
+      return array.minus(other);
+    }
+
+    @Override
+    public IntArray minus(int scalar) {
+      return array.minus(scalar);
+    }
+
+    @Override
+    public IntArray minus(int alpha, IntArray other) {
+      return array.minus(alpha, other);
+    }
+
+    @Override
+    public void minusAssign(IntArray other) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void minusAssign(int scalar) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IntArray reverseMinus(int scalar) {
+      return array.reverseMinus(scalar);
+    }
+
+    @Override
+    public void reverseMinusAssign(int scalar) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IntArray div(IntArray other) {
+      return array.div(other);
+    }
+
+    @Override
+    public IntArray div(int other) {
+      return array.div(other);
+    }
+
+    @Override
+    public void divAssign(IntArray other) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void divAssign(int other) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IntArray reverseDiv(int other) {
+      return array.reverseDiv(other);
+    }
+
+    @Override
+    public void reverseDivAssign(int other) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IntArray negate() {
+      return array.negate();
+    }
+
+    @Override
+    public int[] data() {
+      return array.data().clone();
+    }
+
+    @Override
+    public void set(int toIndex, IntArray from, int fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int toRow, int toColumn, IntArray from, int fromRow, int fromColumn) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int[] toIndex, IntArray from, int[] fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int[] toIndex, IntArray from, int fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int toIndex, IntArray from, int[] fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IntArray reverse() {
+      return unmodifiableArray(array.reverse());
+    }
+
+    @Override
+    public void assign(IntArray o) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void forEach(int dim, Consumer<IntArray> consumer) {
+      array.forEach(dim, consumer);
+    }
+
+    @Override
+    public void setColumn(int i, IntArray vec) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IntArray getColumn(int index) {
+      return unmodifiableArray(array.getColumn(index));
+    }
+
+    @Override
+    public void setRow(int i, IntArray vec) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IntArray getRow(int i) {
+      return unmodifiableArray(array.getRow(i));
+    }
+
+    @Override
+    public IntArray reshape(int... shape) {
+      return unmodifiableArray(array.reshape(shape));
+    }
+
+    @Override
+    public IntArray ravel() {
+      return unmodifiableArray(array.ravel());
+    }
+
+    @Override
+    public IntArray select(int index) {
+      return unmodifiableArray(array.select(index));
+    }
+
+    @Override
+    public IntArray select(int dimension, int index) {
+      return unmodifiableArray(array.select(dimension, index));
+    }
+
+    @Override
+    public IntArray getView(Range... indexers) {
+      return unmodifiableArray(array.getView(indexers));
+    }
+
+    @Override
+    public IntArray getView(List<? extends Range> ranges) {
+      return unmodifiableArray(array.getView(ranges));
+    }
+
+    @Override
+    public IntArray getVector(int dimension, int index) {
+      return unmodifiableArray(array.getVector(dimension, index));
+    }
+
+    @Override
+    public List<IntArray> getVectors(int dimension) {
+      List<IntArray> vectors = array.getVectors(dimension);
+      return new AbstractList<IntArray>() {
+        @Override
+        public IntArray get(int index) {
+          return unmodifiableArray(vectors.get(index));
+        }
+
+        @Override
+        public int size() {
+          return vectors.size();
+        }
+      };
+    }
+
+    @Override
+    public void setVector(int dimension, int index, IntArray other) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IntArray getDiagonal() {
+      return unmodifiableArray(array.getDiagonal());
+    }
+
+    @Override
+    public IntArray get(IntArray... arrays) {
+      return unmodifiableArray(array.get(arrays));
+    }
+
+    @Override
+    public IntArray get(List<? extends IntArray> arrays) {
+      return unmodifiableArray(array.get(arrays));
+    }
+
+    @Override
+    public void set(IntArray[] indexers, IntArray slice) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(List<? extends IntArray> arrays, IntArray value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IntArray getView(int rowOffset, int colOffset, int rows, int columns) {
+      return unmodifiableArray(array.getView(rowOffset, colOffset, rows, columns));
+    }
+
+    @Override
+    public int size() {
+      return array.size();
+    }
+
+    @Override
+    public int size(int dim) {
+      return array.size(dim);
+    }
+
+    @Override
+    public int vectors(int i) {
+      return array.vectors(i);
+    }
+
+    @Override
+    public int stride(int i) {
+      return array.stride(i);
+    }
+
+    @Override
+    public int getOffset() {
+      return array.getOffset();
+    }
+
+    @Override
+    public int[] getShape() {
+      return array.getShape();
+    }
+
+    @Override
+    public int[] getStride() {
+      return array.getStride();
+    }
+
+    @Override
+    public int getMajorStride() {
+      return array.getMajorStride();
+    }
+
+    @Override
+    public boolean isSquare() {
+      return array.isSquare();
+    }
+
+    @Override
+    public int rows() {
+      return array.rows();
+    }
+
+    @Override
+    public int columns() {
+      return array.columns();
+    }
+
+    @Override
+    public int dims() {
+      return array.dims();
+    }
+
+    @Override
+    public boolean isVector() {
+      return array.isVector();
+    }
+
+    @Override
+    public boolean isMatrix() {
+      return array.isMatrix();
+    }
+
+    @Override
+    public IntArray asView(int[] shape, int[] stride) {
+      return unmodifiableArray(array.asView(shape, stride));
+    }
+
+    @Override
+    public IntArray asView(int offset, int[] shape, int[] stride) {
+      return unmodifiableArray(array.asView(offset, shape, stride));
+    }
+
+    @Override
+    public IntArray newEmptyArray(int... shape) {
+      return unmodifiableArray(array.newEmptyArray(shape));
+    }
+
+    @Override
+    public boolean isView() {
+      return array.isView();
+    }
+
+    @Override
+    public DoubleArray asDouble() {
+      return unmodifiableArray(array.asDouble());
+    }
+
+    @Override
+    public IntArray asInt() {
+      return unmodifiableArray(array.asInt());
+    }
+
+    @Override
+    public LongArray asLong() {
+      return unmodifiableArray(array.asLong());
+    }
+
+    @Override
+    public BooleanArray asBoolean() {
+      return unmodifiableArray(array.asBoolean());
+    }
+
+    @Override
+    public ComplexArray asComplex() {
+      return unmodifiableArray(array.asComplex());
+    }
+
+    @Override
+    public boolean isContiguous() {
+      return array.isContiguous();
+    }
+
+    @Override
+    public IntArray transpose() {
+      return unmodifiableArray(array.transpose());
+    }
+
+    @Override
+    public IntArray copy() {
+      return unmodifiableArray(array.copy());
+    }
+
+    @Override
+    public BooleanArray lt(IntArray other) {
+      return array.lt(other);
+    }
+
+    @Override
+    public BooleanArray gt(IntArray other) {
+      return array.gt(other);
+    }
+
+    @Override
+    public BooleanArray eq(IntArray other) {
+      return array.eq(other);
+    }
+
+    @Override
+    public BooleanArray lte(IntArray other) {
+      return array.lte(other);
+    }
+
+    @Override
+    public BooleanArray gte(IntArray other) {
+      return array.gte(other);
+    }
+
+    @Override
+    public void permute(int count) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void permute(int count, Random random) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void swap(int a, int b) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Iterator<Integer> iterator() {
+      return toList().iterator();
+    }
+
+    @Override
+    public void forEach(Consumer<? super Integer> action) {
+      array.forEach(action);
+    }
+
+    @Override
+    public Spliterator<Integer> spliterator() {
+      return toList().spliterator();
+    }
+  }
+
+
+  private static class UnmodifiableLongArray implements LongArray {
+    private final LongArray array;
+
+    UnmodifiableLongArray(LongArray array) {
+      this.array = array;
+    }
+
+    @Override
+    public String toString() {
+      return array.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      return array.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+      return array.hashCode();
+    }
+
+    @Override
+    public LongArray assign(long value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(long[] values) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(LongSupplier supplier) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(LongArray array, LongUnaryOperator operator) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void combineAssign(LongArray array, LongBinaryOperator combine) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(ComplexArray array, ToLongFunction<? super Complex> function) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(IntArray array, IntToLongFunction operator) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(DoubleArray array, DoubleToLongFunction function) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public LongArray map(LongUnaryOperator operator) {
+      return array.map(operator);
+    }
+
+    @Override
+    public IntArray mapToInt(LongToIntFunction map) {
+      return array.mapToInt(map);
+    }
+
+    @Override
+    public DoubleArray mapToDouble(LongToDoubleFunction map) {
+      return array.mapToDouble(map);
+    }
+
+    @Override
+    public ComplexArray mapToComplex(LongFunction<Complex> map) {
+      return array.mapToComplex(map);
+    }
+
+    @Override
+    public <T> Array<T> mapToObj(LongFunction<? extends T> mapper) {
+      return array.mapToObj(mapper);
+    }
+
+    @Override
+    public void apply(LongUnaryOperator operator) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public BooleanArray where(LongPredicate predicate) {
+      return array.where(predicate);
+    }
+
+    @Override
+    public BooleanArray where(LongArray array, LongBiPredicate predicate) {
+      return this.array.where(array, predicate);
+    }
+
+    @Override
+    public long reduce(long identity, LongBinaryOperator reduce) {
+      return array.reduce(identity, reduce);
+    }
+
+    @Override
+    public long reduce(long identity, LongBinaryOperator reduce, LongUnaryOperator map) {
+      return array.reduce(identity, reduce, map);
+    }
+
+    @Override
+    public LongArray reduceVector(int dim, ToLongFunction<? super LongArray> accumulator) {
+      return array.reduceVector(dim, accumulator);
+    }
+
+    @Override
+    public LongArray filter(LongPredicate operator) {
+      return array.filter(operator);
+    }
+
+    @Override
+    public long get(int i, int j) {
+      return array.get(i, j);
+    }
+
+    @Override
+    public long get(int index) {
+      return array.get(index);
+    }
+
+    @Override
+    public void set(int index, long value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int[] ix, long value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long get(int... ix) {
+      return array.get(ix);
+    }
+
+    @Override
+    public void set(int row, int column, long value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void sort() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void sort(LongComparator comparator) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public LongStream stream() {
+      return array.stream();
+    }
+
+    @Override
+    public List<Long> toList() {
+      return Collections.unmodifiableList(array.toList());
+    }
+
+    @Override
+    public Array<Long> boxed() {
+      return unmodifiableArray(array.boxed());
+    }
+
+    @Override
+    public LongArray times(LongArray other) {
+      return array.times(other);
+    }
+
+    @Override
+    public LongArray times(long alpha, LongArray other) {
+      return array.times(alpha, other);
+    }
+
+    @Override
+    public LongArray times(long scalar) {
+      return array.times(scalar);
+    }
+
+    @Override
+    public LongArray plus(LongArray other) {
+      return array.plus(other);
+    }
+
+    @Override
+    public LongArray plus(long scalar) {
+      return array.plus(scalar);
+    }
+
+    @Override
+    public LongArray plus(long alpha, LongArray other) {
+      return array.plus(alpha, other);
+    }
+
+    @Override
+    public LongArray minus(LongArray other) {
+      return array.minus(other);
+    }
+
+    @Override
+    public LongArray minus(long scalar) {
+      return array.minus(scalar);
+    }
+
+    @Override
+    public LongArray minus(long alpha, LongArray other) {
+      return array.minus(alpha, other);
+    }
+
+    @Override
+    public LongArray reverseMinus(long scalar) {
+      return array.reverseMinus(scalar);
+    }
+
+    @Override
+    public LongArray div(LongArray other) {
+      return array.div(other);
+    }
+
+    @Override
+    public LongArray div(long other) {
+      return array.div(other);
+    }
+
+    @Override
+    public LongArray reverseDiv(long other) {
+      return array.reverseDiv(other);
+    }
+
+    @Override
+    public LongArray negate() {
+      return unmodifiableArray(array.negate());
+    }
+
+    @Override
+    public long[] data() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int toIndex, LongArray from, int fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int toRow, int toColumn, LongArray from, int fromRow, int fromColumn) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int[] toIndex, LongArray from, int[] fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int[] toIndex, LongArray from, int fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int toIndex, LongArray from, int[] fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public LongArray reverse() {
+      return unmodifiableArray(array.reverse());
+    }
+
+    @Override
+    public void assign(LongArray o) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void forEach(int dim, Consumer<LongArray> consumer) {
+      array.forEach(dim, consumer);
+    }
+
+    @Override
+    public void setColumn(int i, LongArray vec) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public LongArray getColumn(int index) {
+      return unmodifiableArray(array.getColumn(index));
+    }
+
+    @Override
+    public void setRow(int i, LongArray vec) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public LongArray getRow(int i) {
+      return unmodifiableArray(array.getRow(i));
+    }
+
+    @Override
+    public LongArray reshape(int... shape) {
+      return unmodifiableArray(array.reshape(shape));
+    }
+
+    @Override
+    public LongArray ravel() {
+      return unmodifiableArray(array.ravel());
+    }
+
+    @Override
+    public LongArray select(int index) {
+      return unmodifiableArray(array.select(index));
+    }
+
+    @Override
+    public LongArray select(int dimension, int index) {
+      return unmodifiableArray(array.select(dimension, index));
+    }
+
+    @Override
+    public LongArray getView(Range... indexers) {
+      return unmodifiableArray(array.getView(indexers));
+    }
+
+    @Override
+    public LongArray getView(List<? extends Range> ranges) {
+      return unmodifiableArray(array.getView(ranges));
+    }
+
+    @Override
+    public LongArray getVector(int dimension, int index) {
+      return unmodifiableArray(array.getVector(dimension, index));
+    }
+
+    @Override
+    public List<LongArray> getVectors(int dimension) {
+      List<LongArray> vectors = array.getVectors(dimension);
+      return new AbstractList<LongArray>() {
+        @Override
+        public LongArray get(int index) {
+          return unmodifiableArray(vectors.get(index));
+        }
+
+        @Override
+        public int size() {
+          return vectors.size();
+        }
+      };
+    }
+
+    @Override
+    public void setVector(int dimension, int index, LongArray other) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public LongArray getDiagonal() {
+      return unmodifiableArray(array.getDiagonal());
+    }
+
+    @Override
+    public LongArray get(IntArray... arrays) {
+      return unmodifiableArray(array.get(arrays));
+    }
+
+    @Override
+    public LongArray get(List<? extends IntArray> arrays) {
+      return unmodifiableArray(array.get(arrays));
+    }
+
+    @Override
+    public void set(IntArray[] indexers, LongArray slice) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(List<? extends IntArray> arrays, LongArray value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public LongArray getView(int rowOffset, int colOffset, int rows, int columns) {
+      return unmodifiableArray(array.getView(rowOffset, colOffset, rows, columns));
+    }
+
+    @Override
+    public int size() {
+      return array.size();
+    }
+
+    @Override
+    public int size(int dim) {
+      return array.size(dim);
+    }
+
+    @Override
+    public int vectors(int i) {
+      return array.vectors(i);
+    }
+
+    @Override
+    public int stride(int i) {
+      return array.stride(i);
+    }
+
+    @Override
+    public int getOffset() {
+      return array.getOffset();
+    }
+
+    @Override
+    public int[] getShape() {
+      return array.getShape();
+    }
+
+    @Override
+    public int[] getStride() {
+      return array.getStride();
+    }
+
+    @Override
+    public int getMajorStride() {
+      return array.getMajorStride();
+    }
+
+    @Override
+    public boolean isSquare() {
+      return array.isSquare();
+    }
+
+    @Override
+    public int rows() {
+      return array.rows();
+    }
+
+    @Override
+    public int columns() {
+      return array.columns();
+    }
+
+    @Override
+    public int dims() {
+      return array.dims();
+    }
+
+    @Override
+    public boolean isVector() {
+      return array.isVector();
+    }
+
+    @Override
+    public boolean isMatrix() {
+      return array.isMatrix();
+    }
+
+    @Override
+    public LongArray asView(int[] shape, int[] stride) {
+      return unmodifiableArray(array.asView(shape, stride));
+    }
+
+    @Override
+    public LongArray asView(int offset, int[] shape, int[] stride) {
+      return unmodifiableArray(array.asView(offset, shape, stride));
+    }
+
+    @Override
+    public LongArray newEmptyArray(int... shape) {
+      return unmodifiableArray(array.newEmptyArray(shape));
+    }
+
+    @Override
+    public boolean isView() {
+      return array.isView();
+    }
+
+    @Override
+    public DoubleArray asDouble() {
+      return unmodifiableArray(array.asDouble());
+    }
+
+    @Override
+    public IntArray asInt() {
+      return unmodifiableArray(array.asInt());
+    }
+
+    @Override
+    public LongArray asLong() {
+      return unmodifiableArray(array.asLong());
+    }
+
+    @Override
+    public BooleanArray asBoolean() {
+      return unmodifiableArray(array.asBoolean());
+    }
+
+    @Override
+    public ComplexArray asComplex() {
+      return unmodifiableArray(array.asComplex());
+    }
+
+    @Override
+    public boolean isContiguous() {
+      return array.isContiguous();
+    }
+
+    @Override
+    public LongArray transpose() {
+      return unmodifiableArray(array.transpose());
+    }
+
+    @Override
+    public LongArray copy() {
+      return array.copy();
+    }
+
+    @Override
+    public BooleanArray lt(LongArray other) {
+      return array.lt(other);
+    }
+
+    @Override
+    public BooleanArray gt(LongArray other) {
+      return array.gt(other);
+    }
+
+    @Override
+    public BooleanArray eq(LongArray other) {
+      return array.eq(other);
+    }
+
+    @Override
+    public BooleanArray lte(LongArray other) {
+      return array.lte(other);
+    }
+
+    @Override
+    public BooleanArray gte(LongArray other) {
+      return array.gte(other);
+    }
+
+    @Override
+    public void permute(int count) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void permute(int count, Random random) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void swap(int a, int b) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Iterator<Long> iterator() {
+      return toList().iterator();
+    }
+
+    @Override
+    public void forEach(Consumer<? super Long> action) {
+      array.forEach(action);
+    }
+
+    @Override
+    public Spliterator<Long> spliterator() {
+      return toList().spliterator();
+    }
+  }
+
+
+  private static class UnmodifiableComplexArray implements ComplexArray {
+    private final ComplexArray array;
+
+    UnmodifiableComplexArray(ComplexArray array) {
+      this.array = array;
+    }
+
+    @Override
+    public String toString() {
+      return array.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      return array.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+      return array.hashCode();
+    }
+
+    @Override
+    public void assign(Complex value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(double[] value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(Complex[] value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(double real) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(Supplier<Complex> supplier) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(ComplexArray array, UnaryOperator<Complex> operator) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void combineAssign(ComplexArray array, BinaryOperator<Complex> combine) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(DoubleArray array) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(DoubleArray array, DoubleFunction<Complex> operator) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(LongArray array, LongFunction<Complex> operator) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void assign(IntArray array, IntFunction<Complex> operator) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ComplexArray map(UnaryOperator<Complex> operator) {
+      return array.map(operator);
+    }
+
+    @Override
+    public IntArray mapToInt(ToIntFunction<Complex> function) {
+      return array.mapToInt(function);
+    }
+
+    @Override
+    public LongArray mapToLong(ToLongFunction<Complex> function) {
+      return array.mapToLong(function);
+    }
+
+    @Override
+    public DoubleArray mapToDouble(ToDoubleFunction<Complex> function) {
+      return array.mapToDouble(function);
+    }
+
+    @Override
+    public <T> Array<T> mapToObj(Function<Complex, ? extends T> mapper) {
+      return array.mapToObj(mapper);
+    }
+
+    @Override
+    public void apply(UnaryOperator<Complex> operator) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ComplexArray filter(Predicate<Complex> predicate) {
+      return array.filter(predicate);
+    }
+
+    @Override
+    public BooleanArray where(Predicate<Complex> predicate) {
+      return array.where(predicate);
+    }
+
+    @Override
+    public BooleanArray where(ComplexArray matrix, BiPredicate<Complex, Complex> predicate) {
+      return array.where(matrix, predicate);
+    }
+
+    @Override
+    public Complex reduce(Complex identity, BinaryOperator<Complex> reduce) {
+      return array.reduce(identity, reduce);
+    }
+
+    @Override
+    public ComplexArray reduceVectors(int dim,
+        Function<? super ComplexArray, ? extends Complex> reduce) {
+      return array.reduceVectors(dim, reduce);
+    }
+
+    @Override
+    public Complex reduce(Complex identity, BinaryOperator<Complex> reduce,
+        UnaryOperator<Complex> map) {
+      return array.reduce(identity, reduce, map);
+    }
+
+    @Override
+    public ComplexArray reduceColumns(Function<? super ComplexArray, ? extends Complex> reduce) {
+      return array.reduceColumns(reduce);
+    }
+
+    @Override
+    public ComplexArray reduceRows(Function<? super ComplexArray, ? extends Complex> reduce) {
+      return array.reduceRows(reduce);
+    }
+
+    @Override
+    public ComplexArray conjugateTranspose() {
+      return unmodifiableArray(array.conjugateTranspose());
+    }
+
+    @Override
+    public void set(int i, int j, Complex complex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int index, Complex complex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int[] index, Complex complex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Complex get(int index) {
+      return array.get(index);
+    }
+
+    @Override
+    public Complex get(int i, int j) {
+      return array.get(i, j);
+    }
+
+    @Override
+    public Complex get(int... index) {
+      return array.get(index);
+    }
+
+    @Override
+    public Complex getAsComplex(int i) {
+      return array.getAsComplex(i);
+    }
+
+    @Override
+    public Array<Complex> boxed() {
+      return unmodifiableArray(array.boxed());
+    }
+
+    @Override
+    public Stream<Complex> stream() {
+      return toList().stream();
+    }
+
+    @Override
+    public List<Complex> toList() {
+      return Collections.unmodifiableList(array.toList());
+    }
+
+    @Override
+    public ComplexArray times(ComplexArray other) {
+      return array.times(other);
+    }
+
+    @Override
+    public ComplexArray times(Complex alpha, ComplexArray other) {
+      return array.times(alpha, other);
+    }
+
+    @Override
+    public ComplexArray times(Complex scalar) {
+      return array.times(scalar);
+    }
+
+    @Override
+    public ComplexArray plus(ComplexArray other) {
+      return array.plus(other);
+    }
+
+    @Override
+    public ComplexArray plus(Complex scalar) {
+      return array.plus(scalar);
+    }
+
+    @Override
+    public ComplexArray plus(Complex alpha, ComplexArray other) {
+      return array.plus(alpha, other);
+    }
+
+    @Override
+    public ComplexArray minus(ComplexArray other) {
+      return array.minus(other);
+    }
+
+    @Override
+    public ComplexArray minus(Complex scalar) {
+      return array.minus(scalar);
+    }
+
+    @Override
+    public ComplexArray minus(Complex alpha, ComplexArray other) {
+      return array.minus(alpha, other);
+    }
+
+    @Override
+    public ComplexArray reverseMinus(Complex scalar) {
+      return array.reverseMinus(scalar);
+    }
+
+    @Override
+    public ComplexArray div(ComplexArray other) {
+      return array.div(other);
+    }
+
+    @Override
+    public ComplexArray div(Complex other) {
+      return array.div(other);
+    }
+
+    @Override
+    public ComplexArray reverseDiv(Complex other) {
+      return array.reverseDiv(other);
+    }
+
+    @Override
+    public ComplexArray negate() {
+      return unmodifiableArray(array.negate());
+    }
+
+    @Override
+    public double[] data() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int toIndex, ComplexArray from, int fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int toRow, int toColumn, ComplexArray from, int fromRow, int fromColumn) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int[] toIndex, ComplexArray from, int[] fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int[] toIndex, ComplexArray from, int fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(int toIndex, ComplexArray from, int[] fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ComplexArray reverse() {
+      return unmodifiableArray(array.reverse());
+    }
+
+    @Override
+    public void assign(ComplexArray o) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void forEach(int dim, Consumer<ComplexArray> consumer) {
+      array.forEach(dim, consumer);
+    }
+
+    @Override
+    public void setColumn(int i, ComplexArray vec) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ComplexArray getColumn(int index) {
+      return unmodifiableArray(array.getColumn(index));
+    }
+
+    @Override
+    public void setRow(int i, ComplexArray vec) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ComplexArray getRow(int i) {
+      return unmodifiableArray(array.getRow(i));
+    }
+
+    @Override
+    public ComplexArray reshape(int... shape) {
+      return unmodifiableArray(array.reshape(shape));
+    }
+
+    @Override
+    public ComplexArray ravel() {
+      return unmodifiableArray(array.ravel());
+    }
+
+    @Override
+    public ComplexArray select(int index) {
+      return unmodifiableArray(array.select(index));
+    }
+
+    @Override
+    public ComplexArray select(int dimension, int index) {
+      return unmodifiableArray(array.select(dimension, index));
+    }
+
+    @Override
+    public ComplexArray getView(Range... indexers) {
+      return unmodifiableArray(array.getView(indexers));
+    }
+
+    @Override
+    public ComplexArray getView(List<? extends Range> ranges) {
+      return unmodifiableArray(array.getView(ranges));
+    }
+
+    @Override
+    public ComplexArray getVector(int dimension, int index) {
+      return unmodifiableArray(array.getVector(dimension, index));
+    }
+
+    @Override
+    public List<ComplexArray> getVectors(int dimension) {
+      List<ComplexArray> vectors = array.getVectors(dimension);
+      return new AbstractList<ComplexArray>() {
+        @Override
+        public ComplexArray get(int index) {
+          return unmodifiableArray(vectors.get(index));
+        }
+
+        @Override
+        public int size() {
+          return vectors.size();
+        }
+      };
+    }
+
+    @Override
+    public void setVector(int dimension, int index, ComplexArray other) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ComplexArray getDiagonal() {
+      return unmodifiableArray(array.getDiagonal());
+    }
+
+    @Override
+    public ComplexArray get(IntArray... arrays) {
+      return unmodifiableArray(array.get(arrays));
+    }
+
+    @Override
+    public ComplexArray get(List<? extends IntArray> arrays) {
+      return unmodifiableArray(array.get(arrays));
+    }
+
+    @Override
+    public void set(IntArray[] indexers, ComplexArray slice) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void set(List<? extends IntArray> arrays, ComplexArray value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ComplexArray getView(int rowOffset, int colOffset, int rows, int columns) {
+      return unmodifiableArray(array.getView(rowOffset, colOffset, rows, columns));
+    }
+
+    @Override
+    public int size() {
+      return array.size();
+    }
+
+    @Override
+    public int size(int dim) {
+      return array.size(dim);
+    }
+
+    @Override
+    public int vectors(int i) {
+      return array.vectors(i);
+    }
+
+    @Override
+    public int stride(int i) {
+      return array.stride(i);
+    }
+
+    @Override
+    public int getOffset() {
+      return array.getOffset();
+    }
+
+    @Override
+    public int[] getShape() {
+      return array.getShape();
+    }
+
+    @Override
+    public int[] getStride() {
+      return array.getStride();
+    }
+
+    @Override
+    public int getMajorStride() {
+      return array.getMajorStride();
+    }
+
+    @Override
+    public boolean isSquare() {
+      return array.isSquare();
+    }
+
+    @Override
+    public int rows() {
+      return array.rows();
+    }
+
+    @Override
+    public int columns() {
+      return array.columns();
+    }
+
+    @Override
+    public int dims() {
+      return array.dims();
+    }
+
+    @Override
+    public boolean isVector() {
+      return array.isVector();
+    }
+
+    @Override
+    public boolean isMatrix() {
+      return array.isMatrix();
+    }
+
+    @Override
+    public ComplexArray asView(int[] shape, int[] stride) {
+      return unmodifiableArray(array.asView(shape, stride));
+    }
+
+    @Override
+    public ComplexArray asView(int offset, int[] shape, int[] stride) {
+      return unmodifiableArray(array.asView(offset, shape, stride));
+    }
+
+    @Override
+    public ComplexArray newEmptyArray(int... shape) {
+      return array.newEmptyArray(shape);
+    }
+
+    @Override
+    public boolean isView() {
+      return array.isView();
+    }
+
+    @Override
+    public DoubleArray asDouble() {
+      return unmodifiableArray(array.asDouble());
+    }
+
+    @Override
+    public IntArray asInt() {
+      return unmodifiableArray(array.asInt());
+    }
+
+    @Override
+    public LongArray asLong() {
+      return unmodifiableArray(array.asLong());
+    }
+
+    @Override
+    public BooleanArray asBoolean() {
+      return unmodifiableArray(array.asBoolean());
+    }
+
+    @Override
+    public ComplexArray asComplex() {
+      return unmodifiableArray(array.asComplex());
+    }
+
+    @Override
+    public boolean isContiguous() {
+      return array.isContiguous();
+    }
+
+    @Override
+    public ComplexArray transpose() {
+      return unmodifiableArray(array.transpose());
+    }
+
+    @Override
+    public ComplexArray copy() {
+      return array.copy();
+    }
+
+    @Override
+    public BooleanArray lt(ComplexArray other) {
+      return array.lt(other);
+    }
+
+    @Override
+    public BooleanArray gt(ComplexArray other) {
+      return array.gt(other);
+    }
+
+    @Override
+    public BooleanArray eq(ComplexArray other) {
+      return array.eq(other);
+    }
+
+    @Override
+    public BooleanArray lte(ComplexArray other) {
+      return array.lte(other);
+    }
+
+    @Override
+    public BooleanArray gte(ComplexArray other) {
+      return array.gte(other);
+    }
+
+    @Override
+    public void permute(int count) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void permute(int count, Random random) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void swap(int a, int b) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Iterator<Complex> iterator() {
+      return toList().iterator();
+    }
+
+    @Override
+    public void forEach(Consumer<? super Complex> action) {
+      array.forEach(action);
+    }
+
+    @Override
+    public Spliterator<Complex> spliterator() {
+      return toList().spliterator();
+    }
+  }
+
+
+  private static class UnmodifiableBooleanArray implements BooleanArray {
+    private final BooleanArray array;
+
+    UnmodifiableBooleanArray(BooleanArray array) {
+      this.array = array;
+    }
+
+    @Override
+    public String toString() {
+      return array.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      return array.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+      return array.hashCode();
+    }
+
+    public DoubleArray asDouble() {
+      return unmodifiableArray(array.asDouble());
+    }
+
+    public void set(int[] toIndex, BooleanArray from, int[] fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    public int size() {
+      return array.size();
+    }
+
+    public void assign(boolean value) {
+      throw new UnsupportedOperationException();
+    }
+
+    public BooleanArray ravel() {
+      return unmodifiableArray(array.ravel());
+    }
+
+    public void forEach(int dim, Consumer<BooleanArray> consumer) {
+      array.forEach(dim, consumer);
+    }
+
+    public int columns() {
+      return array.columns();
+    }
+
+    public boolean isMatrix() {
+      return array.isMatrix();
+    }
+
+    public BooleanArray xor(BooleanArray other) {
+      return array.xor(other);
+    }
+
+    public boolean isView() {
+      return array.isView();
+    }
+
+    public BooleanArray lte(BooleanArray other) {
+      return array.lte(other);
+    }
+
+    public BooleanArray eq(BooleanArray other) {
+      return array.eq(other);
+    }
+
+    public BooleanArray getView(Range... indexers) {
+      return unmodifiableArray(array.getView(indexers));
+    }
+
+    public int dims() {
+      return array.dims();
+    }
+
+    public BooleanArray lt(BooleanArray other) {
+      return array.lt(other);
+    }
+
+    public BooleanArray orNot(BooleanArray other) {
+      return array.orNot(other);
+    }
+
+    public BooleanArray reduceAlong(int dim, Function<? super BooleanArray, Boolean> function) {
+      return array.reduceAlong(dim, function);
+    }
+
+    public BooleanArray getVector(int dimension, int index) {
+      return unmodifiableArray(array.getVector(dimension, index));
+    }
+
+    public BooleanArray gt(BooleanArray other) {
+      return array.gt(other);
+    }
+
+    public BooleanArray getRow(int i) {
+      return unmodifiableArray(array.getRow(i));
+    }
+
+    public void set(int[] toIndex, BooleanArray from, int fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    public BooleanArray reverse() {
+      return unmodifiableArray(array.reverse());
+    }
+
+    public BooleanArray not() {
+      return unmodifiableArray(array.not());
+    }
+
+    public BooleanArray transpose() {
+      return unmodifiableArray(array.transpose());
+    }
+
+    public void set(int index, boolean value) {
+      throw new UnsupportedOperationException();
+    }
+
+    public boolean get(int... index) {
+      return array.get(index);
+    }
+
+    public List<BooleanArray> getVectors(int dimension) {
+      List<BooleanArray> vectors = array.getVectors(dimension);
+      return new AbstractList<BooleanArray>() {
+        @Override
+        public BooleanArray get(int index) {
+          return unmodifiableArray(vectors.get(index));
+        }
+
+        @Override
+        public int size() {
+          return vectors.size();
+        }
+      };
+    }
+
+    public BooleanArray asBoolean() {
+      return unmodifiableArray(array.asBoolean());
+    }
+
+    public void assign(Supplier<Boolean> supplier) {
+      throw new UnsupportedOperationException();
+    }
+
+    public BooleanArray or(BooleanArray other) {
+      return array.or(other);
+    }
+
+    public void set(IntArray[] indexers, BooleanArray slice) {
+      throw new UnsupportedOperationException();
+    }
+
+    public int getOffset() {
+      return array.getOffset();
+    }
+
+    public void set(List<? extends IntArray> arrays, BooleanArray value) {
+      throw new UnsupportedOperationException();
+    }
+
+    public void set(int toIndex, BooleanArray from, int[] fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    public BooleanArray get(IntArray... arrays) {
+      return unmodifiableArray(array.get(arrays));
+    }
+
+    public BooleanArray asView(int[] shape, int[] stride) {
+      return unmodifiableArray(array.asView(shape, stride));
+    }
+
+    public ComplexArray asComplex() {
+      return unmodifiableArray(array.asComplex());
+    }
+
+    public boolean isContiguous() {
+      return array.isContiguous();
+    }
+
+    public boolean get(int index) {
+      return array.get(index);
+    }
+
+    public BooleanArray all(int dim) {
+      return array.all(dim);
+    }
+
+    public Stream<Boolean> stream() {
+      return toList().stream();
+    }
+
+    public void permute(int count) {
+      throw new UnsupportedOperationException();
+    }
+
+    public void set(int[] index, boolean value) {
+      throw new UnsupportedOperationException();
+    }
+
+    public void setVector(int dimension, int index, BooleanArray other) {
+      throw new UnsupportedOperationException();
+    }
+
+    public void permute(int count, Random random) {
+      throw new UnsupportedOperationException();
+    }
+
+    public int[] getStride() {
+      return array.getStride();
+    }
+
+    public BooleanArray newEmptyArray(int... shape) {
+      return array.newEmptyArray(shape);
+    }
+
+    public void swap(int a, int b) {
+      throw new UnsupportedOperationException();
+    }
+
+    public BooleanArray select(int index) {
+      return unmodifiableArray(array.select(index));
+    }
+
+    public BooleanArray copy() {
+      return array.copy();
+    }
+
+    public Spliterator<Boolean> spliterator() {
+      return toList().spliterator();
+    }
+
+    public void apply(UnaryOperator<Boolean> operator) {
+      throw new UnsupportedOperationException();
+    }
+
+    public LongArray asLong() {
+      return unmodifiableArray(array.asLong());
+    }
+
+    public void setRow(int i, BooleanArray vec) {
+      throw new UnsupportedOperationException();
+    }
+
+    public BooleanArray asView(int offset, int[] shape, int[] stride) {
+      return unmodifiableArray(array.asView(offset, shape, stride));
+    }
+
+    public void assign(BooleanArray o) {
+      throw new UnsupportedOperationException();
+    }
+
+    public int vectors(int i) {
+      return array.vectors(i);
+    }
+
+    public void setColumn(int i, BooleanArray vec) {
+      throw new UnsupportedOperationException();
+    }
+
+    public Array<Boolean> boxed() {
+      return unmodifiableArray(array.boxed());
+    }
+
+    public int rows() {
+      return array.rows();
+    }
+
+    public boolean get(int i, int j) {
+      return array.get(i, j);
+    }
+
+    public int getMajorStride() {
+      return array.getMajorStride();
+    }
+
+    public BooleanArray any(int dim) {
+      return array.any(dim);
+    }
+
+    public BooleanArray and(BooleanArray other) {
+      return array.and(other);
+    }
+
+    public BooleanArray andNot(BooleanArray other) {
+      return array.andNot(other);
+    }
+
+    public IntArray asInt() {
+      return unmodifiableArray(array.asInt());
+    }
+
+    public boolean isSquare() {
+      return array.isSquare();
+    }
+
+    public boolean reduce(boolean identity, BinaryOperator<Boolean> accumulator) {
+      return array.reduce(identity, accumulator);
+    }
+
+    public void set(int toIndex, BooleanArray from, int fromIndex) {
+      throw new UnsupportedOperationException();
+    }
+
+    public BooleanArray select(int dimension, int index) {
+      return unmodifiableArray(array.select(dimension, index));
+    }
+
+    public BooleanArray map(Function<Boolean, Boolean> mapper) {
+      return array.map(mapper);
+    }
+
+    public boolean all() {
+      return array.all();
+    }
+
+    public int[] getShape() {
+      return array.getShape();
+    }
+
+    public void set(int toRow, int toColumn, BooleanArray from, int fromRow, int fromColumn) {
+      throw new UnsupportedOperationException();
+    }
+
+    public BooleanArray getView(int rowOffset, int colOffset, int rows, int columns) {
+      return unmodifiableArray(array.getView(rowOffset, colOffset, rows, columns));
+    }
+
+    public int stride(int i) {
+      return array.stride(i);
+    }
+
+    public BooleanArray getView(List<? extends Range> ranges) {
+      return unmodifiableArray(array.getView(ranges));
+    }
+
+    public void set(int i, int j, boolean value) {
+      throw new UnsupportedOperationException();
+    }
+
+    public List<Boolean> toList() {
+      return Collections.unmodifiableList(array.toList());
+    }
+
+    public BooleanArray reshape(int... shape) {
+      return unmodifiableArray(array.reshape(shape));
+    }
+
+    public Iterator<Boolean> iterator() {
+      return toList().iterator();
+    }
+
+    public BooleanArray getDiagonal() {
+      return unmodifiableArray(array.getDiagonal());
+    }
+
+    public boolean isVector() {
+      return array.isVector();
+    }
+
+    public BooleanArray get(List<? extends IntArray> arrays) {
+      return unmodifiableArray(array.get(arrays));
+    }
+
+    public BooleanArray gte(BooleanArray other) {
+      return array.gte(other);
+    }
+
+    public BooleanArray getColumn(int index) {
+      return unmodifiableArray(array.getColumn(index));
+    }
+
+    public int size(int dim) {
+      return array.size(dim);
+    }
+
+    public void forEach(Consumer<? super Boolean> action) {
+      array.forEach(action);
+    }
+
+    public boolean any() {
+      return array.any();
     }
   }
 }

@@ -688,6 +688,8 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public LongArray round(DoubleArray in) {
-    return in.asLong().newEmptyArray(in.getShape()).assign(in, Math::round);
+    LongArray out = in.asLong().newEmptyArray(in.getShape());
+    out.assign(in, Math::round);
+    return out;
   }
 }

@@ -44,6 +44,8 @@ public class ArraysTest {
     System.out.println(x);
 
 
+    System.out.println(Arrays.unmodifiableArray(x));
+
     // ArrayPrinter.setVisiblePerSlice(100000);
     // ArrayPrinter.setPrintSlices(1000000);
     // System.out.println(java.util.Arrays.toString(x.getShape()));

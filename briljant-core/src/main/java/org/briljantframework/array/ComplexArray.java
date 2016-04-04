@@ -69,14 +69,14 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
    * @param value the value to assign
    * @return receiver modified
    */
-  ComplexArray assign(Complex value);
+  void assign(Complex value);
 
   void assign(double[] value);
 
   void assign(Complex[] value);
 
-  default ComplexArray assign(double real) {
-    return assign(Complex.valueOf(real));
+  default void assign(double real) {
+    assign(Complex.valueOf(real));
   }
 
   /**
@@ -86,7 +86,7 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
    * @param supplier the supplier
    * @return receiver modified
    */
-  ComplexArray assign(Supplier<Complex> supplier);
+  void assign(Supplier<Complex> supplier);
 
   /**
    * Assign {@code matrix} to {@code this}, applying {@code operator} to each value.
@@ -95,9 +95,9 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
    * @param operator the operator
    * @return receiver modified
    */
-  ComplexArray assign(ComplexArray array, UnaryOperator<Complex> operator);
+  void assign(ComplexArray array, UnaryOperator<Complex> operator);
 
-  ComplexArray combineAssign(ComplexArray array, BinaryOperator<Complex> combine);
+  void combineAssign(ComplexArray array, BinaryOperator<Complex> combine);
 
   /**
    * Assign {@code matrix} to this complex matrix.
@@ -105,7 +105,7 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
    * @param array matrix of real values
    * @return receiver modified
    */
-  ComplexArray assign(DoubleArray array);
+  void assign(DoubleArray array);
 
   /**
    * Assign {@code matrix} to this complex matrix transforming each element.
@@ -114,11 +114,11 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
    * @param operator the operator
    * @return receiver modified
    */
-  ComplexArray assign(DoubleArray array, DoubleFunction<Complex> operator);
+  void assign(DoubleArray array, DoubleFunction<Complex> operator);
 
-  ComplexArray assign(LongArray array, LongFunction<Complex> operator);
+  void assign(LongArray array, LongFunction<Complex> operator);
 
-  ComplexArray assign(IntArray array, IntFunction<Complex> operator);
+  void assign(IntArray array, IntFunction<Complex> operator);
 
   /**
    * Perform {@code operator} element wise to receiver.

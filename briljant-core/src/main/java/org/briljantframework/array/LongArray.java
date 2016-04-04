@@ -81,7 +81,7 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
    * @param supplier the supplier
    * @return receiver modified
    */
-  LongArray assign(LongSupplier supplier);
+  void assign(LongSupplier supplier);
 
   /**
    * Assign {@code matrix} to {@code this}, applying {@code operator} to each value.
@@ -90,15 +90,15 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
    * @param operator the operator
    * @return receiver modified
    */
-  LongArray assign(LongArray array, LongUnaryOperator operator);
+  void assign(LongArray array, LongUnaryOperator operator);
 
-  LongArray combineAssign(LongArray array, LongBinaryOperator combine);
+  void combineAssign(LongArray array, LongBinaryOperator combine);
 
-  LongArray assign(ComplexArray array, ToLongFunction<? super Complex> function);
+  void assign(ComplexArray array, ToLongFunction<? super Complex> function);
 
-  LongArray assign(IntArray array, IntToLongFunction operator);
+  void assign(IntArray array, IntToLongFunction operator);
 
-  LongArray assign(DoubleArray array, DoubleToLongFunction function);
+  void assign(DoubleArray array, DoubleToLongFunction function);
 
   // Transform
 
