@@ -37,14 +37,14 @@ public class ArraysTest {
 
   @Test
   public void ReadIdx() throws Exception {
-    DoubleArray array = Arrays
-        .readIdx(new FileInputStream(new File("/home/isak/Tmp/mnist/train-images-idx3-ubyte")));
-    DoubleArray x = array.select(2);
-    ArrayPrinter.setMinimumTruncateSize(1000000);
-    System.out.println(x);
-
-
-    System.out.println(Arrays.unmodifiableArray(x));
+//    DoubleArray array = Arrays
+//        .readIdx(new FileInputStream(new File("/home/isak/Tmp/mnist/train-images-idx3-ubyte")));
+//    DoubleArray x = array.select(2);
+//    ArrayPrinter.setMinimumTruncateSize(1000000);
+//    System.out.println(x);
+//
+//
+//    System.out.println(Arrays.unmodifiableArray(x));
 
     // ArrayPrinter.setVisiblePerSlice(100000);
     // ArrayPrinter.setPrintSlices(1000000);
