@@ -2715,18 +2715,18 @@ public final class Arrays {
     }
 
     @Override
-    public DoubleArray asDouble(ToDoubleFunction<? super T> to, DoubleFunction<T> from) {
-      return array.asDouble(to, from);
+    public DoubleArray asDouble(ToDoubleFunction<? super T> getter, DoubleFunction<? extends T> setter) {
+      return array.asDouble(getter, setter);
     }
 
     @Override
-    public DoubleArray asDouble(ToDoubleFunction<? super T> to) {
-      return array.asDouble(to);
+    public DoubleArray asDouble(ToDoubleFunction<? super T> getter) {
+      return array.asDouble(getter);
     }
 
     @Override
-    public IntArray asInt(ToIntFunction<? super T> to, IntFunction<T> from) {
-      return array.asInt(to, from);
+    public IntArray asInt(ToIntFunction<? super T> getter, IntFunction<? extends T> setter) {
+      return array.asInt(getter, setter);
     }
 
     @Override
@@ -2735,47 +2735,47 @@ public final class Arrays {
     }
 
     @Override
-    public LongArray asLong(ToLongFunction<? super T> to, LongFunction<T> from) {
-      return array.asLong(to, from);
+    public LongArray asLong(ToLongFunction<? super T> getter, LongFunction<? extends T> setter) {
+      return array.asLong(getter, setter);
     }
 
     @Override
-    public LongArray asLong(ToLongFunction<? super T> to) {
-      return array.asLong(to);
+    public LongArray asLong(ToLongFunction<? super T> getter) {
+      return array.asLong(getter);
     }
 
     @Override
-    public BooleanArray asBoolean(Function<? super T, Boolean> to, Function<Boolean, T> from) {
-      return array.asBoolean(to, from);
+    public BooleanArray asBoolean(Function<? super T, Boolean> getter, Function<Boolean, ? extends T> setter) {
+      return array.asBoolean(getter, setter);
     }
 
     @Override
-    public BooleanArray asBoolean(Function<? super T, Boolean> to) {
-      return array.asBoolean(to);
+    public BooleanArray asBoolean(Function<? super T, Boolean> getter) {
+      return array.asBoolean(getter);
     }
 
     @Override
-    public ComplexArray asComplex(Function<? super T, Complex> to, Function<Complex, T> from) {
-      return array.asComplex(to, from);
+    public ComplexArray asComplex(Function<? super T, Complex> getter, Function<Complex, ? extends T> setter) {
+      return array.asComplex(getter, setter);
     }
 
     @Override
-    public ComplexArray asComplex(Function<? super T, Complex> to) {
-      return array.asComplex(to);
+    public ComplexArray asComplex(Function<? super T, Complex> getter) {
+      return array.asComplex(getter);
     }
 
     @Override
-    public Array<T> filter(Predicate<T> predicate) {
+    public Array<T> filter(Predicate<? super T> predicate) {
       return array.filter(predicate);
     }
 
     @Override
-    public BooleanArray where(Predicate<T> predicate) {
+    public BooleanArray where(Predicate<? super T> predicate) {
       return array.where(predicate);
     }
 
     @Override
-    public BooleanArray where(Array<T> other, BiPredicate<T, T> predicate) {
+    public BooleanArray where(Array<? extends T> other, BiPredicate<? super T, ? super T> predicate) {
       return array.where(other, predicate);
     }
 
@@ -2785,7 +2785,7 @@ public final class Arrays {
     }
 
     @Override
-    public Array<T> reduceVector(int dim, Function<? super Array<T>, T> accumulator) {
+    public Array<T> reduceVector(int dim, Function<? super Array<? extends T>, ? extends T> accumulator) {
       return array.reduceVector(dim, accumulator);
     }
 

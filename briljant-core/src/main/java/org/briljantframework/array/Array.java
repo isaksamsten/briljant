@@ -21,18 +21,7 @@
 package org.briljantframework.array;
 
 import java.util.List;
-import java.util.function.BiPredicate;
-import java.util.function.BinaryOperator;
-import java.util.function.DoubleFunction;
-import java.util.function.Function;
-import java.util.function.IntFunction;
-import java.util.function.LongFunction;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.function.ToDoubleFunction;
-import java.util.function.ToIntFunction;
-import java.util.function.ToLongFunction;
-import java.util.function.UnaryOperator;
+import java.util.function.*;
 import java.util.stream.Stream;
 
 import org.apache.commons.math3.complex.Complex;
@@ -186,34 +175,34 @@ public interface Array<T> extends BaseArray<Array<T>>, Iterable<T> {
    * function to each element of this array when accessing the elements and the {@code from}
    * function when setting the values.
    *
-   * @param to the function to apply to elements when getting
-   * @param from the function to apply to the argument when setting
+   * @param getter the function to apply to elements when getting
+   * @param setter the function to apply to the argument when setting
    * @return an array view
    * @see #mapToDouble(java.util.function.ToDoubleFunction)
    */
-  DoubleArray asDouble(ToDoubleFunction<? super T> to, DoubleFunction<T> from);
+  DoubleArray asDouble(ToDoubleFunction<? super T> getter, DoubleFunction<? extends T> setter);
 
   /**
    * Return a view of this array consisting of the results of lazily (i.e. when accessing the value)
    * applying the given function to the elements of this array.
    *
-   * @param to the function to apply to each element
+   * @param getter the function to apply to each element
    * @return an array view
    * @see #mapToDouble(java.util.function.ToDoubleFunction)
    */
-  DoubleArray asDouble(ToDoubleFunction<? super T> to);
+  DoubleArray asDouble(ToDoubleFunction<? super T> getter);
 
   /**
    * Return a view of this array consisting of the results of lazily applying the {@code to}
    * function to each element of this array when accessing the elements and the {@code from}
    * function when setting the values.
    *
-   * @param to the function to apply to elements when getting
-   * @param from the function to apply to the argument when setting
+   * @param getter the function to apply to elements when getting
+   * @param setter the function to apply to the argument when setting
    * @return an array view
    * @see #mapToInt(java.util.function.ToIntFunction)
    */
-  IntArray asInt(ToIntFunction<? super T> to, IntFunction<T> from);
+  IntArray asInt(ToIntFunction<? super T> getter, IntFunction<? extends T> setter);
 
   /**
    * Return a view of this array consisting of the results of lazily (i.e. when accessing the value)
@@ -230,64 +219,66 @@ public interface Array<T> extends BaseArray<Array<T>>, Iterable<T> {
    * function to each element of this array when accessing the elements and the {@code from}
    * function when setting the values.
    *
-   * @param to the function to apply to elements when getting
-   * @param from the function to apply to the argument when setting
+   * @param getter the function to apply to elements when getting
+   * @param setter the function to apply to the argument when setting
    * @return an array view
    * @see #mapToLong(java.util.function.ToLongFunction)
    */
-  LongArray asLong(ToLongFunction<? super T> to, LongFunction<T> from);
+  LongArray asLong(ToLongFunction<? super T> getter, LongFunction<? extends T> setter);
 
   /**
    * Return a view of this array consisting of the results of lazily (i.e. when accessing the value)
    * applying the given function to the elements of this array.
    *
-   * @param to the function to apply to each element
+   * @param getter the function to apply to each element
    * @return an array view
    * @see #mapToLong(java.util.function.ToLongFunction)
    */
-  LongArray asLong(ToLongFunction<? super T> to);
+  LongArray asLong(ToLongFunction<? super T> getter);
 
   /**
    * Return a view of this array consisting of the results of lazily applying the {@code to}
    * function to each element of this array when accessing the elements and the {@code from}
    * function when setting the values.
    *
-   * @param to the function to apply to elements when getting
-   * @param from the function to apply to the argument when setting
+   * @param getter the function to apply to elements when getting
+   * @param setter the function to apply to the argument when setting
    * @return an array view
    */
-  BooleanArray asBoolean(Function<? super T, Boolean> to, Function<Boolean, T> from);
+  BooleanArray asBoolean(Function<? super T, Boolean> getter,
+      Function<Boolean, ? extends T> setter);
 
   /**
    * Return a view of this array consisting of the results of lazily (i.e. when accessing the value)
    * applying the given function to the elements of this array.
    *
-   * @param to the function to apply to each element
+   * @param getter the function to apply to each element
    * @return an array view
    */
-  BooleanArray asBoolean(Function<? super T, Boolean> to);
+  BooleanArray asBoolean(Function<? super T, Boolean> getter);
 
   /**
    * Return a view of this array consisting of the results of lazily applying the {@code to}
    * function to each element of this array when accessing the elements and the {@code from}
    * function when setting the values.
    *
-   * @param to the function to apply to elements when getting
-   * @param from the function to apply to the argument when setting
+   * @param getter the function to apply to elements when getting
+   * @param setter the function to apply to the argument when setting
    * @return an array view
    * @see #mapToComplex(java.util.function.Function)
    */
-  ComplexArray asComplex(Function<? super T, Complex> to, Function<Complex, T> from);
+  ComplexArray asComplex(Function<? super T, Complex> getter,
+      Function<Complex, ? extends T> setter);
 
   /**
    * Return a view of this array consisting of the results of lazily (i.e. when accessing the value)
    * applying the given function to the elements of this array.
    *
-   * @param to the function to apply to each element
+   * @param getter the function to apply to each element
    * @return an array view
    * @see #mapToComplex(java.util.function.Function)
    */
-  ComplexArray asComplex(Function<? super T, Complex> to);
+  ComplexArray asComplex(Function<? super T, Complex> getter);
 
   /**
    * Return an array consisting of the elements of this stream that matches the given predicate. The
@@ -296,7 +287,7 @@ public interface Array<T> extends BaseArray<Array<T>>, Iterable<T> {
    * @param predicate the predicate to apply to each element to determine if it should be included
    * @return a new array
    */
-  Array<T> filter(Predicate<T> predicate);
+  Array<T> filter(Predicate<? super T> predicate);
 
   /**
    * Return an array of the same shape consisting of the value of matching each element to the given
@@ -320,7 +311,7 @@ public interface Array<T> extends BaseArray<Array<T>>, Iterable<T> {
    * @param predicate the predicate to apply to each element to determine the
    * @return a new array
    */
-  BooleanArray where(Predicate<T> predicate);
+  BooleanArray where(Predicate<? super T> predicate);
 
   /**
    * Return an array of the same shape consisting of the the value of the given predicate after
@@ -342,7 +333,7 @@ public interface Array<T> extends BaseArray<Array<T>>, Iterable<T> {
    * @param predicate the predicate to apply to each pair of elements
    * @return a new array
    */
-  BooleanArray where(Array<T> other, BiPredicate<T, T> predicate);
+  BooleanArray where(Array<? extends T> other, BiPredicate<? super T, ? super T> predicate);
 
   /**
    * Reduce the array element wise with the given initial value and accumulator.
@@ -360,7 +351,7 @@ public interface Array<T> extends BaseArray<Array<T>>, Iterable<T> {
    * @param accumulator the accumulator
    * @return a new array
    */
-  Array<T> reduceVector(int dim, Function<? super Array<T>, T> accumulator);
+  Array<T> reduceVector(int dim, Function<? super Array<? extends T>, ? extends T> accumulator);
 
   /**
    * Get the i:th element of this array. If {@code dims() != 1}, the array is traversed in flattened
@@ -478,7 +469,7 @@ public interface Array<T> extends BaseArray<Array<T>>, Iterable<T> {
    * Return the contents of this array as a Java-array. If the array is a view, the returned data
    * might be longer (or shorter) than {@code this}
    *
-   * @return a Java array (view or copy)
+   * @return a native array (view or copy)
    */
   T[] data();
 }

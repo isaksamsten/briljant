@@ -21,14 +21,7 @@
 package org.briljantframework.array.api;
 
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.array.Array;
-import org.briljantframework.array.BaseArray;
-import org.briljantframework.array.BooleanArray;
-import org.briljantframework.array.ComplexArray;
-import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.IntArray;
-import org.briljantframework.array.LongArray;
-import org.briljantframework.array.Range;
+import org.briljantframework.array.*;
 
 
 /**
@@ -56,6 +49,13 @@ public interface ArrayFactory {
    */
   <T> Array<T> newMatrix(T[][] data);
 
+  /**
+   * Creates a new array of the specified shape.
+   * 
+   * @param shape the shape
+   * @param <T> the type of element
+   * @return a new array
+   */
   <T> Array<T> newArray(int... shape);
 
   /**

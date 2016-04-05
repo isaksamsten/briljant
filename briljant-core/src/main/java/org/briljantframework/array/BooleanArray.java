@@ -20,6 +20,7 @@
  */
 package org.briljantframework.array;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -40,6 +41,12 @@ public interface BooleanArray extends BaseArray<BooleanArray>, Iterable<Boolean>
     return array;
   }
 
+  /**
+   * Return a boolean array of the specifier shape filled with false.
+   * 
+   * @param shape the shape
+   * @return a boolean array
+   */
   static BooleanArray falses(int... shape) {
     return Arrays.booleanArray(shape);
   }
@@ -62,6 +69,15 @@ public interface BooleanArray extends BaseArray<BooleanArray>, Iterable<Boolean>
     BooleanArray array = falses(data.length);
     for (int i = 0; i < data.length; i++) {
       array.set(i, data[i] == 1);
+    }
+    return array;
+  }
+
+  static BooleanArray copyOf(Collection<Boolean> collection) {
+    BooleanArray array = falses(collection.size());
+    int i = 0;
+    for (Boolean bool : collection) {
+      array.set(i++, bool);
     }
     return array;
   }

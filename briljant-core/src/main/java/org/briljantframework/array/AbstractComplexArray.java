@@ -574,13 +574,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder();
-    try {
-      ArrayPrinter.print(builder, this);
-    } catch (IOException e) {
-      return getClass().getSimpleName();
-    }
-    return builder.toString();
+    return ArrayPrinter.toString(this);
   }
 
   @Override

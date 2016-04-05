@@ -49,7 +49,7 @@ public enum ArrayOperation {
     this.transpose = transpose;
   }
 
-  public boolean isTrue() {
+  public boolean isTranspose() {
     return transpose;
   }
 

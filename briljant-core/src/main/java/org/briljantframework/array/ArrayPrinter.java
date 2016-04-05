@@ -20,7 +20,6 @@
  */
 package org.briljantframework.array;
 
-import java.io.IOException;
 import java.util.StringJoiner;
 
 import org.apache.commons.math3.complex.ComplexFormat;
@@ -50,76 +49,64 @@ public final class ArrayPrinter {
     visiblePerSlice = cols;
   }
 
-  public static void print(ComplexArray matrix) {
-    try {
-      print(System.out, matrix);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+  public static String toString(ComplexArray array) {
+    StringBuilder builder = new StringBuilder();
+    append(builder, array);
+    return builder.toString();
   }
 
-  public static void print(Appendable out, ComplexArray matrix) throws IOException {
-    print(out, new ComplexToStringArray(matrix), "[", "]");
+  public static String toString(LongArray array) {
+    StringBuilder builder = new StringBuilder();
+    append(builder, array);
+    return builder.toString();
   }
 
-  public static void print(DoubleArray matrix) {
-    try {
-      print(System.out, matrix);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+  public static String toString(IntArray array) {
+    StringBuilder builder = new StringBuilder();
+    append(builder, array);
+    return builder.toString();
   }
 
-  public static void print(DoubleArray x, String start, String end) {
-    try {
-      print(System.out, new DoubleToStringArray(x, floatFormat), start, end);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+  public static String toString(DoubleArray array) {
+    StringBuilder builder = new StringBuilder();
+    append(builder, array);
+    return builder.toString();
   }
 
-  public static void print(Appendable out, DoubleArray matrix) throws IOException {
-    print(out, new DoubleToStringArray(matrix, floatFormat), "[", "]");
+  public static String toString(BooleanArray array) {
+    StringBuilder builder = new StringBuilder();
+    append(builder, array);
+    return builder.toString();
   }
 
-  public static void print(BooleanArray matrix) {
-    try {
-      print(System.out, matrix);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+  public static String toString(Array<?> array) {
+    StringBuilder builder = new StringBuilder();
+    append(builder, array);
+    return builder.toString();
   }
 
-  public static void print(Appendable out, BooleanArray matrix) throws IOException {
-    print(out, new LongToStringArray(matrix.asLong(), intFormat), "[", "]");
+  public static void append(StringBuilder out, ComplexArray matrix) {
+    append(out, new ComplexToStringArray(matrix), "[", "]");
   }
 
-  public static void print(LongArray matrix) {
-    try {
-      print(System.out, matrix);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+  public static void append(StringBuilder out, DoubleArray matrix) {
+    append(out, new DoubleToStringArray(matrix, floatFormat), "[", "]");
   }
 
-  public static void print(Appendable out, LongArray matrix) throws IOException {
-    print(out, new LongToStringArray(matrix, intFormat), "[", "]");
+  public static void append(StringBuilder out, BooleanArray matrix) {
+    append(out, new LongToStringArray(matrix.asLong(), intFormat), "[", "]");
   }
 
-  public static void print(IntArray matrix) {
-    try {
-      print(System.out, matrix);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+  public static void append(StringBuilder out, LongArray matrix) {
+    append(out, new LongToStringArray(matrix, intFormat), "[", "]");
   }
 
-  public static void print(Appendable out, IntArray matrix) throws IOException {
-    print(out, new LongToStringArray(matrix.asLong(), intFormat), "[", "]");
+  public static void append(StringBuilder out, IntArray matrix) {
+    append(out, new LongToStringArray(matrix.asLong(), intFormat), "[", "]");
   }
 
-  public static <T> void print(Appendable out, Array<T> array) throws IOException {
-    print(out, new ReferenceArrayToStringArray<>(array), "[", "]");
+  public static void append(StringBuilder out, Array<?> array) {
+    append(out, new ReferenceArrayToStringArray(array), "[", "]");
   }
 
   /**
@@ -127,10 +114,9 @@ public final class ArrayPrinter {
    *
    * @param out write resulting string representation to
    * @param arr the ToStringMatrix
-   * @throws java.io.IOException if an IO error occurs
    */
-  public static void print(Appendable out, ToStringArray arr, String startChar, String endChar)
-      throws IOException {
+  public static void append(StringBuilder out, ToStringArray arr, String startChar,
+      String endChar) {
     out.append("array(");
     if (arr.size() == 0) {
       out.append(startChar).append(endChar);
@@ -139,7 +125,7 @@ public final class ArrayPrinter {
     } else {
       boolean truncate = minTruncateSize < arr.size() && arr.dims() != 1;
       IntArray maxWidth = computeMaxWidth(arr, truncate);
-      print(out, arr, startChar, endChar, truncate, arr.dims() + 1 + "array(".length(), maxWidth);
+      append(out, arr, startChar, endChar, truncate, arr.dims() + 1 + "array(".length(), maxWidth);
     }
     out.append(")");
   }
@@ -195,11 +181,10 @@ public final class ArrayPrinter {
    * Format the {@link org.briljantframework.array.ArrayPrinter.ToStringArray}
    *
    * @param sb write resulting string representation to
-   * @param arr the ToStringMatrix
-   * @throws java.io.IOException if an IO error occurs
+   * @param arr the matrix
    */
-  public static void print(Appendable sb, ToStringArray arr, String startChar, String endChar,
-      boolean truncate, int dims, IntArray maxWidth) throws IOException {
+  public static void append(StringBuilder sb, ToStringArray arr, String startChar, String endChar,
+      boolean truncate, int dims, IntArray maxWidth) {
     if (arr.size() == 0) {
       sb.append(startChar).append(arr.get(0)).append(endChar);
       return;
@@ -225,7 +210,7 @@ public final class ArrayPrinter {
     } else {
       int len = arr.size(0);
       sb.append("[");
-      print(sb, arr.select(0), startChar, endChar, truncate, dims, maxWidth);
+      append(sb, arr.select(0), startChar, endChar, truncate, dims, maxWidth);
       for (int i = 1; i < len; i++) {
         if (arr.dims() > 2) {
           sb.append(",\n\n");
@@ -235,7 +220,7 @@ public final class ArrayPrinter {
         for (int j = 0; j < dims - arr.dims(); j++) {
           sb.append(" ");
         }
-        print(sb, arr.select(i), startChar, endChar, truncate, dims, maxWidth);
+        append(sb, arr.select(i), startChar, endChar, truncate, dims, maxWidth);
         int max = len;
         if (truncate) {
           max = printSlices < 0 ? len : printSlices;
@@ -301,7 +286,7 @@ public final class ArrayPrinter {
     private final String formatString;
     private final DoubleArray array;
 
-    public DoubleToStringArray(DoubleArray array, String formatString) {
+    DoubleToStringArray(DoubleArray array, String formatString) {
       this.array = array;
       this.formatString = formatString;
     }
@@ -353,7 +338,7 @@ public final class ArrayPrinter {
     private final String formatString;
     private final LongArray array;
 
-    public LongToStringArray(LongArray array, String formatString) {
+    LongToStringArray(LongArray array, String formatString) {
       this.array = array;
       this.formatString = formatString;
     }
@@ -405,7 +390,7 @@ public final class ArrayPrinter {
 
     private final ComplexArray array;
 
-    public ComplexToStringArray(ComplexArray array) {
+    ComplexToStringArray(ComplexArray array) {
       this.array = array;
     }
 
@@ -450,17 +435,17 @@ public final class ArrayPrinter {
     }
   }
 
-  private static class ReferenceArrayToStringArray<T> implements ToStringArray {
+  private static class ReferenceArrayToStringArray implements ToStringArray {
 
-    private final Array<T> array;
+    private final Array<?> array;
 
-    public ReferenceArrayToStringArray(Array<T> array) {
+    ReferenceArrayToStringArray(Array<?> array) {
       this.array = array;
     }
 
     @Override
     public String get(int i) {
-      T value = array.get(i);
+      Object value = array.get(i);
       return value == null ? "null" : value.toString();
     }
 
@@ -476,12 +461,12 @@ public final class ArrayPrinter {
 
     @Override
     public ToStringArray getVector(int dim, int index) {
-      return new ReferenceArrayToStringArray<>(array.getVector(dim, index));
+      return new ReferenceArrayToStringArray(array.getVector(dim, index));
     }
 
     @Override
     public ToStringArray select(int dim) {
-      return new ReferenceArrayToStringArray<>(array.select(dim));
+      return new ReferenceArrayToStringArray(array.select(dim));
     }
 
     @Override

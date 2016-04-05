@@ -26,7 +26,7 @@ import org.briljantframework.array.DoubleArray;
  * Represents the singular value decomposition of a double array.
  * 
  * @author Isak Karlsson
- */
+ */ // TODO: 4/5/16 interface
 public class SingularValueDecomposition {
 
   /**

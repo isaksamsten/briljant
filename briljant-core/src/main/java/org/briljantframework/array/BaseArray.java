@@ -148,8 +148,22 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    */
   void set(int[] toIndex, S from, int[] fromIndex);
 
+  /**
+   * For nd-arrays, set the element in this at to index to the value at the linear position in from.
+   *
+   * @param toIndex the index in this
+   * @param from the source
+   * @param fromIndex the index in source
+   */
   void set(int[] toIndex, S from, int fromIndex);
 
+  /**
+   * For nd-arrays, set the element in this at to index to the value at the linear position in from.
+   *
+   * @param toIndex the index in this
+   * @param from the source
+   * @param fromIndex the index in source
+   */
   void set(int toIndex, S from, int[] fromIndex);
 
   /**

@@ -383,7 +383,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     Check.argument(arrays.size() <= dims(), "too many indicies for array");
     Check.argument(arrays.size() > 0, "too few indices for array");
 
-    AdvancedIndexer indexer = new AdvancedIndexer(this, arrays);
+    AdvancedIndexer indexer = new AdvancedIndexer(getShape(), arrays);
     if (indexer.isBasicIndexer()) {
       List<Range> ranges = arrays.stream().map(Range.class::cast).collect(Collectors.toList());
       return getView(ranges);
@@ -419,7 +419,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     Check.argument(arrays.size() <= dims(), "too many indicies for array");
     Check.argument(arrays.size() > 0, "too few indices for array");
 
-    AdvancedIndexer indexer = new AdvancedIndexer(this, arrays);
+    AdvancedIndexer indexer = new AdvancedIndexer(getShape(), arrays);
     if (indexer.isBasicIndexer()) {
       // if we got a basic indexer simply select the intended region and assign the value
       List<Range> ranges = arrays.stream().map(Range.class::cast).collect(Collectors.toList());

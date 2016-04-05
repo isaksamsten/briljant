@@ -30,6 +30,8 @@ import org.briljantframework.util.primitive.IntList;
  * An advanced indexer holds {@code n} int arrays of the same {@link #getShape() shape} used for
  * indexing index an array with {@code n} dimensions.
  *
+ * // TODO: 4/5/16 indicate the rules for advanced indexing 
+ *
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  * @see BasicIndex
  */
@@ -38,15 +40,21 @@ public final class AdvancedIndexer {
   private final IntArray[] index;
   private final int[] shape;
 
-  public AdvancedIndexer(BaseArray<?> array, List<? extends IntArray> arrays) {
+  /**
+   * Construct an advanced indexer from an array of the specified shape given the specified indexing
+   * arrays
+   * 
+   * @param shape the shape
+   * @param arrays the indexing array
+   */
+  public AdvancedIndexer(int[] shape, List<? extends IntArray> arrays) {
     if (arrays.stream().allMatch(AdvancedIndexer::isBasicIndexer)) {
       this.index = null;
       this.shape = null;
     } else {
-      int[] shape = array.getShape();
       List<IntArray> advancedIndexes = new ArrayList<>();
       boolean hasBasicIndexGap = false;
-      int ndims = array.dims();
+      int ndims = shape.length;
       IntArray[] indexers = new IntArray[ndims];
       int firstAdvancedIndex = -1;
       for (int i = 0; i < ndims; i++) {
@@ -147,19 +155,6 @@ public final class AdvancedIndexer {
     }
   }
 
-  /**
-   * Returns an advanced indexer using the given arrays
-   *
-   * @param array  the array to index
-   * @param arrays the arrays used for indexing
-   * @return a new indexer if advanced indexing is required; null otherwise (if all arrays are basic
-   * indexers)
-   */
-  @Deprecated
-  public static AdvancedIndexer getIndexer(BaseArray<?> array, List<? extends IntArray> arrays) {
-    return new AdvancedIndexer(array, arrays);
-  }
-
   private IntArray broadcastCompatible(IntArray i, int[] compatibleShape, int[] newShape) {
     return Arrays.broadcast(i.reshape(compatibleShape), newShape);
   }
@@ -170,29 +165,51 @@ public final class AdvancedIndexer {
    * @param indexer the indexer
    * @return true if basic; false otherwise
    */
-  public static boolean isBasicIndexer(IntArray indexer) {
+  static boolean isBasicIndexer(IntArray indexer) {
     return (indexer instanceof Range && indexer.dims() == 1) || indexer == BasicIndex.ALL;
   }
 
-  public boolean isBasicIndexer() {
+  /**
+   * Returns true if if a basic (view) index should be used instead.
+   * 
+   * @return true if a view can be returned.
+   */
+  boolean isBasicIndexer() {
     return index == null;
   }
 
-  public IntArray getIndex(int i) {
+
+  /**
+   * Returns the indexer for the i:th dimension
+   * 
+   * @param i the dimension
+   * @return the dimensions
+   */
+  IntArray getIndex(int i) {
     if (index == null) {
       throw illegalStateBasicIndexer();
     }
     return index[i];
   }
 
-  public int size() {
+  /**
+   * Get the number of indexers
+   * 
+   * @return the indexers
+   */
+  int size() {
     if (index == null) {
       throw illegalStateBasicIndexer();
     }
     return index.length;
   }
 
-  public int[] getShape() {
+  /**
+   * Get the shape of the array resulting from this indexer
+   * 
+   * @return the shape of the array resulting from this indexer
+   */
+  int[] getShape() {
     if (shape == null) {
       throw illegalStateBasicIndexer();
     }

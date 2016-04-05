@@ -20,14 +20,8 @@
  */
 package org.briljantframework.array;
 
-import java.io.IOException;
-import java.util.AbstractList;
+import java.util.*;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -46,8 +40,8 @@ import org.briljantframework.util.primitive.ArrayAllocations;
  *
  * @author Isak Karlsson
  */
-public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArray> implements
-    BooleanArray {
+public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArray>
+    implements BooleanArray {
 
   protected AbstractBooleanArray(ArrayBackend backend, int size) {
     super(backend, new int[] {size});
@@ -490,13 +484,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public String toString() {
-    StringBuilder a = new StringBuilder();
-    try {
-      ArrayPrinter.print(a, this);
-    } catch (IOException e) {
-      return getClass().getSimpleName();
-    }
-    return a.toString();
+    return ArrayPrinter.toString(this);
   }
 
   @Override

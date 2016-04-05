@@ -429,13 +429,13 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
     int thisRows = a.rows();
     int thisCols = a.columns();
-    if (transA.isTrue()) {
+    if (transA.isTranspose()) {
       thisRows = a.columns();
       thisCols = a.rows();
     }
     int otherRows = b.rows();
     int otherColumns = b.columns();
-    if (transB.isTrue()) {
+    if (transB.isTranspose()) {
       otherRows = b.columns();
       otherColumns = b.rows();
     }
@@ -457,10 +457,10 @@ public class BaseArrayRoutines implements ArrayRoutines {
         double sum = 0.0;
         for (int k = 0; k < thisCols; k++) {
           int thisIndex =
-              transA.isTrue() ? rowMajor(row, k, thisRows, thisCols) : columnMajor(0, row, k,
+              transA.isTranspose() ? rowMajor(row, k, thisRows, thisCols) : columnMajor(0, row, k,
                   thisRows, thisCols);
           int otherIndex =
-              transB.isTrue() ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(0, k, col,
+              transB.isTranspose() ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(0, k, col,
                   otherRows, otherColumns);
           sum += a.get(thisIndex) * b.get(otherIndex);
         }

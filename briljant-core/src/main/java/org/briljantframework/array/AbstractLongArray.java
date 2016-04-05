@@ -23,25 +23,9 @@ package org.briljantframework.array;
 import static org.briljantframework.array.StrideUtils.columnMajor;
 import static org.briljantframework.array.StrideUtils.rowMajor;
 
-import java.io.IOException;
-import java.util.AbstractList;
+import java.util.*;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.PrimitiveIterator;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.function.DoubleToLongFunction;
-import java.util.function.IntToLongFunction;
-import java.util.function.LongBinaryOperator;
-import java.util.function.LongFunction;
-import java.util.function.LongPredicate;
-import java.util.function.LongSupplier;
-import java.util.function.LongToDoubleFunction;
-import java.util.function.LongToIntFunction;
-import java.util.function.LongUnaryOperator;
-import java.util.function.ToLongFunction;
+import java.util.function.*;
 import java.util.stream.LongStream;
 import java.util.stream.StreamSupport;
 
@@ -708,12 +692,10 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
       for (int col = 0; col < otherColumns; col++) {
         long sum = 0;
         for (int k = 0; k < thisCols; k++) {
-          int thisIndex =
-              a == ArrayOperation.TRANSPOSE ? rowMajor(row, k, thisRows, thisCols) : columnMajor(0,
-                  row, k, thisRows, thisCols);
-          int otherIndex =
-              b == ArrayOperation.TRANSPOSE ? rowMajor(k, col, otherRows, otherColumns)
-                  : columnMajor(0, k, col, otherRows, otherColumns);
+          int thisIndex = a == ArrayOperation.TRANSPOSE ? rowMajor(row, k, thisRows, thisCols)
+              : columnMajor(0, row, k, thisRows, thisCols);
+          int otherIndex = b == ArrayOperation.TRANSPOSE ? rowMajor(k, col, otherRows, otherColumns)
+              : columnMajor(0, k, col, otherRows, otherColumns);
           sum += get(thisIndex) * other.get(otherIndex);
         }
         result.set(row, col, alpha * sum);
@@ -756,13 +738,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
 
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder();
-    try {
-      ArrayPrinter.print(builder, this);
-    } catch (IOException e) {
-      return getClass().getSimpleName();
-    }
-    return builder.toString();
+    return ArrayPrinter.toString(this);
   }
 
   @Override

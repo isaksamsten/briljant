@@ -20,26 +20,9 @@
  */
 package org.briljantframework.array;
 
-import java.io.IOException;
-import java.util.AbstractList;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.BiPredicate;
-import java.util.function.BinaryOperator;
-import java.util.function.DoubleFunction;
-import java.util.function.Function;
-import java.util.function.IntFunction;
-import java.util.function.LongFunction;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.function.ToDoubleFunction;
-import java.util.function.ToIntFunction;
-import java.util.function.ToLongFunction;
-import java.util.function.UnaryOperator;
+import java.util.function.*;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -183,13 +166,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder();
-    try {
-      ArrayPrinter.print(builder, this);
-    } catch (IOException e) {
-      return getClass().getSimpleName();
-    }
-    return builder.toString();
+    return ArrayPrinter.toString(this);
   }
 
   @Override
@@ -267,17 +244,17 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public DoubleArray asDouble(ToDoubleFunction<? super T> to, DoubleFunction<T> from) {
+  public DoubleArray asDouble(ToDoubleFunction<? super T> getter, DoubleFunction<? extends T> setter) {
     return new AsDoubleArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
       protected double getElement(int i) {
-        return to.applyAsDouble(AbstractArray.this.getElement(i));
+        return getter.applyAsDouble(AbstractArray.this.getElement(i));
       }
 
       @Override
       protected void setElement(int i, double value) {
-        AbstractArray.this.setElement(i, from.apply(value));
+        AbstractArray.this.setElement(i, setter.apply(value));
       }
 
       @Override
@@ -288,24 +265,24 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public DoubleArray asDouble(ToDoubleFunction<? super T> to) {
-    return asDouble(to, v -> {
+  public DoubleArray asDouble(ToDoubleFunction<? super T> getter) {
+    return asDouble(getter, v -> {
       throw new UnsupportedOperationException();
     });
   }
 
   @Override
-  public IntArray asInt(ToIntFunction<? super T> to, IntFunction<T> from) {
+  public IntArray asInt(ToIntFunction<? super T> getter, IntFunction<? extends T> setter) {
     return new AsIntArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
       protected int getElement(int i) {
-        return to.applyAsInt(AbstractArray.this.getElement(i));
+        return getter.applyAsInt(AbstractArray.this.getElement(i));
       }
 
       @Override
       protected void setElement(int i, int value) {
-        AbstractArray.this.setElement(i, from.apply(value));
+        AbstractArray.this.setElement(i, setter.apply(value));
       }
 
       @Override
@@ -323,17 +300,17 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public LongArray asLong(ToLongFunction<? super T> to, LongFunction<T> from) {
+  public LongArray asLong(ToLongFunction<? super T> getter, LongFunction<? extends T> setter) {
     return new AsLongArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
       protected void setElement(int i, long value) {
-        AbstractArray.this.setElement(i, from.apply(value));
+        AbstractArray.this.setElement(i, setter.apply(value));
       }
 
       @Override
       protected long getElement(int i) {
-        return to.applyAsLong(AbstractArray.this.getElement(i));
+        return getter.applyAsLong(AbstractArray.this.getElement(i));
       }
 
       @Override
@@ -344,24 +321,24 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public LongArray asLong(ToLongFunction<? super T> to) {
-    return asLong(to, v -> {
+  public LongArray asLong(ToLongFunction<? super T> getter) {
+    return asLong(getter, v -> {
       throw new UnsupportedOperationException();
     });
   }
 
   @Override
-  public BooleanArray asBoolean(Function<? super T, Boolean> to, Function<Boolean, T> from) {
+  public BooleanArray asBoolean(Function<? super T, Boolean> getter, Function<Boolean, ? extends T> setter) {
     return new AsBooleanArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
       protected boolean getElement(int i) {
-        return to.apply(AbstractArray.this.getElement(i));
+        return getter.apply(AbstractArray.this.getElement(i));
       }
 
       @Override
       protected void setElement(int i, boolean value) {
-        AbstractArray.this.setElement(i, from.apply(value));
+        AbstractArray.this.setElement(i, setter.apply(value));
       }
 
       @Override
@@ -372,24 +349,24 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public BooleanArray asBoolean(Function<? super T, Boolean> to) {
-    return asBoolean(to, v -> {
+  public BooleanArray asBoolean(Function<? super T, Boolean> getter) {
+    return asBoolean(getter, v -> {
       throw new UnsupportedOperationException();
     });
   }
 
   @Override
-  public ComplexArray asComplex(Function<? super T, Complex> to, Function<Complex, T> from) {
+  public ComplexArray asComplex(Function<? super T, Complex> getter, Function<Complex, ? extends T> setter) {
     return new AsComplexArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
       protected Complex getElement(int i) {
-        return to.apply(AbstractArray.this.getElement(i));
+        return getter.apply(AbstractArray.this.getElement(i));
       }
 
       @Override
       protected void setElement(int i, Complex value) {
-        AbstractArray.this.setElement(i, from.apply(value));
+        AbstractArray.this.setElement(i, setter.apply(value));
       }
 
       @Override
@@ -400,14 +377,14 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public ComplexArray asComplex(Function<? super T, Complex> to) {
-    return asComplex(to, v -> {
+  public ComplexArray asComplex(Function<? super T, Complex> getter) {
+    return asComplex(getter, v -> {
       throw new UnsupportedOperationException();
     });
   }
 
   @Override
-  public Array<T> filter(Predicate<T> predicate) {
+  public Array<T> filter(Predicate<? super T> predicate) {
     List<T> list = new ArrayList<>();
     for (int i = 0; i < size(); i++) {
       T v = get(i);
@@ -419,7 +396,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public BooleanArray where(Predicate<T> predicate) {
+  public BooleanArray where(Predicate<? super T> predicate) {
     BooleanArray array = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
     for (int i = 0; i < size(); i++) {
       array.set(i, predicate.test(get(i)));
@@ -428,7 +405,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public BooleanArray where(Array<T> other, BiPredicate<T, T> predicate) {
+  public BooleanArray where(Array<? extends T> other, BiPredicate<? super T, ? super T> predicate) {
     Check.dimension(this, other);
     BooleanArray array = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
     for (int i = 0; i < size(); i++) {
@@ -446,7 +423,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public Array<T> reduceVector(int dim, Function<? super Array<T>, T> accumulator) {
+  public Array<T> reduceVector(int dim, Function<? super Array<? extends T>, ? extends T> accumulator) {
     Check.argument(dim < dims(), INVALID_DIMENSION, dim, dims());
     Array<T> reduced = newEmptyArray(ArrayUtils.remove(getShape(), dim));
     int vectors = vectors(dim);
