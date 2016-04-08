@@ -351,7 +351,7 @@ public interface Array<T> extends BaseArray<Array<T>>, Iterable<T> {
    * @param accumulator the accumulator
    * @return a new array
    */
-  Array<T> reduceVector(int dim, Function<? super Array<? extends T>, ? extends T> accumulator);
+  Array<T> reduceVector(int dim, Function<? super Array<T>, ? extends T> accumulator);
 
   /**
    * Get the i:th element of this array. If {@code dims() != 1}, the array is traversed in flattened

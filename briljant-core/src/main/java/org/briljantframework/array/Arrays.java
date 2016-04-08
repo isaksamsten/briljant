@@ -2785,7 +2785,7 @@ public final class Arrays {
     }
 
     @Override
-    public Array<T> reduceVector(int dim, Function<? super Array<? extends T>, ? extends T> accumulator) {
+    public Array<T> reduceVector(int dim, Function<? super Array<T>, ? extends T> accumulator) {
       return array.reduceVector(dim, accumulator);
     }
 

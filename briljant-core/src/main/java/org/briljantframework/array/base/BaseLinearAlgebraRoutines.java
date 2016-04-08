@@ -64,7 +64,8 @@ class BaseLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   }
 
   @Override
-  public void ormqr(char side, ArrayOperation transA, DoubleArray a, DoubleArray tau, DoubleArray c) {
+  public void ormqr(char side, ArrayOperation transA, DoubleArray a, DoubleArray tau,
+      DoubleArray c) {
     throw new UnsupportedOperationException();
 
   }
@@ -115,6 +116,11 @@ class BaseLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
   @Override
   public void gesdd(char jobz, DoubleArray a, DoubleArray s, DoubleArray u, DoubleArray vt) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void syevd(char jobz, char uplo, DoubleArray a, DoubleArray w) {
     throw new UnsupportedOperationException();
   }
 }

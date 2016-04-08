@@ -137,6 +137,27 @@ public interface LinearAlgebraRoutines {
    */
   void syev(char jobz, char uplo, DoubleArray a, DoubleArray w);
 
+
+  /**
+   * DSYEVD computes all eigenvalues and, optionally, eigenvectors of a real symmetric matrix A. If
+   * eigenvectors are desired, it uses a divide and conquer algorithm.
+   * 
+   * @param jobz JOBZ is CHARACTER*1 = 'N': Compute eigenvalues only; = 'V': Compute eigenvalues and
+   *        eigenvectors.
+   * @param uplo UPLO is CHARACTER*1 = 'U': Upper triangle of A is stored; = 'L': Lower triangle of
+   *        A is stored.
+   * @param a A is DOUBLE PRECISION array, dimension (LDA, N) On entry, the symmetric matrix A. If
+   *        UPLO = 'U', the leading N-by-N upper triangular part of A contains the upper triangular
+   *        part of the matrix A. If UPLO = 'L', the leading N-by-N lower triangular part of A
+   *        contains the lower triangular part of the matrix A. On exit, if JOBZ = 'V', then if INFO
+   *        = 0, A contains the orthonormal eigenvectors of the matrix A. If JOBZ = 'N', then on
+   *        exit the lower triangle (if UPLO='L') or the upper triangle (if UPLO='U') of A,
+   *        including the diagonal, is destroyed.
+   * @param w W is DOUBLE PRECISION array, dimension (N). Upon exit, contains the eigenvalues in
+   *        ascending order.
+   */
+  void syevd(char jobz, char uplo, DoubleArray a, DoubleArray w);
+
   /**
    * Computes selected eigenvalues and, optionally, eigenvectors of a real symmetric matrix A.
    * Eigenvalues and eigenvectors can be selected by specifying either a range of values or a range

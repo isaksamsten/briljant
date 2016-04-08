@@ -423,7 +423,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public Array<T> reduceVector(int dim, Function<? super Array<? extends T>, ? extends T> accumulator) {
+  public Array<T> reduceVector(int dim, Function<? super Array<T>, ? extends T> accumulator) {
     Check.argument(dim < dims(), INVALID_DIMENSION, dim, dims());
     Array<T> reduced = newEmptyArray(ArrayUtils.remove(getShape(), dim));
     int vectors = vectors(dim);

@@ -24,12 +24,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.briljantframework.Check;
-import org.briljantframework.array.ArrayOperation;
-import org.briljantframework.array.ComplexArray;
-import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.IntArray;
-import org.briljantframework.exceptions.MultiDimensionMismatchException;
+import org.briljantframework.array.*;
 import org.briljantframework.array.linalg.api.AbstractLinearAlgebraRoutines;
+import org.briljantframework.exceptions.MultiDimensionMismatchException;
 import org.netlib.util.intW;
 
 import com.github.fommil.netlib.LAPACK;
@@ -49,11 +46,11 @@ import com.github.fommil.netlib.LAPACK;
 class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
   private static final String REQUIRE_2D_ARRAY = "require 2d-array";
-  static final List<Character> SYEVR_UPLO = Arrays.asList('l', 'u');
+  static final List<Character> UPLO_CHAR = Arrays.asList('l', 'u');
   static final List<Character> ORMQR_SIDE = Arrays.asList('l', 'r');
   private static final LAPACK lapack = LAPACK.getInstance();
   private static final List<Character> GESVD_JOB_CHAR = Arrays.asList('a', 's', 'o', 'n');
-  private static final List<Character> SYEVR_JOBZ_CHAR = Arrays.asList('n', 'v');
+  private static final List<Character> JOBZ_CHAR = Arrays.asList('n', 'v');
   private static final List<Character> SYEVR_RANGE_CHAR = Arrays.asList('a', 'v', 'i');
 
   NetlibLinearAlgebraRoutines(NetlibArrayBackend matrixFactory) {
@@ -195,11 +192,11 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   public void syev(char jobz, char uplo, DoubleArray a, DoubleArray w) {
     jobz = Character.toLowerCase(jobz);
     uplo = Character.toLowerCase(uplo);
-    if (!SYEVR_JOBZ_CHAR.contains(jobz)) {
-      throw invalidCharacter("jobz", jobz, SYEVR_JOBZ_CHAR);
+    if (!JOBZ_CHAR.contains(jobz)) {
+      throw invalidCharacter("jobz", jobz, JOBZ_CHAR);
     }
-    if (!SYEVR_UPLO.contains(uplo)) {
-      throw invalidCharacter("uplo", uplo, SYEVR_UPLO);
+    if (!UPLO_CHAR.contains(uplo)) {
+      throw invalidCharacter("uplo", uplo, UPLO_CHAR);
     }
 
     if (!a.isSquare()) {
@@ -210,20 +207,71 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     if (!w.isVector() && w.size() != n) {
       throw new IllegalArgumentException();
     }
-
-    double[] aa = getData(a);
-    double[] wa = getData(w);
+    DoubleArray safeA = copyIfView(a);
+    DoubleArray safeW = copyIfView(w);
 
     intW info = new intW(0);
     int lwork = -1;
     double[] work = new double[1];
-    lapack.dsyev(String.valueOf(jobz), String.valueOf(uplo), n, aa, lda, wa, work, lwork, info);
+    lapack.dsyev(String.valueOf(jobz), String.valueOf(uplo), n, safeA.data(),
+        Math.max(1, safeA.stride(1)), safeW.data(), work, lwork, info);
     ensureInfo(info);
     lwork = (int) work[0];
     work = new double[lwork];
-    lapack.dsyev(String.valueOf(jobz), String.valueOf(uplo), n, aa, lda, wa, work, lwork, info);
+    lapack.dsyev(String.valueOf(jobz), String.valueOf(uplo), n, safeA.data(),
+        Math.max(1, safeA.stride(1)), safeW.data(), work, lwork, info);
     ensureInfo(info);
 
+
+    if (safeA != a) {
+      a.assign(safeA);
+    }
+    if (safeW != w) {
+      w.assign(safeW);
+    }
+  }
+
+  private boolean isView(BaseArray<?> array) {
+    return !array.isContiguous() || array.getOffset() > 0 || array.stride(0) != 1;
+  }
+
+  private <S extends BaseArray<S>> S copyIfView(S array) {
+    return isView(array) ? array.copy() : array;
+  }
+
+  @Override
+  public void syevd(char jobz, char uplo, DoubleArray a, DoubleArray w) {
+    jobz = Character.toLowerCase(jobz);
+    uplo = Character.toLowerCase(uplo);
+    if (!JOBZ_CHAR.contains(jobz)) {
+      throw invalidCharacter("jobz", jobz, JOBZ_CHAR);
+    }
+    if (!UPLO_CHAR.contains(uplo)) {
+      throw invalidCharacter("uplo", uplo, UPLO_CHAR);
+    }
+    Check.argument(a.isSquare(), "a must be square");
+
+    int n = a.rows();
+    int lda = Math.max(1, n);
+    Check.argument(w.isVector() && w.size() == n, "illegal output size");
+
+    double[] aa = getData(a);
+    double[] wa = getData(w);
+    intW info = new intW(0);
+    int lwork = -1;
+    int liwork = -1;
+    double[] work = new double[1];
+    int[] iwork = new int[1];
+    lapack.dsyevd(String.valueOf(jobz), String.valueOf(uplo), n, aa, lda, wa, work, lwork, iwork,
+        liwork, info);
+    ensureInfo(info);
+    lwork = (int) work[0];
+    work = new double[lwork];
+    liwork = iwork[0];
+    iwork = new int[liwork];
+    lapack.dsyevd(String.valueOf(jobz), String.valueOf(uplo), n, aa, lda, wa, work, lwork, iwork,
+        liwork, info);
+    ensureInfo(info);
     assignIfNeeded(a, aa);
     assignIfNeeded(w, wa);
   }
@@ -239,14 +287,14 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     jobz = Character.toLowerCase(jobz);
     range = Character.toLowerCase(range);
     uplo = Character.toLowerCase(uplo);
-    if (!SYEVR_JOBZ_CHAR.contains(jobz)) {
-      throw invalidCharacter("jobz", jobz, SYEVR_JOBZ_CHAR);
+    if (!JOBZ_CHAR.contains(jobz)) {
+      throw invalidCharacter("jobz", jobz, JOBZ_CHAR);
     }
     if (!SYEVR_RANGE_CHAR.contains(range)) {
       throw invalidCharacter("range", range, SYEVR_RANGE_CHAR);
     }
-    if (!SYEVR_UPLO.contains(uplo)) {
-      throw invalidCharacter("uplo", uplo, SYEVR_UPLO);
+    if (!UPLO_CHAR.contains(uplo)) {
+      throw invalidCharacter("uplo", uplo, UPLO_CHAR);
     }
 
     int n = a.size(0);
@@ -550,8 +598,7 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
    * Returns the data of the double array. If a is a view (as defined above), a copy is returned.
    */
   private double[] getData(DoubleArray a) {
-    if (!(a instanceof NetlibDoubleArray) || !a.isContiguous() || a.getOffset() > 0
-        || a.stride(0) != 1) {
+    if (!a.isContiguous() || a.getOffset() > 0 || a.stride(0) != 1) {
       return a.copy().data();
     } else {
       return a.data();
