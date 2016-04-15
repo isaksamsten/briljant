@@ -54,7 +54,7 @@ import org.briljantframework.array.api.ArrayBackend;
  *
  * @author Isak Karlsson
  */
-public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArray> implements
+public abstract class AbstractComplexArray extends AbstractBaseArray<Complex, ComplexArray> implements
     ComplexArray {
 
   protected AbstractComplexArray(ArrayBackend backend, int size) {
@@ -326,7 +326,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public Array<Complex> boxed() {
+  public Array<Complex> asArray() {
     return new AsArray<Complex>(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStride()) {
 

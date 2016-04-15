@@ -25,6 +25,7 @@ import java.util.Objects;
 import org.apache.commons.math3.util.Precision;
 import org.briljantframework.Check;
 import org.briljantframework.array.ArrayOperation;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.api.ArrayBackend;
@@ -65,7 +66,7 @@ public abstract class AbstractLinearAlgebraRoutines implements LinearAlgebraRout
     DoubleArray vr = getArrayFactory().newDoubleArray(n, n);
     DoubleArray a = x.copy();
     geev('v', 'v', a, wr, wi, vl, vr);
-    return null;
+    return new GeeVEigenDecomposition(wr, wi, vl);
   }
 
   @Override
@@ -73,7 +74,7 @@ public abstract class AbstractLinearAlgebraRoutines implements LinearAlgebraRout
     Check.argument(array.isMatrix(), "require square 2d-array");
     int m = array.size(0);
     int n = array.size(1);
-    IntArray pivots = getArrayBackend().getArrayFactory().newIntArray(Math.min(m, n));
+    IntArray pivots = getArrayFactory().newIntArray(Math.min(m, n));
     DoubleArray lu = array.copy();
     getrf(lu, pivots);
     return new LuDecomposition(lu, pivots);
@@ -82,12 +83,11 @@ public abstract class AbstractLinearAlgebraRoutines implements LinearAlgebraRout
   @Override
   public SingularValueDecomposition svd(DoubleArray x) {
     Check.argument(x.isMatrix(), "require 2d-array");
-    ArrayFactory bj = getArrayBackend().getArrayFactory();
     int m = x.rows();
     int n = x.columns();
-    DoubleArray s = bj.newDoubleArray(n);
-    DoubleArray u = bj.newDoubleArray(m, m);
-    DoubleArray vt = bj.newDoubleArray(n, n);
+    DoubleArray s = getArrayFactory().newDoubleArray(n);
+    DoubleArray u = getArrayFactory().newDoubleArray(m, m);
+    DoubleArray vt = getArrayFactory().newDoubleArray(n, n);
     DoubleArray a = x.copy();
     if (m > n) {
       gesdd('a', a, s, u, vt);
@@ -164,5 +164,32 @@ public abstract class AbstractLinearAlgebraRoutines implements LinearAlgebraRout
     SingularValueDecomposition svd = svd(x);
     DoubleArray singular = svd.getSingularValues();
     return singular.reduce(0, (acc, v) -> Precision.compareTo(v, 0, EPS) > 0 ? acc + 1 : acc);
+  }
+
+  private static class GeeVEigenDecomposition extends EigenDecomposition {
+    private final DoubleArray wr;
+    private final DoubleArray wi;
+    private final DoubleArray vl;
+
+    GeeVEigenDecomposition(DoubleArray wr, DoubleArray wi, DoubleArray vl) {
+      this.wr = Arrays.unmodifiableArray(wr);
+      this.wi = Arrays.unmodifiableArray(wi);
+      this.vl = Arrays.unmodifiableArray(vl);
+    }
+
+    @Override
+    public DoubleArray getRealEigenvalues() {
+      return wr;
+    }
+
+    @Override
+    public DoubleArray getImagEigenvalues() {
+      return wi;
+    }
+
+    @Override
+    public DoubleArray getEigenVectors() {
+      return vl;
+    }
   }
 }

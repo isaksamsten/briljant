@@ -101,7 +101,7 @@ import org.briljantframework.util.sort.Swappable;
  * @see IntArray
  * @see BooleanArray
  */
-public interface BaseArray<S extends BaseArray<S>> extends Swappable {
+public interface BaseArray<T, S extends BaseArray<T, S>> extends Swappable {
 
   /**
    * Set the value at {@code toIndex} using the value at {@code fromIndex} in {@code from}, enabling
@@ -1359,6 +1359,10 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * @return this matrix as a {@link ComplexArray}.
    */
   ComplexArray asComplex();
+
+  Array<T> asArray();
+
+  List<T> toList();
 
   /**
    * Returns true if the array is contiguous in memory, which means that the array is in the default

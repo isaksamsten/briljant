@@ -274,7 +274,7 @@ public class BaseArrayFactory implements ArrayFactory {
   }
 
   @Override
-  public <T extends BaseArray<T>> T diag(T data) {
+  public <E, T extends BaseArray<E, T>> T diag(T data) {
     if (data.isVector()) {
       int n = data.size();
       T arr = data.newEmptyArray(n, n);

@@ -21,17 +21,7 @@
 package org.briljantframework.array;
 
 import java.util.List;
-import java.util.function.DoubleToIntFunction;
-import java.util.function.IntBinaryOperator;
-import java.util.function.IntConsumer;
-import java.util.function.IntFunction;
-import java.util.function.IntPredicate;
-import java.util.function.IntSupplier;
-import java.util.function.IntToDoubleFunction;
-import java.util.function.IntToLongFunction;
-import java.util.function.IntUnaryOperator;
-import java.util.function.LongToIntFunction;
-import java.util.function.ToIntFunction;
+import java.util.function.*;
 import java.util.stream.IntStream;
 
 import net.mintern.primitive.comparators.IntComparator;
@@ -45,7 +35,7 @@ import org.briljantframework.function.ToIntObjIntBiFunction;
  * 
  * @author Isak Karlsson
  */
-public interface IntArray extends BaseArray<IntArray>, Iterable<Integer> {
+public interface IntArray extends BaseArray<Integer, IntArray>, Iterable<Integer> {
 
   static IntArray ones(int... shape) {
     IntArray array = zeros(shape);
@@ -217,10 +207,6 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer> {
   void apply(int i, int j, IntUnaryOperator operator);
 
   IntStream stream();
-
-  List<Integer> toList();
-
-  Array<Integer> boxed();
 
   void sort();
 

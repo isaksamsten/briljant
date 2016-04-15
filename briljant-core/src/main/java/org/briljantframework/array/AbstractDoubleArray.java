@@ -62,7 +62,7 @@ import org.briljantframework.util.sort.QuickSort;
  *
  * @author Isak Karlsson
  */
-public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray> implements
+public abstract class AbstractDoubleArray extends AbstractBaseArray<Double, DoubleArray> implements
     DoubleArray {
 
   protected AbstractDoubleArray(ArrayBackend bj, int[] shape) {
@@ -539,7 +539,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public Array<Double> boxed() {
+  public Array<Double> asArray() {
     return new AsArray<Double>(this) {
       @Override
       public DoubleArray asDouble() {

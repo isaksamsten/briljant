@@ -40,7 +40,7 @@ import org.briljantframework.util.primitive.ArrayAllocations;
  *
  * @author Isak Karlsson
  */
-public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArray>
+public abstract class AbstractBooleanArray extends AbstractBaseArray<Boolean, BooleanArray>
     implements BooleanArray {
 
   protected AbstractBooleanArray(ArrayBackend backend, int size) {
@@ -382,7 +382,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
   }
 
   @Override
-  public Array<Boolean> boxed() {
+  public Array<Boolean> asArray() {
     return new AsArray<Boolean>(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStride()) {
       @Override

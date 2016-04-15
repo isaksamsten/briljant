@@ -45,7 +45,7 @@ import org.briljantframework.util.sort.QuickSort;
  * 
  * @author Isak Karlsson
  */
-public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> implements LongArray {
+public abstract class AbstractLongArray extends AbstractBaseArray<Long, LongArray> implements LongArray {
 
   protected AbstractLongArray(ArrayBackend backend, int[] shape) {
     super(backend, shape);
@@ -507,7 +507,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public Array<Long> boxed() {
+  public Array<Long> asArray() {
     return new AsArray<Long>(this) {
       @Override
       protected void setElement(int i, Long value) {

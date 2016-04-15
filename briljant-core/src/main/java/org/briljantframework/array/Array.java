@@ -32,7 +32,7 @@ import org.apache.commons.math3.complex.Complex;
  * @author Isak Karlsson
  * @see BaseArray
  */
-public interface Array<T> extends BaseArray<Array<T>>, Iterable<T> {
+public interface Array<T> extends BaseArray<T, Array<T>>, Iterable<T> {
 
   /**
    * @see Arrays#vector(Object[])
@@ -102,7 +102,7 @@ public interface Array<T> extends BaseArray<Array<T>>, Iterable<T> {
    * Example
    *
    * <pre>
-   * Array&lt;Integer&gt; i = Arrays.range(0, 3).boxed();
+   * Array&lt;Integer&gt; i = Arrays.range(0, 3).asArray();
    * Array&lt;String&gt; x = Arrays.array(new String[] {&quot;foo&quot;, &quot;bar&quot;, &quot;baz&quot;});
    * i.assign(x, String::length).mapToInt(Integer::intValue);
    * </pre>
@@ -154,6 +154,8 @@ public interface Array<T> extends BaseArray<Array<T>>, Iterable<T> {
    */
   ComplexArray mapToComplex(Function<? super T, Complex> f);
 
+  BooleanArray mapToBoolean(Function<? super T, Boolean> f);
+
   /**
    * Returns an array consisting of the results of applying the given function to the elements of
    * this array.
@@ -169,116 +171,6 @@ public interface Array<T> extends BaseArray<Array<T>>, Iterable<T> {
    * @param operator the operator
    */
   void apply(UnaryOperator<T> operator);
-
-  /**
-   * Return a view of this array consisting of the results of lazily applying the {@code to}
-   * function to each element of this array when accessing the elements and the {@code from}
-   * function when setting the values.
-   *
-   * @param getter the function to apply to elements when getting
-   * @param setter the function to apply to the argument when setting
-   * @return an array view
-   * @see #mapToDouble(java.util.function.ToDoubleFunction)
-   */
-  DoubleArray asDouble(ToDoubleFunction<? super T> getter, DoubleFunction<? extends T> setter);
-
-  /**
-   * Return a view of this array consisting of the results of lazily (i.e. when accessing the value)
-   * applying the given function to the elements of this array.
-   *
-   * @param getter the function to apply to each element
-   * @return an array view
-   * @see #mapToDouble(java.util.function.ToDoubleFunction)
-   */
-  DoubleArray asDouble(ToDoubleFunction<? super T> getter);
-
-  /**
-   * Return a view of this array consisting of the results of lazily applying the {@code to}
-   * function to each element of this array when accessing the elements and the {@code from}
-   * function when setting the values.
-   *
-   * @param getter the function to apply to elements when getting
-   * @param setter the function to apply to the argument when setting
-   * @return an array view
-   * @see #mapToInt(java.util.function.ToIntFunction)
-   */
-  IntArray asInt(ToIntFunction<? super T> getter, IntFunction<? extends T> setter);
-
-  /**
-   * Return a view of this array consisting of the results of lazily (i.e. when accessing the value)
-   * applying the given function to the elements of this array.
-   *
-   * @param to the function to apply to each element
-   * @return an array view
-   * @see #mapToInt(java.util.function.ToIntFunction)
-   */
-  IntArray asInt(ToIntFunction<? super T> to);
-
-  /**
-   * Return a view of this array consisting of the results of lazily applying the {@code to}
-   * function to each element of this array when accessing the elements and the {@code from}
-   * function when setting the values.
-   *
-   * @param getter the function to apply to elements when getting
-   * @param setter the function to apply to the argument when setting
-   * @return an array view
-   * @see #mapToLong(java.util.function.ToLongFunction)
-   */
-  LongArray asLong(ToLongFunction<? super T> getter, LongFunction<? extends T> setter);
-
-  /**
-   * Return a view of this array consisting of the results of lazily (i.e. when accessing the value)
-   * applying the given function to the elements of this array.
-   *
-   * @param getter the function to apply to each element
-   * @return an array view
-   * @see #mapToLong(java.util.function.ToLongFunction)
-   */
-  LongArray asLong(ToLongFunction<? super T> getter);
-
-  /**
-   * Return a view of this array consisting of the results of lazily applying the {@code to}
-   * function to each element of this array when accessing the elements and the {@code from}
-   * function when setting the values.
-   *
-   * @param getter the function to apply to elements when getting
-   * @param setter the function to apply to the argument when setting
-   * @return an array view
-   */
-  BooleanArray asBoolean(Function<? super T, Boolean> getter,
-      Function<Boolean, ? extends T> setter);
-
-  /**
-   * Return a view of this array consisting of the results of lazily (i.e. when accessing the value)
-   * applying the given function to the elements of this array.
-   *
-   * @param getter the function to apply to each element
-   * @return an array view
-   */
-  BooleanArray asBoolean(Function<? super T, Boolean> getter);
-
-  /**
-   * Return a view of this array consisting of the results of lazily applying the {@code to}
-   * function to each element of this array when accessing the elements and the {@code from}
-   * function when setting the values.
-   *
-   * @param getter the function to apply to elements when getting
-   * @param setter the function to apply to the argument when setting
-   * @return an array view
-   * @see #mapToComplex(java.util.function.Function)
-   */
-  ComplexArray asComplex(Function<? super T, Complex> getter,
-      Function<Complex, ? extends T> setter);
-
-  /**
-   * Return a view of this array consisting of the results of lazily (i.e. when accessing the value)
-   * applying the given function to the elements of this array.
-   *
-   * @param getter the function to apply to each element
-   * @return an array view
-   * @see #mapToComplex(java.util.function.Function)
-   */
-  ComplexArray asComplex(Function<? super T, Complex> getter);
 
   /**
    * Return an array consisting of the elements of this stream that matches the given predicate. The
@@ -410,7 +302,7 @@ public interface Array<T> extends BaseArray<Array<T>>, Iterable<T> {
    * Example
    * 
    * <pre>
-   * Array&lt;Integer&gt; a = Arrays.range(3 * 3).reshape(3, 3).boxed();
+   * Array&lt;Integer&gt; a = Arrays.range(3 * 3).reshape(3, 3).asArray();
    * Array&lt;Integer&gt; b = Arrays.newArray(3, 3);
    * b.set(a.where(i -&gt; i &gt; 2), 10);
    * </pre>
@@ -435,7 +327,7 @@ public interface Array<T> extends BaseArray<Array<T>>, Iterable<T> {
    * Example
    * 
    * <pre>
-   * Array&lt;Integer&gt; a = Arrays.range(3 * 3).reshape(3, 3).boxed();
+   * Array&lt;Integer&gt; a = Arrays.range(3 * 3).reshape(3, 3).asArray();
    * a.get(a.where(i -&gt; i &gt; 2));
    * </pre>
    *
@@ -458,12 +350,10 @@ public interface Array<T> extends BaseArray<Array<T>>, Iterable<T> {
    */
   Stream<T> stream();
 
-  /**
-   * Return this array as a {@code List} view
-   *
-   * @return a new list
-   */
-  List<T> toList();
+  @Override
+  default Array<T> asArray() {
+    return this;
+  }
 
   /**
    * Return the contents of this array as a Java-array. If the array is a view, the returned data

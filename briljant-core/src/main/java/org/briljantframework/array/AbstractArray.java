@@ -37,7 +37,7 @@ import org.briljantframework.data.index.ObjectComparator;
  *
  * @author Isak Karlsson
  */
-public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> implements Array<T> {
+public abstract class AbstractArray<T> extends AbstractBaseArray<T, Array<T>> implements Array<T> {
 
   private final Comparator<T> comparator = ObjectComparator.getInstance();
 
@@ -75,42 +75,61 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
     set(toIndex, from.get(fromIndex));
   }
 
-  /**
-   * @return a view of {@code this} array as a {@linkplain org.briljantframework.array.DoubleArray}
-   * @throws java.lang.ClassCastException if {@code T} is not {@linkplain Double}
-   */
   @Override
-  @SuppressWarnings("unchecked")
   public DoubleArray asDouble() {
-    return asDouble(v -> (Double) v, v -> (T) Double.valueOf(v));
+    return mapToDouble(v -> {
+      if (v instanceof Number) {
+        return ((Number) v).doubleValue();
+      } else {
+        throw new ClassCastException("Can't convert to double");
+      }
+    });
   }
 
-  /**
-   * @return a view
-   * @throws java.lang.ClassCastException if {@code T} is not {@linkplain Double}
-   */
   @Override
-  @SuppressWarnings("unchecked")
   public IntArray asInt() {
-    return asInt(v -> (Integer) v, v -> (T) Integer.valueOf(v));
+    return mapToInt(v -> {
+      if (v instanceof Number) {
+        return ((Number) v).intValue();
+      } else {
+        throw new ClassCastException("Can't convert to int");
+      }
+    });
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public LongArray asLong() {
-    return asLong(v -> (Long) v, v -> (T) Long.valueOf(v));
+    return mapToLong(v -> {
+      if (v instanceof Number) {
+        return ((Number) v).longValue();
+      } else {
+        throw new ClassCastException("Can't convert to long");
+      }
+    });
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public BooleanArray asBoolean() {
-    return asBoolean(v -> (Boolean) v, v -> (T) v);
+    return mapToBoolean(v -> {
+      if (v instanceof Number) {
+        return ((Number) v).intValue() == 1;
+      } else if (v instanceof Boolean) {
+        return (Boolean) v;
+      } else {
+        throw new ClassCastException("Can't convert to boolean");
+      }
+    });
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public ComplexArray asComplex() {
-    return asComplex(v -> (Complex) v, v -> (T) v);
+    return mapToComplex(v -> {
+      if (v instanceof Number) {
+        return Complex.valueOf(((Number) v).doubleValue());
+      } else {
+        throw new ClassCastException("Can't convert to complex");
+      }
+    });
   }
 
   @Override
@@ -227,6 +246,14 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
     return array;
   }
 
+  public BooleanArray mapToBoolean(Function<? super T, Boolean> f) {
+    BooleanArray array = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      array.set(i, f.apply(get(i)));
+    }
+    return array;
+  }
+
   @Override
   public <U> Array<U> map(Function<? super T, ? extends U> f) {
     Array<U> array = getArrayBackend().getArrayFactory().newArray(getShape());
@@ -243,8 +270,8 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
     }
   }
 
-  @Override
-  public DoubleArray asDouble(ToDoubleFunction<? super T> getter, DoubleFunction<? extends T> setter) {
+  public DoubleArray asDouble(ToDoubleFunction<? super T> getter,
+      DoubleFunction<? extends T> setter) {
     return new AsDoubleArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
@@ -264,14 +291,6 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
     };
   }
 
-  @Override
-  public DoubleArray asDouble(ToDoubleFunction<? super T> getter) {
-    return asDouble(getter, v -> {
-      throw new UnsupportedOperationException();
-    });
-  }
-
-  @Override
   public IntArray asInt(ToIntFunction<? super T> getter, IntFunction<? extends T> setter) {
     return new AsIntArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
@@ -292,14 +311,6 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
     };
   }
 
-  @Override
-  public IntArray asInt(ToIntFunction<? super T> to) {
-    return asInt(to, v -> {
-      throw new UnsupportedOperationException();
-    });
-  }
-
-  @Override
   public LongArray asLong(ToLongFunction<? super T> getter, LongFunction<? extends T> setter) {
     return new AsLongArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
@@ -320,15 +331,8 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
     };
   }
 
-  @Override
-  public LongArray asLong(ToLongFunction<? super T> getter) {
-    return asLong(getter, v -> {
-      throw new UnsupportedOperationException();
-    });
-  }
-
-  @Override
-  public BooleanArray asBoolean(Function<? super T, Boolean> getter, Function<Boolean, ? extends T> setter) {
+  public BooleanArray asBoolean(Function<? super T, Boolean> getter,
+      Function<Boolean, ? extends T> setter) {
     return new AsBooleanArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
@@ -348,15 +352,8 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
     };
   }
 
-  @Override
-  public BooleanArray asBoolean(Function<? super T, Boolean> getter) {
-    return asBoolean(getter, v -> {
-      throw new UnsupportedOperationException();
-    });
-  }
-
-  @Override
-  public ComplexArray asComplex(Function<? super T, Complex> getter, Function<Complex, ? extends T> setter) {
+  public ComplexArray asComplex(Function<? super T, Complex> getter,
+      Function<Complex, ? extends T> setter) {
     return new AsComplexArray(getArrayBackend(), getOffset(), getShape(), getStride(),
         getMajorStrideIndex()) {
       @Override
@@ -374,13 +371,6 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
         return AbstractArray.this.elementSize();
       }
     };
-  }
-
-  @Override
-  public ComplexArray asComplex(Function<? super T, Complex> getter) {
-    return asComplex(getter, v -> {
-      throw new UnsupportedOperationException();
-    });
   }
 
   @Override

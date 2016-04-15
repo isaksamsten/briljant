@@ -44,7 +44,7 @@ import org.briljantframework.array.api.ArrayFactory;
  * @see AbstractDoubleArray
  * @see AbstractComplexArray
  */
-public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseArray<E> {
+public abstract class AbstractBaseArray<T, E extends BaseArray<T, E>> implements BaseArray<T, E> {
 
   protected static final String INVALID_DIMENSION = "Dimension out of bounds (%s < %s)";
   protected static final String INVALID_VECTOR = "Vector index out of bounds (%s < %s)";

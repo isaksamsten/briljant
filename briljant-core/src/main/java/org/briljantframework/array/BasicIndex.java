@@ -317,7 +317,7 @@ public final class BasicIndex implements Range {
   }
 
   @Override
-  public Array<Integer> boxed() {
+  public Array<Integer> asArray() {
     throw unsupported();
   }
 

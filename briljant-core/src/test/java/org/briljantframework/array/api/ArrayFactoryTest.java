@@ -60,14 +60,14 @@ public abstract class ArrayFactoryTest {
 
   @Test
   public void testArrayGet_BooleanArray() throws Exception {
-    Array<Integer> a = getFactory().range(3 * 3).reshape(3, 3).boxed();
+    Array<Integer> a = getFactory().range(3 * 3).reshape(3, 3).asArray();
     Array<Integer> x = a.get(a.where(i -> i > 2));
     assertEquals(getFactory().newVector(new Integer[]{3, 4, 5, 6, 7, 8}), x);
   }
 
   @Test
   public void testArraySet_BooleanArray() throws Exception {
-    Array<Integer> a = getFactory().range(3 * 3).reshape(3, 3).boxed();
+    Array<Integer> a = getFactory().range(3 * 3).reshape(3, 3).asArray();
     Array<Integer> b = getFactory().newArray(3, 3);
     b.set(a.where(i -> i > 2), 10);
     assertEquals(getFactory().newVector(new Integer[]{null, null, null, 10, 10, 10, 10, 10, 10}).reshape(3, 3), b);

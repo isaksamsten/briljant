@@ -38,7 +38,8 @@ import org.briljantframework.function.DoubleBiPredicate;
  *
  * @author Isak Karlsson
  */
-public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, DoubleSequence {
+public interface DoubleArray
+    extends BaseArray<Double, DoubleArray>, Iterable<Double>, DoubleSequence {
 
   static DoubleArray ones(int... shape) {
     return Arrays.ones(shape);
@@ -417,13 +418,6 @@ public interface DoubleArray extends BaseArray<DoubleArray>, Iterable<Double>, D
    * @return a list
    */
   List<Double> toList();
-
-  /**
-   * Provides a lazy view of this {@code double} array as it's boxed counterpart.
-   *
-   * @return a boxed view
-   */
-  Array<Double> boxed();
 
   DoubleArray times(DoubleArray other);
 

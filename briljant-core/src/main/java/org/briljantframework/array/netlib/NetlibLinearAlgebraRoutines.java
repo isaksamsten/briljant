@@ -231,11 +231,12 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     }
   }
 
-  private boolean isView(BaseArray<?> array) {
-    return !array.isContiguous() || array.getOffset() > 0 || array.stride(0) != 1;
+  private boolean isView(BaseArray<?, ?> array) {
+    return array.isView()
+        || (!array.isContiguous() || array.getOffset() > 0 || array.stride(0) != 1);
   }
 
-  private <S extends BaseArray<S>> S copyIfView(S array) {
+  private <T, S extends BaseArray<T, S>> S copyIfView(S array) {
     return isView(array) ? array.copy() : array;
   }
 
@@ -353,14 +354,15 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   @Override
   public int getrf(DoubleArray a, IntArray ipiv) {
     Check.argument(ipiv.isVector(), "ipiv must be a vector");
+    Check.argument(a.isMatrix(), "a must be a 2d-array");
     Check.dimension(Math.min(a.rows(), a.columns()), ipiv.size());
-    double[] aa = getData(a);
-    int[] ia = getData(ipiv);
+    DoubleArray aCopy = copyIfView(a);
+    IntArray ipivCopy = copyIfView(ipiv);
     intW info = new intW(0);
-    lapack.dgetrf(a.rows(), a.columns(), aa, a.rows(), ia, info);
+    lapack.dgetrf(a.rows(), a.columns(), aCopy.data(), a.rows(), ipivCopy.data(), info);
     ensureValidParameterInfo(info);
-    assignIfNeeded(a, aa);
-    assignIfNeeded(ipiv, ia);
+    copyToIfNeeded(a, aCopy);
+    copyToIfNeeded(ipiv, ipivCopy);
     return info.val;
   }
 
@@ -373,15 +375,18 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     int lda = Math.max(1, a.size(0));
     int lwork = -1;
     double[] work = new double[1];
-    double[] aa = getData(a);
-    int[] ia = getData(ipiv);
+    DoubleArray aCopy = copyIfView(a);
+    IntArray ipivCopy = copyIfView(ipiv);
+
     intW info = new intW(0);
-    lapack.dgetri(n, aa, lda, ia, work, lwork, info);
+    lapack.dgetri(n, aCopy.data(), lda, ipivCopy.data(), work, lwork, info);
     ensureInfo(info);
     lwork = (int) work[0];
     work = new double[lwork];
-    lapack.dgetri(n, aa, lda, ia, work, lwork, info);
-    assignIfNeeded(a, aa);
+    lapack.dgetri(n, aCopy.data(), lda, ipivCopy.data(), work, lwork, info);
+
+    copyToIfNeeded(ipiv, ipivCopy);
+    copyToIfNeeded(a, aCopy);
     return info.val;
   }
 
@@ -586,6 +591,12 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
   private void assignIfNeeded(IntArray a, int[] data) {
     if (a.isView() || a.getOffset() > 0 || a.stride(0) != 1) {
       a.assign(data);
+    }
+  }
+
+  private <T, S extends BaseArray<T, S>> void copyToIfNeeded(S to, S from) {
+    if (to != from) {
+      to.assign(from);
     }
   }
 

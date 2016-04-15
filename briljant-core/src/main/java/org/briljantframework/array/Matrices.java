@@ -161,7 +161,7 @@ public class Matrices {
    * @return a field matrix view
    */
   public static FieldMatrix<Complex> asFieldMatrix(ComplexArray array) {
-    return asFieldMatrix(array.boxed());
+    return asFieldMatrix(array.asArray());
   }
 
   /**
@@ -321,11 +321,11 @@ public class Matrices {
    * @param <T> the type of array
    * @return a new array
    */
-  public static <T extends BaseArray<T>> T repmat(T x, int n) {
+  public static <E, T extends BaseArray<E, T>> T repmat(T x, int n) {
     return repmat(x, n, n);
   }
 
-  public static <T extends BaseArray<T>> T repmat(T x, int r, int c) {
+  public static <E, T extends BaseArray<E, T>> T repmat(T x, int r, int c) {
     Check.argument(x.isMatrix(), REQUIRE_2D);
     final int m = x.rows();
     final int n = x.columns();

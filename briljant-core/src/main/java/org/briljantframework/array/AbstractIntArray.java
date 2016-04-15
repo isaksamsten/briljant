@@ -20,26 +20,9 @@
  */
 package org.briljantframework.array;
 
-import java.io.IOException;
-import java.util.AbstractList;
+import java.util.*;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.PrimitiveIterator;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.function.DoubleToIntFunction;
-import java.util.function.IntBinaryOperator;
-import java.util.function.IntConsumer;
-import java.util.function.IntFunction;
-import java.util.function.IntPredicate;
-import java.util.function.IntSupplier;
-import java.util.function.IntToDoubleFunction;
-import java.util.function.IntToLongFunction;
-import java.util.function.IntUnaryOperator;
-import java.util.function.LongToIntFunction;
-import java.util.function.ToIntFunction;
+import java.util.function.*;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
@@ -59,13 +42,14 @@ import org.briljantframework.util.sort.QuickSort;
  * 
  * @author Isak Karlsson
  */
-public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> implements IntArray {
+public abstract class AbstractIntArray extends AbstractBaseArray<Integer, IntArray> implements IntArray {
 
   protected AbstractIntArray(ArrayBackend bj, int[] shape) {
     super(bj, shape);
   }
 
-  protected AbstractIntArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride) {
+  protected AbstractIntArray(ArrayBackend bj, int offset, int[] shape, int[] stride,
+      int majorStride) {
     super(bj, offset, shape, stride, majorStride);
   }
 
@@ -391,7 +375,8 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
         builder.add(value);
       }
     }
-    return getArrayBackend().getArrayFactory().newIntVector(Arrays.copyOf(builder.elementData, builder.size()));
+    return getArrayBackend().getArrayFactory()
+        .newIntVector(Arrays.copyOf(builder.elementData, builder.size()));
   }
 
   @Override
@@ -514,7 +499,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
     return new IntListView();
   }
 
-  public Array<Integer> boxed() {
+  public Array<Integer> asArray() {
     return new AsArray<Integer>(this) {
       @Override
       public IntArray asInt() {
@@ -535,8 +520,6 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
       protected int elementSize() {
         return AbstractIntArray.this.elementSize();
       }
-
-
     };
   }
 

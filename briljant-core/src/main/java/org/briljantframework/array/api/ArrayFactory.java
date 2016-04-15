@@ -273,7 +273,7 @@ public interface ArrayFactory {
    * @return a 2d-array or a 1d-view
    * @throws java.lang.IllegalArgumentException if the array has more than 2 dimensions
    */
-  <T extends BaseArray<T>> T diag(T data);
+  <E,T extends BaseArray<E, T>> T diag(T data);
 
   /**
    * Return a row vector of evenly spaced values

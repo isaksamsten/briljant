@@ -193,7 +193,7 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
   }
 
   @Override
-  public <T extends BaseArray<T>> void copy(T from, T to) {
+  public <E, T extends BaseArray<E, T>> void copy(T from, T to) {
     if (from instanceof NetlibDoubleArray && to instanceof NetlibDoubleArray && !from.isView()
         && from.stride(0) == 1 && !to.isView() && to.stride(0) == 1) {
       System.arraycopy(((NetlibDoubleArray) from).data(), from.getOffset(),
@@ -207,7 +207,7 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
     return x instanceof NetlibDoubleArray && x.stride(0) == 1;
   }
 
-  private int getVectorMajorStride(BaseArray<?> array) {
+  private int getVectorMajorStride(BaseArray<?, ?> array) {
     switch (array.dims()) {
       case 1:
         return array.stride(0);

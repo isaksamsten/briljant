@@ -33,7 +33,7 @@ abstract class AsArray<T> extends AbstractArray<T> {
     super(backend, offset, shape, stride, majorStride);
   }
 
-  AsArray(AbstractBaseArray<?> array) {
+  AsArray(AbstractBaseArray<?, ?> array) {
     super(array.getArrayBackend(), array.getOffset(), array.getShape(), array.getStride(), array
         .getMajorStrideIndex());
   }

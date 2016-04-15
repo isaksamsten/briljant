@@ -31,7 +31,7 @@ public final class MultiDimensionMismatchException extends IllegalArgumentExcept
 
   private final int[] wrong, expected;
 
-  public MultiDimensionMismatchException(BaseArray<?> op1, BaseArray<?> op2) {
+  public MultiDimensionMismatchException(BaseArray<?, ?> op1, BaseArray<?, ?> op2) {
     this(op1.getShape(), op2.getShape());
   }
 

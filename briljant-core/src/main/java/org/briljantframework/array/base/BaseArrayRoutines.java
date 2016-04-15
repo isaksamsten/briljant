@@ -470,7 +470,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public <T extends BaseArray<T>> void copy(T from, T to) {
+  public <E, T extends BaseArray<E, T>> void copy(T from, T to) {
     Check.size(from, to);
     for (int i = 0; i < from.size(); i++) {
       to.set(i, from, i);
@@ -478,7 +478,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public <T extends BaseArray<T>> void swap(T a, T b) {
+  public <E, T extends BaseArray<E,T>> void swap(T a, T b) {
     Check.dimension(a, b);
     T tmp = a.newEmptyArray(1);
     for (int i = 0; i < a.size(); i++) {

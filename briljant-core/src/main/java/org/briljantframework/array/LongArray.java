@@ -21,16 +21,7 @@
 package org.briljantframework.array;
 
 import java.util.List;
-import java.util.function.DoubleToLongFunction;
-import java.util.function.IntToLongFunction;
-import java.util.function.LongBinaryOperator;
-import java.util.function.LongFunction;
-import java.util.function.LongPredicate;
-import java.util.function.LongSupplier;
-import java.util.function.LongToDoubleFunction;
-import java.util.function.LongToIntFunction;
-import java.util.function.LongUnaryOperator;
-import java.util.function.ToLongFunction;
+import java.util.function.*;
 import java.util.stream.LongStream;
 
 import net.mintern.primitive.comparators.LongComparator;
@@ -43,7 +34,7 @@ import org.briljantframework.function.LongBiPredicate;
  * 
  * @author Isak Karlsson
  */
-public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
+public interface LongArray extends BaseArray<Long, LongArray>, Iterable<Long> {
 
   static LongArray ones(int... shape) {
     LongArray array = zeros(shape);
@@ -196,10 +187,6 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
   void sort(LongComparator comparator);
 
   LongStream stream();
-
-  List<Long> toList();
-
-  Array<Long> boxed();
 
   // Arithmetical operations ///////////
 

@@ -20,6 +20,7 @@
  */
 package org.briljantframework.array.linalg.decomposition;
 
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 
 /**
@@ -46,9 +47,9 @@ public class SingularValueDecomposition {
   public final DoubleArray v;
 
   public SingularValueDecomposition(DoubleArray s, DoubleArray u, DoubleArray v) {
-    this.s = s;
-    this.u = u;
-    this.v = v;
+    this.s = Arrays.unmodifiableArray(s);
+    this.u = Arrays.unmodifiableArray(u);
+    this.v = Arrays.unmodifiableArray(v);
   }
 
   public DoubleArray getSingularValues() {

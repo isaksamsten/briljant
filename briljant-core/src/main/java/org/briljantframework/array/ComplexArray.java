@@ -32,7 +32,8 @@ import org.briljantframework.ComplexSequence;
  *
  * @author Isak Karlsson
  */
-public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>, ComplexSequence {
+public interface ComplexArray
+    extends BaseArray<Complex, ComplexArray>, Iterable<Complex>, ComplexSequence {
 
   static ComplexArray ones(int... shape) {
     ComplexArray array = zeros(shape);
@@ -277,7 +278,7 @@ public interface ComplexArray extends BaseArray<ComplexArray>, Iterable<Complex>
     return get(i);
   }
 
-  Array<Complex> boxed();
+  Array<Complex> asArray();
 
   Stream<Complex> stream();
 

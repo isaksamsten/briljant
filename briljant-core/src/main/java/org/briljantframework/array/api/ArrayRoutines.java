@@ -514,7 +514,7 @@ public interface ArrayRoutines {
    * @param to a matrix
    * @param <T> the matrix type
    */
-  <T extends BaseArray<T>> void copy(T from, T to);
+  <E, T extends BaseArray<E, T>> void copy(T from, T to);
 
   /**
    * Swap the data of {@code a} and {@code b}
@@ -524,7 +524,7 @@ public interface ArrayRoutines {
    * @param <T> the matrix type
    */
 
-  <T extends BaseArray<T>> void swap(T a, T b);
+  <E,T extends BaseArray<E,T>> void swap(T a, T b);
 
   /**
    * @see Math#sin(double)
