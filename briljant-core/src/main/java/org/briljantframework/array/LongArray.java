@@ -307,5 +307,15 @@ public interface LongArray extends BaseArray<Long, LongArray>, Iterable<Long> {
    */
   LongArray negate();
 
+  BooleanArray lt(LongArray other);
+
+  BooleanArray gt(LongArray other);
+
+  BooleanArray eq(LongArray other);
+
+  BooleanArray lte(LongArray other);
+
+  BooleanArray gte(LongArray other);
+
   long[] data();
 }

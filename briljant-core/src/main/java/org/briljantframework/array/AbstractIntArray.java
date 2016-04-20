@@ -42,7 +42,8 @@ import org.briljantframework.util.sort.QuickSort;
  * 
  * @author Isak Karlsson
  */
-public abstract class AbstractIntArray extends AbstractBaseArray<Integer, IntArray> implements IntArray {
+public abstract class AbstractIntArray extends AbstractBaseArray<Integer, IntArray>
+    implements IntArray {
 
   protected AbstractIntArray(ArrayBackend bj, int[] shape) {
     super(bj, shape);
@@ -543,10 +544,8 @@ public abstract class AbstractIntArray extends AbstractBaseArray<Integer, IntArr
     other = ShapeUtils.broadcastIfSensible(this, other);
     Check.size(this, other);
     IntArray m = newEmptyArray(getShape());
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        m.set(i, j, alpha * get(i, j) * other.get(i, j));
-      }
+    for (int i = 0; i < size(); i++) {
+      m.set(i, alpha * get(i) * other.get(i));
     }
     return m;
   }
@@ -554,10 +553,8 @@ public abstract class AbstractIntArray extends AbstractBaseArray<Integer, IntArr
   @Override
   public IntArray times(int scalar) {
     IntArray m = newEmptyArray(getShape());
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        m.set(i, j, get(i, j) * scalar);
-      }
+    for (int i = 0; i < size(); i++) {
+      m.set(i, get(i) * scalar);
     }
     return m;
   }
@@ -569,13 +566,11 @@ public abstract class AbstractIntArray extends AbstractBaseArray<Integer, IntArr
 
   @Override
   public IntArray plus(int scalar) {
-    IntArray matrix = newEmptyArray(getShape());
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        matrix.set(i, j, get(i, j) + scalar);
-      }
+    IntArray m = newEmptyArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      m.set(i, get(i) * scalar);
     }
-    return matrix;
+    return m;
   }
 
   @Override
@@ -592,13 +587,11 @@ public abstract class AbstractIntArray extends AbstractBaseArray<Integer, IntArr
   public IntArray plus(int alpha, IntArray other) {
     other = ShapeUtils.broadcastIfSensible(this, other);
     Check.size(this, other);
-    IntArray matrix = newEmptyArray(getShape());
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        matrix.set(i, j, alpha * get(i, j) + other.get(i, j));
-      }
+    IntArray m = newEmptyArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      m.set(i, alpha * get(i) + other.get(i));
     }
-    return matrix;
+    return m;
   }
 
   @Override
@@ -615,13 +608,11 @@ public abstract class AbstractIntArray extends AbstractBaseArray<Integer, IntArr
   public IntArray minus(int alpha, IntArray other) {
     other = ShapeUtils.broadcastIfSensible(this, other);
     Check.size(this, other);
-    IntArray matrix = newEmptyArray(getShape());
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        matrix.set(i, j, alpha * get(i, j) - other.get(i, j));
-      }
+    IntArray out = newEmptyArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      out.set(i, alpha * get(i) - other.get(i));
     }
-    return matrix;
+    return out;
   }
 
   @Override
@@ -636,13 +627,11 @@ public abstract class AbstractIntArray extends AbstractBaseArray<Integer, IntArr
 
   @Override
   public IntArray reverseMinus(int scalar) {
-    IntArray matrix = newEmptyArray(getShape());
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        matrix.set(i, j, scalar - get(i, j));
-      }
+    IntArray out = newEmptyArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      out.set(i, scalar - get(i));
     }
-    return matrix;
+    return out;
   }
 
   @Override
@@ -654,13 +643,11 @@ public abstract class AbstractIntArray extends AbstractBaseArray<Integer, IntArr
   public IntArray div(IntArray other) {
     other = ShapeUtils.broadcastIfSensible(this, other);
     Check.size(this, other);
-    IntArray matrix = newEmptyArray(getShape());
-    for (int j = 0; j < columns(); j++) {
-      for (int i = 0; i < rows(); i++) {
-        matrix.set(i, j, get(i, j) / other.get(i, j));
-      }
+    IntArray out = newEmptyArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      out.set(i, get(i) / other.get(i));
     }
-    return matrix;
+    return out;
   }
 
   @Override
@@ -717,7 +704,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<Integer, IntArr
       result = 31 * result + bits;
     }
 
-    return Objects.hash(rows(), columns(), result);
+    return Objects.hash(getShape(), result);
   }
 
   @Override

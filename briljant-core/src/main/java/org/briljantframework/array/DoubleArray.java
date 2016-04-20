@@ -546,26 +546,36 @@ public interface DoubleArray
    * @return a boolean array
    */
   BooleanArray where(DoublePredicate predicate);
+//
+//  default BooleanArray gte(double v) {
+//    return where(x -> x >= v);
+//  }
+//
+//  default BooleanArray lt(double v) {
+//    return where(x -> x < v);
+//  }
+//
+//  default BooleanArray lte(double v) {
+//    return where(x -> x <= v);
+//  }
+//
+//  default BooleanArray eq(double v) {
+//    return where(x -> x == v);
+//  }
+//
+//  default BooleanArray neq(double v) {
+//    return where(x -> x != v);
+//  }
 
-  default BooleanArray gte(double v) {
-    return where(x -> x >= v);
-  }
+  BooleanArray lt(DoubleArray other);
 
-  default BooleanArray lt(double v) {
-    return where(x -> x < v);
-  }
+  BooleanArray gt(DoubleArray other);
 
-  default BooleanArray lte(double v) {
-    return where(x -> x <= v);
-  }
+  BooleanArray eq(DoubleArray other);
 
-  default BooleanArray eq(double v) {
-    return where(x -> x == v);
-  }
+  BooleanArray lte(DoubleArray other);
 
-  default BooleanArray neq(double v) {
-    return where(x -> x != v);
-  }
+  BooleanArray gte(DoubleArray other);
 
   @Override
   default double getAsDouble(int index) {

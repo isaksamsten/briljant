@@ -300,6 +300,7 @@ public abstract class AbstractBaseArray<T, E extends BaseArray<T, E>> implements
 
   @Override
   public E select(int dimension, int index) {
+    Check.argument(dims() > 1, "Can't select in 1-d array");
     Check.argument(dimension < dims() && dimension >= 0, "Can't select dimension.");
     Check.argument(index < size(dimension), "Index outside of shape.");
     return asView(getOffset() + index * stride(dimension), ArrayUtils.remove(shape, dimension),

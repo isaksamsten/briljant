@@ -22,18 +22,7 @@ package org.briljantframework.array;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.DoubleToIntFunction;
-import java.util.function.IntBinaryOperator;
-import java.util.function.IntConsumer;
-import java.util.function.IntFunction;
-import java.util.function.IntPredicate;
-import java.util.function.IntSupplier;
-import java.util.function.IntToDoubleFunction;
-import java.util.function.IntToLongFunction;
-import java.util.function.IntUnaryOperator;
-import java.util.function.LongToIntFunction;
-import java.util.function.ToIntFunction;
+import java.util.function.*;
 import java.util.stream.IntStream;
 
 import net.mintern.primitive.comparators.IntComparator;
@@ -81,7 +70,9 @@ import org.briljantframework.function.ToIntObjIntBiFunction;
  * 
  *        [[4, 9],
  *         [4, 9]]])
- * </pre>,
+ * </pre>
+ * 
+ * ,
  * 
  * <pre>
  *   array([[0, 0],
@@ -442,6 +433,31 @@ public final class BasicIndex implements Range {
   }
 
   @Override
+  public BooleanArray lt(IntArray other) {
+    throw unsupported();
+  }
+
+  @Override
+  public BooleanArray gt(IntArray other) {
+    throw unsupported();
+  }
+
+  @Override
+  public BooleanArray eq(IntArray other) {
+    throw unsupported();
+  }
+
+  @Override
+  public BooleanArray lte(IntArray other) {
+    throw unsupported();
+  }
+
+  @Override
+  public BooleanArray gte(IntArray other) {
+    throw unsupported();
+  }
+
+  @Override
   public int[] data() {
     throw unsupported();
   }
@@ -694,31 +710,6 @@ public final class BasicIndex implements Range {
   @Override
   public IntArray copy() {
     return this;
-  }
-
-  @Override
-  public BooleanArray lt(IntArray other) {
-    throw unsupported();
-  }
-
-  @Override
-  public BooleanArray gt(IntArray other) {
-    throw unsupported();
-  }
-
-  @Override
-  public BooleanArray eq(IntArray other) {
-    throw unsupported();
-  }
-
-  @Override
-  public BooleanArray lte(IntArray other) {
-    throw unsupported();
-  }
-
-  @Override
-  public BooleanArray gte(IntArray other) {
-    throw unsupported();
   }
 
   @Override

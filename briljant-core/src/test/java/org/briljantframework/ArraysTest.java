@@ -20,14 +20,16 @@
  */
 package org.briljantframework;
 
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.List;
+import java.util.*;
 
 import org.briljantframework.array.*;
+import org.briljantframework.array.Arrays;
 import org.junit.Test;
 
 /**
@@ -111,7 +113,7 @@ public class ArraysTest {
     System.out.println(Arrays.broadcast(a, 3, 3, 3));
     IntArray x = IntArray.of(0, 1, 2).reshape(1, 3);
     IntArray y = IntArray.of(0, 1, 2).reshape(3, 1);
-    System.out.println(Arrays.broadcastArrays(java.util.Arrays.asList(x, y)));
+    System.out.println(Arrays.broadcastArrays(asList(x, y)));
   }
 
   @Test
@@ -269,9 +271,9 @@ public class ArraysTest {
   public void testConcatenate() throws Exception {
     IntArray x = Arrays.range(2 * 2 * 3).reshape(2, 2, 3);
 
-    IntArray concat_0 = Arrays.concatenate(java.util.Arrays.asList(x, x, x), 0);
-    IntArray concat_1 = Arrays.concatenate(java.util.Arrays.asList(x, x, x), 1);
-    IntArray concat_2 = Arrays.concatenate(java.util.Arrays.asList(x, x, x), 2);
+    IntArray concat_0 = Arrays.concatenate(asList(x, x, x), 0);
+    IntArray concat_1 = Arrays.concatenate(asList(x, x, x), 1);
+    IntArray concat_2 = Arrays.concatenate(asList(x, x, x), 2);
 
     IntArray expected_0 = IntArray.of(0, 1, 0, 1, 0, 1, 2, 3, 2, 3, 2, 3, 4, 5, 4, 5, 4, 5, 6, 7, 6,
         7, 6, 7, 8, 9, 8, 9, 8, 9, 10, 11, 10, 11, 10, 11);
@@ -285,19 +287,24 @@ public class ArraysTest {
     assertEquals(expected_2.reshape(2, 2, 9), concat_2);
   }
 
+  @Test public void testConcat_1d() throws Exception {
+    IntArray x = Arrays.range(10);
+    IntArray y = Arrays.range(10);
+    System.out.println(Arrays.concatenate(asList(x, y), 0));
+  }
+
+  @Test public void testVstack_1d() throws Exception {
+    IntArray x = Arrays.range(10);
+    IntArray y = Arrays.range(10);
+    System.out.println(Arrays.vstack(asList(x, y)));
+    System.out.println(Arrays.hstack(asList(x, y)));
+  }
+
   @Test
   public void testSplit() throws Exception {
     IntArray x = Arrays.range(2 * 2 * 3).reshape(2, 2, 3);
     assertEquals(x, Arrays.concatenate(Arrays.split(x, 2, 0), 0));
     assertEquals(x, Arrays.concatenate(Arrays.split(x, 2, 1), 1));
     assertEquals(x, Arrays.concatenate(Arrays.split(x, 3, 2), 2));
-  }
-
-  @Test
-  public void testWhere() throws Exception {
-    DoubleArray c = DoubleArray.of(1, 0, 1, 2, 1);
-    ComplexArray x = ComplexArray.of(1, 1, 1, 1, 1);
-    ComplexArray y = ComplexArray.of(-1, 2, 3, -10, 3);
-    assertEquals(Arrays.where(c.gte(2), x, y), ComplexArray.of(-1, 2, 3, 1, 3));
   }
 }

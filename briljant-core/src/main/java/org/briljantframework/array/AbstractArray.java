@@ -141,30 +141,30 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<T, Array<T>> im
     return array;
   }
 
-  @Override
-  public BooleanArray lt(Array<T> other) {
-    return where(other, (a, b) -> comparator.compare(a, b) < 0);
-  }
-
-  @Override
-  public BooleanArray gt(Array<T> other) {
-    return where(other, (a, b) -> comparator.compare(a, b) > 0);
-  }
-
-  @Override
-  public BooleanArray eq(Array<T> other) {
-    return where(other, Object::equals);
-  }
-
-  @Override
-  public BooleanArray lte(Array<T> other) {
-    return where(other, (a, b) -> comparator.compare(a, b) <= 0);
-  }
-
-  @Override
-  public BooleanArray gte(Array<T> other) {
-    return where(other, (a, b) -> comparator.compare(a, b) >= 0);
-  }
+//  @Override
+//  public BooleanArray lt(Array<T> other) {
+//    return where(other, (a, b) -> comparator.compare(a, b) < 0);
+//  }
+//
+//  @Override
+//  public BooleanArray gt(Array<T> other) {
+//    return where(other, (a, b) -> comparator.compare(a, b) > 0);
+//  }
+//
+//  @Override
+//  public BooleanArray eq(Array<T> other) {
+//    return where(other, Object::equals);
+//  }
+//
+//  @Override
+//  public BooleanArray lte(Array<T> other) {
+//    return where(other, (a, b) -> comparator.compare(a, b) <= 0);
+//  }
+//
+//  @Override
+//  public BooleanArray gte(Array<T> other) {
+//    return where(other, (a, b) -> comparator.compare(a, b) >= 0);
+//  }
 
   @Override
   public boolean equals(Object obj) {

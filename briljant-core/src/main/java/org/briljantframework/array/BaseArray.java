@@ -1405,15 +1405,15 @@ public interface BaseArray<T, S extends BaseArray<T, S>> extends Swappable {
    * @return the copy
    */
   S copy();
-
-  BooleanArray lt(S other);
-
-  BooleanArray gt(S other);
-
-  BooleanArray eq(S other);
-
-  BooleanArray lte(S other);
-
-  BooleanArray gte(S other);
+//
+  //  BooleanArray lt(S other);
+  //
+  //  BooleanArray gt(S other);
+  //
+  //  BooleanArray eq(S other);
+  //
+  //  BooleanArray lte(S other);
+  //
+  //  BooleanArray gte(S other);
 
 }

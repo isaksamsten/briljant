@@ -184,35 +184,6 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<Boolean, Bo
   }
 
   @Override
-  public BooleanArray lt(BooleanArray other) {
-    return eq(other);
-  }
-
-  @Override
-  public BooleanArray gt(BooleanArray other) {
-    return eq(other);
-  }
-
-  @Override
-  public BooleanArray eq(BooleanArray other) {
-    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      bits.set(i, get(i) == other.get(i));
-    }
-    return bits;
-  }
-
-  @Override
-  public BooleanArray lte(BooleanArray other) {
-    return eq(other);
-  }
-
-  @Override
-  public BooleanArray gte(BooleanArray other) {
-    return eq(other);
-  }
-
-  @Override
   public void assign(boolean value) {
     for (int i = 0; i < size(); i++) {
       set(i, value);

@@ -351,5 +351,15 @@ public interface IntArray extends BaseArray<Integer, IntArray>, Iterable<Integer
    */
   IntArray negate();
 
+  BooleanArray lt(IntArray other);
+
+  BooleanArray gt(IntArray other);
+
+  BooleanArray eq(IntArray other);
+
+  BooleanArray lte(IntArray other);
+
+  BooleanArray gte(IntArray other);
+
   int[] data();
 }

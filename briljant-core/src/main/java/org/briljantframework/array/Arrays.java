@@ -1085,7 +1085,7 @@ public final class Arrays {
       @Override
       public T get(int index) {
         T v = arrayList.get(index);
-        return v.isVector() ? v.reshape(v.size(), 1) : v;
+        return v.isVector() ? v.reshape(1, v.size()) : v;
       }
 
       @Override
@@ -1122,9 +1122,17 @@ public final class Arrays {
 
     T empty = prototype.newEmptyArray(shape);
     int i = 0;
-    for (T array : arrays) {
-      for (int j = 0; j < array.size(dim); j++) {
-        empty.select(dim, i++).assign(array.select(dim, j));
+    if (empty.isVector()) {
+      for (T array : arrays) {
+        for (int j = 0; j < array.size(); j++) {
+          empty.set(i++, array, j);
+        }
+      }
+    } else {
+      for (T array : arrays) {
+        for (int j = 0; j < array.size(dim); j++) {
+          empty.select(dim, i++).assign(array.select(dim, j));
+        }
       }
     }
 
@@ -1170,14 +1178,14 @@ public final class Arrays {
       @Override
       public T get(int index) {
         T a = arrays.get(index);
-        return a.dims() == 1 ? a.reshape(1, a.size()) : a;
+        return a; //a.dims() == 1 ? a.reshape(1, a.size()) : a;
       }
 
       @Override
       public int size() {
         return arrays.size();
       }
-    }, 1);
+    }, 0);
   }
 
   /**
@@ -3077,31 +3085,6 @@ public final class Arrays {
     }
 
     @Override
-    public BooleanArray lt(Array<T> other) {
-      return array.lt(other);
-    }
-
-    @Override
-    public BooleanArray gt(Array<T> other) {
-      return array.gt(other);
-    }
-
-    @Override
-    public BooleanArray eq(Array<T> other) {
-      return array.eq(other);
-    }
-
-    @Override
-    public BooleanArray lte(Array<T> other) {
-      return array.lte(other);
-    }
-
-    @Override
-    public BooleanArray gte(Array<T> other) {
-      return array.gte(other);
-    }
-
-    @Override
     public void swap(int a, int b) {
       array.swap(a, b);
     }
@@ -3448,31 +3431,6 @@ public final class Arrays {
     @Override
     public BooleanArray where(DoublePredicate predicate) {
       return array.where(predicate);
-    }
-
-    @Override
-    public BooleanArray gte(double v) {
-      return array.gte(v);
-    }
-
-    @Override
-    public BooleanArray lt(double v) {
-      return array.lt(v);
-    }
-
-    @Override
-    public BooleanArray lte(double v) {
-      return array.lte(v);
-    }
-
-    @Override
-    public BooleanArray eq(double v) {
-      return array.eq(v);
-    }
-
-    @Override
-    public BooleanArray neq(double v) {
-      return array.neq(v);
     }
 
     @Override
@@ -5598,31 +5556,6 @@ public final class Arrays {
     }
 
     @Override
-    public BooleanArray lt(ComplexArray other) {
-      return array.lt(other);
-    }
-
-    @Override
-    public BooleanArray gt(ComplexArray other) {
-      return array.gt(other);
-    }
-
-    @Override
-    public BooleanArray eq(ComplexArray other) {
-      return array.eq(other);
-    }
-
-    @Override
-    public BooleanArray lte(ComplexArray other) {
-      return array.lte(other);
-    }
-
-    @Override
-    public BooleanArray gte(ComplexArray other) {
-      return array.gte(other);
-    }
-
-    @Override
     public void permute(int count) {
       throw new UnsupportedOperationException();
     }
@@ -5716,24 +5649,12 @@ public final class Arrays {
       return array.isView();
     }
 
-    public BooleanArray lte(BooleanArray other) {
-      return array.lte(other);
-    }
-
-    public BooleanArray eq(BooleanArray other) {
-      return array.eq(other);
-    }
-
     public BooleanArray getView(Range... indexers) {
       return unmodifiableArray(array.getView(indexers));
     }
 
     public int dims() {
       return array.dims();
-    }
-
-    public BooleanArray lt(BooleanArray other) {
-      return array.lt(other);
     }
 
     public BooleanArray orNot(BooleanArray other) {
@@ -5746,10 +5667,6 @@ public final class Arrays {
 
     public BooleanArray getVector(int dimension, int index) {
       return unmodifiableArray(array.getVector(dimension, index));
-    }
-
-    public BooleanArray gt(BooleanArray other) {
-      return array.gt(other);
     }
 
     public BooleanArray getRow(int i) {
@@ -6021,10 +5938,6 @@ public final class Arrays {
 
     public BooleanArray get(List<? extends IntArray> arrays) {
       return unmodifiableArray(array.get(arrays));
-    }
-
-    public BooleanArray gte(BooleanArray other) {
-      return array.gte(other);
     }
 
     public BooleanArray getColumn(int index) {

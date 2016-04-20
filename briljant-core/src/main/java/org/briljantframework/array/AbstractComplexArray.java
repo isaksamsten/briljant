@@ -704,31 +704,6 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<Complex, Co
   }
 
   @Override
-  public BooleanArray lt(ComplexArray other) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public BooleanArray gt(ComplexArray other) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public BooleanArray eq(ComplexArray other) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public BooleanArray lte(ComplexArray other) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public BooleanArray gte(ComplexArray other) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void swap(int a, int b) {
     Complex tmp = get(a);
     set(a, get(b));
