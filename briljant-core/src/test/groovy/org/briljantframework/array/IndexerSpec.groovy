@@ -27,7 +27,7 @@ package org.briljantframework.array
 import spock.lang.Specification
 
 /**
- * Created by isak on 15/06/15.
+ * Created by isak columnKeys 15/06/15.
  */
 class IndexerSpec extends Specification {
 

@@ -34,7 +34,9 @@ public class SqlParserTest {
     String query =
         "SELECT ab.Title, a.Name FROM Album AS ab, Artist AS a WHERE ab.ArtistId = a.ArtistId";
     SqlParser parser = new SqlParser(url, query);
-    parser.getSettings().remap("Title", "MyTitle").remap("Name", "Artist");
+    SqlParser.Settings settings = parser.getSettings();
+    settings.remap("Title", "MyTitle");
+    settings.remap("Name", "Artist");
 
     DataFrame df = parser.parse();
     System.out.println(df.get("Artist").valueCounts().sort(SortOrder.DESC));
@@ -42,7 +44,7 @@ public class SqlParserTest {
     // System.out.println(sort.loc().getRecord(i));
     // }
 
-    assertEquals(2, df.columns());
+    assertEquals(2, df.size(1));
 
   }
 }

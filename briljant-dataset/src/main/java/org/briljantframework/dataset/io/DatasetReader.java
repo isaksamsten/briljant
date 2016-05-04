@@ -30,7 +30,7 @@ import java.util.List;
 
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.reader.EntryReader;
-import org.briljantframework.data.vector.Type;
+import org.briljantframework.data.series.Type;
 
 /**
  * The {@code DataFrameInputStream} is supposed to read a {@code DataFrame} from an input source.
@@ -71,7 +71,7 @@ import org.briljantframework.data.vector.Type;
  * </pre>
  *
  * {@link #readColumnIndex()} should return {@code ["a", "b", "c"]} and {@link #readColumnTypes()}
- * should return {@code [DoubleVector.TYPE, StringVector.TYPE, IntVector.TYPE]}.
+ * should return {@code [DoubleSeries.TYPE, StringVector.TYPE, IntSeries.TYPE]}.
  *
  * Then, subsequent calls to {@link #next()} should return a
  * {@link org.briljantframework.data.reader.DataEntry} with {@code [3.2, "hello", 1]},

@@ -269,12 +269,7 @@ public class BaseArrayFactory implements ArrayFactory {
   }
 
   @Override
-  public DoubleArray zeros(int... shape) {
-    return newDoubleArray(shape);
-  }
-
-  @Override
-  public <E, T extends BaseArray<E, T>> T diag(T data) {
+  public <E, T extends BaseArray<T>> T diag(T data) {
     if (data.isVector()) {
       int n = data.size();
       T arr = data.newEmptyArray(n, n);

@@ -27,15 +27,19 @@ import org.briljantframework.array.api.ArrayBackend;
  * 
  * @author Isak Karlsson
  */
-abstract class AsLongArray extends AbstractLongArray {
+public abstract class AsLongArray extends AbstractLongArray {
 
-  AsLongArray(ArrayBackend backend, int offset, int[] shape, int[] stride, int majorStride) {
-    super(backend, offset, shape, stride, majorStride);
+  public AsLongArray(AbstractBaseArray<?> array) {
+    super(array.getArrayBackend(), array.getOffset(), array.getShape(), array.getStride());
+  }
+
+  AsLongArray(ArrayBackend backend, int offset, int[] shape, int[] stride) {
+    super(backend, offset, shape, stride);
   }
 
   @Override
   public LongArray asView(int offset, int[] shape, int[] stride) {
-    return new AsLongArray(getArrayBackend(), offset, shape, stride, majorStride) {
+    return new AsLongArray(getArrayBackend(), offset, shape, stride) {
       @Override
       protected void setElement(int i, long value) {
         AsLongArray.this.setElement(i, value);

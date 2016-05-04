@@ -231,12 +231,12 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     }
   }
 
-  private boolean isView(BaseArray<?, ?> array) {
+  private boolean isView(BaseArray<?> array) {
     return array.isView()
         || (!array.isContiguous() || array.getOffset() > 0 || array.stride(0) != 1);
   }
 
-  private <T, S extends BaseArray<T, S>> S copyIfView(S array) {
+  private <S extends BaseArray<S>> S copyIfView(S array) {
     return isView(array) ? array.copy() : array;
   }
 
@@ -353,7 +353,7 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
   @Override
   public int getrf(DoubleArray a, IntArray ipiv) {
-    Check.argument(ipiv.isVector(), "ipiv must be a vector");
+    Check.argument(ipiv.isVector(), "ipiv must be a series");
     Check.argument(a.isMatrix(), "a must be a 2d-array");
     Check.dimension(Math.min(a.rows(), a.columns()), ipiv.size());
     DoubleArray aCopy = copyIfView(a);
@@ -368,7 +368,7 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
   @Override
   public int getri(DoubleArray a, IntArray ipiv) {
-    Check.argument(ipiv.isVector(), "ipiv must be a vector");
+    Check.argument(ipiv.isVector(), "ipiv must be a series");
     int n = a.size(1);
     Check.dimension(ipiv.size(), n);
 
@@ -594,7 +594,7 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     }
   }
 
-  private <T, S extends BaseArray<T, S>> void copyToIfNeeded(S to, S from) {
+  private <S extends BaseArray<S>> void copyToIfNeeded(S to, S from) {
     if (to != from) {
       to.assign(from);
     }

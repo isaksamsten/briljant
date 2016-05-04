@@ -99,23 +99,28 @@ public final class Arrays {
   public static final LinearAlgebraRoutines linalg;
 
   private static final RealDistribution uniformDistribution = new UniformRealDistribution(-1, 1);
+  private static final ArrayBackend ARRAY_BACKEND;
   private static final ArrayFactory ARRAY_FACTORY;
   private static final ArrayRoutines ARRAY_ROUTINES;
 
   // TODO(isak): allow for swapping array backends
   static {
-    ArrayBackend backend =
+    ARRAY_BACKEND =
         StreamSupport.stream(ServiceLoader.load(ArrayBackend.class).spliterator(), false)
             .filter(ArrayBackend::isAvailable)
             .sorted((a, b) -> Integer.compare(b.getPriority(), a.getPriority())).findFirst()
             .orElse(new NetlibArrayBackend());
 
-    ARRAY_FACTORY = backend.getArrayFactory();
-    ARRAY_ROUTINES = backend.getArrayRoutines();
-    linalg = backend.getLinearAlgebraRoutines();
+    ARRAY_FACTORY = ARRAY_BACKEND.getArrayFactory();
+    ARRAY_ROUTINES = ARRAY_BACKEND.getArrayRoutines();
+    linalg = ARRAY_BACKEND.getLinearAlgebraRoutines();
   }
 
   private Arrays() {}
+
+  public static ArrayBackend getArrayBackend() {
+    return ARRAY_BACKEND;
+  }
 
   /**
    * Reads a matrix from an IDX file.
@@ -173,7 +178,7 @@ public final class Arrays {
     return DoubleArray.of(data).reshape(shape);
   }
 
-  public static void writeIdx(BaseArray<?, ?> array, OutputStream outputStream) {
+  public static void writeIdx(BaseArray<?> array, OutputStream outputStream) {
     DataOutputStream dis = new DataOutputStream(new BufferedOutputStream(outputStream));
     int dims = array.dims();
     int size;
@@ -269,11 +274,8 @@ public final class Arrays {
     return ARRAY_FACTORY.ones(shape);
   }
 
-  /**
-   * @see org.briljantframework.array.api.ArrayFactory#zeros(int...)
-   */
   public static DoubleArray zeros(int... shape) {
-    return ARRAY_FACTORY.zeros(shape);
+    return ARRAY_FACTORY.newDoubleArray(shape);
   }
 
   /**
@@ -481,7 +483,7 @@ public final class Arrays {
   /**
    * @see org.briljantframework.array.api.ArrayFactory#diag(org.briljantframework.array.BaseArray)
    */
-  public static <T, S extends BaseArray<T, S>> S diag(S data) {
+  public static <T, S extends BaseArray<S>> S diag(S data) {
     return ARRAY_FACTORY.diag(data);
   }
 
@@ -531,7 +533,7 @@ public final class Arrays {
   }
 
   public static int sum(BooleanArray x) {
-    return sum(x.asInt());
+    return sum(x.asIntArray());
   }
 
   /**
@@ -542,7 +544,7 @@ public final class Arrays {
   }
 
   public static IntArray sum(int dim, BooleanArray x) {
-    return sum(dim, x.asInt());
+    return sum(dim, x.asIntArray());
   }
 
   /**
@@ -738,6 +740,10 @@ public final class Arrays {
    */
   public static double norm2(DoubleArray a) {
     return ARRAY_ROUTINES.norm2(a);
+  }
+
+  public static DoubleArray norm2(int dim, DoubleArray a) {
+    return ARRAY_ROUTINES.norm2(dim, a);
   }
 
   /**
@@ -963,7 +969,7 @@ public final class Arrays {
    *         {@code [first.size(), rest[0].size(), ..., rest[rest.length - 1].size()]}
    */
   @SafeVarargs
-  public static <E, S extends BaseArray<E, S>> List<S> meshgrid(S first, S... rest) {
+  public static <E, S extends BaseArray<S>> List<S> meshgrid(S first, S... rest) {
     List<S> arrays = new ArrayList<>();
     arrays.add(first);
     Collections.addAll(arrays, rest);
@@ -1001,8 +1007,8 @@ public final class Arrays {
    * @return a list of array parts
    * @see #split(BaseArray, int)
    */
-  public static <E, T extends BaseArray<E, T>> List<T> vsplit(T array, int parts) {
-    if (array.isVector()) {
+  public static <E, T extends BaseArray<T>> List<T> vsplit(T array, int parts) {
+    if (array.dims() == 1) {
       array = array.reshape(array.size(), 1);
     }
     return split(array, parts, 0);
@@ -1019,7 +1025,7 @@ public final class Arrays {
    *         are recomputed. If accessing sub-arrays multiple times, consider creating a new
    *         pre-computed list (e.g., {@code new ArrayList<>(Arrays.split(x, 2, 0)}).
    */
-  public static <E, T extends BaseArray<E, T>> List<T> split(T array, int parts, int dim) {
+  public static <E, T extends BaseArray<T>> List<T> split(T array, int parts, int dim) {
     Check.argument(array.size(dim) % parts == 0);
     return new SplitArrayList<>(array, dim, parts);
   }
@@ -1033,7 +1039,7 @@ public final class Arrays {
    * @return a list of sub-arrays
    * @see #split(BaseArray, int, int)
    */
-  public static <T, S extends BaseArray<T, S>> List<S> split(S array, int parts) {
+  public static <S extends BaseArray<S>> List<S> split(S array, int parts) {
     return split(array, parts, 0);
   }
 
@@ -1050,49 +1056,22 @@ public final class Arrays {
    * @return a list of array parts
    * @see #split(BaseArray, int, int)
    */
-  public static <E, T extends BaseArray<E, T>> List<T> hsplit(T array, int parts) {
-    if (array.isVector()) {
+  public static <T extends BaseArray<T>> List<T> hsplit(T array, int parts) {
+    if (array.dims() == 1) {
       array = array.reshape(1, array.size());
     }
     return split(array, parts, 1);
   }
 
   /**
-   * Stack arrays in sequence vertially (row wise).
+   * Join a sequence of arrays along an existing dimension (dim = 1).
    *
    * @param arrays the arrays
    * @param <T> the type of array
    * @return a new array
-   * @see #vstack(List)
    */
-  @SafeVarargs
-  public static <E, T extends BaseArray<E, T>> T vstack(T... arrays) {
-    return vstack(java.util.Arrays.asList(arrays));
-  }
-
-  /**
-   * Stack arrays in sequence vertically (row wise). Take a sequence of arrays and stack them
-   * vertically to make a single array. Rebuild arrays divided by {@link #vsplit(BaseArray, int)}.
-   *
-   * @param arrays a list of arrays
-   * @param <T> the type of arrays
-   * @return a new array
-   * @see #concatenate(List, int)
-   */
-  public static <E, T extends BaseArray<E, T>> T vstack(List<T> arrays) {
-    List<T> arrayList = arrays instanceof SplitArrayList ? new ArrayList<>(arrays) : arrays;
-    return concatenate(new AbstractList<T>() {
-      @Override
-      public T get(int index) {
-        T v = arrayList.get(index);
-        return v.isVector() ? v.reshape(1, v.size()) : v;
-      }
-
-      @Override
-      public int size() {
-        return arrayList.size();
-      }
-    }, 0);
+  public static <T extends BaseArray<T>> T concatenate(List<T> arrays) {
+    return concatenate(arrays, 0);
   }
 
   /**
@@ -1103,7 +1082,7 @@ public final class Arrays {
    * @param <T> the type of array
    * @return a new array
    */
-  public static <E, T extends BaseArray<E, T>> T concatenate(List<T> arrays, int dim) {
+  public static <T extends BaseArray<T>> T concatenate(List<T> arrays, int dim) {
     T prototype = arrays.get(0);
     int[] shape = prototype.getShape();
     shape[dim] = 0;
@@ -1111,10 +1090,12 @@ public final class Arrays {
     // tries to resolve the case for lazily splitted arrays
     arrays = arrays instanceof SplitArrayList ? new ArrayList<>(arrays) : arrays;
     for (T array : arrays) {
-      Check.argument(prototype.dims() == array.dims(), "illegal dimension");
+      Check.argument(prototype.dims() == array.dims(),
+          "all arrays must have the same number of dimensions");
       for (int i = 0; i < prototype.dims(); i++) {
         if (i != dim) {
-          Check.argument(array.size(i) == prototype.size(i), "illegal shape");
+          Check.argument(array.size(i) == prototype.size(i),
+              "all input array dimensions expect for the concatenation dim must match");
         }
       }
       shape[dim] += array.size(dim);
@@ -1122,7 +1103,7 @@ public final class Arrays {
 
     T empty = prototype.newEmptyArray(shape);
     int i = 0;
-    if (empty.isVector()) {
+    if (empty.dims() == 1) {
       for (T array : arrays) {
         for (int j = 0; j < array.size(); j++) {
           empty.set(i++, array, j);
@@ -1140,14 +1121,41 @@ public final class Arrays {
   }
 
   /**
-   * Join a sequence of arrays along an existing dimension (dim = 1).
+   * Stack arrays in sequence vertially (row wise).
    *
    * @param arrays the arrays
    * @param <T> the type of array
    * @return a new array
+   * @see #vstack(List)
    */
-  public static <E, T extends BaseArray<E, T>> T concatenate(List<T> arrays) {
-    return concatenate(arrays, 0);
+  @SafeVarargs
+  public static <T extends BaseArray<T>> T vstack(T... arrays) {
+    return vstack(java.util.Arrays.asList(arrays));
+  }
+
+  /**
+   * Stack arrays in sequence vertically (row wise). Take a sequence of arrays and stack them
+   * vertically to make a single array. Rebuild arrays divided by {@link #vsplit(BaseArray, int)}.
+   *
+   * @param arrays a list of arrays
+   * @param <T> the type of arrays
+   * @return a new array
+   * @see #concatenate(List, int)
+   */
+  public static <T extends BaseArray<T>> T vstack(List<T> arrays) {
+    List<T> arrayList = arrays instanceof SplitArrayList ? new ArrayList<>(arrays) : arrays;
+    return concatenate(new AbstractList<T>() {
+      @Override
+      public T get(int index) {
+        T v = arrayList.get(index);
+        return v.dims() == 1 ? v.reshape(1, v.size()) : v;
+      }
+
+      @Override
+      public int size() {
+        return arrayList.size();
+      }
+    }, 0);
   }
 
   /**
@@ -1159,7 +1167,7 @@ public final class Arrays {
    * @see #hstack(List)
    */
   @SafeVarargs
-  public static <E, T extends BaseArray<E, T>> T hstack(T... arrays) {
+  public static <T extends BaseArray<T>> T hstack(T... arrays) {
     return hstack(java.util.Arrays.asList(arrays));
   }
 
@@ -1172,27 +1180,27 @@ public final class Arrays {
    * @return a new array
    * @see #concatenate(List, int)
    */
-  public static <E, T extends BaseArray<E, T>> T hstack(List<T> arrays) {
+  public static <T extends BaseArray<T>> T hstack(List<T> arrays) {
     List<T> arrayList = arrays instanceof SplitArrayList ? new ArrayList<>(arrays) : arrays;
     return concatenate(new AbstractList<T>() {
       @Override
       public T get(int index) {
-        T a = arrays.get(index);
-        return a; //a.dims() == 1 ? a.reshape(1, a.size()) : a;
+        T v = arrayList.get(index);
+        return v.dims() == 1 ? v.reshape(1, v.size()) : v;
       }
 
       @Override
       public int size() {
-        return arrays.size();
+        return arrayList.size();
       }
-    }, 0);
+    }, 1);
   }
 
   /**
    * @see org.briljantframework.array.api.ArrayRoutines#copy(org.briljantframework.array.BaseArray,
    *      org.briljantframework.array.BaseArray)
    */
-  public static <E, T extends BaseArray<E, T>> void copy(T from, T to) {
+  public static <T extends BaseArray<T>> void copy(T from, T to) {
     ARRAY_ROUTINES.copy(from, to);
   }
 
@@ -1200,7 +1208,7 @@ public final class Arrays {
    * @see org.briljantframework.array.api.ArrayRoutines#swap(org.briljantframework.array.BaseArray,
    *      org.briljantframework.array.BaseArray)
    */
-  public static <E, T extends BaseArray<E, T>> void swap(T a, T b) {
+  public static <T extends BaseArray<T>> void swap(T a, T b) {
     ARRAY_ROUTINES.swap(a, b);
   }
 
@@ -1212,7 +1220,7 @@ public final class Arrays {
    * @param <T> the array type
    * @return a new array
    */
-  public static <E, T extends BaseArray<E, T>> T take(T x, int num) {
+  public static <T extends BaseArray<T>> T take(T x, int num) {
     Check.argument(num > 0 && num <= x.size(), "to few/many elements to take");
     T c = x.newEmptyArray(num);
     for (int i = 0; i < num; i++) {
@@ -1242,7 +1250,7 @@ public final class Arrays {
    * @param <T> the type of array
    * @return a new array
    */
-  public static <E, T extends BaseArray<E, T>> T repeat(T x, int num) {
+  public static <T extends BaseArray<T>> T repeat(T x, int num) {
     T array = x.newEmptyArray(x.size() * num);
     for (int i = 0; i < x.size(); i++) {
       int pad = i * num;
@@ -1324,7 +1332,7 @@ public final class Arrays {
    * @param <T> the array type
    * @return a new array
    */
-  public static <E, T extends BaseArray<E, T>> T repeat(int dim, T x, int num) {
+  public static <T extends BaseArray<T>> T repeat(int dim, T x, int num) {
     if (x.dims() == 1) {
       int[] reshape = new int[2];
       reshape[dim] = 1;
@@ -1419,7 +1427,7 @@ public final class Arrays {
    * @param <S> the array type
    * @return a new array
    */
-  public static <T, S extends BaseArray<T, S>> S tile(S x, int... reps) {
+  public static <S extends BaseArray<S>> S tile(S x, int... reps) {
     int dims = Math.max(x.dims(), reps.length);
     if (x.dims() < reps.length) {
       x = x.reshape(prependDimension(x.getShape(), dims));
@@ -1460,7 +1468,7 @@ public final class Arrays {
   /*
    * Recursively fill the last dimension with the last dimension of x with repeated copies.
    */
-  private static <T, S extends BaseArray<T, S>> void tile(S array, S x, int dim, int[] reps) {
+  private static <S extends BaseArray<S>> void tile(S array, S x, int dim, int[] reps) {
     Check.argument(array.dims() == x.dims(), "Illegal array sizes to tile.");
     if (array.dims() == 1 && x.dims() == 1) {
       int size = x.size();
@@ -1491,7 +1499,7 @@ public final class Arrays {
    */
   @SafeVarargs
   @SuppressWarnings("varargs")
-  public static <T, E extends BaseArray<T, E>> List<E> broadcastArrays(E... arrays) {
+  public static <E extends BaseArray<E>> List<E> broadcastArrays(E... arrays) {
     return broadcastArrays(java.util.Arrays.asList(arrays));
   }
 
@@ -1502,7 +1510,7 @@ public final class Arrays {
    * @param <E> the array type
    * @return a list of broadcasted array views
    */
-  public static <T, E extends BaseArray<T, E>> List<E> broadcastArrays(List<? extends E> arrays) {
+  public static <E extends BaseArray<E>> List<E> broadcastArrays(List<? extends E> arrays) {
     Check.argument(!arrays.isEmpty(), "no arrays given");
     if (arrays.size() == 1) {
       return new ArrayList<>(arrays);
@@ -1578,7 +1586,7 @@ public final class Arrays {
    * @param <E> the array type
    * @return a broadcasted view
    */
-  public static <T, E extends BaseArray<T, E>> E broadcast(E x, int... newShape) {
+  public static <E extends BaseArray<E>> E broadcast(E x, int... newShape) {
     Check.argument(newShape.length > 0 && x.dims() <= newShape.length, "to few new dimensions");
     int[] oldShape = x.getShape();
     Check.argument(ShapeUtils.isBroadcastCompatible(oldShape, newShape),
@@ -1604,7 +1612,7 @@ public final class Arrays {
    * @param <E> the array type
    * @return a new array
    */
-  public static <T, E extends BaseArray<T, E>> E swapDimension(E array, int a, int b) {
+  public static <E extends BaseArray<E>> E swapDimension(E array, int a, int b) {
     int[] dims = new int[array.dims()];
     for (int i = 0; i < dims.length; i++) {
       dims[i] = i;
@@ -1622,7 +1630,7 @@ public final class Arrays {
    * @param <E> the array type
    * @return a view
    */
-  private static <T, E extends BaseArray<T, E>> E transpose(E array, int[] permute) {
+  private static <E extends BaseArray<E>> E transpose(E array, int[] permute) {
     // If no permutation is given, just transpose the array
     if (permute == null) {
       permute = new int[array.dims()];
@@ -1876,14 +1884,14 @@ public final class Arrays {
    * @param <S> the array type
    * @return a new array
    */
-  public static <T, S extends BaseArray<T, S>> S sort(S x, IndexComparator<S> cmp) {
+  public static <S extends BaseArray<S>> S sort(S x, IndexComparator<S> cmp) {
     S out = x.copy();
     QuickSort.quickSort(0, out.size(), (a, b) -> cmp.compare(out, a, b), out);
     return out;
   }
 
   /**
-   * Sort each vector along the specified dimension in its natural order.
+   * Sort each series along the specified dimension in its natural order.
    *
    * @param array the array
    * @param <T> the element type
@@ -1894,7 +1902,7 @@ public final class Arrays {
   }
 
   /**
-   * Sort each vector along the specified dimension according to the given index comparator.
+   * Sort each series along the specified dimension according to the given index comparator.
    *
    * @param dim the dimension
    * @param x the array
@@ -1902,7 +1910,7 @@ public final class Arrays {
    * @param <S> the element type
    * @return a new array
    */
-  public static <T, S extends BaseArray<T, S>> S sort(int dim, S x, IndexComparator<S> cmp) {
+  public static <S extends BaseArray<S>> S sort(int dim, S x, IndexComparator<S> cmp) {
     S out = x.copy();
     int m = x.vectors(dim);
     for (int i = 0; i < m; i++) {
@@ -1926,7 +1934,7 @@ public final class Arrays {
   }
 
   /**
-   * Sort each vector along the specified dimension according to the given comparator.
+   * Sort each series along the specified dimension according to the given comparator.
    *
    * @param dim the dimension
    * @param array the array
@@ -2000,7 +2008,7 @@ public final class Arrays {
    * @see Collections#binarySearch(List, Object)
    */
   public static <T> int binarySearch(Array<? extends Comparable<? super T>> array, T x) {
-    return Collections.binarySearch(array.toList(), x);
+    return Collections.binarySearch(array.asList(), x);
   }
 
   /**
@@ -2042,7 +2050,7 @@ public final class Arrays {
    * @return the insertion point of the value
    */
   public static <T> int bisectLeft(Array<? extends Comparable<? super T>> array, T value) {
-    int i = Collections.binarySearch(array.toList(), value);
+    int i = Collections.binarySearch(array.asList(), value);
     if (i < 0) {
       return -i - 1;
     } else {
@@ -2076,7 +2084,7 @@ public final class Arrays {
    * @see #bisectLeft(Array, Object)
    */
   public static <T> int bisectRight(Array<? extends Comparable<? super T>> array, T value) {
-    int i = Collections.binarySearch(array.toList(), value);
+    int i = Collections.binarySearch(array.asList(), value);
     if (i < 0) {
       return -i - 1;
     } else {
@@ -2105,7 +2113,7 @@ public final class Arrays {
    * @param <S> the array type
    * @return a new (shuffled) array
    */
-  public static <T, S extends BaseArray<T, S>> S shuffle(S x) {
+  public static <S extends BaseArray<S>> S shuffle(S x) {
     S out = x.copy();
     out.permute(out.size());
     return out;
@@ -2384,7 +2392,7 @@ public final class Arrays {
    * @param indexes the indexes of the values to extract
    * @return a new array; the returned matrix has the same type as {@code array} (as returned by
    */
-  public static <E, T extends BaseArray<E, T>> T take(T array, IntArray indexes) {
+  public static <T extends BaseArray<T>> T take(T array, IntArray indexes) {
     T taken = array.newEmptyArray(indexes.size());
     for (int i = 0; i < indexes.size(); i++) {
       taken.set(i, array, indexes.get(i));
@@ -2403,7 +2411,7 @@ public final class Arrays {
    * @param values the values; same shape as {@code array}
    * @return a new array; the returned array has the same type as {@code array}.
    */
-  public static <E, T extends BaseArray<E, T>> T mask(T array, BooleanArray mask, T values) {
+  public static <T extends BaseArray<T>> T mask(T array, BooleanArray mask, T values) {
     Check.dimension(array, mask);
     Check.dimension(array, values);
 
@@ -2420,7 +2428,7 @@ public final class Arrays {
    * @param mask the mask; same shape as {@code a}
    * @param values the mask; same shape as {@code a}
    */
-  public static <E, T extends BaseArray<E, T>> void putMask(T a, BooleanArray mask, T values) {
+  public static <T extends BaseArray<T>> void putMask(T a, BooleanArray mask, T values) {
     Check.dimension(a, mask);
     Check.dimension(a, values);
     for (int i = 0; i < a.size(); i++) {
@@ -2520,7 +2528,7 @@ public final class Arrays {
    * @param <E> the array type
    * @return the input array with the dimensions of size 1 removed.
    */
-  public static <T, E extends BaseArray<T, E>> E squeeze(E array) {
+  public static <E extends BaseArray<E>> E squeeze(E array) {
     int ones = 0;
     for (int i = 0; i < array.dims(); i++) {
       if (array.size(i) == 1) {
@@ -2554,7 +2562,7 @@ public final class Arrays {
    * @param <E> the input type
    * @return a new array
    */
-  public static <T, E extends BaseArray<T, E>> E where(BooleanArray condition, E x, E y) {
+  public static <E extends BaseArray<E>> E where(BooleanArray condition, E x, E y) {
     int[] shape = condition.getShape();
     x = broadcast(x, shape); // performs error checking
     y = broadcast(y, shape);
@@ -2595,7 +2603,7 @@ public final class Arrays {
   /**
    * Splits an array into a specified number of parts along the specified dimension.
    */
-  static class SplitArrayList<E, T extends BaseArray<E, T>> extends AbstractList<T> {
+  static class SplitArrayList<T extends BaseArray<T>> extends AbstractList<T> {
     private final T array;
     private final int[] shape;
     private final int dim;
@@ -2606,7 +2614,7 @@ public final class Arrays {
      * assumed to be correct, i.e., the specified dimension exists and is evenly divisible by the
      * number of parts.
      */
-    public SplitArrayList(T array, int dim, int parts) {
+    SplitArrayList(T array, int dim, int parts) {
       this.array = array;
       this.dim = dim;
       this.parts = parts;
@@ -2620,8 +2628,14 @@ public final class Arrays {
       T empty = array.newEmptyArray(shape);
       int size = empty.size(dim);
       int rowPadding = index * size;
-      for (int i = 0; i < size; i++) {
-        empty.select(dim, i).assign(array.select(dim, rowPadding + i));
+      if (empty.dims() == 1) {
+        for (int i = 0; i < size; i++) {
+          empty.set(i, array, rowPadding + i);
+        }
+      } else {
+        for (int i = 0; i < size; i++) {
+          empty.select(dim, i).assign(array.select(dim, rowPadding + i));
+        }
       }
       return empty;
     }
@@ -2636,11 +2650,11 @@ public final class Arrays {
    * Broadcast each array to the given shape. Note that neither the constructor nor methods perform
    * any error checking, i.e., the arguments are assumed to be correct
    */
-  static class BroadcastArrayList<T, E extends BaseArray<T, E>> extends AbstractList<E> {
+  static class BroadcastArrayList<E extends BaseArray<E>> extends AbstractList<E> {
     private final List<? extends E> arrays;
     private final int[] shape;
 
-    public BroadcastArrayList(List<? extends E> arrays, int[] shape) {
+    BroadcastArrayList(List<? extends E> arrays, int[] shape) {
       this.arrays = arrays;
       this.shape = shape;
     }
@@ -2799,8 +2813,8 @@ public final class Arrays {
     }
 
     @Override
-    public List<T> toList() {
-      return Collections.unmodifiableList(array.toList());
+    public List<T> asList() {
+      return Collections.unmodifiableList(array.asList());
     }
 
     @Override
@@ -2990,11 +3004,6 @@ public final class Arrays {
     }
 
     @Override
-    public int getMajorStride() {
-      return array.getMajorStride();
-    }
-
-    @Override
     public boolean isSquare() {
       return array.isSquare();
     }
@@ -3042,31 +3051,6 @@ public final class Arrays {
     @Override
     public boolean isView() {
       return array.isView();
-    }
-
-    @Override
-    public DoubleArray asDouble() {
-      return unmodifiableArray(array.asDouble());
-    }
-
-    @Override
-    public IntArray asInt() {
-      return unmodifiableArray(array.asInt());
-    }
-
-    @Override
-    public LongArray asLong() {
-      return unmodifiableArray(array.asLong());
-    }
-
-    @Override
-    public BooleanArray asBoolean() {
-      return unmodifiableArray(array.asBoolean());
-    }
-
-    @Override
-    public ComplexArray asComplex() {
-      return unmodifiableArray(array.asComplex());
     }
 
     @Override
@@ -3289,13 +3273,13 @@ public final class Arrays {
     }
 
     @Override
-    public DoubleStream stream() {
-      return array.stream();
+    public DoubleStream doubleStream() {
+      return array.doubleStream();
     }
 
     @Override
-    public List<Double> toList() {
-      return Collections.unmodifiableList(array.toList());
+    public List<Double> asList() {
+      return Collections.unmodifiableList(array.asList());
     }
 
     @Override
@@ -3434,8 +3418,8 @@ public final class Arrays {
     }
 
     @Override
-    public double getAsDouble(int index) {
-      return array.getAsDouble(index);
+    public double getDouble(int index) {
+      return array.getDouble(index);
     }
 
     @Override
@@ -3625,11 +3609,6 @@ public final class Arrays {
     }
 
     @Override
-    public int getMajorStride() {
-      return array.getMajorStride();
-    }
-
-    @Override
     public boolean isSquare() {
       return array.isSquare();
     }
@@ -3680,28 +3659,28 @@ public final class Arrays {
     }
 
     @Override
-    public DoubleArray asDouble() {
+    public DoubleArray asDoubleArray() {
       return this;
     }
 
     @Override
-    public IntArray asInt() {
-      return unmodifiableArray(array.asInt());
+    public IntArray asIntArray() {
+      return unmodifiableArray(array.asIntArray());
     }
 
     @Override
-    public LongArray asLong() {
-      return unmodifiableArray(array.asLong());
+    public LongArray asLongArray() {
+      return unmodifiableArray(array.asLongArray());
     }
 
     @Override
-    public BooleanArray asBoolean() {
-      return unmodifiableArray(array.asBoolean());
+    public BooleanArray asBooleanArray() {
+      return unmodifiableArray(array.asBooleanArray());
     }
 
     @Override
-    public ComplexArray asComplex() {
-      return unmodifiableArray(array.asComplex());
+    public ComplexArray asComplexArray() {
+      return unmodifiableArray(array.asComplexArray());
     }
 
     @Override
@@ -3751,7 +3730,7 @@ public final class Arrays {
 
     @Override
     public Iterator<Double> iterator() {
-      return toList().iterator();
+      return asList().iterator();
     }
 
     @Override
@@ -3761,14 +3740,13 @@ public final class Arrays {
 
     @Override
     public Spliterator<Double> spliterator() {
-      return toList().spliterator();
+      return asList().spliterator();
     }
 
     UnmodifiableDoubleArray(DoubleArray array) {
       this.array = array;
     }
   }
-
 
   private static class UnmodifiableIntArray implements IntArray {
     private final IntArray array;
@@ -3943,13 +3921,13 @@ public final class Arrays {
     }
 
     @Override
-    public IntStream stream() {
-      return array.stream();
+    public IntStream intStream() {
+      return array.intStream();
     }
 
     @Override
-    public List<Integer> toList() {
-      return Collections.unmodifiableList(array.toList());
+    public List<Integer> asList() {
+      return Collections.unmodifiableList(array.asList());
     }
 
     @Override
@@ -4264,11 +4242,6 @@ public final class Arrays {
     }
 
     @Override
-    public int getMajorStride() {
-      return array.getMajorStride();
-    }
-
-    @Override
     public boolean isSquare() {
       return array.isSquare();
     }
@@ -4319,28 +4292,28 @@ public final class Arrays {
     }
 
     @Override
-    public DoubleArray asDouble() {
-      return unmodifiableArray(array.asDouble());
+    public DoubleArray asDoubleArray() {
+      return unmodifiableArray(array.asDoubleArray());
     }
 
     @Override
-    public IntArray asInt() {
-      return unmodifiableArray(array.asInt());
+    public IntArray asIntArray() {
+      return unmodifiableArray(array.asIntArray());
     }
 
     @Override
-    public LongArray asLong() {
-      return unmodifiableArray(array.asLong());
+    public LongArray asLongArray() {
+      return unmodifiableArray(array.asLongArray());
     }
 
     @Override
-    public BooleanArray asBoolean() {
-      return unmodifiableArray(array.asBoolean());
+    public BooleanArray asBooleanArray() {
+      return unmodifiableArray(array.asBooleanArray());
     }
 
     @Override
-    public ComplexArray asComplex() {
-      return unmodifiableArray(array.asComplex());
+    public ComplexArray asComplexArray() {
+      return unmodifiableArray(array.asComplexArray());
     }
 
     @Override
@@ -4400,7 +4373,7 @@ public final class Arrays {
 
     @Override
     public Iterator<Integer> iterator() {
-      return toList().iterator();
+      return asList().iterator();
     }
 
     @Override
@@ -4410,7 +4383,7 @@ public final class Arrays {
 
     @Override
     public Spliterator<Integer> spliterator() {
-      return toList().spliterator();
+      return asList().spliterator();
     }
   }
 
@@ -4578,13 +4551,13 @@ public final class Arrays {
     }
 
     @Override
-    public LongStream stream() {
-      return array.stream();
+    public LongStream longStream() {
+      return array.longStream();
     }
 
     @Override
-    public List<Long> toList() {
-      return Collections.unmodifiableList(array.toList());
+    public List<Long> asList() {
+      return Collections.unmodifiableList(array.asList());
     }
 
     @Override
@@ -4849,11 +4822,6 @@ public final class Arrays {
     }
 
     @Override
-    public int getMajorStride() {
-      return array.getMajorStride();
-    }
-
-    @Override
     public boolean isSquare() {
       return array.isSquare();
     }
@@ -4904,28 +4872,28 @@ public final class Arrays {
     }
 
     @Override
-    public DoubleArray asDouble() {
-      return unmodifiableArray(array.asDouble());
+    public DoubleArray asDoubleArray() {
+      return unmodifiableArray(array.asDoubleArray());
     }
 
     @Override
-    public IntArray asInt() {
-      return unmodifiableArray(array.asInt());
+    public IntArray asIntArray() {
+      return unmodifiableArray(array.asIntArray());
     }
 
     @Override
-    public LongArray asLong() {
-      return unmodifiableArray(array.asLong());
+    public LongArray asLongArray() {
+      return unmodifiableArray(array.asLongArray());
     }
 
     @Override
-    public BooleanArray asBoolean() {
-      return unmodifiableArray(array.asBoolean());
+    public BooleanArray asBooleanArray() {
+      return unmodifiableArray(array.asBooleanArray());
     }
 
     @Override
-    public ComplexArray asComplex() {
-      return unmodifiableArray(array.asComplex());
+    public ComplexArray asComplexArray() {
+      return unmodifiableArray(array.asComplexArray());
     }
 
     @Override
@@ -4985,7 +4953,7 @@ public final class Arrays {
 
     @Override
     public Iterator<Long> iterator() {
-      return toList().iterator();
+      return asList().iterator();
     }
 
     @Override
@@ -4995,7 +4963,7 @@ public final class Arrays {
 
     @Override
     public Spliterator<Long> spliterator() {
-      return toList().spliterator();
+      return asList().spliterator();
     }
   }
 
@@ -5185,8 +5153,8 @@ public final class Arrays {
     }
 
     @Override
-    public Complex getAsComplex(int i) {
-      return array.getAsComplex(i);
+    public Complex getComplex(int i) {
+      return array.getComplex(i);
     }
 
     @Override
@@ -5196,12 +5164,12 @@ public final class Arrays {
 
     @Override
     public Stream<Complex> stream() {
-      return toList().stream();
+      return asList().stream();
     }
 
     @Override
-    public List<Complex> toList() {
-      return Collections.unmodifiableList(array.toList());
+    public List<Complex> asList() {
+      return Collections.unmodifiableList(array.asList());
     }
 
     @Override
@@ -5461,11 +5429,6 @@ public final class Arrays {
     }
 
     @Override
-    public int getMajorStride() {
-      return array.getMajorStride();
-    }
-
-    @Override
     public boolean isSquare() {
       return array.isSquare();
     }
@@ -5516,28 +5479,28 @@ public final class Arrays {
     }
 
     @Override
-    public DoubleArray asDouble() {
-      return unmodifiableArray(array.asDouble());
+    public DoubleArray asDoubleArray() {
+      return unmodifiableArray(array.asDoubleArray());
     }
 
     @Override
-    public IntArray asInt() {
-      return unmodifiableArray(array.asInt());
+    public IntArray asIntArray() {
+      return unmodifiableArray(array.asIntArray());
     }
 
     @Override
-    public LongArray asLong() {
-      return unmodifiableArray(array.asLong());
+    public LongArray asLongArray() {
+      return unmodifiableArray(array.asLongArray());
     }
 
     @Override
-    public BooleanArray asBoolean() {
-      return unmodifiableArray(array.asBoolean());
+    public BooleanArray asBooleanArray() {
+      return unmodifiableArray(array.asBooleanArray());
     }
 
     @Override
-    public ComplexArray asComplex() {
-      return unmodifiableArray(array.asComplex());
+    public ComplexArray asComplexArray() {
+      return unmodifiableArray(array.asComplexArray());
     }
 
     @Override
@@ -5572,7 +5535,7 @@ public final class Arrays {
 
     @Override
     public Iterator<Complex> iterator() {
-      return toList().iterator();
+      return asList().iterator();
     }
 
     @Override
@@ -5582,7 +5545,7 @@ public final class Arrays {
 
     @Override
     public Spliterator<Complex> spliterator() {
-      return toList().spliterator();
+      return asList().spliterator();
     }
   }
 
@@ -5609,8 +5572,8 @@ public final class Arrays {
       return array.hashCode();
     }
 
-    public DoubleArray asDouble() {
-      return unmodifiableArray(array.asDouble());
+    public DoubleArray asDoubleArray() {
+      return unmodifiableArray(array.asDoubleArray());
     }
 
     public void set(int[] toIndex, BooleanArray from, int[] fromIndex) {
@@ -5712,8 +5675,8 @@ public final class Arrays {
       };
     }
 
-    public BooleanArray asBoolean() {
-      return unmodifiableArray(array.asBoolean());
+    public BooleanArray asBooleanArray() {
+      return unmodifiableArray(array.asBooleanArray());
     }
 
     public void assign(Supplier<Boolean> supplier) {
@@ -5748,8 +5711,8 @@ public final class Arrays {
       return unmodifiableArray(array.asView(shape, stride));
     }
 
-    public ComplexArray asComplex() {
-      return unmodifiableArray(array.asComplex());
+    public ComplexArray asComplexArray() {
+      return unmodifiableArray(array.asComplexArray());
     }
 
     public boolean isContiguous() {
@@ -5765,7 +5728,7 @@ public final class Arrays {
     }
 
     public Stream<Boolean> stream() {
-      return toList().stream();
+      return asList().stream();
     }
 
     public void permute(int count) {
@@ -5805,15 +5768,15 @@ public final class Arrays {
     }
 
     public Spliterator<Boolean> spliterator() {
-      return toList().spliterator();
+      return asList().spliterator();
     }
 
     public void apply(UnaryOperator<Boolean> operator) {
       throw new UnsupportedOperationException();
     }
 
-    public LongArray asLong() {
-      return unmodifiableArray(array.asLong());
+    public LongArray asLongArray() {
+      return unmodifiableArray(array.asLongArray());
     }
 
     public void setRow(int i, BooleanArray vec) {
@@ -5848,10 +5811,6 @@ public final class Arrays {
       return array.get(i, j);
     }
 
-    public int getMajorStride() {
-      return array.getMajorStride();
-    }
-
     public BooleanArray any(int dim) {
       return array.any(dim);
     }
@@ -5864,8 +5823,8 @@ public final class Arrays {
       return array.andNot(other);
     }
 
-    public IntArray asInt() {
-      return unmodifiableArray(array.asInt());
+    public IntArray asIntArray() {
+      return unmodifiableArray(array.asIntArray());
     }
 
     public boolean isSquare() {
@@ -5916,8 +5875,8 @@ public final class Arrays {
       throw new UnsupportedOperationException();
     }
 
-    public List<Boolean> toList() {
-      return Collections.unmodifiableList(array.toList());
+    public List<Boolean> asList() {
+      return Collections.unmodifiableList(array.asList());
     }
 
     public BooleanArray reshape(int... shape) {
@@ -5925,7 +5884,7 @@ public final class Arrays {
     }
 
     public Iterator<Boolean> iterator() {
-      return toList().iterator();
+      return asList().iterator();
     }
 
     public BooleanArray getDiagonal() {

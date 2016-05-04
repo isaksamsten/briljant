@@ -27,7 +27,7 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collector;
 
 import org.briljantframework.array.IntArray;
-import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.series.Series;
 
 /**
  * Data frame divided into non-overlapping groups.
@@ -62,7 +62,7 @@ public interface DataFrameGroupBy extends Iterable<Group> {
    * @param function the function to perform on each column
    * @return a data frame
    */
-  DataFrame collect(Function<Vector, Object> function);
+  DataFrame collect(Function<Series, Object> function);
 
   /**
    * Select and aggregate on all columns of type {@code cls}
@@ -75,6 +75,6 @@ public interface DataFrameGroupBy extends Iterable<Group> {
    */
   <T, C> DataFrame collect(Class<? extends T> cls, Collector<? super T, C, ? extends T> collector);
 
-  DataFrame apply(UnaryOperator<Vector> op);
+  DataFrame apply(UnaryOperator<Series> op);
 
 }

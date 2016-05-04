@@ -49,7 +49,7 @@ public final class DiscreteFourierTransform {
   }
 
   public static ComplexArray fft(DoubleArray a) {
-    return fft(a.asComplex());
+    return fft(a.asComplexArray());
   }
 
   public static ComplexArray ifft(ComplexArray a) {
@@ -121,7 +121,7 @@ public final class DiscreteFourierTransform {
   }
 
   /*
-   * Computes the circular convolution of the given complex vectors. Each vector's length must be
+   * Computes the circular convolution of the given complex vectors. Each series's length must be
    * the same.
    */
   private static ComplexArray convolve(ComplexArray x, ComplexArray y) {

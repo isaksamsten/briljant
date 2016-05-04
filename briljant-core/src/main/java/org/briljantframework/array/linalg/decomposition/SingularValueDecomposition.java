@@ -47,9 +47,9 @@ public class SingularValueDecomposition {
   public final DoubleArray v;
 
   public SingularValueDecomposition(DoubleArray s, DoubleArray u, DoubleArray v) {
-    this.s = Arrays.unmodifiableArray(s);
-    this.u = Arrays.unmodifiableArray(u);
-    this.v = Arrays.unmodifiableArray(v);
+    this.s = s;
+    this.u = u;
+    this.v = v;
   }
 
   public DoubleArray getSingularValues() {

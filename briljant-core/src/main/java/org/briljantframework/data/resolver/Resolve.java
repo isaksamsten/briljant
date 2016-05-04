@@ -33,6 +33,7 @@ import org.briljantframework.data.Is;
 import org.briljantframework.data.Logical;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.reader.DataEntry;
+import org.briljantframework.data.series.Series;
 
 /**
  * This class provide options for <em>resolving</em> a value from one class to another. For example,
@@ -69,16 +70,16 @@ import org.briljantframework.data.reader.DataEntry;
  * Employee e = Resolve.to(Employee.class, &quot;Foo Bar&quot;);
  * </pre>
  *
- * Once installed, {@link org.briljantframework.data.vector.Vector.Builder#read(DataEntry)} will
- * pick up the resolver and produce vectors accordingly, e.g., we can produce a vector of employees
+ * Once installed, {@link Series.Builder#read(DataEntry)} will
+ * pick up the resolver and produce vectors accordingly, e.g., we can produce a series of employees
  *
  * <pre>
  * DataEntry entry = new StringDataEntry(new String[] {&quot;Foo Bar&quot;, &quot;Bob Bobson&quot;, &quot;John Doe&quot;});
- * Vector vector = Vector.Builder.of(Employee.class).readAll(entry).build();
- * Employee bob = vector.get(Employee.class, 1);
+ * Series series = Series.Builder.of(Employee.class).readAll(entry).build();
+ * Employee bob = series.get(Employee.class, 1);
  * </pre>
  *
- * which would render the following vector
+ * which would render the following series
  *
  * <pre>
  * 0 Employee{name=Foo, familyName=Bar}

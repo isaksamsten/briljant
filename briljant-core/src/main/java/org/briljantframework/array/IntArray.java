@@ -35,7 +35,7 @@ import org.briljantframework.function.ToIntObjIntBiFunction;
  * 
  * @author Isak Karlsson
  */
-public interface IntArray extends BaseArray<Integer, IntArray>, Iterable<Integer> {
+public interface IntArray extends BaseArray<IntArray>, Iterable<Integer> {
 
   static IntArray ones(int... shape) {
     IntArray array = zeros(shape);
@@ -206,7 +206,11 @@ public interface IntArray extends BaseArray<Integer, IntArray>, Iterable<Integer
 
   void apply(int i, int j, IntUnaryOperator operator);
 
-  IntStream stream();
+  IntStream intStream();
+
+  List<Integer> asList();
+
+  Array<Integer> asArray();
 
   void sort();
 
@@ -350,6 +354,20 @@ public interface IntArray extends BaseArray<Integer, IntArray>, Iterable<Integer
    * @return a new matrix
    */
   IntArray negate();
+
+  default Array<Integer> boxed() {
+    return asArray();
+  }
+
+  DoubleArray asDoubleArray();
+
+  IntArray asIntArray();
+
+  LongArray asLongArray();
+
+  BooleanArray asBooleanArray();
+
+  ComplexArray asComplexArray();
 
   BooleanArray lt(IntArray other);
 

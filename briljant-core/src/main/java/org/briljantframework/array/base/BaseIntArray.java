@@ -26,7 +26,6 @@ import net.mintern.primitive.comparators.IntComparator;
 import org.briljantframework.array.AbstractIntArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.array.api.ArrayFactory;
 
 /**
  * @author Isak Karlsson
@@ -45,9 +44,8 @@ class BaseIntArray extends AbstractIntArray {
     this.data = new int[size()];
   }
 
-  private BaseIntArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
-      int[] data) {
-    super(bj, offset, shape, stride, majorStride);
+  private BaseIntArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int[] data) {
+    super(bj, offset, shape, stride);
     this.data = data;
   }
 
@@ -82,7 +80,7 @@ class BaseIntArray extends AbstractIntArray {
 
   @Override
   public IntArray asView(int offset, int[] shape, int[] stride) {
-    return new BaseIntArray(getArrayBackend(), offset, shape, stride, majorStride, data);
+    return new BaseIntArray(getArrayBackend(), offset, shape, stride, data);
   }
 
   @Override

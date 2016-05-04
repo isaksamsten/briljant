@@ -28,15 +28,19 @@ import org.briljantframework.array.api.ArrayBackend;
  *
  * @author Isak Karlsson
  */
-abstract class AsComplexArray extends AbstractComplexArray {
+public abstract class AsComplexArray extends AbstractComplexArray {
 
-  AsComplexArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride) {
-    super(bj, offset, shape, stride, majorStride);
+  public AsComplexArray(AbstractBaseArray<?> array) {
+    super(array.getArrayBackend(), array.getOffset(), array.getShape(), array.getStride());
+  }
+
+  AsComplexArray(ArrayBackend bj, int offset, int[] shape, int[] stride) {
+    super(bj, offset, shape, stride);
   }
 
   @Override
   public ComplexArray asView(int offset, int[] shape, int[] stride) {
-    return new AsComplexArray(getArrayBackend(), offset, shape, stride, majorStride) {
+    return new AsComplexArray(getArrayBackend(), offset, shape, stride) {
       @Override
       protected void setElement(int i, Complex value) {
         AsComplexArray.this.setElement(i, value);

@@ -1,6 +1,6 @@
 # Briljant Framework CUDA backend
 
-This is an (extremely) early version of an `ArrayBackend` based on
+This is an (extremely) early version of an `ArrayBackend` based columnKeys
 [CUDA](http://https://developer.nvidia.com/cuda-zone), which is
 currently implemented using [JCuda](http://jcuda.org). To allow
 deployment, this module uses the bundled jar-files and native-binaries
@@ -15,6 +15,6 @@ install -Pjcuda` and include
 file. Also don't forget to install appropriate driver for your
 system.
 
-Note that it is only tested on OSX (10.11), which has some issues
+Note that it is only tested columnKeys OSX (10.11), which has some issues
 when SIP is enabled.
 

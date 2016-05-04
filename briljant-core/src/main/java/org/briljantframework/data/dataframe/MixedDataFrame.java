@@ -20,26 +20,17 @@
  */
 package org.briljantframework.data.dataframe;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.briljantframework.Check;
+import org.briljantframework.data.index.HashIndex;
 import org.briljantframework.data.index.Index;
-import org.briljantframework.data.index.ObjectIndex;
 import org.briljantframework.data.reader.DataEntry;
-import org.briljantframework.data.vector.Type;
-import org.briljantframework.data.vector.TypeInferenceVectorBuilder;
-import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.series.Series;
+import org.briljantframework.data.series.Type;
+import org.briljantframework.data.series.TypeInferenceBuilder;
 
 /**
  * A mixed (i.e. heterogeneous) data frame contains vectors of possibly different types.
@@ -48,7 +39,7 @@ import org.briljantframework.data.vector.Vector;
  */
 public class MixedDataFrame extends AbstractDataFrame {
 
-  private final List<Vector> columns;
+  private final List<Series> columns;
   private final Type mostSpecificColumnType;
   private final int rows;
 
@@ -57,7 +48,7 @@ public class MixedDataFrame extends AbstractDataFrame {
    *
    * @param columns the vectors
    */
-  private MixedDataFrame(Vector... columns) {
+  private MixedDataFrame(Series... columns) {
     this(Arrays.asList(columns));
   }
 
@@ -66,24 +57,23 @@ public class MixedDataFrame extends AbstractDataFrame {
    *
    * @param vectors the collection of vectors
    */
-  private MixedDataFrame(Collection<? extends Vector> vectors) {
+  private MixedDataFrame(Collection<? extends Series> vectors) {
     super(null, null);
     Check.argument(vectors.size() > 0);
 
     this.columns = new ArrayList<>(vectors.size());
     int rows = 0;
     Set<Type> typeSet = new HashSet<>();
-    for (Vector vector : vectors) {
+    for (Series series : vectors) {
       if (rows == 0) {
-        rows = vector.size();
+        rows = series.size();
       }
-      Check.argument(vector.size() == rows, "Arguments imply different numbers of rows: %s, %s.",
-          rows, vector.size());
-      typeSet.add(vector.getType());
-      this.columns.add(vector);
+      Check.argument(series.size() == rows, "Arguments imply different numbers of rows: %s, %s.",
+          rows, series.size());
+      typeSet.add(series.getType());
+      this.columns.add(series);
     }
-    this.mostSpecificColumnType =
-        typeSet.size() == 1 ? typeSet.iterator().next() : Type.OBJECT;
+    this.mostSpecificColumnType = typeSet.size() == 1 ? typeSet.iterator().next() : Type.OBJECT;
     this.rows = rows;
   }
 
@@ -93,30 +83,29 @@ public class MixedDataFrame extends AbstractDataFrame {
    *
    * @param vectors the map of vectors and names
    */
-  private <T> MixedDataFrame(Map<T, ? extends Vector> vectors) {
+  private <T> MixedDataFrame(Map<T, ? extends Series> vectors) {
     super(null, null); // TODO: fix me
     Check.argument(vectors.size() > 0);
     this.columns = new ArrayList<>(vectors.size());
     int rows = 0;
     List<T> columnIndex = new ArrayList<>();
     Set<Type> typeSet = new HashSet<>();
-    for (Map.Entry<T, ? extends Vector> kv : vectors.entrySet()) {
-      Vector vector = kv.getValue();
+    for (Map.Entry<T, ? extends Series> kv : vectors.entrySet()) {
+      Series series = kv.getValue();
       T key = kv.getKey();
       columnIndex.add(key);
       if (rows == 0) {
-        rows = vector.size();
+        rows = series.size();
       }
-      Check.argument(vector.size() == rows, "Arguments imply different numbers of rows: %s, %s.",
-          rows, vector.size());
-      this.columns.add(vector);
-      typeSet.add(vector.getType());
+      Check.argument(series.size() == rows, "Arguments imply different numbers of rows: %s, %s.",
+          rows, series.size());
+      this.columns.add(series);
+      typeSet.add(series.getType());
 
     }
     this.rows = rows;
-    this.mostSpecificColumnType =
-        typeSet.size() == 1 ? typeSet.iterator().next() : Type.OBJECT;
-    setColumnIndex(ObjectIndex.of(columnIndex));
+    this.mostSpecificColumnType = typeSet.size() == 1 ? typeSet.iterator().next() : Type.OBJECT;
+    setColumnIndex(HashIndex.of(columnIndex));
   }
 
   /**
@@ -126,44 +115,42 @@ public class MixedDataFrame extends AbstractDataFrame {
    * @param columns the vectors
    * @param rows the expected size of the vectors (not checked but should be enforced)
    */
-  private MixedDataFrame(List<Vector> columns, int rows) {
+  private MixedDataFrame(List<Series> columns, int rows) {
     super(null, null);
     this.columns = columns;
     this.rows = rows;
-    Set<Type> typeSet = columns.stream().map(Vector::getType).collect(Collectors.toSet());
-    this.mostSpecificColumnType =
-        typeSet.size() == 1 ? typeSet.iterator().next() : Type.OBJECT;
+    Set<Type> typeSet = columns.stream().map(Series::getType).collect(Collectors.toSet());
+    this.mostSpecificColumnType = typeSet.size() == 1 ? typeSet.iterator().next() : Type.OBJECT;
   }
 
-  private MixedDataFrame(List<Vector> columns, int rows, Index columnIndex, Index index) {
+  private MixedDataFrame(List<Series> columns, int rows, Index columnIndex, Index index) {
     super(columnIndex, index);
     Check.argument(columns.size() == columnIndex.size());
     Check.argument(index.size() == rows);
-    Set<Type> typeSet = columns.stream().map(Vector::getType).collect(Collectors.toSet());
-    this.mostSpecificColumnType =
-        typeSet.size() == 1 ? typeSet.iterator().next() : Type.OBJECT;
+    Set<Type> typeSet = columns.stream().map(Series::getType).collect(Collectors.toSet());
+    this.mostSpecificColumnType = typeSet.size() == 1 ? typeSet.iterator().next() : Type.OBJECT;
     this.columns = columns;
     this.rows = rows;
 
   }
 
-  private static Vector.Builder padVectorWithNA(Vector.Builder builder, int maximumRows) {
+  private static Series.Builder padVectorWithNA(Series.Builder builder, int maximumRows) {
     if (builder.size() < maximumRows) {
       builder.loc().setNA(maximumRows - 1);
     }
     return builder;
   }
 
-  public static MixedDataFrame create(Collection<? extends Vector> vectors) {
+  public static MixedDataFrame create(Collection<? extends Series> vectors) {
     return new MixedDataFrame(vectors);
   }
 
-  public static MixedDataFrame create(Vector... columns) {
+  public static MixedDataFrame create(Series... columns) {
     return new MixedDataFrame(columns);
   }
 
-  static MixedDataFrame of(Object name, Vector c) {
-    HashMap<Object, Vector> map = new LinkedHashMap<>();
+  static MixedDataFrame of(Object name, Series c) {
+    HashMap<Object, Series> map = new LinkedHashMap<>();
     map.put(name, c);
     if (map.size() != 1) {
       throw new IllegalArgumentException("duplicate elements");
@@ -171,12 +158,12 @@ public class MixedDataFrame extends AbstractDataFrame {
     return MixedDataFrame.create(map);
   }
 
-  public static <T> MixedDataFrame create(Map<T, ? extends Vector> vectors) {
+  public static <T> MixedDataFrame create(Map<T, ? extends Series> vectors) {
     return new MixedDataFrame(vectors);
   }
 
-  static MixedDataFrame of(Object n1, Vector v1, Object n2, Vector v2) {
-    HashMap<Object, Vector> map = new LinkedHashMap<>();
+  static MixedDataFrame of(Object n1, Series v1, Object n2, Series v2) {
+    HashMap<Object, Series> map = new LinkedHashMap<>();
     map.put(n1, v1);
     map.put(n2, v2);
     if (map.size() != 2) {
@@ -185,8 +172,8 @@ public class MixedDataFrame extends AbstractDataFrame {
     return MixedDataFrame.create(map);
   }
 
-  static MixedDataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3) {
-    HashMap<Object, Vector> map = new LinkedHashMap<>();
+  static MixedDataFrame of(Object n1, Series v1, Object n2, Series v2, Object n3, Series v3) {
+    HashMap<Object, Series> map = new LinkedHashMap<>();
     map.put(n1, v1);
     map.put(n2, v2);
     map.put(n3, v3);
@@ -196,9 +183,9 @@ public class MixedDataFrame extends AbstractDataFrame {
     return MixedDataFrame.create(map);
   }
 
-  static MixedDataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
-      Object n4, Vector v4) {
-    HashMap<Object, Vector> map = new LinkedHashMap<>();
+  static MixedDataFrame of(Object n1, Series v1, Object n2, Series v2, Object n3, Series v3,
+      Object n4, Series v4) {
+    HashMap<Object, Series> map = new LinkedHashMap<>();
     map.put(n1, v1);
     map.put(n2, v2);
     map.put(n3, v3);
@@ -209,9 +196,9 @@ public class MixedDataFrame extends AbstractDataFrame {
     return MixedDataFrame.create(map);
   }
 
-  static MixedDataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
-      Object n4, Vector v4, Object n5, Vector v5) {
-    HashMap<Object, Vector> map = new LinkedHashMap<>();
+  static MixedDataFrame of(Object n1, Series v1, Object n2, Series v2, Object n3, Series v3,
+      Object n4, Series v4, Object n5, Series v5) {
+    HashMap<Object, Series> map = new LinkedHashMap<>();
     map.put(n1, v1);
     map.put(n2, v2);
     map.put(n3, v3);
@@ -223,9 +210,9 @@ public class MixedDataFrame extends AbstractDataFrame {
     return MixedDataFrame.create(map);
   }
 
-  static MixedDataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
-      Object n4, Vector v4, Object n5, Vector v5, Object n6, Vector v6) {
-    HashMap<Object, Vector> map = new LinkedHashMap<>();
+  static MixedDataFrame of(Object n1, Series v1, Object n2, Series v2, Object n3, Series v3,
+      Object n4, Series v4, Object n5, Series v5, Object n6, Series v6) {
+    HashMap<Object, Series> map = new LinkedHashMap<>();
     map.put(n1, v1);
     map.put(n2, v2);
     map.put(n3, v3);
@@ -238,9 +225,9 @@ public class MixedDataFrame extends AbstractDataFrame {
     return MixedDataFrame.create(map);
   }
 
-  static MixedDataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
-      Object n4, Vector v4, Object n5, Vector v5, Object n6, Vector v6, Object n7, Vector v7) {
-    HashMap<Object, Vector> map = new LinkedHashMap<>();
+  static MixedDataFrame of(Object n1, Series v1, Object n2, Series v2, Object n3, Series v3,
+      Object n4, Series v4, Object n5, Series v5, Object n6, Series v6, Object n7, Series v7) {
+    HashMap<Object, Series> map = new LinkedHashMap<>();
     map.put(n1, v1);
     map.put(n2, v2);
     map.put(n3, v3);
@@ -254,10 +241,10 @@ public class MixedDataFrame extends AbstractDataFrame {
     return MixedDataFrame.create(map);
   }
 
-  static MixedDataFrame of(Object n1, Vector v1, Object n2, Vector v2, Object n3, Vector v3,
-      Object n4, Vector v4, Object n5, Vector v5, Object n6, Vector v6, Object n7, Vector v7,
-      Object n8, Vector v8) {
-    HashMap<Object, Vector> map = new LinkedHashMap<>();
+  static MixedDataFrame of(Object n1, Series v1, Object n2, Series v2, Object n3, Series v3,
+      Object n4, Series v4, Object n5, Series v5, Object n6, Series v6, Object n7, Series v7,
+      Object n8, Series v8) {
+    HashMap<Object, Series> map = new LinkedHashMap<>();
     map.put(n1, v1);
     map.put(n2, v2);
     map.put(n3, v3);
@@ -279,10 +266,12 @@ public class MixedDataFrame extends AbstractDataFrame {
    * @return a newly created {@code MixedDataFrame}
    */
   @SafeVarargs
-  public static MixedDataFrame fromEntries(Map.Entry<Object, ? extends Vector>... entries) {
-    Map<Object, Vector> map = new LinkedHashMap<>();
-    for (Map.Entry<Object, ? extends Vector> entry : entries) {
-      map.put(entry.getKey(), entry.getValue());
+  public static MixedDataFrame fromEntries(Map.Entry<Object, ? extends Series> entry,
+      Map.Entry<Object, ? extends Series>... entries) {
+    Map<Object, Series> map = new LinkedHashMap<>();
+    map.put(entry.getKey(), entry.getValue());
+    for (Map.Entry<Object, ? extends Series> e : entries) {
+      map.put(e.getKey(), e.getValue());
     }
     return new MixedDataFrame(map);
   }
@@ -298,12 +287,12 @@ public class MixedDataFrame extends AbstractDataFrame {
 
   @Override
   public int getAsIntAt(int row, int column) {
-    return columns.get(column).loc().getAsInt(row);
+    return columns.get(column).loc().getInt(row);
   }
 
   @Override
   public double getAsDoubleAt(int row, int column) {
-    return columns.get(column).loc().getAsDouble(row);
+    return columns.get(column).loc().getDouble(row);
   }
 
   @Override
@@ -312,19 +301,21 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  protected Vector getRecordAt(int index) {
-    Check.validIndex(index, rows());
-    return new RecordView(this, index, mostSpecificColumnType);
+  protected Series getRecordAt(int index) {
+    Check.validIndex(index, size(0));
+    return new RowView(this, index, mostSpecificColumnType);
   }
 
   @Override
-  public int rows() {
-    return rows;
-  }
-
-  @Override
-  public int columns() {
-    return columns.size();
+  public int size(int dim) {
+    switch (dim) {
+      case 0:
+        return rows;
+      case 1:
+        return columns.size();
+      default:
+        throw new IllegalArgumentException("illegal dimension");
+    }
   }
 
   @Override
@@ -338,14 +329,12 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public Vector getAt(int index) {
-    Vector vector = columns.get(index);
-    vector.setIndex(getIndex());
-    return vector;
+  public Series getAt(int index) {
+    return new ImmutableIndexSeries(columns.get(index), getIndex());
   }
 
   @Override
-  protected DataFrame shallowCopy(Index columnIndex, Index index) {
+  public DataFrame reindex(Index columnIndex, Index index) {
     return new MixedDataFrame(columns, rows, columnIndex, index);
   }
 
@@ -366,7 +355,7 @@ public class MixedDataFrame extends AbstractDataFrame {
 
   public static final class Builder extends AbstractBuilder {
 
-    private List<Vector.Builder> buffers = null;
+    private List<Series.Builder> buffers = null;
 
     public Builder() {
       this.buffers = new ArrayList<>();
@@ -388,12 +377,12 @@ public class MixedDataFrame extends AbstractDataFrame {
      * @param types the column types
      */
     public Builder(Collection<? extends Type> types) {
-      this(types.stream().map(Type::newBuilder).toArray(Vector.Builder[]::new));
+      this(types.stream().map(Type::newBuilder).toArray(Series.Builder[]::new));
     }
 
     /**
      * <p>
-     * Construct a builder using vector builders. Vector builders of different sizes are allowed,
+     * Construct a builder using series builders. Series builders of different sizes are allowed,
      * but padded with NA values until to match the longest.
      * </p>
      *
@@ -416,12 +405,12 @@ public class MixedDataFrame extends AbstractDataFrame {
      *
      * </p>
      *
-     * @param builders the vector builders
+     * @param builders the series builders
      */
-    public Builder(Vector.Builder... builders) {
-      int rows = Stream.of(builders).mapToInt(Vector.Builder::size).max().getAsInt();
+    public Builder(Series.Builder... builders) {
+      int rows = Stream.of(builders).mapToInt(Series.Builder::size).max().getAsInt();
       this.buffers = new ArrayList<>();
-      for (Vector.Builder builder : builders) {
+      for (Series.Builder builder : builders) {
         if (builder.size() < rows) {
           builder.loc().setNA(rows - 1);
         }
@@ -437,9 +426,8 @@ public class MixedDataFrame extends AbstractDataFrame {
      */
     public Builder(MixedDataFrame frame) {
       super(frame);
-      buffers =
-          frame.columns.stream().map(Vector::newCopyBuilder)
-              .collect(Collectors.toCollection(ArrayList::new));
+      buffers = frame.columns.stream().map(Series::newCopyBuilder)
+          .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
@@ -456,7 +444,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     }
 
     @Override
-    public void setAt(int c, Vector.Builder builder) {
+    public void setAt(int c, Series.Builder builder) {
       if (c == buffers.size()) {
         this.buffers.add(builder);
       } else {
@@ -465,17 +453,17 @@ public class MixedDataFrame extends AbstractDataFrame {
     }
 
     @Override
-    protected void setRecordAt(int index, Vector.Builder builder) {
+    protected void setRecordAt(int index, Series.Builder builder) {
       // ensureColumnCapacity(builder.size() - 1);
-      final int columns = columns();
+      final int columns = size(1);
       final int size = builder.size();
-      final Vector vector = builder.getView();
+      final Series series = builder.build();
       for (int j = 0; j < Math.max(size, columns); j++) {
         if (j < size) {
-          Object value = vector.loc().get(Object.class, j);
+          Object value = series.loc().get(Object.class, j);
           ensureColumnCapacity(j, Type.of(value));
           setAt(index, j, value);
-          // setAt(index, j, vector, j);
+          // setAt(index, j, series, j);
         } else {
           setNaAt(index, j);
         }
@@ -483,19 +471,19 @@ public class MixedDataFrame extends AbstractDataFrame {
     }
 
     @Override
-    public void setAt(int r, int c, Vector from, int i) {
+    public void setAt(int r, int c, Series from, int i) {
       ensureColumnCapacity(c - 1);
       ensureColumnCapacity(c, from.getType());
       buffers.get(c).loc().set(r, from, i);
     }
 
     @Override
-    protected Vector.Builder getAt(int i) {
+    protected Series.Builder getAt(int i) {
       return buffers.get(i);
     }
 
     @Override
-    protected Vector.Builder getRecordAt(int i) {
+    protected Series.Builder getRecordAt(int i) {
       throw new UnsupportedOperationException();
     }
 
@@ -506,7 +494,7 @@ public class MixedDataFrame extends AbstractDataFrame {
 
     @Override
     protected void removeRecordAt(int r) {
-      for (Vector.Builder buffer : buffers) {
+      for (Series.Builder buffer : buffers) {
         buffer.loc().remove(r);
       }
     }
@@ -516,14 +504,14 @@ public class MixedDataFrame extends AbstractDataFrame {
       Collections.swap(buffers, a, b);
     }
 
-    public Builder swapInColumn(int column, int a, int b) {
+    Builder swapInColumn(int column, int a, int b) {
       buffers.get(column).loc().swap(a, b);
       return this;
     }
 
     @Override
     public void swapRecordsAt(int a, int b) {
-      for (int i = 0; i < columns(); i++) {
+      for (int i = 0; i < size(1); i++) {
         swapInColumn(i, a, b);
       }
     }
@@ -537,42 +525,24 @@ public class MixedDataFrame extends AbstractDataFrame {
     }
 
     @Override
-    public int columns() {
-      return buffers.size();
-    }
-
-    /**
-     * Returns the vector with most rows
-     *
-     * @return the number of rows
-     */
-    @Override
-    public int rows() {
-      return buffers.stream().mapToInt(Vector.Builder::size).reduce(0, Integer::max);
-    }
-
-    @Override
-    public DataFrame getTemporaryDataFrame() {
-      int rows = rows();
-      List<Vector> vectors =
-          buffers.stream().map((builder) -> padVectorWithNA(builder, rows).getView())
-              .collect(Collectors.toCollection(ArrayList::new));
-      return new MixedDataFrame(vectors, rows) {
-        @Override
-        public Builder newCopyBuilder() {
-          return Builder.this;
-        }
-      };
+    public int size(int dim) {
+      switch (dim) {
+        case 0:
+          return buffers.stream().mapToInt(Series.Builder::size).reduce(0, Integer::max);
+        case 1:
+          return buffers.size();
+        default:
+          throw new IllegalArgumentException("illegal dimension");
+      }
     }
 
     @Override
     public MixedDataFrame build() {
-      int rows = rows();
-      List<Vector> vectors =
-          buffers.stream().map(x -> padVectorWithNA(x, rows).build())
-              .collect(Collectors.toCollection(ArrayList::new));
+      int rows = size(0);
+      List<Series> series = buffers.stream().map(x -> padVectorWithNA(x, rows).build())
+          .collect(Collectors.toCollection(ArrayList::new));
       MixedDataFrame df =
-          new MixedDataFrame(vectors, rows, getColumnIndex(columns()), getIndex(rows));
+          new MixedDataFrame(series, rows, getColumnIndex(size(1)), getIndex(rows));
       buffers = null;
       return df;
     }
@@ -588,7 +558,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     private void ensureColumnCapacity(int index) {
       int i = buffers.size();
       while (i <= index) {
-        buffers.add(new TypeInferenceVectorBuilder());
+        buffers.add(new TypeInferenceBuilder());
         i++;
       }
     }

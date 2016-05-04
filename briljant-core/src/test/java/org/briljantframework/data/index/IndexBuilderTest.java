@@ -63,7 +63,7 @@ public abstract class IndexBuilderTest {
     builder.add("b");
     builder.add("c");
     builder.add("d");
-    builder.remove(2);
+    builder.removeLocation(2);
     assertEquals(0, builder.getLocation("a"));
     assertEquals(2, builder.getLocation("d"));
   }
@@ -96,7 +96,7 @@ public abstract class IndexBuilderTest {
   @Test
   public void testSortIterationOrder() throws Exception {
     int[] order = {20, 10, 30};
-    Index.Builder ib = new ObjectIndex.Builder();
+    Index.Builder ib = new HashIndex.Builder();
     ib.add("A");
     ib.add("B");
     ib.add("C");

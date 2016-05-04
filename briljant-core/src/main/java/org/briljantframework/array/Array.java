@@ -32,7 +32,7 @@ import org.apache.commons.math3.complex.Complex;
  * @author Isak Karlsson
  * @see BaseArray
  */
-public interface Array<T> extends BaseArray<T, Array<T>>, Iterable<T> {
+public interface Array<T> extends BaseArray<Array<T>>, Iterable<T> {
 
   /**
    * @see Arrays#vector(Object[])
@@ -237,7 +237,7 @@ public interface Array<T> extends BaseArray<T, Array<T>>, Iterable<T> {
   T reduce(T initial, BinaryOperator<T> accumulator);
 
   /**
-   * Reduce each vector along the specified dimension using the given accumulator.
+   * Reduce each series along the specified dimension using the given accumulator.
    * 
    * @param dim the dimension
    * @param accumulator the accumulator
@@ -350,10 +350,7 @@ public interface Array<T> extends BaseArray<T, Array<T>>, Iterable<T> {
    */
   Stream<T> stream();
 
-  @Override
-  default Array<T> asArray() {
-    return this;
-  }
+  List<T> asList();
 
   /**
    * Return the contents of this array as a Java-array. If the array is a view, the returned data

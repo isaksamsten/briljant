@@ -23,7 +23,7 @@ package org.briljantframework.data;
 import java.util.Objects;
 
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.series.Series;
 
 /**
  * Utility class for boolean checks, e.g, NA and type.
@@ -44,11 +44,11 @@ public final class Is {
     return value instanceof Number || value instanceof Complex;
   }
 
-  public static boolean nominal(Vector vector) {
-    return !Number.class.isAssignableFrom(vector.getType().getDataClass());
+  public static boolean nominal(Series series) {
+    return !Number.class.isAssignableFrom(series.getType().getDataClass());
   }
 
-  public static boolean numeric(Vector v) {
+  public static boolean numeric(Series v) {
     return Number.class.isAssignableFrom(v.getType().getDataClass())
         || Complex.class.isAssignableFrom(v.getType().getDataClass());
   }

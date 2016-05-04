@@ -27,15 +27,19 @@ import org.briljantframework.array.api.ArrayBackend;
  * 
  * @author Isak Karlsson
  */
-abstract class AsBooleanArray extends AbstractBooleanArray {
+public abstract class AsBooleanArray extends AbstractBooleanArray {
 
-  AsBooleanArray(ArrayBackend backend, int offset, int[] shape, int[] stride, int majorStride) {
-    super(backend, offset, shape, stride, majorStride);
+  public AsBooleanArray(AbstractBaseArray<?> array) {
+    super(array.getArrayBackend(), array.getOffset(), array.getShape(), array.getStride());
+  }
+
+  AsBooleanArray(ArrayBackend backend, int offset, int[] shape, int[] stride) {
+    super(backend, offset, shape, stride);
   }
 
   @Override
   public BooleanArray asView(int offset, int[] shape, int[] stride) {
-    return new AsBooleanArray(getArrayBackend(), offset, shape, stride, majorStride) {
+    return new AsBooleanArray(getArrayBackend(), offset, shape, stride) {
       @Override
       protected boolean getElement(int i) {
         return AsBooleanArray.this.getElement(i);

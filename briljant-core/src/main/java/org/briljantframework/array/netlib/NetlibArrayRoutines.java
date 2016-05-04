@@ -36,7 +36,6 @@ import com.github.fommil.netlib.BLAS;
  */
 class NetlibArrayRoutines extends BaseArrayRoutines {
 
-  protected static final String VECTOR_REQUIRED = "vector required";
   private final static BLAS blas = BLAS.getInstance();
 
   NetlibArrayRoutines(ArrayBackend backend) {
@@ -49,8 +48,8 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
       Check.argument(a.isVector() && b.isVector(), VECTOR_REQUIRED);
       Check.size(a, b);
       int n = a.size();
-      return blas.ddot(n, a.data(), a.getOffset(), getVectorMajorStride(a), b.data(),
-          b.getOffset(), getVectorMajorStride(b));
+      return blas.ddot(n, a.data(), a.getOffset(), getVectorMajorStride(a), b.data(), b.getOffset(),
+          getVectorMajorStride(b));
     } else {
       return super.inner(a, b);
     }
@@ -123,11 +122,10 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
 
       int m = a.size(transA == ArrayOperation.KEEP ? 0 : 1);
       int n = a.size(transA == ArrayOperation.KEEP ? 1 : 0);
-      // TODO: sanity checks
-
+      // TODO: 5/2/16 ensure correctness
       blas.dgemv(transA.getCblasString(), m, n, alpha, a.data(), a.getOffset(),
-          Math.max(1, a.stride(1)), x.data(), x.getOffset(), x.getMajorStride(), beta, y.data(),
-          y.getOffset(), y.getMajorStride());
+          Math.max(1, a.stride(1)), x.data(), x.getOffset(), x.stride(0), beta, y.data(),
+          y.getOffset(), y.stride(0));
     } else {
       super.gemv(transA, alpha, a, x, beta, y);
     }
@@ -140,9 +138,9 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
     Check.dimension(y.size(), a.columns());
     if (x instanceof NetlibDoubleArray && y instanceof NetlibDoubleArray
         && a instanceof NetlibDoubleArray && a.stride(0) == 1 && a.stride(1) >= a.size(1)) {
-      blas.dger(a.rows(), a.columns(), alpha, x.data(), x.getOffset(), x.getMajorStride(),
-          y.data(), y.getOffset(), y.getMajorStride(), a.data(), a.getOffset(),
-          Math.max(1, a.stride(1)));
+      // TODO: 5/3/16 ensure correctness
+      blas.dger(a.rows(), a.columns(), alpha, x.data(), x.getOffset(), y.stride(0), y.data(),
+          y.getOffset(), y.stride(0), a.data(), a.getOffset(), Math.max(1, a.stride(1)));
     } else {
       super.ger(alpha, x, y, a);
     }
@@ -155,8 +153,8 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
     Check.argument(b.dims() == 2, "'b' has %s dims", a.dims());
     Check.argument(c.dims() == 2, "'c' has %s dims", a.dims());
 
-    if (b.size(transB == ArrayOperation.KEEP ? 0 : 1) != a.size(transA == ArrayOperation.KEEP ? 1
-        : 0)) {
+    if (b.size(transB == ArrayOperation.KEEP ? 0 : 1) != a
+        .size(transA == ArrayOperation.KEEP ? 1 : 0)) {
       boolean ta = transA == ArrayOperation.KEEP;
       boolean tb = transB == ArrayOperation.KEEP;
       throw new IllegalArgumentException(String.format("a has size (%d, %d), b has size(%d, %d)",
@@ -167,9 +165,9 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
     int k = a.size(transA == ArrayOperation.KEEP ? 1 : 0);
 
     if (m != c.size(0) || n != c.size(1)) {
-      throw new IllegalArgumentException(String.format(
-          "a has size (%d,%d), b has size (%d,%d), c has size (%d, %d)", m, k, k, n, c.size(0),
-          c.size(1)));
+      throw new IllegalArgumentException(
+          String.format("a has size (%d,%d), b has size (%d,%d), c has size (%d, %d)", m, k, k, n,
+              c.size(0), c.size(1)));
     }
 
     // Issue: is a or b is non-netlib arrays it might be beneficial to copy here if
@@ -193,7 +191,7 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
   }
 
   @Override
-  public <E, T extends BaseArray<E, T>> void copy(T from, T to) {
+  public <T extends BaseArray<T>> void copy(T from, T to) {
     if (from instanceof NetlibDoubleArray && to instanceof NetlibDoubleArray && !from.isView()
         && from.stride(0) == 1 && !to.isView() && to.stride(0) == 1) {
       System.arraycopy(((NetlibDoubleArray) from).data(), from.getOffset(),
@@ -207,7 +205,7 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
     return x instanceof NetlibDoubleArray && x.stride(0) == 1;
   }
 
-  private int getVectorMajorStride(BaseArray<?, ?> array) {
+  private int getVectorMajorStride(BaseArray<?> array) {
     switch (array.dims()) {
       case 1:
         return array.stride(0);
@@ -218,11 +216,11 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
         } else if (array.size(0) >= 1 && array.size(1) == 1) {
           return array.stride(0);
         } else {
-          throw new IllegalArgumentException("Can't get vector stride of Matrix");
+          throw new IllegalArgumentException("Can't get series stride of Matrix");
         }
       default:
-        throw new IllegalArgumentException(String.format("Can't get vector stride of %dd-array",
-            array.dims()));
+        throw new IllegalArgumentException(
+            String.format("Can't get series stride of %dd-array", array.dims()));
     }
   }
 

@@ -7,6 +7,7 @@ import org.briljantframework.array.BooleanArray
 import org.briljantframework.array.DoubleArray
 import org.briljantframework.array.IntArray
 import org.briljantframework.array.LongArray
+import org.briljantframework.data.parser.SqlParser
 
 infix fun DoubleArray.eq(x: DoubleArray) = this.eq(x)
 infix fun LongArray.eq(x: LongArray) : BooleanArray = this.eq(x)
@@ -22,8 +23,10 @@ infix fun IntArray.eq(x: IntArray) : BooleanArray = this.eq(x)
 
 fun main(args: Array<String>) {
 
+    val sp = SqlParser("")
+
 //    //    listOf<>()
-//    val y = vector("a", "b", "c", "d")
+//    val y = series("a", "b", "c", "d")
 //
     //    println(doubleArray(10, 10, 10)[0, 1,2])
     //    println(y.reshape(2, 2))

@@ -50,15 +50,14 @@ class BaseComplexArray extends AbstractComplexArray {
     this.data = new Complex[size()];
   }
 
-  private BaseComplexArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
-      Complex[] data) {
-    super(bj, offset, shape, stride, majorStride);
+  private BaseComplexArray(ArrayBackend bj, int offset, int[] shape, int[] stride, Complex[] data) {
+    super(bj, offset, shape, stride);
     this.data = data;
   }
 
   @Override
   public ComplexArray asView(int offset, int[] shape, int[] stride) {
-    return new BaseComplexArray(getArrayBackend(), offset, shape, stride, majorStride, data);
+    return new BaseComplexArray(getArrayBackend(), offset, shape, stride, data);
   }
 
   @Override

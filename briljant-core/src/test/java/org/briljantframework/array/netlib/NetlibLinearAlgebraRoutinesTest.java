@@ -275,7 +275,7 @@ public class NetlibLinearAlgebraRoutinesTest {
     ComplexArray v = bj.newComplexArray(n, n);
     for (int i = 0; i < n; i++) {
       if (Precision.equals(wi.get(i), 0, 1e-6)) {
-        v.setColumn(i, vr.getColumn(i).asComplex());
+        v.setColumn(i, vr.getColumn(i).asComplexArray());
       } else {
         DoubleArray real = vr.getColumn(i);
         DoubleArray imag = vr.getColumn(i + 1);
@@ -297,7 +297,7 @@ public class NetlibLinearAlgebraRoutinesTest {
 
   @Test
   public void testRank() throws Exception {
-    DoubleArray x = bj.range(9).reshape(3, 3).asDouble();
+    DoubleArray x = bj.range(9).reshape(3, 3).asDoubleArray();
     System.out.println(x);
     System.out.println(linalg.rank(x));
   }

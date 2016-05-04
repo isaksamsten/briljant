@@ -27,7 +27,7 @@ package org.briljantframework.array.netlib
 import org.briljantframework.array.ArrayRoutinesSpec
 
 /**
- * Created by isak on 31/07/15.
+ * Created by isak columnKeys 31/07/15.
  */
 class NetlibArrayRoutinesSpec extends ArrayRoutinesSpec {
 

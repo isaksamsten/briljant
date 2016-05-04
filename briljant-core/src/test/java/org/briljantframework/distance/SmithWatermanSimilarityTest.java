@@ -35,8 +35,8 @@ public class SmithWatermanSimilarityTest {
     // .map(String::valueOf)
     // .toArray(String[]::new);
     //
-    // Vector a = Vector.of(aa);
-    // Vector b = Vector.of(bb);
+    // Series a = Series.of(aa);
+    // Series b = Series.of(bb);
     // SmithWatermanSimilarity distance = new SmithWatermanSimilarity(1, 0, 0);
     // double compute = distance.compute(a, b);
     // assertEquals(3, compute, 0);

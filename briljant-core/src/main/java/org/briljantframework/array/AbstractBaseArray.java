@@ -20,9 +20,8 @@
  */
 package org.briljantframework.array;
 
-import static org.briljantframework.array.Arrays.broadcast;
-
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -32,6 +31,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.util.sort.Swappable;
 
 /**
  * This class provides a skeletal implementation of the {@link BaseArray} interface to minimize the
@@ -44,28 +44,24 @@ import org.briljantframework.array.api.ArrayFactory;
  * @see AbstractDoubleArray
  * @see AbstractComplexArray
  */
-public abstract class AbstractBaseArray<T, E extends BaseArray<T, E>> implements BaseArray<T, E> {
+public abstract class AbstractBaseArray<E extends BaseArray<E>>
+    implements BaseArray<E>, Swappable {
 
   protected static final String INVALID_DIMENSION = "Dimension out of bounds (%s < %s)";
-  protected static final String INVALID_VECTOR = "Vector index out of bounds (%s < %s)";
+  protected static final String INVALID_VECTOR = "Series index out of bounds (%s < %s)";
   protected static final String CHANGED_TOTAL_SIZE =
       "Total size of new array must be unchanged. (%s, %s)";
   protected static final String ILLEGAL_DIMENSION_INDEX =
       "Index %s is out of bounds for dimension %s with size %s";
 
   protected static final String REQUIRE_2D = "Require 2d-array";
-  protected static final String REQUIRE_1D = "Require 2d-array";
+  protected static final String REQUIRE_1D = "Require 1d-array";
   protected static final String REQUIRE_ND = "Require %dd-array";
 
   /**
    * The array backend associated with this array
    */
   protected final ArrayBackend backend;
-
-  /**
-   * The index of the major stride
-   */
-  protected final int majorStride;
 
   /**
    * The size of the array. Equals to shape[0] * shape[1] * ... * shape[shape.length - 1]
@@ -99,28 +95,59 @@ public abstract class AbstractBaseArray<T, E extends BaseArray<T, E>> implements
     this.stride = StrideUtils.computeStride(shape);
     this.size = ShapeUtils.size(shape);
     this.offset = 0;
-    this.majorStride = 0;
   }
 
   /**
    * Construct an empty base array with the specified offset (i.e., where elements start), shape,
    * stride and majorStride
-   *
+   * 
    * @param backend the factory
    * @param offset the offset
    * @param shape the shape (<strong>not copied</strong>)
    * @param stride the stride (<strong>not copied</strong>)
-   * @param majorStride the major stride index
    */
-  protected AbstractBaseArray(ArrayBackend backend, int offset, int[] shape, int[] stride,
-      int majorStride) {
+  protected AbstractBaseArray(ArrayBackend backend, int offset, int[] shape, int[] stride) {
     this.backend = backend;
     this.shape = shape;
     this.stride = stride;
     this.size = ShapeUtils.size(shape);
     this.offset = offset;
-    this.majorStride = majorStride;
   }
+//
+//  @Override
+//  public boolean contains(Object o) {
+//    for (T v : this) {
+//      if (Objects.equals(v, o)) {
+//        return true;
+//      }
+//    }
+//    return false;
+//  }
+//
+//  @Override
+//  public boolean containsAll(Collection<?> c) {
+//    for (Object o : c) {
+//      if (!contains(o)) {
+//        return false;
+//      }
+//    }
+//    return true;
+//  }
+//
+//  @Override
+//  public Object[] toArray() {
+//    throw new UnsupportedOperationException();
+//  }
+//
+//  @Override
+//  public <T1> T1[] toArray(T1[] a) {
+//    throw new UnsupportedOperationException();
+//  }
+//
+//  @Override
+//  public boolean isEmpty() {
+//    return size() == 0;
+//  }
 
   /**
    * Returns the array factory
@@ -175,23 +202,23 @@ public abstract class AbstractBaseArray<T, E extends BaseArray<T, E>> implements
   }
 
   @Override
-  public void setColumn(int i, E vec) {
+  public final void setColumn(int i, E vec) {
     getColumn(i).assign(vec);
   }
 
   @Override
-  public E getColumn(int i) {
+  public final E getColumn(int i) {
     Check.state(isMatrix(), "Can only get columns from 2d-arrays");
     return getView(0, i, rows(), 1);
   }
 
   @Override
-  public void setRow(int i, E vec) {
+  public final void setRow(int i, E vec) {
     getRow(i).assign(vec);
   }
 
   @Override
-  public E getRow(int i) {
+  public final E getRow(int i) {
     Check.state(isMatrix(), "Can only get rows from 2d-arrays");
     return getView(i, 0, 1, columns());
   }
@@ -285,12 +312,12 @@ public abstract class AbstractBaseArray<T, E extends BaseArray<T, E>> implements
   }
 
   @Override
-  public E ravel() {
+  public final E ravel() {
     return reshape(-1);
   }
 
   @Override
-  public E select(int index) {
+  public final E select(int index) {
     Check.argument(dims() > 1, "Can't select in 1-d array");
     Check.argument(index >= 0 && index < size(0), ILLEGAL_DIMENSION_INDEX, index, 0, size(0));
     int dims = dims();
@@ -299,7 +326,7 @@ public abstract class AbstractBaseArray<T, E extends BaseArray<T, E>> implements
   }
 
   @Override
-  public E select(int dimension, int index) {
+  public final E select(int dimension, int index) {
     Check.argument(dims() > 1, "Can't select in 1-d array");
     Check.argument(dimension < dims() && dimension >= 0, "Can't select dimension.");
     Check.argument(index < size(dimension), "Index outside of shape.");
@@ -308,12 +335,12 @@ public abstract class AbstractBaseArray<T, E extends BaseArray<T, E>> implements
   }
 
   @Override
-  public E getView(Range... indexers) {
+  public final E getView(Range... indexers) {
     return getView(Arrays.asList(indexers));
   }
 
   @Override
-  public E getView(List<? extends Range> ranges) {
+  public final E getView(List<? extends Range> ranges) {
     Check.argument(ranges.size() <= dims(), "too many indicies for array");
     Check.argument(ranges.size() > 0, "too few indices for array");
 
@@ -339,7 +366,7 @@ public abstract class AbstractBaseArray<T, E extends BaseArray<T, E>> implements
   }
 
   @Override
-  public E getVector(int dimension, int index) {
+  public final E getVector(int dimension, int index) {
     if (ArrayUtils.contains(stride, 0)) {
       return copy().getVector(dimension, index);
     }
@@ -364,23 +391,23 @@ public abstract class AbstractBaseArray<T, E extends BaseArray<T, E>> implements
   }
 
   @Override
-  public void setVector(int dimension, int index, E other) {
+  public final void setVector(int dimension, int index, E other) {
     getVector(dimension, index).assign(other);
   }
 
   @Override
-  public E getDiagonal() {
+  public final E getDiagonal() {
     Check.state(isMatrix(), "Can only get the diagonal of 2d-arrays");
     return asView(getOffset(), new int[] {Math.min(rows(), columns())}, new int[] {rows() + 1});
   }
 
   @Override
-  public E get(IntArray... arrays) {
+  public final E get(IntArray... arrays) {
     return get(Arrays.asList(arrays));
   }
 
   @Override
-  public E get(List<? extends IntArray> arrays) {
+  public final E get(List<? extends IntArray> arrays) {
     Check.argument(arrays.size() <= dims(), "too many indicies for array");
     Check.argument(arrays.size() > 0, "too few indices for array");
 
@@ -416,7 +443,7 @@ public abstract class AbstractBaseArray<T, E extends BaseArray<T, E>> implements
   }
 
   @Override
-  public void set(List<? extends IntArray> arrays, E value) {
+  public final void set(List<? extends IntArray> arrays, E value) {
     Check.argument(arrays.size() <= dims(), "too many indicies for array");
     Check.argument(arrays.size() > 0, "too few indices for array");
 
@@ -447,7 +474,7 @@ public abstract class AbstractBaseArray<T, E extends BaseArray<T, E>> implements
   }
 
   @Override
-  public E getView(int rowOffset, int colOffset, int rows, int columns) {
+  public final E getView(int rowOffset, int colOffset, int rows, int columns) {
     Check.state(isMatrix(), "Can only get view from 2d-arrays");
     Check.argument(rowOffset + rows <= rows() && colOffset + columns <= columns(),
         "Selected view is to large");
@@ -492,11 +519,6 @@ public abstract class AbstractBaseArray<T, E extends BaseArray<T, E>> implements
   }
 
   @Override
-  public final int getMajorStride() {
-    return stride(majorStride);
-  }
-
-  @Override
   public final int rows() {
     Check.state(isMatrix(), "Can only get number of rows of 2-d arrays");
     return shape[0];
@@ -536,7 +558,7 @@ public abstract class AbstractBaseArray<T, E extends BaseArray<T, E>> implements
 
   @Override
   public final boolean isContiguous() {
-    return getMajorStride() == 1;
+    return stride(0) == 1;
   }
 
   @Override
@@ -555,8 +577,4 @@ public abstract class AbstractBaseArray<T, E extends BaseArray<T, E>> implements
    * @return the number of elements in the data source
    */
   protected abstract int elementSize();
-
-  protected int getMajorStrideIndex() {
-    return majorStride;
-  }
 }

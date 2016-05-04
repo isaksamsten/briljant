@@ -25,11 +25,11 @@ package org.briljantframework.array;
  */
 public class ShapeUtils {
 
-  public static boolean isBroadcastSensible(BaseArray<?, ?> a, BaseArray<?, ?> b) {
+  public static boolean isBroadcastSensible(BaseArray<?> a, BaseArray<?> b) {
     return !(a.isVector() && b.isVector());
   }
 
-  public static <E, S extends BaseArray<E, S>> S broadcastIfSensible(BaseArray<?, ?> targetShape,
+  public static <S extends BaseArray<S>> S broadcastIfSensible(BaseArray<?> targetShape,
       S toBroadcast) {
     if (isBroadcastSensible(targetShape, toBroadcast)) {
       return Arrays.broadcast(toBroadcast, targetShape.getShape());

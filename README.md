@@ -4,7 +4,7 @@
 
 Briljant (0.3) is a [MIT](http://https://opensource.org/licenses/MIT)
 licensed framework for [Numpy](http://www.numpy.org/)-like nd-arrays
-and [R](https://www.r-project.org/)-like data frames and vectors for
+and [R](https://www.r-project.org/)-like data frames and series for
 the [JVM](https://en.wikipedia.org/wiki/Java_virtual_machine) written
 in [Java](https://www.java.com) with bindings for languages such as
 [Groovy](http://www.groovy-lang.org/) and
@@ -144,7 +144,7 @@ array([[[a, b],
 ```
 
 Briljant also provides facilities to adapt arrays to 
-[https://commons.apache.org/proper/commons-math/](Apache Commons Math) matrices and vectors,
+[https://commons.apache.org/proper/commons-math/](Apache Commons Math) matrices and series,
 allowing us to leverage a large body of their linear algebra routines. For example, given
 `DoubleArray array = Arrays.linspace(-1, 1, 1000000).reshape(1000, 1000);` we can
 decompose it as:

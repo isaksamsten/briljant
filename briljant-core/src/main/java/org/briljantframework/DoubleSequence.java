@@ -40,5 +40,5 @@ public interface DoubleSequence {
    * @param index  the index
    * @return the i:th value of the sequence
    */
-  double getAsDouble(int index);
+  double getDouble(int index);
 }

@@ -27,20 +27,19 @@ import org.briljantframework.array.api.ArrayBackend;
  * 
  * @author Isak Karlsson
  */
-abstract class AsArray<T> extends AbstractArray<T> {
+public abstract class AsArray<T> extends AbstractArray<T> {
 
-  AsArray(ArrayBackend backend, int offset, int[] shape, int[] stride, int majorStride) {
-    super(backend, offset, shape, stride, majorStride);
+  private AsArray(ArrayBackend backend, int offset, int[] shape, int[] stride) {
+    super(backend, offset, shape, stride);
   }
 
-  AsArray(AbstractBaseArray<?, ?> array) {
-    super(array.getArrayBackend(), array.getOffset(), array.getShape(), array.getStride(), array
-        .getMajorStrideIndex());
+  public AsArray(AbstractBaseArray<?> array) {
+    super(array.getArrayBackend(), array.getOffset(), array.getShape(), array.getStride());
   }
 
   @Override
   public Array<T> asView(int offset, int[] shape, int[] stride) {
-    return new AsArray<T>(getArrayBackend(), offset, shape, stride, majorStride) {
+    return new AsArray<T>(getArrayBackend(), offset, shape, stride) {
       @Override
       protected int elementSize() {
         return AsArray.this.elementSize();

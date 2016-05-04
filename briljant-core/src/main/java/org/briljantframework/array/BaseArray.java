@@ -69,11 +69,11 @@ import org.briljantframework.util.sort.Swappable;
  * Finally, all specialized types must return them self when the specialization method is called. In
  * all other cases, a view should be returned. That is:
  * <ul>
- * <li>{@link DoubleArray#asDouble()} must return {@code this}</li>
- * <li>{@link IntArray#asInt()} must return {@code this}</li>
- * <li>{@link org.briljantframework.array.LongArray#asLong()} must return {@code this}</li>
- * <li>{@link BooleanArray#asBoolean()} must return {@code this}</li>
- * <li>{@link ComplexArray#asComplex()} must return {@code this}</li>
+ * <li>{@link DoubleArray#asDoubleArray()} must return {@code this}</li>
+ * <li>{@link IntArray#asIntArray()} must return {@code this}</li>
+ * <li>{@link org.briljantframework.array.LongArray#asLongArray()} must return {@code this}</li>
+ * <li>{@link BooleanArray#asBooleanArray()} must return {@code this}</li>
+ * <li>{@link ComplexArray#asComplexArray()} must return {@code this}</li>
  * </ul>
  * 
  * <p/>
@@ -101,7 +101,7 @@ import org.briljantframework.util.sort.Swappable;
  * @see IntArray
  * @see BooleanArray
  */
-public interface BaseArray<T, S extends BaseArray<T, S>> extends Swappable {
+public interface BaseArray<S extends BaseArray<S>> extends Swappable {
 
   /**
    * Set the value at {@code toIndex} using the value at {@code fromIndex} in {@code from}, enabling
@@ -198,7 +198,7 @@ public interface BaseArray<T, S extends BaseArray<T, S>> extends Swappable {
   void assign(S o);
 
   /**
-   * Iterate over each vector of this array along the specified dimension.
+   * Iterate over each series of this array along the specified dimension.
    * <p>
    * Example:
    * 
@@ -240,13 +240,13 @@ public interface BaseArray<T, S extends BaseArray<T, S>> extends Swappable {
    * </pre>
    *
    * @param i the column index
-   * @param vec the vector of values
+   * @param vec the series of values
    * @throws java.lang.IllegalStateException if array is not 2d
    */
   void setColumn(int i, S vec);
 
   /**
-   * For 2d-arrays, gets the (column) vector at {@code index}. This method returns a column vector,
+   * For 2d-arrays, gets the (column) series at {@code index}. This method returns a column series,
    * i.e. a 2d-array with shape {@code n x 1}.
    *
    * <p>
@@ -293,7 +293,7 @@ public interface BaseArray<T, S extends BaseArray<T, S>> extends Swappable {
    * </pre>
    *
    * @param index the index
-   * @return a vector of shape {@code n x 1}
+   * @return a series of shape {@code n x 1}
    * @throws java.lang.IllegalStateException if array is not 2d
    */
   S getColumn(int index);
@@ -339,18 +339,18 @@ public interface BaseArray<T, S extends BaseArray<T, S>> extends Swappable {
    * </pre>
    *
    * @param i the row index
-   * @param vec a vector of size {@code m}
+   * @param vec a series of size {@code m}
    * @throws java.lang.IllegalStateException if array is not 2d
    * @throws java.lang.IllegalArgumentException if {@code i > n || i < 0}
    */
   void setRow(int i, S vec);
 
   /**
-   * For 2d-arrays, gets the (row) vector at {@code i}. This method returns a row-vector, i.e. a
+   * For 2d-arrays, gets the (row) series at {@code i}. This method returns a row-series, i.e. a
    * 2d-array with shape {@code 1 x m}.
    *
    * @param i the row index
-   * @return a vector of shape {@code 1 x m}
+   * @return a series of shape {@code 1 x m}
    * @throws java.lang.IllegalStateException if array is not 2d
    * @throws java.lang.IllegalArgumentException if {@code i > n || i < 0}
    */
@@ -722,7 +722,7 @@ public interface BaseArray<T, S extends BaseArray<T, S>> extends Swappable {
   S getView(List<? extends Range> ranges);
 
   /**
-   * Gets the {@code i:th} vector along the {@code d:th} dimension. For 2d-arrays,
+   * Gets the {@code i:th} series along the {@code d:th} dimension. For 2d-arrays,
    * {@linkplain #getRow(int)} and {@linkplain #getColumn(int)} preserves the 2d-shape of the
    * vectors resulting in row-vectors and column-vectors respectively. This method results in
    * 1d-vectors.
@@ -851,8 +851,8 @@ public interface BaseArray<T, S extends BaseArray<T, S>> extends Swappable {
    * </pre>
    *
    * @param dimension the dimension
-   * @param index the index of the vector
-   * @return a view of the {@code i:th} vector of the {@code d:th} dimension
+   * @param index the index of the series
+   * @return a view of the {@code i:th} series of the {@code d:th} dimension
    */
   S getVector(int dimension, int index);
 
@@ -872,7 +872,7 @@ public interface BaseArray<T, S extends BaseArray<T, S>> extends Swappable {
   }
 
   /**
-   * Sets the elements of the {@code i:th} vector in the {@code d:th} dimension to the values of
+   * Sets the elements of the {@code i:th} series in the {@code d:th} dimension to the values of
    * {@code other}. The size of {@code other} must equal the size of the {@code d:th} dimension
    * {@code size(dim)}.
    *
@@ -923,8 +923,8 @@ public interface BaseArray<T, S extends BaseArray<T, S>> extends Swappable {
    * </pre>
    *
    * @param dimension the dimension
-   * @param index the index of the vector
-   * @param other the new values for the {@code i:th} vector in the {@code d:th} dimension
+   * @param index the index of the series
+   * @param other the new values for the {@code i:th} series in the {@code d:th} dimension
    */
   void setVector(int dimension, int index, S other);
 
@@ -1168,13 +1168,6 @@ public interface BaseArray<T, S extends BaseArray<T, S>> extends Swappable {
   int[] getStride();
 
   /**
-   * The major stride, if the array is {@link #isContiguous() contiguous} {@code 1} is returned.
-   *
-   * @return the major stride
-   */
-  int getMajorStride();
-
-  /**
    * Returns {@code true} if this array is a 2d-array and both dimensions have the same size.
    *
    * @return {@code true} if the array is square
@@ -1205,16 +1198,16 @@ public interface BaseArray<T, S extends BaseArray<T, S>> extends Swappable {
   int dims();
 
   /**
-   * Return {@code true} if this array is a vector. The definition of vector is a 1d-array or a
+   * Return {@code true} if this array is a series. The definition of series is a 1d-array or a
    * 2d-array where the first or second dimension is {@code 1}.
    *
-   * @return {@code true} if this array is a vector
+   * @return {@code true} if this array is a series
    */
   boolean isVector();
 
   /**
    * Returns {@code true} if this array is a matrix. The definition of a matrix is a 2d-array. For
-   * row and column vectors the definition of vector and matrix overlaps. For some 2d-arrays both
+   * row and column vectors the definition of series and matrix overlaps. For some 2d-arrays both
    * {@code isVector()} and {@code isMatrix()} returns {@code true}.
    *
    * @return {@code true} if this array is a matrix
@@ -1336,35 +1329,6 @@ public interface BaseArray<T, S extends BaseArray<T, S>> extends Swappable {
   boolean isView();
 
   /**
-   * @return this matrix as a {@link DoubleArray}.
-   */
-  DoubleArray asDouble();
-
-  /**
-   * @return this matrix as an {@link IntArray}.
-   */
-  IntArray asInt();
-
-  /**
-   * @return return this matrix as a {@link LongArray}
-   */
-  LongArray asLong();
-
-  /**
-   * @return this matrix as an {@link BooleanArray}.
-   */
-  BooleanArray asBoolean();
-
-  /**
-   * @return this matrix as a {@link ComplexArray}.
-   */
-  ComplexArray asComplex();
-
-  Array<T> asArray();
-
-  List<T> toList();
-
-  /**
    * Returns true if the array is contiguous in memory, which means that the array is in the default
    * order, i.e. fortran ordering in which the first dimension is varying faster.
    *
@@ -1400,20 +1364,9 @@ public interface BaseArray<T, S extends BaseArray<T, S>> extends Swappable {
   S transpose();
 
   /**
-   * Create a copy of this matrix.
+   * Create a copy of this array.
    *
    * @return the copy
    */
   S copy();
-//
-  //  BooleanArray lt(S other);
-  //
-  //  BooleanArray gt(S other);
-  //
-  //  BooleanArray eq(S other);
-  //
-  //  BooleanArray lte(S other);
-  //
-  //  BooleanArray gte(S other);
-
 }

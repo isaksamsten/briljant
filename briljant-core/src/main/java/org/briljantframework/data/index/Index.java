@@ -37,7 +37,7 @@ import org.briljantframework.util.sort.Swappable;
  *
  * @author Isak Karlsson
  */
-public interface Index extends List<Object>, Iterable<Object> {
+public interface Index extends List<Object> {
 
   /**
    * Return an index from 0 to end
@@ -57,7 +57,7 @@ public interface Index extends List<Object>, Iterable<Object> {
    * @return a new index
    */
   static Index range(int start, int end) {
-    return new IntIndex(start, end);
+    return new RangeIndex(start, end);
   }
 
   /**
@@ -67,8 +67,8 @@ public interface Index extends List<Object>, Iterable<Object> {
    * @param collection a collection
    * @return a new index
    */
-  static Index of(Collection<?> collection) {
-    return ObjectIndex.of(collection);
+  static Index copyOf(Collection<?> collection) {
+    return HashIndex.of(collection);
   }
 
   /**
@@ -78,11 +78,11 @@ public interface Index extends List<Object>, Iterable<Object> {
    * @return a new index
    */
   @Deprecated
-  static Index of(Iterable<?> iterable) {
+  static Index copyOf(Iterable<?> iterable) {
     if (iterable instanceof Range && ((Range) iterable).step() == 1) {
-      return new IntIndex(((Range) iterable).start(), ((Range) iterable).end());
+      return new RangeIndex(((Range) iterable).start(), ((Range) iterable).end());
     }
-    return of(new AbstractCollection() {
+    return copyOf(new AbstractCollection() {
       @Override
       public Iterator<?> iterator() {
         return iterable.iterator();
@@ -100,9 +100,9 @@ public interface Index extends List<Object>, Iterable<Object> {
    *
    * @param values the values
    * @return a new index
-   */ // TODO(isak) no vararg; rename copyOf
+   */
   static Index of(Object... values) {
-    return ObjectIndex.of(values);
+    return HashIndex.of(values);
   }
 
   /**
@@ -113,6 +113,14 @@ public interface Index extends List<Object>, Iterable<Object> {
    * @throws java.util.NoSuchElementException if key does not exist
    */
   int getLocation(Object key);
+
+  Index setLocation(int loc, Object value);
+
+  Index removeLocation(Collection<?> locations);
+
+  Index removeLocation(int loc);
+
+  Index drop(Collection<?> keys);
 
   @Override
   Object get(int index);
@@ -145,7 +153,14 @@ public interface Index extends List<Object>, Iterable<Object> {
    * @return the locations
    * @throws java.util.NoSuchElementException if any key is missing
    */
-  int[] locations(Object[] keys);
+  int[] locations(Collection<?> keys);
+
+  Index intersection(Index other);
+
+  Index union(Index other);
+
+  Index difference(Index other);
+
 
   /**
    * Construct a new index builder
@@ -171,6 +186,19 @@ public interface Index extends List<Object>, Iterable<Object> {
      */
     boolean contains(Object key);
 
+    boolean retainAll(Collection<?> keys);
+
+    boolean removeAll(Collection<?> keys);
+
+    Object remove(Object key);
+
+    /**
+     * Deprecated. Use remove(Object) instead.
+     * 
+     * @param index
+     */
+    void removeLocation(int index);
+
     /**
      * Returns the value associated with {@code key}
      *
@@ -179,18 +207,26 @@ public interface Index extends List<Object>, Iterable<Object> {
      */
     int getLocation(Object key);
 
-    Object get(int index);
+    default int getOrAdd(Object key) {
+      int index = size();
+      if (contains(key)) {
+        index = getLocation(key);
+      } else {
+        add(key);
+      }
+      return index;
+    }
 
-    void add(Object key);
+    boolean add(Object key);
 
     void add(int key);
 
     /**
      * Sort the iteration order of this index based on some external value.
-     * 
+     *
      * <pre>
      * int[] order = {20, 10, 30};
-     * Index.Builder ib = new ObjectIndex.Builder();
+     * Index.Builder ib = new HashIndex.Builder();
      * ib.add(&quot;A&quot;);
      * ib.add(&quot;B&quot;);
      * ib.add(&quot;C&quot;);
@@ -203,7 +239,7 @@ public interface Index extends List<Object>, Iterable<Object> {
      * // A
      * // C
      * </pre>
-     * 
+     *
      * @param cmp an external comparison function
      */
     void sortIterationOrder(IntComparator cmp);
@@ -223,8 +259,6 @@ public interface Index extends List<Object>, Iterable<Object> {
     Index build();
 
     int size();
-
-    void remove(int index);
   }
 
   final class Entry {

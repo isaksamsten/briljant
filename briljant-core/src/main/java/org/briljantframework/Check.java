@@ -79,8 +79,8 @@ public final class Check<T> {
    */
   public static void inRange(double value, double min, double max) {
     if (value < min || value > max) {
-      throw new IllegalArgumentException(String.format("%f < %f (min) || %f > %f (max)", value,
-          min, value, max));
+      throw new IllegalArgumentException(
+          String.format("%f < %f (min) || %f > %f (max)", value, min, value, max));
     }
   }
 
@@ -128,6 +128,27 @@ public final class Check<T> {
   public static void dimension(int actual, int expected) throws DimensionMismatchException {
     if (actual != expected) {
       throw new DimensionMismatchException(actual, expected);
+    }
+  }
+
+  public static void index(int index, int size) {
+    if (index < 0 || index >= size) {
+      throw new IndexOutOfBoundsException(
+          String.format("Index %d out of bounds for dimension with size %d", index, size));
+    }
+  }
+
+  public static void index(int row, int rows, int column, int columns) {
+    index(row, rows);
+    index(column, columns);
+  }
+
+  public static void index(int[] index, int[] shape) {
+    if (index.length != shape.length) {
+      throw new IndexOutOfBoundsException("to many / to few indexes for dimensions.");
+    }
+    for (int i = 0; i < index.length; i++) {
+      index(index[i], shape[i]);
     }
   }
 

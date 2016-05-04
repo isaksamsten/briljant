@@ -94,7 +94,7 @@ public final class ArrayPrinter {
   }
 
   public static void append(StringBuilder out, BooleanArray matrix) {
-    append(out, new LongToStringArray(matrix.asLong(), intFormat), "[", "]");
+    append(out, new LongToStringArray(matrix.asLongArray(), intFormat), "[", "]");
   }
 
   public static void append(StringBuilder out, LongArray matrix) {
@@ -102,7 +102,7 @@ public final class ArrayPrinter {
   }
 
   public static void append(StringBuilder out, IntArray matrix) {
-    append(out, new LongToStringArray(matrix.asLong(), intFormat), "[", "]");
+    append(out, new LongToStringArray(matrix.asLongArray(), intFormat), "[", "]");
   }
 
   public static void append(StringBuilder out, Array<?> array) {

@@ -45,15 +45,14 @@ import org.briljantframework.util.sort.QuickSort;
  * 
  * @author Isak Karlsson
  */
-public abstract class AbstractLongArray extends AbstractBaseArray<Long, LongArray> implements LongArray {
+public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> implements LongArray {
 
   protected AbstractLongArray(ArrayBackend backend, int[] shape) {
     super(backend, shape);
   }
 
-  protected AbstractLongArray(ArrayBackend backend, int offset, int[] shape, int[] stride,
-      int majorStride) {
-    super(backend, offset, shape, stride, majorStride);
+  protected AbstractLongArray(ArrayBackend backend, int offset, int[] shape, int[] stride) {
+    super(backend, offset, shape, stride);
   }
 
   @Override
@@ -89,9 +88,8 @@ public abstract class AbstractLongArray extends AbstractBaseArray<Long, LongArra
   }
 
   @Override
-  public DoubleArray asDouble() {
-    return new AsDoubleArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public DoubleArray asDoubleArray() {
+    return new AsDoubleArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       protected double getElement(int i) {
         return AbstractLongArray.this.getElement(i);
@@ -110,11 +108,10 @@ public abstract class AbstractLongArray extends AbstractBaseArray<Long, LongArra
   }
 
   @Override
-  public IntArray asInt() {
-    return new AsIntArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public IntArray asIntArray() {
+    return new AsIntArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
-      public LongArray asLong() {
+      public LongArray asLongArray() {
         return AbstractLongArray.this;
       }
 
@@ -138,14 +135,13 @@ public abstract class AbstractLongArray extends AbstractBaseArray<Long, LongArra
   }
 
   @Override
-  public LongArray asLong() {
+  public LongArray asLongArray() {
     return this;
   }
 
   @Override
-  public BooleanArray asBoolean() {
-    return new AsBooleanArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public BooleanArray asBooleanArray() {
+    return new AsBooleanArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
 
       @Override
       public boolean getElement(int index) {
@@ -165,9 +161,8 @@ public abstract class AbstractLongArray extends AbstractBaseArray<Long, LongArra
   }
 
   @Override
-  public ComplexArray asComplex() {
-    return new AsComplexArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public ComplexArray asComplexArray() {
+    return new AsComplexArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       public Complex getElement(int index) {
         return Complex.valueOf(AbstractLongArray.this.getElement(index));
@@ -464,7 +459,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<Long, LongArra
   }
 
   @Override
-  public LongStream stream() {
+  public LongStream longStream() {
     PrimitiveIterator.OfLong ofLong = new PrimitiveIterator.OfLong() {
       public int current = 0;
 
@@ -483,7 +478,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<Long, LongArra
   }
 
   @Override
-  public List<Long> toList() {
+  public List<Long> asList() {
     return new AbstractList<Long>() {
       @Override
       public int size() {

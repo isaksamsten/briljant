@@ -26,23 +26,23 @@ package org.briljantframework.data.dataframe
 
 import org.apache.commons.math3.complex.Complex
 import org.briljantframework.data.Na
-import org.briljantframework.data.index.ObjectIndex
+import org.briljantframework.data.index.HashIndex
 import spock.lang.Specification
 
 /**
- * Created by isak on 07/06/15.
+ * Created by isak columnKeys 07/06/15.
  */
 class ObjectIndexSpec extends Specification {
 
   def "create HashIndex from list"() {
     when:
-    def i = ObjectIndex.of(["a", "b", "c"])
+    def i = HashIndex.of(["a", "b", "c"])
 
     then:
     i.keySet() as ArrayList == ["a", "b", "c"]
     i.getLocation("a") == 0
     i.getLocation("b") == 1
-    i.locations(["a", "b"] as Object[]) as ArrayList == [0, 1]
+    i.locations(["a", "b"]) as ArrayList == [0, 1]
     i.locations() as ArrayList == [0, 1, 2]
     i.get(2) == "c"
     i.size() == 3
@@ -51,7 +51,7 @@ class ObjectIndexSpec extends Specification {
 
   def "handles NA-index"() {
     expect:
-    ObjectIndex.of([na]).getLocation(na) == 0
+    HashIndex.of([na]).getLocation(na) == 0
 
     where:
     na << [Na.of(Double), Na.of(Integer), Na.of(Object), Na.of(Complex)]
@@ -59,7 +59,7 @@ class ObjectIndexSpec extends Specification {
 
   def "remove element from hash index"() {
     given:
-    def b = new ObjectIndex.Builder()
+    def b = new HashIndex.Builder()
 
     when:
     b.add(0)
@@ -68,7 +68,7 @@ class ObjectIndexSpec extends Specification {
     b.add(3)
 
     and:
-    b.remove(1)
+    b.removeLocation(1)
 
     and:
     def i = b.build()

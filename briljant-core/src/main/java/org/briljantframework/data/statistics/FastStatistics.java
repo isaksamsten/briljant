@@ -44,7 +44,7 @@ public class FastStatistics implements StatisticalSummary {
 
   public void addAll(DoubleSequence arr) {
     for (int i = 0; i < arr.size(); i++) {
-      addValue(arr.getAsDouble(i));
+      addValue(arr.getDouble(i));
     }
   }
 

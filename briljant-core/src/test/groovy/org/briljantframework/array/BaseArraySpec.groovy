@@ -29,7 +29,7 @@ import org.briljantframework.array.base.BaseArrayBackend
 import spock.lang.Specification
 
 /**
- * Created by isak on 24/06/15.
+ * Created by isak columnKeys 24/06/15.
  */
 class BaseArraySpec extends Specification {
 
@@ -315,9 +315,9 @@ class BaseArraySpec extends Specification {
 
   def "Array#getVector returns a vector along a given dimension"() {
     given: "an array"
-    def r = bj.range(2 * 2 * 2).asDouble().reshape(2, 2, 2)
+    def r = bj.range(2 * 2 * 2).asDoubleArray().reshape(2, 2, 2)
 
-    expect: "#getVector returns the correct vector along the specified dimension"
+    expect: "#getVector returns the correct series along the specified dimension"
     r.getVector(dim, idx) == vector
 
     where:
@@ -362,7 +362,7 @@ class BaseArraySpec extends Specification {
     when: "the array is transposed"
     def t = r.transpose()
 
-    then: "the correct vector is returned"
+    then: "the correct series is returned"
     t.getVector(dim, idx) == vector
 
     where:
@@ -409,11 +409,11 @@ class BaseArraySpec extends Specification {
 
   def getRangeArrays(int length) {
     return [
-        bj.range(length).asBoolean().copy(),
-        bj.range(length).asInt().copy(),
-        bj.range(length).asDouble().copy(),
-        bj.range(length).asLong().copy(),
-        bj.range(length).asComplex().copy(),
+        bj.range(length).asBooleanArray().copy(),
+        bj.range(length).asIntArray().copy(),
+        bj.range(length).asDoubleArray().copy(),
+        bj.range(length).asLongArray().copy(),
+        bj.range(length).asComplexArray().copy(),
     ]
   }
 

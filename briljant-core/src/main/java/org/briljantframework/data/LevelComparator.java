@@ -26,7 +26,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.briljantframework.Check;
-import org.briljantframework.data.index.ObjectComparator;
+import org.briljantframework.data.index.NaturalOrdering;
 
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
@@ -37,7 +37,7 @@ public class LevelComparator implements Comparator<Object> {
 
   public LevelComparator(List<SortOrder> orders) {
     // for (SortOrder order : orders) {
-    // this.orders.add(order.orderComparator(ObjectComparator.getInstance()));
+    // this.orders.add(order.orderComparator(NaturalOrdering.getInstance()));
     // }
   }
 
@@ -52,14 +52,14 @@ public class LevelComparator implements Comparator<Object> {
       List<?> bl = (List<?>) b;
       Check.argument(al.size() == bl.size(), "different levels");
       for (int i = 0; i < al.size() - 1; i++) {
-        int c = ObjectComparator.getInstance().compare(al.get(i), bl.get(i));
+        int c = NaturalOrdering.ascending().compare(al.get(i), bl.get(i));
         if (c != 0) {
           return c;
         }
       }
-      return ObjectComparator.getInstance().compare(al.get(al.size() - 1), bl.get(bl.size() - 1));
+      return NaturalOrdering.ascending().compare(al.get(al.size() - 1), bl.get(bl.size() - 1));
     } else {
-      return ObjectComparator.getInstance().compare(a, b);
+      return NaturalOrdering.ascending().compare(a, b);
     }
   }
 }

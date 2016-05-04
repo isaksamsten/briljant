@@ -61,6 +61,8 @@ public final class Na {
   public static final long DOUBLE_NA_MASK = 0x000000000000000FL;
   public static final int DOUBLE_NA_RES = 9;
 
+  public static final Object ANY = null;
+
   public static final long LONG = Long.MIN_VALUE;
 
   public static final int INT = Integer.MIN_VALUE;
@@ -70,13 +72,12 @@ public final class Na {
   public static final byte BYTE = Byte.MIN_VALUE;
 
   public static final short SHORT = Short.MIN_VALUE;
-
   public static final float FLOAT = Float.intBitsToFloat(0xff800009);
   public static final long FLOAT_NA_MASK = 0x0000000F;
+
   public static final int FLOAT_NA_RES = 9;
 
   public static final char CHAR = '\0';
-
   public static final Integer BOXED_INT = INT;
   public static final Double BOXED_DOUBLE = DOUBLE;
   public static final Long BOXED_LONG = LONG;

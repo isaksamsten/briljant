@@ -22,7 +22,7 @@ package org.briljantframework.data.dataframe
 
 import groovy.transform.CompileStatic
 import org.briljantframework.data.index.DataFrameLocationGetter
-import org.briljantframework.data.vector.Vector
+import org.briljantframework.data.series.Vector
 
 /**
  * Extensions to support common Groovy idioms when working with {@link DataFrameLocationGetter data frame location getters}.
@@ -33,11 +33,11 @@ import org.briljantframework.data.vector.Vector
 class DataFrameLocationGetterExtensions {
 
   /**
-   * Get the vector at the specified location
+   * Get the series at the specified location
    *
    * @param self the data frame
    * @param column the column location
-   * @return a vector
+   * @return a series
    */
   static Vector getAt(DataFrameLocationGetter self, int column) {
     return self.get(column)

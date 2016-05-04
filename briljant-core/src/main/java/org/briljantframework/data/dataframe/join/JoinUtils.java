@@ -29,7 +29,7 @@ import org.briljantframework.Check;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.series.Series;
 
 /**
  * @author Isak Karlsson
@@ -99,7 +99,7 @@ public class JoinUtils {
       }
       noGroups = noGroups * (pool.getMaxGroups() + 1);
     }
-    return new JoinKeys(left, right, noGroups);
+    return new JoinKeys(left, right, noGroups, on);
   }
 
   private static int computeKeys(List<?> a, int[] left, Map<Object, Integer> pool, int j) {
@@ -117,8 +117,8 @@ public class JoinUtils {
     return j;
   }
 
-  private static JoinKeys createJoinKeys(Vector a, Vector b) {
-    return createJoinKeys(a.toList(Object.class), b.toList(Object.class));
+  private static JoinKeys createJoinKeys(Series a, Series b) {
+    return createJoinKeys(a.asList(Object.class), b.asList(Object.class));
   }
 
 }

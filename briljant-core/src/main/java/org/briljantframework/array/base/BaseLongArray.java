@@ -28,7 +28,6 @@ import net.mintern.primitive.comparators.LongComparator;
 import org.briljantframework.array.AbstractLongArray;
 import org.briljantframework.array.LongArray;
 import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.array.api.ArrayFactory;
 
 /**
  * @author Isak Karlsson
@@ -47,9 +46,8 @@ class BaseLongArray extends AbstractLongArray {
     this.data = data;
   }
 
-  private BaseLongArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
-      long[] data) {
-    super(bj, offset, shape, stride, majorStride);
+  private BaseLongArray(ArrayBackend bj, int offset, int[] shape, int[] stride, long[] data) {
+    super(bj, offset, shape, stride);
     this.data = data;
   }
 
@@ -74,7 +72,7 @@ class BaseLongArray extends AbstractLongArray {
 
   @Override
   public LongArray asView(int offset, int[] shape, int[] stride) {
-    return new BaseLongArray(getArrayBackend(), offset, shape, stride, majorStride, data);
+    return new BaseLongArray(getArrayBackend(), offset, shape, stride, data);
   }
 
   @Override

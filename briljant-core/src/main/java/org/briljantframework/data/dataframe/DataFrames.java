@@ -20,14 +20,16 @@
  */
 package org.briljantframework.data.dataframe;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import static java.util.stream.Collectors.maxBy;
+import static java.util.stream.Collectors.minBy;
+import static org.briljantframework.data.Collectors.withFinisher;
+
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
+
+import net.mintern.primitive.comparators.IntComparator;
 
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.Check;
@@ -37,15 +39,12 @@ import org.briljantframework.array.DoubleArray;
 import org.briljantframework.data.Collectors;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
-import org.briljantframework.data.dataframe.join.InnerJoin;
-import org.briljantframework.data.dataframe.join.JoinOperation;
-import org.briljantframework.data.dataframe.join.LeftOuterJoin;
-import org.briljantframework.data.dataframe.join.OuterJoin;
-import org.briljantframework.data.index.DataFrameLocationSetter;
+import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.index.Index;
-import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.Type;
-import org.briljantframework.data.vector.Vectors;
+import org.briljantframework.data.index.NaturalOrdering;
+import org.briljantframework.data.series.Series;
+import org.briljantframework.data.series.Type;
+import org.briljantframework.data.series.Vectors;
 
 /**
  * Utility methods for handling {@code DataFrame}s
@@ -53,24 +52,11 @@ import org.briljantframework.data.vector.Vectors;
  * @author Isak Karlsson
  */
 public final class DataFrames {
-
-  public static final String LEFT_OUTER = "left_outer";
-  public static final String OUTER = "outer";
-  public static final String INNER = "inner";
-  public static final String NO_INTERSECTING_COLUMN_NAMES = "No intersecting column names";
   public static final int PER_SLICE = 4;
-    private static final Map<String, JoinOperation> joinOperations;
-
-  static {
-    joinOperations = new HashMap<>();
-    joinOperations.put(INNER, InnerJoin.getInstance());
-    joinOperations.put(LEFT_OUTER, LeftOuterJoin.getInstance());
-    joinOperations.put(OUTER, OuterJoin.getInstance());
-  }
 
   private DataFrames() {}
 
-  public static DataFrame table(Vector a, Vector b) {
+  public static DataFrame table(Series a, Series b) {
     Check.dimension(a.size(), b.size());
     Map<Object, Map<Object, Integer>> counts = new HashMap<>();
     Set<Object> aUnique = new HashSet<>();
@@ -104,6 +90,74 @@ public final class DataFrames {
     return df.build();
   }
 
+  public static DataFrame concatenate(Collection<? extends DataFrame> dataFrames) {
+    throw new UnsupportedOperationException();
+  }
+
+  public static DataFrame merge(Collection<? extends DataFrame> dataFrames) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Returns a data frame which has an index sorted in ascending order.
+   *
+   * @param df the data frame
+   * @return a new data frame
+   */
+  public static DataFrame sort(DataFrame df) {
+    return sort(df, SortOrder.ASC);
+  }
+
+  /**
+   * Returns a data frame which has an index sorted in the specified order.
+   *
+   * @param df the data frame
+   * @param order the order
+   * @return a new data frame
+   */
+  public static DataFrame sort(DataFrame df, SortOrder order) {
+    Index.Builder index = df.getIndex().newCopyBuilder();
+    index.sort(order);
+    return df.reindex(df.getColumnIndex(), index.build());
+  }
+
+  public static DataFrame sort(DataFrame df, Comparator<Object> comparator) {
+    Index.Builder index = df.getIndex().newCopyBuilder();
+    index.sort(comparator);
+    return df.reindex(df.getColumnIndex(), index.build());
+  }
+
+  public static DataFrame sortBy(DataFrame df, Object key) {
+    return sortBy(df, key, SortOrder.ASC);
+  }
+
+  public static DataFrame sortBy(DataFrame df, Object key, SortOrder order) {
+    org.briljantframework.data.series.LocationGetter loc = df.get(key).loc();
+    boolean asc = order == SortOrder.ASC;
+    IntComparator cmp = asc ? loc::compare : (a, b) -> loc.compare(b, a);
+    Index.Builder index = df.getIndex().newCopyBuilder();
+    index.sortIterationOrder(cmp);
+    return df.reindex(df.getColumnIndex(), index.build());
+  }
+
+  public static <T> DataFrame sortBy(DataFrame df, Object key, Class<? extends T> cls,
+      Comparator<? super T> cmp) {
+    org.briljantframework.data.series.LocationGetter loc = df.get(key).loc();
+    Index.Builder index = df.getIndex().newCopyBuilder();
+    index.sortIterationOrder((a, b) -> cmp.compare(loc.get(cls, a), loc.get(cls, b)));
+    return df.reindex(df.getColumnIndex(), index.build());
+  }
+
+  public static DataFrame sortColumns(DataFrame df, Comparator<Object> comparator) {
+    return df.reindex(sortIndex(df.getColumnIndex(), comparator), df.getIndex());
+  }
+
+  private static Index sortIndex(Index index, Comparator<Object> comparator) {
+    Index.Builder b = index.newCopyBuilder();
+    b.sort(comparator);
+    return b.build();
+  }
+
   /**
    * Presents a summary of the given data frame. For each column of {@code df} the returned summary
    * contains one row. Each row is described by four values, the {@code min}, {@code max},
@@ -113,9 +167,9 @@ public final class DataFrames {
    * <pre>
    * {@code
    * > DataFrame df = MixedDataFrame.of(
-   *    "a", Vector.of(1, 2, 3, 4, 5, 6),
-   *    "b", Vector.of("a", "b", "b", "b", "e", "f"),
-   *    "c", Vector.of(1.1, 1.2, 1.3, 1.4, 1.5, 1.6)
+   *    "a", Series.of(1, 2, 3, 4, 5, 6),
+   *    "b", Series.of("a", "b", "b", "b", "e", "f"),
+   *    "c", Series.of(1.1, 1.2, 1.3, 1.4, 1.5, 1.6)
    *  );
    * 
    * > DataFrames.summary(df)
@@ -133,12 +187,12 @@ public final class DataFrames {
    */
   public static DataFrame summary(DataFrame df) {
     DataFrame.Builder builder = new MixedDataFrame.Builder();
-    builder.set("mean", Type.DOUBLE).set("var", Type.DOUBLE)
-        .set("std", Type.DOUBLE).set("min", Type.DOUBLE).set("max", Type.DOUBLE)
-        .set("mode", Type.OBJECT);
+    builder.newColumn("mean", Type.DOUBLE).newColumn("var", Type.DOUBLE)
+        .newColumn("std", Type.DOUBLE).newColumn("min", Type.DOUBLE).newColumn("max", Type.DOUBLE)
+        .newColumn("mode", Type.OBJECT);
 
     for (Object columnKey : df.getColumnIndex().keySet()) {
-      Vector column = df.get(columnKey);
+      Series column = df.get(columnKey);
       if (Is.numeric(column)) {
         StatisticalSummary summary = column.collect(Number.class, Collectors.statisticalSummary());
         builder.set(columnKey, "mean", summary.getMean())
@@ -151,15 +205,32 @@ public final class DataFrames {
     return builder.build();
   }
 
+  public static Series sum(DataFrame df) {
+    return df.reduce(Vectors::sum);
+  }
+
+  public static Series mean(DataFrame df) {
+    return df.reduce(Vectors::mean);
+  }
+
+  public static Series min(DataFrame df) {
+    return df.collect(Object.class,
+        withFinisher(minBy(NaturalOrdering.ascending()), (o) -> o.isPresent() ? o.get() : null));
+  }
+
+  public static Series max(DataFrame df) {
+    return df.collect(Object.class,
+        withFinisher(maxBy(NaturalOrdering.ascending()), (o) -> o.isPresent() ? o.get() : null));
+  }
+
   /**
-   * Same as {@link #permuteRecords(DataFrame, java.util.Random)} with a static random number
-   * generator.
+   * Same as {@link #permute(DataFrame, java.util.Random)} with a static random number generator.
    *
    * @param in the input data frame
    * @return a permuted copy of {@code in}
    */
-  public static DataFrame permuteRecords(DataFrame in) {
-    return permuteRecords(in, ThreadLocalRandom.current());
+  public static DataFrame permute(DataFrame in) {
+    return permute(in, ThreadLocalRandom.current());
   }
 
   /**
@@ -168,63 +239,20 @@ public final class DataFrames {
    * Knuth), which is an algorithm for generating a random permutation of a finite set.
    *
    * <p>
-   * The permutation is only visible when accessing values using
-   * {@link org.briljantframework.data.index.DataFrameLocationGetter location-based indexing}.
+   * The permutation is only visible when accessing values using {@link LocationGetter
+   * location-based indexing}.
    *
    * @param df the input {@code DataFrame}
    * @param random the random number generator used
    * @return a permuted copy of input
    */
-  public static DataFrame permuteRecords(DataFrame df, Random random) {
-    DataFrame.Builder builder = transferableRecordCopy(df);
-    DataFrameLocationSetter loc = builder.loc();
-    for (int i = builder.rows(); i > 1; i--) {
+  public static DataFrame permute(DataFrame df, Random random) {
+    DataFrame.Builder builder = df.newCopyBuilder();
+    LocationSetter loc = builder.loc();
+    for (int i = builder.size(0); i > 1; i--) {
       loc.swapRecords(i - 1, random.nextInt(i));
     }
-    DataFrame bdf = builder.build();
-    bdf.setColumnIndex(df.getColumnIndex());
-    return bdf;
-  }
-
-  public static DataFrame.Builder transferableRecordCopy(DataFrame df) {
-    DataFrame.Builder builder = df.newBuilder();
-    for (Object recordKey : df.getIndex().keySet()) {
-      builder.setRecord(recordKey, Vectors.transferableBuilder(df.getRecord(recordKey)));
-    }
-    builder.setColumnIndex(df.getColumnIndex());
-    return builder;
-  }
-
-  /**
-   * Returns a column-permuted shallow copy of {@code in}.
-   *
-   * @param in input data frame
-   * @return a column permuted copy
-   * @see #permuteRecords(DataFrame)
-   */
-  public static DataFrame permute(DataFrame in) {
-    DataFrame.Builder builder = transferableColumnCopy(in);
-    Random random = ThreadLocalRandom.current();
-    for (int i = builder.columns(); i > 1; i--) {
-      builder.loc().swap(i - 1, random.nextInt(i));
-    }
     return builder.build();
-  }
-
-  /**
-   * Returns a {@linkplain org.briljantframework.data.Transferable transferable} column copy of the
-   * argument. The builder only allows operations that do not modify the vectors.
-   *
-   * @param df the data frame
-   * @return a shallow copy
-   */
-  public static DataFrame.Builder transferableColumnCopy(DataFrame df) {
-    DataFrame.Builder builder = df.newBuilder();
-    for (Object column : df) {
-      builder.set(column, Vectors.transferableBuilder(df.get(column)));
-    }
-    builder.setIndex(df.getIndex());
-    return builder;
   }
 
   /**
@@ -258,9 +286,9 @@ public final class DataFrames {
    */
   public static <T, R> Array<R> toArray(Class<T> t, DataFrame x,
       Function<? super T, ? extends R> function) {
-    Array<R> array = Arrays.array(x.rows(), x.columns());
-    for (int j = 0; j < x.columns(); j++) {
-      for (int i = 0; i < x.rows(); i++) {
+    Array<R> array = Arrays.array(x.size(0), x.size(1));
+    for (int j = 0; j < x.size(1); j++) {
+      for (int i = 0; i < x.size(0); i++) {
         array.set(i, j, function.apply(x.loc().get(t, i, j)));
       }
     }
@@ -271,7 +299,7 @@ public final class DataFrames {
    * Return the data frame as an {@linkplain Array array}
    *
    * <pre>
-   * DataFrame df = DataFrame.of(&quot;A&quot;, Vector.of(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;), &quot;B&quot;, Vector.of(1, 2, 3));
+   * DataFrame df = DataFrame.of(&quot;A&quot;, Series.of(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;), &quot;B&quot;, Series.of(1, 2, 3));
    * DataFrames.toArray(String.class, df);
    * DataFrames.toArray(Double.class, df);
    * </pre>
@@ -308,10 +336,10 @@ public final class DataFrames {
    * @return a new double array
    */
   public static DoubleArray toDoubleArray(DataFrame x, DoubleUnaryOperator operator) {
-    DoubleArray array = Arrays.doubleArray(x.rows(), x.columns());
-    for (int j = 0; j < x.columns(); j++) {
-      for (int i = 0; i < x.rows(); i++) {
-        array.set(i, j, operator.applyAsDouble(x.loc().getAsDouble(i, j)));
+    DoubleArray array = Arrays.doubleArray(x.size(0), x.size(1));
+    for (int j = 0; j < x.size(1); j++) {
+      for (int i = 0; i < x.size(0); i++) {
+        array.set(i, j, operator.applyAsDouble(x.loc().getDouble(i, j)));
       }
     }
     return array;
@@ -348,7 +376,7 @@ public final class DataFrames {
    * @return a tabular string representation
    */
   public static String toString(DataFrame df, int max) {
-    max = df.rows() > max ? PER_SLICE : df.rows();
+    max = df.size(0) > max ? PER_SLICE : df.size(0);
     Index index = df.getIndex();
     Index columnIndex = df.getColumnIndex();
 
@@ -369,13 +397,13 @@ public final class DataFrames {
       builder.append(safeColumnKey);
     }
     builder.append("\n");
-    for (int i = 0; i < df.rows(); i++) {
+    for (int i = 0; i < df.size(0); i++) {
       Object recordKey = index.get(i);
       String safeRecordKey = Na.toString(recordKey);
       builder.append(safeRecordKey);
       padWithSpace(builder, (longestRecordValue - safeRecordKey.length()));
 
-      for (int j = 0; j < df.columns(); j++) {
+      for (int j = 0; j < df.size(1); j++) {
         Object columnKey = columnIndex.get(j);
         String str = Na.toString(df.get(String.class, recordKey, columnKey));
         padWithSpace(builder, (longestColumnValue[j] - str.length()) + 2);
@@ -383,10 +411,10 @@ public final class DataFrames {
       }
       builder.append("\n");
       if (i >= max) {
-        int left = df.rows() - i - 1;
+        int left = df.size(0) - i - 1;
         if (left > max) {
           padWithSpace(builder, longestRecordValue);
-          for (int j = 0; j < df.columns(); j++) {
+          for (int j = 0; j < df.size(1); j++) {
             String str = "...";
             padWithSpace(builder, (longestColumnValue[j] - str.length()) + 2);
             builder.append(str);
@@ -397,7 +425,7 @@ public final class DataFrames {
       }
 
     }
-    return builder.append("\n[").append(df.rows()).append(" rows x ").append(df.columns())
+    return builder.append("\n[").append(df.size(0)).append(" rows x ").append(df.size(1))
         .append(" columns]").toString();
   }
 
@@ -409,15 +437,15 @@ public final class DataFrames {
 
   private static int[] longestColumnValues(DataFrame df, int max, Index columnIndex, int padding) {
     return columnIndex.keySet().stream().map(df::get).mapToInt(v -> {
-      int longest = df.rows() > max * 2 ? 3 : 0;
-      for (int i = 0; i < df.rows(); i++) {
+      int longest = df.size(0) > max * 2 ? 3 : 0;
+      for (int i = 0; i < df.size(0); i++) {
         Object recordKey = df.getIndex().get(i);
         int length = Na.toString(v.get(String.class, recordKey)).length();
         if (length > longest) {
           longest = length;
         }
         if (i >= max) {
-          int left = df.rows() - i - 1;
+          int left = df.size(0) - i - 1;
           if (left > max) {
             i += left - max - 1;
           }

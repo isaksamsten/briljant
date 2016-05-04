@@ -42,16 +42,14 @@ import org.briljantframework.util.sort.QuickSort;
  * 
  * @author Isak Karlsson
  */
-public abstract class AbstractIntArray extends AbstractBaseArray<Integer, IntArray>
-    implements IntArray {
+public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> implements IntArray {
 
   protected AbstractIntArray(ArrayBackend bj, int[] shape) {
     super(bj, shape);
   }
 
-  protected AbstractIntArray(ArrayBackend bj, int offset, int[] shape, int[] stride,
-      int majorStride) {
-    super(bj, offset, shape, stride, majorStride);
+  protected AbstractIntArray(ArrayBackend bj, int offset, int[] shape, int[] stride) {
+    super(bj, offset, shape, stride);
   }
 
   @Override
@@ -87,9 +85,8 @@ public abstract class AbstractIntArray extends AbstractBaseArray<Integer, IntArr
   }
 
   @Override
-  public DoubleArray asDouble() {
-    return new AsDoubleArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public DoubleArray asDoubleArray() {
+    return new AsDoubleArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       protected double getElement(int i) {
         return AbstractIntArray.this.getElement(i);
@@ -108,14 +105,13 @@ public abstract class AbstractIntArray extends AbstractBaseArray<Integer, IntArr
   }
 
   @Override
-  public IntArray asInt() {
+  public IntArray asIntArray() {
     return this;
   }
 
   @Override
-  public LongArray asLong() {
-    return new AsLongArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public LongArray asLongArray() {
+    return new AsLongArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       public void setElement(int index, long value) {
         AbstractIntArray.this.setElement(index, (int) value);
@@ -134,9 +130,8 @@ public abstract class AbstractIntArray extends AbstractBaseArray<Integer, IntArr
   }
 
   @Override
-  public BooleanArray asBoolean() {
-    return new AsBooleanArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public BooleanArray asBooleanArray() {
+    return new AsBooleanArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
 
       @Override
       public boolean getElement(int index) {
@@ -156,9 +151,8 @@ public abstract class AbstractIntArray extends AbstractBaseArray<Integer, IntArr
   }
 
   @Override
-  public ComplexArray asComplex() {
-    return new AsComplexArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public ComplexArray asComplexArray() {
+    return new AsComplexArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       public Complex getElement(int index) {
         return Complex.valueOf(AbstractIntArray.this.getElement(index));
@@ -434,33 +428,35 @@ public abstract class AbstractIntArray extends AbstractBaseArray<Integer, IntArr
 
   @Override
   public final void set(int index, int value) {
+    Check.index(index, size());
     setElement(StrideUtils.index(index, getOffset(), stride, shape), value);
   }
 
   @Override
   public final int get(int i, int j) {
-    Check.argument(isMatrix());
+    Check.index(i, rows(), j, columns());
     return getElement(getOffset() + i * stride(0) + j * stride(1));
   }
 
   @Override
   public final void set(int i, int j, int value) {
-    Check.argument(isMatrix());
+    Check.index(i, rows(), j, columns());
     setElement(getOffset() + i * stride(0) + j * stride(1), value);
   }
 
   public final void set(int[] ix, int value) {
-    Check.argument(ix.length == dims());
+    Check.index(ix, shape);
     setElement(StrideUtils.index(ix, getOffset(), stride), value);
   }
 
   public final int get(int... ix) {
-    Check.argument(ix.length == dims());
+    Check.index(ix, shape);
     return getElement(StrideUtils.index(ix, getOffset(), stride));
   }
 
   @Override
   public final int get(int index) {
+    Check.index(index, size());
     return getElement(StrideUtils.index(index, getOffset(), stride, shape));
   }
 
@@ -475,7 +471,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<Integer, IntArr
   }
 
   @Override
-  public IntStream stream() {
+  public IntStream intStream() {
     PrimitiveIterator.OfInt ofInt = new PrimitiveIterator.OfInt() {
       private int current = 0;
 
@@ -496,16 +492,13 @@ public abstract class AbstractIntArray extends AbstractBaseArray<Integer, IntArr
   }
 
   @Override
-  public List<Integer> toList() {
+  public List<Integer> asList() {
     return new IntListView();
   }
 
+  @Override
   public Array<Integer> asArray() {
     return new AsArray<Integer>(this) {
-      @Override
-      public IntArray asInt() {
-        return AbstractIntArray.this;
-      }
 
       @Override
       protected void setElement(int i, Integer value) {
@@ -568,7 +561,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<Integer, IntArr
   public IntArray plus(int scalar) {
     IntArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
-      m.set(i, get(i) * scalar);
+      m.set(i, get(i) + scalar);
     }
     return m;
   }
@@ -742,7 +735,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<Integer, IntArr
 
   @Override
   public Iterator<Integer> iterator() {
-    return toList().iterator();
+    return asList().iterator();
   }
 
   private class IntListView extends AbstractList<Integer> {

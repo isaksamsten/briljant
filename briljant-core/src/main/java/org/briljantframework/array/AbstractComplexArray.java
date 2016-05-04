@@ -20,7 +20,6 @@
  */
 package org.briljantframework.array;
 
-import java.io.IOException;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,7 +53,7 @@ import org.briljantframework.array.api.ArrayBackend;
  *
  * @author Isak Karlsson
  */
-public abstract class AbstractComplexArray extends AbstractBaseArray<Complex, ComplexArray> implements
+public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArray> implements
     ComplexArray {
 
   protected AbstractComplexArray(ArrayBackend backend, int size) {
@@ -65,9 +64,8 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<Complex, Co
     super(backend, shape);
   }
 
-  public AbstractComplexArray(ArrayBackend backend, int offset, int[] shape, int[] stride,
-      int majorStride) {
-    super(backend, offset, shape, stride, majorStride);
+  public AbstractComplexArray(ArrayBackend backend, int offset, int[] shape, int[] stride) {
+    super(backend, offset, shape, stride);
   }
 
   @Override
@@ -327,17 +325,11 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<Complex, Co
 
   @Override
   public Array<Complex> asArray() {
-    return new AsArray<Complex>(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStride()) {
+    return new AsArray<Complex>(this) {
 
       @Override
       protected int elementSize() {
         return AbstractComplexArray.this.elementSize();
-      }
-
-      @Override
-      public ComplexArray asComplex() {
-        return AbstractComplexArray.this;
       }
 
       @Override
@@ -370,7 +362,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<Complex, Co
   }
 
   @Override
-  public final List<Complex> toList() {
+  public final List<Complex> asList() {
     return new AbstractList<Complex>() {
       @Override
       public int size() {
@@ -603,9 +595,8 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<Complex, Co
   }
 
   @Override
-  public DoubleArray asDouble() {
-    return new AsDoubleArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public DoubleArray asDoubleArray() {
+    return new AsDoubleArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
 
       @Override
       protected double getElement(int i) {
@@ -625,9 +616,8 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<Complex, Co
   }
 
   @Override
-  public IntArray asInt() {
-    return new AsIntArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public IntArray asIntArray() {
+    return new AsIntArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
 
       @Override
       public int getElement(int index) {
@@ -647,9 +637,8 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<Complex, Co
   }
 
   @Override
-  public LongArray asLong() {
-    return new AsLongArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public LongArray asLongArray() {
+    return new AsLongArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       public void setElement(int index, long value) {
         AbstractComplexArray.this.setElement(index, Complex.valueOf(value));
@@ -668,9 +657,8 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<Complex, Co
   }
 
   @Override
-  public BooleanArray asBoolean() {
-    return new AsBooleanArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public BooleanArray asBooleanArray() {
+    return new AsBooleanArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
 
       @Override
       public boolean getElement(int index) {
@@ -690,7 +678,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<Complex, Co
   }
 
   @Override
-  public ComplexArray asComplex() {
+  public ComplexArray asComplexArray() {
     return this;
   }
 

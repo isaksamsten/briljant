@@ -37,7 +37,7 @@ public final class ArrayAllocations {
   private ArrayAllocations() {}
 
   /**
-   * Alters the current size of the vector if the supplied size is larger than the current.
+   * Alters the current size of the series if the supplied size is larger than the current.
    */
   public static boolean[] ensureCapacity(final boolean[] buffer, final int newSize) {
 
@@ -111,7 +111,7 @@ public final class ArrayAllocations {
   }
 
   /**
-   * Alters the current size of the vector if the supplied size is larger than the current.
+   * Alters the current size of the series if the supplied size is larger than the current.
    */
   public static long[] ensureCapacity(final long[] buffer, final int newSize) {
     if (newSize - buffer.length > 0) {
@@ -138,7 +138,7 @@ public final class ArrayAllocations {
   }
 
   /**
-   * Alters the current size of the vector if the supplied size is larger than the current.
+   * Alters the current size of the series if the supplied size is larger than the current.
    */
   public static int[] ensureCapacity(final int[] buffer, final int newSize) {
     if (newSize - buffer.length > 0) {
@@ -165,7 +165,7 @@ public final class ArrayAllocations {
   }
 
   /**
-   * Alters the current size of the vector if the supplied size is larger than the current.
+   * Alters the current size of the series if the supplied size is larger than the current.
    */
   public static double[] ensureCapacity(final double[] buffer, final int newSize) {
     if (newSize - buffer.length > 0) {

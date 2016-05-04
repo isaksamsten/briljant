@@ -88,9 +88,9 @@ public class Matrices {
   }
 
   /**
-   * Create a new field vector from the given array. If the array is conti
+   * Create a new field series from the given array. If the array is conti
    *
-   * @param array a new field vector
+   * @param array a new field series
    * @param <T> the type of array
    * @return a
    */
@@ -210,7 +210,7 @@ public class Matrices {
    * View the double array as a {@link RealVector}.
    *
    * @param array the array
-   * @return a real vector view
+   * @return a real series view
    */
   public static RealVector asRealVector(DoubleArray array) {
     Check.argument(array.isVector(), CAN_ONLY_VIEW_1D_ARRAYS);
@@ -321,11 +321,11 @@ public class Matrices {
    * @param <T> the type of array
    * @return a new array
    */
-  public static <E, T extends BaseArray<E, T>> T repmat(T x, int n) {
+  public static <T extends BaseArray<T>> T repmat(T x, int n) {
     return repmat(x, n, n);
   }
 
-  public static <E, T extends BaseArray<E, T>> T repmat(T x, int r, int c) {
+  public static <T extends BaseArray<T>> T repmat(T x, int r, int c) {
     Check.argument(x.isMatrix(), REQUIRE_2D);
     final int m = x.rows();
     final int n = x.columns();

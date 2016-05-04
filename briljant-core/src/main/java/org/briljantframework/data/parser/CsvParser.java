@@ -31,10 +31,10 @@ import java.util.stream.Collectors;
 import org.briljantframework.Check;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.index.Index;
-import org.briljantframework.data.index.ObjectIndex;
+import org.briljantframework.data.index.HashIndex;
 import org.briljantframework.data.reader.CsvEntryReader;
 import org.briljantframework.data.reader.DataEntry;
-import org.briljantframework.data.vector.Type;
+import org.briljantframework.data.series.Type;
 
 import com.univocity.parsers.csv.CsvParserSettings;
 
@@ -80,7 +80,7 @@ public class CsvParser implements Parser {
     }
 
     DataFrame.Builder builder = supplier.get();
-    Index.Builder columnIndex = new ObjectIndex.Builder();
+    Index.Builder columnIndex = new HashIndex.Builder();
 
     // The first row after skipRows are used as header if there are no
     // headers already set,
@@ -96,12 +96,14 @@ public class CsvParser implements Parser {
     // If no types are set, use the entry reader to infer the types
     if (types == null) {
       for (Class<?> type : entryReader.getTypes()) {
-        builder.add(Type.of(type));
+        builder.newColumn(Type.of(type));
       }
     } else {
-      types.forEach(builder::add);
+      types.forEach(builder::newColumn);
     }
-    return builder.readAll(entryReader).setColumnIndex(columnIndex.build()).build();
+    DataFrame df = builder.readAll(entryReader).build();
+    df.setColumnIndex(columnIndex.build());
+    return df;
   }
 
   /**

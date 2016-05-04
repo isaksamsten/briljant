@@ -30,18 +30,12 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.math3.util.Precision;
 import org.briljantframework.Check;
-import org.briljantframework.array.Array;
-import org.briljantframework.array.ArrayOperation;
-import org.briljantframework.array.BaseArray;
-import org.briljantframework.array.ComplexArray;
-import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.IntArray;
-import org.briljantframework.array.LongArray;
+import org.briljantframework.array.*;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayRoutines;
-import org.briljantframework.util.complex.MutableComplex;
-import org.briljantframework.exceptions.MultiDimensionMismatchException;
 import org.briljantframework.data.statistics.FastStatistics;
+import org.briljantframework.exceptions.MultiDimensionMismatchException;
+import org.briljantframework.util.complex.MutableComplex;
 
 /**
  * Base array routines implemented in Java.
@@ -50,6 +44,7 @@ import org.briljantframework.data.statistics.FastStatistics;
  */
 public class BaseArrayRoutines implements ArrayRoutines {
 
+  protected static final String VECTOR_REQUIRED = "series required";
   private static final double LOG_2 = Math.log(2);
   private static final double EPS = 1e-10;
   protected final ArrayBackend backend;
@@ -60,7 +55,8 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public double mean(DoubleArray x) {
-    return x.reduce(0, Double::sum) / x.size();
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
+    return sum(x) / x.size();
   }
 
   @Override
@@ -70,6 +66,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public double var(DoubleArray x) {
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
     FastStatistics s = new FastStatistics();
     x.forEachDouble(s::addValue);
     return s.getVariance();
@@ -82,6 +79,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public double std(DoubleArray x) {
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
     return Math.sqrt(var(x));
   }
 
@@ -92,26 +90,31 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public double min(DoubleArray x) {
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
     return x.reduce(Double.POSITIVE_INFINITY, Math::min);
   }
 
   @Override
   public int min(IntArray x) {
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
     return x.reduce(Integer.MAX_VALUE, Math::min);
   }
 
   @Override
   public long min(LongArray x) {
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
     return x.reduce(Long.MAX_VALUE, Math::min);
   }
 
   @Override
   public <T extends Comparable<T>> T min(Array<T> x) {
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
     return min(x, Comparable::compareTo);
   }
 
   @Override
   public <T> T min(Array<T> x, Comparator<T> cmp) {
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
     if (x.size() < 1) {
       return null;
     }
@@ -151,26 +154,31 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public double max(DoubleArray x) {
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
     return x.reduce(Double.NEGATIVE_INFINITY, Math::max);
   }
 
   @Override
   public int max(IntArray x) {
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
     return x.reduce(Integer.MIN_VALUE, Math::max);
   }
 
   @Override
   public long max(LongArray x) {
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
     return x.reduce(Long.MIN_VALUE, Math::max);
   }
 
   @Override
   public <T extends Comparable<T>> T max(Array<T> x) {
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
     return max(x, Comparable::compareTo);
   }
 
   @Override
   public <T> T max(Array<T> x, Comparator<T> cmp) {
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
     if (x.size() < 1) {
       return null;
     }
@@ -210,21 +218,25 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public double sum(DoubleArray x) {
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
     return x.reduce(0, Double::sum);
   }
 
   @Override
   public int sum(IntArray x) {
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
     return x.reduce(0, Integer::sum);
   }
 
   @Override
   public long sum(LongArray x) {
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
     return x.reduce(0, Long::sum);
   }
 
   @Override
   public Complex sum(ComplexArray x) {
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
     MutableComplex sum = new MutableComplex(0);
     for (int i = 0; i < x.size(); i++) {
       sum.plus(x.get(i));
@@ -261,6 +273,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public double prod(DoubleArray x) {
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
     double prod = x.get(0);
     for (int i = 1; i < x.size(); i++) {
       prod *= x.get(i);
@@ -275,6 +288,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public DoubleArray cumsum(DoubleArray x) {
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
     DoubleArray n = x.newEmptyArray(x.rows(), x.columns());
     double sum = 0;
     for (int i = 0; i < n.size(); i++) {
@@ -297,6 +311,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public double inner(DoubleArray a, DoubleArray b) {
+    Check.argument(a.isVector() && b.isVector(), VECTOR_REQUIRED);
     Check.size(a, b);
     double s = 0;
     for (int i = 0; i < a.size(); i++) {
@@ -307,7 +322,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public Complex inner(ComplexArray a, ComplexArray b) {
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -317,6 +332,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public double norm2(DoubleArray a) {
+    Check.argument(a.isVector(), VECTOR_REQUIRED);
     double sum = 0;
     for (int i = 0; i < a.size(); i++) {
       double v = a.get(i);
@@ -327,7 +343,13 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
+  public DoubleArray norm2(int dim, DoubleArray a) {
+    return a.reduceVectors(dim, this::norm2);
+  }
+
+  @Override
   public Complex norm2(ComplexArray a) {
+    Check.argument(a.isVector(), VECTOR_REQUIRED);
     MutableComplex c = new MutableComplex(a.get(0).pow(2));
     for (int i = 1; i < a.size(); i++) {
       c.plus(a.get(i).pow(2));
@@ -337,6 +359,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public double asum(DoubleArray a) {
+    Check.argument(a.isVector(), VECTOR_REQUIRED);
     double sum = 0;
     for (int i = 0; i < a.size(); i++) {
       sum += Math.abs(a.get(i));
@@ -346,6 +369,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public double asum(ComplexArray a) {
+    Check.argument(a.isVector(), VECTOR_REQUIRED);
     double s = 0;
     for (int i = 0; i < a.size(); i++) {
       s += a.get(i).abs();
@@ -355,6 +379,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public int iamax(DoubleArray x) {
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
     int i = 0;
     double m = Math.abs(x.get(0));
     for (int j = 1; j < x.size(); j++) {
@@ -369,11 +394,13 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public int iamax(ComplexArray x) {
-    return 0;
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void scal(double alpha, DoubleArray x) {
+    Check.argument(x.isVector(), VECTOR_REQUIRED);
     if (alpha == 1) {
       return;
     }
@@ -395,6 +422,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public void axpy(double alpha, DoubleArray x, DoubleArray y) {
+    Check.argument(x.isVector() && y.isVector(), VECTOR_REQUIRED);
     Check.size(x, y);
     if (alpha == 0) {
       return;
@@ -413,7 +441,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public void ger(double alpha, DoubleArray x, DoubleArray y, DoubleArray a) {
-    Check.all(x, y).argument(BaseArray::isVector, "x and y must be vectors");
+    Check.argument(x.isVector() && y.isVector(), VECTOR_REQUIRED);
     Check.dimension(x.size(), a.rows());
     Check.dimension(y.size(), a.columns());
     for (int i = 0; i < x.size(); i++) {
@@ -447,21 +475,19 @@ public class BaseArrayRoutines implements ArrayRoutines {
     int n = b.size(transB == ArrayOperation.KEEP ? 1 : 0);
     int dk = a.size(transA == ArrayOperation.KEEP ? 1 : 0);
     if (m != c.size(0) || n != c.size(1)) {
-      throw new IllegalArgumentException(String.format(
-          "a has size (%d,%d), b has size (%d,%d), c has size (%d, %d)", m, dk, dk, n, c.size(0),
-          c.size(1)));
+      throw new IllegalArgumentException(
+          String.format("a has size (%d,%d), b has size (%d,%d), c has size (%d, %d)", m, dk, dk, n,
+              c.size(0), c.size(1)));
     }
 
     for (int row = 0; row < thisRows; row++) {
       for (int col = 0; col < otherColumns; col++) {
         double sum = 0.0;
         for (int k = 0; k < thisCols; k++) {
-          int thisIndex =
-              transA.isTranspose() ? rowMajor(row, k, thisRows, thisCols) : columnMajor(0, row, k,
-                  thisRows, thisCols);
-          int otherIndex =
-              transB.isTranspose() ? rowMajor(k, col, otherRows, otherColumns) : columnMajor(0, k, col,
-                  otherRows, otherColumns);
+          int thisIndex = transA.isTranspose() ? rowMajor(row, k, thisRows, thisCols)
+              : columnMajor(0, row, k, thisRows, thisCols);
+          int otherIndex = transB.isTranspose() ? rowMajor(k, col, otherRows, otherColumns)
+              : columnMajor(0, k, col, otherRows, otherColumns);
           sum += a.get(thisIndex) * b.get(otherIndex);
         }
         c.set(row, col, alpha * sum + beta * c.get(row, col));
@@ -470,7 +496,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public <E, T extends BaseArray<E, T>> void copy(T from, T to) {
+  public <T extends BaseArray<T>> void copy(T from, T to) {
     Check.size(from, to);
     for (int i = 0; i < from.size(); i++) {
       to.set(i, from, i);
@@ -478,7 +504,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public <E, T extends BaseArray<E,T>> void swap(T a, T b) {
+  public <T extends BaseArray<T>> void swap(T a, T b) {
     Check.dimension(a, b);
     T tmp = a.newEmptyArray(1);
     for (int i = 0; i < a.size(); i++) {
@@ -688,7 +714,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public LongArray round(DoubleArray in) {
-    LongArray out = in.asLong().newEmptyArray(in.getShape());
+    LongArray out = in.asLongArray().newEmptyArray(in.getShape());
     out.assign(in, Math::round);
     return out;
   }

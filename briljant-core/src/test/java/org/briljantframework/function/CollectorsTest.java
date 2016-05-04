@@ -28,37 +28,37 @@ import java.util.Arrays;
 
 import org.briljantframework.data.Collectors;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.series.Series;
 import org.junit.Test;
 
 public class CollectorsTest {
 
   @Test
   public void testRepeat() throws Exception {
-    Vector vec = Vector.of(1.0, 2.0, 3.0, 4.0, 5.0);
-    Vector vecX2 = vec.collect(repeat(2));
+    Series vec = Series.of(1.0, 2.0, 3.0, 4.0, 5.0);
+    Series vecX2 = vec.collect(repeat(2));
     assertEquals(vec.size() * 2, vecX2.size());
   }
 
   @Test
   public void testValueCounts() throws Exception {
-    Vector vec = Vector.of('a', 'b', 'c', 'd', 'e', 'e');
-    Vector counts = vec.collect(Character.class, valueCounts());
+    Series vec = Series.of('a', 'b', 'c', 'd', 'e', 'e');
+    Series counts = vec.collect(Character.class, valueCounts());
     assertEquals(2, counts.get(Integer.class, 'e').intValue());
   }
 
 
   @Test
   public void testFactorize() throws Exception {
-    Vector v = Vector.of("a", "b", "c", "c", "d", "d", "a");
-    Vector actual = v.collect(Collectors.factorize());
-    assertEquals(Vector.of(0, 1, 2, 2, 3, 3, 0), actual);
+    Series v = Series.of("a", "b", "c", "c", "d", "d", "a");
+    Series actual = v.collect(Collectors.factorize());
+    assertEquals(Series.of(0, 1, 2, 2, 3, 3, 0), actual);
   }
 
   @Test
   public void testToDataFrame() throws Exception {
     DataFrame df =
-        Arrays.asList(Vector.of(1, 2, 3), Vector.of(1, 2, 3), Vector.of(1, 2, 3)).stream()
+        Arrays.asList(Series.of(1, 2, 3), Series.of(1, 2, 3), Series.of(1, 2, 3)).stream()
             .collect(Collectors.toDataFrame());
     System.out.println(df);
 

@@ -367,8 +367,8 @@ public interface ArrayRoutines {
   /**
    * Return the inner product of two vectors.
    * 
-   * @param a the first vector
-   * @param b the second vector
+   * @param a the first series
+   * @param b the second series
    * @return the inner product
    * @see org.briljantframework.array.Arrays#inner(DoubleArray, DoubleArray)
    */
@@ -377,8 +377,8 @@ public interface ArrayRoutines {
   /**
    * Return the inner product of two vectors.
    *
-   * @param a the first vector
-   * @param b the second vector
+   * @param a the first series
+   * @param b the second series
    * @return the inner product
    * @see org.briljantframework.array.Arrays#inner(ComplexArray, ComplexArray)
    * @see #conjugateInner(ComplexArray, ComplexArray)
@@ -390,8 +390,8 @@ public interface ArrayRoutines {
    * Return the dot product of two vectors. The complex conjugate of the first argument is used for
    * the calculation of the dot product.
    * 
-   * @param a the first vector
-   * @param b the second vector
+   * @param a the first series
+   * @param b the second series
    * @return the inner product
    * @see org.briljantframework.array.Arrays#conjugateInner(ComplexArray, ComplexArray)
    */
@@ -404,6 +404,8 @@ public interface ArrayRoutines {
    * @return the norm
    */
   double norm2(DoubleArray a);
+
+  DoubleArray norm2(int dim, DoubleArray a);
 
   /**
    * Return the square norm.
@@ -471,14 +473,14 @@ public interface ArrayRoutines {
   void axpy(double alpha, DoubleArray x, DoubleArray y);
 
   /**
-   * Compute y <- alpha*op(a)*x + beta * y (general matrix vector multiplication)
+   * Compute y <- alpha*op(a)*x + beta * y (general matrix series multiplication)
    *
    * @param transA the operation op(.)
    * @param alpha the scalar alpha
    * @param a the matrix a
-   * @param x the vector x
+   * @param x the series x
    * @param beta the scalar beta
-   * @param y the vector y
+   * @param y the series y
    */
   void gemv(ArrayOperation transA, double alpha, DoubleArray a, DoubleArray x, double beta,
       DoubleArray y);
@@ -487,8 +489,8 @@ public interface ArrayRoutines {
    * Computes a <- alpha*x*y'+a
    *
    * @param alpha a scalar
-   * @param x a {@code m} element vector
-   * @param y a {@code n} element vector
+   * @param x a {@code m} element series
+   * @param y a {@code n} element series
    * @param a a {@code [m, n]} matrix
    */
   void ger(double alpha, DoubleArray x, DoubleArray y, DoubleArray a);
@@ -514,7 +516,7 @@ public interface ArrayRoutines {
    * @param to a matrix
    * @param <T> the matrix type
    */
-  <E, T extends BaseArray<E, T>> void copy(T from, T to);
+  <T extends BaseArray<T>> void copy(T from, T to);
 
   /**
    * Swap the data of {@code a} and {@code b}
@@ -524,7 +526,7 @@ public interface ArrayRoutines {
    * @param <T> the matrix type
    */
 
-  <E,T extends BaseArray<E,T>> void swap(T a, T b);
+  <T extends BaseArray<T>> void swap(T a, T b);
 
   /**
    * @see Math#sin(double)

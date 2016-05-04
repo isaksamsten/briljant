@@ -91,7 +91,7 @@ public final class LeftOuterJoin implements JoinOperation {
       }
     }
 
-    return new ArrayJoiner(leftSorted, rightSorted);
+    return new ArrayJoiner(keys.getColumnKeys(), leftSorted, rightSorted);
   }
 
 }

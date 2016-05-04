@@ -21,7 +21,7 @@
 package org.briljantframework.util.primitive;
 
 import org.briljantframework.data.index.Index;
-import org.briljantframework.data.index.ObjectIndex;
+import org.briljantframework.data.index.HashIndex;
 import org.junit.Test;
 
 /**
@@ -39,7 +39,7 @@ public class IntListTest {
     list.primitiveSort(Integer::compare);
     System.out.println(list);
 
-    Index.Builder index = new ObjectIndex.Builder();
+    Index.Builder index = new HashIndex.Builder();
     index.add(10);
     index.add(32);
     index.add(2);

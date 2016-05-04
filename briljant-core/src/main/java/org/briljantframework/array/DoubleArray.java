@@ -39,7 +39,7 @@ import org.briljantframework.function.DoubleBiPredicate;
  * @author Isak Karlsson
  */
 public interface DoubleArray
-    extends BaseArray<Double, DoubleArray>, Iterable<Double>, DoubleSequence {
+    extends BaseArray<DoubleArray>, Iterable<Double>, DoubleSequence {
 
   static DoubleArray ones(int... shape) {
     return Arrays.ones(shape);
@@ -410,14 +410,11 @@ public interface DoubleArray
    *
    * @return a double stream
    */
-  DoubleStream stream();
+  DoubleStream doubleStream();
 
-  /**
-   * Convert this array to a (mutable) list.
-   *
-   * @return a list
-   */
-  List<Double> toList();
+  List<Double> asList();
+
+  Array<Double> asArray();
 
   DoubleArray times(DoubleArray other);
 
@@ -546,26 +543,20 @@ public interface DoubleArray
    * @return a boolean array
    */
   BooleanArray where(DoublePredicate predicate);
-//
-//  default BooleanArray gte(double v) {
-//    return where(x -> x >= v);
-//  }
-//
-//  default BooleanArray lt(double v) {
-//    return where(x -> x < v);
-//  }
-//
-//  default BooleanArray lte(double v) {
-//    return where(x -> x <= v);
-//  }
-//
-//  default BooleanArray eq(double v) {
-//    return where(x -> x == v);
-//  }
-//
-//  default BooleanArray neq(double v) {
-//    return where(x -> x != v);
-//  }
+
+  default Array<Double> boxed() {
+    return asArray();
+  }
+
+  DoubleArray asDoubleArray();
+
+  IntArray asIntArray();
+
+  LongArray asLongArray();
+
+  BooleanArray asBooleanArray();
+
+  ComplexArray asComplexArray();
 
   BooleanArray lt(DoubleArray other);
 
@@ -578,7 +569,7 @@ public interface DoubleArray
   BooleanArray gte(DoubleArray other);
 
   @Override
-  default double getAsDouble(int index) {
+  default double getDouble(int index) {
     return get(index);
   }
 

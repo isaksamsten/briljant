@@ -18,13 +18,13 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.briljantframework.data.vector
+package org.briljantframework.data.series
 
 import groovy.transform.CompileStatic
 import org.briljantframework.data.index.VectorLocationGetter
 
 /**
- * Extensions to support common Groovy idioms when working with {@link VectorLocationGetter vector location getters}.
+ * Extensions to support common Groovy idioms when working with {@link VectorLocationGetter series location getters}.
  *
  * @author Isak Karlsson
  */

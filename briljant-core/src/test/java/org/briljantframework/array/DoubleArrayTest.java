@@ -20,31 +20,108 @@
  */
 package org.briljantframework.array;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import org.briljantframework.array.api.ArrayFactory;
 import org.junit.Test;
+
+import java.util.*;
 
 /**
  * @author Isak Karlsson
  */
-public class DoubleArrayTest {
+public abstract class DoubleArrayTest extends AbstractBaseArrayTest<DoubleArray> {
 
-  @Test
-  public void testRange() throws Exception {
-    DoubleArray actual = DoubleArray.range(0, 1, 0.1);
-    DoubleArray expected = DoubleArray.of(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9);
-    assertEquals(expected, actual);
+  protected abstract ArrayFactory getArrayFactory();
+
+  @Override
+  protected ArrayTest<DoubleArray> createSetSingleIndexTest() {
+    return new ArrayTest<DoubleArray>() {
+      @Override
+      public List<DoubleArray> create() {
+        // @formatter:off
+        return java.util.Arrays.asList(
+            getArrayFactory().newDoubleVector(1,2,3,4),
+            getArrayFactory().newDoubleVector(5,6,7,8),
+
+            getArrayFactory().newDoubleVector(1,3,2,4).reshape(2,2),
+            getArrayFactory().newDoubleVector(5,7,6,8).reshape(2,2),
+
+            getArrayFactory().newDoubleVector(1,3,2,4).reshape(2,1,2),
+            getArrayFactory().newDoubleVector(5,7,6,8).reshape(2,1,2)
+        );
+        // @formatter:on
+      }
+
+      @Override
+      public void test(List<DoubleArray> actual) {
+        assertEquals(5, actual.get(0).get(1),0);
+        assertEquals(5, actual.get(1).get(0, 1),0);
+        assertEquals(5, actual.get(2).get(0, 0, 1),0);
+      }
+    };
+
   }
 
-  @Test
-  public void testGetRange_nonNegative_start() throws Exception {
-    DoubleArray array = DoubleArray.range(0, 10, 1);
-    DoubleArray expected = DoubleArray.of(5, 6, 7, 8, 9);
+  @Override
+  protected ArrayTest<DoubleArray> createSetMatrixIndexTest() {
+    return new ArrayTest<DoubleArray>() {
+      @Override
+      public List<DoubleArray> create() {
+        //@formatter:off
+        return java.util.Arrays.asList(
+            getArrayFactory().newDoubleVector(1,2,3,4),
 
-    System.out.println(Range.of(5, 10));
+            getArrayFactory().newDoubleVector(1,2,3,4,5,6,7,8).reshape(2,4),
+            getArrayFactory().newDoubleArray(2,4),
 
-    DoubleArray actual = array.get(Range.of(5, 10));
-    System.out.println(actual);
-    assertEquals(expected, actual);
+            getArrayFactory().newDoubleArray(2,1,2)
+        );
+        //@formatter:on
+      }
+
+      @Override
+      public void test(List<DoubleArray> actual) {
+        for (int i = 0; i < actual.get(0).size(); i++) {
+          assertEquals(0, actual.get(0).get(i),0);
+        }
+      }
+    };
   }
+  
+  @Override
+  protected ArrayTest<DoubleArray> createAssignTest() {
+    return new ArrayTest<DoubleArray>() {
+      @Override
+      public List<DoubleArray> create() {
+        //@formatter:off
+        return java.util.Arrays.asList(
+            getArrayFactory().newDoubleArray(3,3,3),
+            getArrayFactory().newDoubleVector(10),
+            
+            getArrayFactory().newDoubleArray(1,3,4),
+            getArrayFactory().newDoubleVector(1,2,3,4)
+        );
+        //@formatter:on
+      }
+
+      @Override
+      public void test(List<DoubleArray> actual) {
+        DoubleArray first = actual.get(0);
+        assertArrayEquals(new int[] {3, 3, 3}, first.getShape());
+        for (int i = 0; i < first.size(); i++) {
+          assertEquals(10, first.get(10),0);
+        }
+
+        DoubleArray second = actual.get(1);
+        assertArrayEquals(new int[] {1, 3, 4}, second.getShape());
+        for (int i = 0; i < second.vectors(2); i++) {
+          DoubleArray vector = second.getVector(2, i);
+          assertEquals(vector, getArrayFactory().newDoubleVector(1, 2, 3, 4));
+        }
+      }
+    };
+  }
+
 }

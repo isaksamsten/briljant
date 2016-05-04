@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReaderException;
 import org.briljantframework.data.reader.StringDataEntry;
-import org.briljantframework.data.vector.Type;
+import org.briljantframework.data.series.Type;
 
 /**
  * @author Isak Karlsson

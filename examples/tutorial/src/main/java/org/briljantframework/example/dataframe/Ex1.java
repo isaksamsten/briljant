@@ -21,7 +21,7 @@
 package org.briljantframework.example.dataframe;
 
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.series.Vector;
 
 /**
  * Created by Isak Karlsson on 07/01/15.

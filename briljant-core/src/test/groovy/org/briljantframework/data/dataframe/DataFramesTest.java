@@ -20,13 +20,27 @@
  */
 package org.briljantframework.data.dataframe;
 
+import static org.briljantframework.data.dataframe.DataFrame.entry;
+import static org.briljantframework.data.dataframe.DataFrames.sort;
+import static org.briljantframework.data.dataframe.DataFrames.sortColumns;
+
 import org.briljantframework.data.index.Index;
-import org.briljantframework.data.vector.IntVector;
-import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.Vectors;
+import org.briljantframework.data.series.IntSeries;
+import org.briljantframework.data.series.Series;
+import org.briljantframework.data.series.Vectors;
 import org.junit.Test;
 
 public class DataFramesTest {
+
+  @Test
+  public void testSort_Asc() throws Exception {
+    DataFrame df = DataFrame.fromEntries(entry("a", Series.of(10, 20, 30, 50)),
+        entry("b", Series.of("A", "B", "C", "D")));
+
+    df.setIndex(Index.of(10, 2, 3, 9));
+    System.out.println(sort(df));
+
+  }
 
   @Test
   public void testSummary() throws Exception {
@@ -36,19 +50,23 @@ public class DataFramesTest {
   }
 
   protected DataFrame createDataFrame() {
-    return DataFrame.of("a", Vector.of(1, 2, 3, 4, 5, 6), "b",
-        Vector.of("a", "b", "b", "b", "e", "f"), "c", Vector.of(1.1, 1.2, 1.3, 1.4, 1.5, 1.6));
+    return DataFrame.of("a", Series.of(1, 2, 3, 4, 5, 6), "b",
+        Series.of("a", "b", "b", "b", "e", "f"), "c", Series.of(1.1, 1.2, 1.3, 1.4, 1.5, 1.6));
   }
 
   @Test
   public void testToString() throws Exception {
-    DataFrame df =
-        DataFrame.of("Abcdef", IntVector.range(1000), "Bcdef", IntVector.range(1000), "S",
-            Vector.singleton(1, 1000), "A", IntVector.range(1000));
-    System.out.println(DataFrames.toString(df.sort((a, b) -> -Integer.compare((int) a, (int) b))
-        .sortColumns((a, b) -> a.toString().compareTo(b.toString())), 9));
+    DataFrame df = DataFrame.of(
+        "Abcdef", IntSeries.range(1000),
+        "Bcdef", IntSeries.range(1000),
+        "S", Series.repeat(1, 1000),
+        "A", IntSeries.range(1000)
+    );
+    System.out.println(DataFrames
+        .toString(sortColumns(sort(df, (a, b) -> -Integer.compare((int) a, (int) b)),
+            (a, b) -> a.toString().compareTo(b.toString())), 9));
 
-    Vector of = Vector.of(0.3, 0.33333, 0.299, 0.311);
+    Series of = Series.of(0.3, 0.33333, 0.299, 0.311);
     of.setIndex(Index.of("dsadsadsadsa", "dsadsadsadsadsadsa", "dsaa", "dsa"));
     System.out.println(Vectors.toString(of, 2));
 
@@ -67,11 +85,11 @@ public class DataFramesTest {
 
   @Test
   public void testTable() throws Exception {
-    Vector a = Vector.of(1, 2, 3, 3, 3, 3, 5);
-    Vector b = Vector.of(1, 2, 2, 2, 3, 3, 1);
+    Series a = Series.of(1, 2, 3, 3, 3, 3, 5);
+    Series b = Series.of(1, 2, 2, 2, 3, 3, 1);
     System.out.println(DataFrames.table(a, b));
 
-    System.out.println(DataFrames.table(Vector.of(1, 1, 1, 2, 2, 2), Vector.of(1, 2, 3, 1, 2, 2)));
+    System.out.println(DataFrames.table(Series.of(1, 1, 1, 2, 2, 2), Series.of(1, 2, 3, 1, 2, 2)));
 
 
   }

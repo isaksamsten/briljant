@@ -22,21 +22,33 @@ package org.briljantframework.data.dataframe.join;
 
 import org.briljantframework.array.IntArray;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * Represent a set of join-keys for two indexed collections
  *
  * @author Isak Karlsson
  */
 public class JoinKeys {
-
   private final IntArray left;
   private final IntArray right;
   private final int maxGroups;
+  private final Collection<?> columnKeys;
 
-  JoinKeys(IntArray left, IntArray right, int maxGroups) {
+  JoinKeys(IntArray left, IntArray right, int maxGroups, Collection<?> columnKeys) {
     this.left = left;
     this.right = right;
     this.maxGroups = maxGroups;
+    this.columnKeys = columnKeys;
+  }
+
+  JoinKeys(IntArray left, IntArray right, int maxGroups) {
+    this(left, right, maxGroups, Collections.emptyList());
+  }
+
+  public Collection<?> getColumnKeys() {
+    return Collections.unmodifiableCollection(columnKeys);
   }
 
   /**

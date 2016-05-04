@@ -25,7 +25,6 @@ import java.util.Objects;
 import org.briljantframework.array.AbstractBooleanArray;
 import org.briljantframework.array.BooleanArray;
 import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.array.api.ArrayFactory;
 
 /**
  * @author Isak Karlsson
@@ -49,15 +48,14 @@ class BaseBooleanArray extends AbstractBooleanArray {
     this.data = new boolean[size()];
   }
 
-  private BaseBooleanArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
-      boolean[] data) {
-    super(bj, offset, shape, stride, majorStride);
+  private BaseBooleanArray(ArrayBackend bj, int offset, int[] shape, int[] stride, boolean[] data) {
+    super(bj, offset, shape, stride);
     this.data = data;
   }
 
   @Override
   public BooleanArray asView(int offset, int[] shape, int[] stride) {
-    return new BaseBooleanArray(getArrayBackend(), offset, shape, stride, majorStride, data);
+    return new BaseBooleanArray(getArrayBackend(), offset, shape, stride, data);
   }
 
   @Override

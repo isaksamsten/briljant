@@ -20,8 +20,6 @@
  */
 package org.briljantframework.data.dataframe.join;
 
-import java.util.Collection;
-
 import org.briljantframework.data.dataframe.DataFrame;
 
 /**
@@ -48,12 +46,13 @@ public final class RightOuterJoin implements JoinOperation {
     private final Joiner joiner;
 
     ReversedJoinerDelegate(Joiner joiner) {
+      super(joiner.getColumnKeys());
       this.joiner = joiner;
     }
 
     @Override
-    public DataFrame join(DataFrame a, DataFrame b, Collection<?> on) {
-      return super.join(b, a, on);
+    public DataFrame join(DataFrame a, DataFrame b) {
+      return super.join(b, a);
     }
 
     @Override

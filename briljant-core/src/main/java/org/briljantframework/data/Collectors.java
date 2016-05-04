@@ -20,11 +20,7 @@
  */
 package org.briljantframework.data;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -34,11 +30,10 @@ import java.util.stream.Collector;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.MixedDataFrame;
-import org.briljantframework.data.index.ObjectIndex;
-import org.briljantframework.data.vector.TypeInferenceVectorBuilder;
-import org.briljantframework.data.vector.Vector;
-import org.briljantframework.data.vector.Type;
-import org.briljantframework.data.vector.Vectors;
+import org.briljantframework.data.index.HashIndex;
+import org.briljantframework.data.series.Series;
+import org.briljantframework.data.series.Type;
+import org.briljantframework.data.series.TypeInferenceBuilder;
 import org.briljantframework.data.statistics.FastStatistics;
 
 /**
@@ -50,193 +45,195 @@ public final class Collectors {
 
   private Collectors() {}
 
-  public static Collector<Vector, ?, DataFrame> toDataFrame() {
+  public static Collector<Series, ?, DataFrame> toDataFrame() {
     return toDataFrame(MixedDataFrame.Builder::new);
   }
 
-  public static Collector<Vector, ?, DataFrame> toDataFrame(Supplier<DataFrame.Builder> supplier) {
-    return Collector.of(supplier, (DataFrame.Builder acc, Vector record) -> {
-      if (acc.columns() > 0 && record.size() != acc.columns()) {
+  public static Collector<Series, ?, DataFrame> toDataFrame(Supplier<DataFrame.Builder> supplier) {
+    return Collector.of(supplier, (DataFrame.Builder acc, Series record) -> {
+      if (acc.size(1) > 0 && record.size() != acc.size(1)) {
         throw new IllegalStateException("All records must have the same size.");
       } else {
-        acc.addRecord(Vectors.transferableBuilder(record));
+        acc.addRow(record);
       }
-    }, (DataFrame.Builder left, DataFrame.Builder right) -> {
-      if (left.columns() > 0 && left.rows() != right.columns()) {
+    } , (DataFrame.Builder left, DataFrame.Builder right) -> {
+      if (left.size(1) > 0 && left.size(0) != right.size(1)) {
         throw new IllegalStateException("Columns must all have the same length.");
       } else {
-        for (Vector vector : right.build().getRecords()) {
-          left.addRecord(Vectors.transferableBuilder(vector));
+        for (Series series : right.build().rows()) {
+          left.addRow(series);
         }
         return left;
       }
-    }, DataFrame.Builder::build);
+    } , DataFrame.Builder::build);
   }
 
-  public static <T, O> Collector<T, ?, Vector> map(Function<? super T, ? extends O> function) {
-    return map(TypeInferenceVectorBuilder::new, function);
+  public static <T, O> Collector<T, ?, Series> map(Function<? super T, ? extends O> function) {
+    return map(TypeInferenceBuilder::new, function);
   }
 
   /**
    * Performs a transformation operation, mapping each element to a new value, adding it to the
-   * {@code Vector.Builder} finishing it constructs a new {@code Vector}.
+   * {@code Series.Builder} finishing it constructs a new {@code Series}.
    *
-   * @param supplier supply the vector builder
+   * @param supplier supply the series builder
    * @param function the mapper
    * @param <T> the input type
    * @param <O> the output type
    * @return a transformation aggregator
    */
-  public static <T, O> Collector<T, ?, Vector> map(Supplier<Vector.Builder> supplier,
+  public static <T, O> Collector<T, ?, Series> map(Supplier<Series.Builder> supplier,
       Function<? super T, ? extends O> function) {
-    return Collector.of(supplier, (acc, v) -> acc.add(function.apply(v)), (Vector.Builder left,
-        Vector.Builder right) -> {
-      left.addAll(right);
-      return left;
-    }, Vector.Builder::build);
+    return Collector.of(supplier, (acc, v) -> acc.add(function.apply(v)),
+        (Series.Builder left, Series.Builder right) -> {
+          left.addAll(right.build());
+          return left;
+        } , Series.Builder::build);
   }
 
   /**
    * Returns an aggregator that filter values.
    *
-   * @param supplier the vector builder
+   * @param supplier the series builder
    * @param predicate the predicate. If {@code true} include value.
    * @param <T> the input type
    * @return a filtering aggregator
    */
-  public static <T> Collector<T, ?, Vector> filter(Supplier<Vector.Builder> supplier,
+  public static <T> Collector<T, ?, Series> filter(Supplier<Series.Builder> supplier,
       Predicate<T> predicate) {
     return Collector.of(supplier, (acc, v) -> {
       if (predicate.test(v)) {
         acc.add(v);
       }
-    }, (Vector.Builder left, Vector.Builder right) -> {
-      left.addAll(right);
+    } , (Series.Builder left, Series.Builder right) -> {
+      left.addAll(right.build());
       return left;
-    }, Vector.Builder::build);
+    } , Series.Builder::build);
   }
 
   /**
-   * @return an aggregator for testing, and aggregating a bit-vector, for values that are {@code NA}
+   * @return an aggregator for testing, and aggregating a bit-series, for values that are {@code NA}
    *         .
    */
-  public static Collector<Object, ?, Vector> isNA() {
+  public static Collector<Object, ?, Series> isNA() {
     return test(Is::NA);
   }
 
   /**
-   * Returns an aggregator the performs a test on each value and returns a bit-vector with the
-   * result of the test.
+   * Returns an aggregator the performs a test on each value and returns a series with the result of
+   * the test.
    *
    * @param predicate the predicate
    * @param <T> the input type
    * @return a filter aggregator
    */
-  public static <T> Collector<T, ?, Vector> test(Predicate<T> predicate) {
+  public static <T> Collector<T, ?, Series> test(Predicate<T> predicate) {
     return map(() -> Type.of(Logical.class).newBuilder(), predicate::test);
   }
 
   /**
-   * @return an aggregator for testing, and aggregating a bit-vector, for values that are not
-   *         {@code NA}.
+   * @return an aggregator for testing, and aggregating a series, for values that are not {@code NA}
+   *         .
    */
-  public static Collector<Object, ?, Vector> nonNA() {
+  public static Collector<Object, ?, Series> nonNA() {
     return test(v -> !Is.NA(v));
   }
 
-  public static <T> Collector<T, ?, Vector> each(int copies) {
-    return each(TypeInferenceVectorBuilder::new, copies);
+  public static <T> Collector<T, ?, Series> each(int copies) {
+    return each(TypeInferenceBuilder::new, copies);
   }
 
   /**
    * @param copies the number of copies of each element
    * @return an aggregator that repeats each value {@code copies} times.
    */
-  public static <T> Collector<T, ?, Vector> each(Supplier<Vector.Builder> vb, int copies) {
+  public static <T> Collector<T, ?, Series> each(Supplier<Series.Builder> vb, int copies) {
     return Collector.of(vb, (acc, v) -> {
       for (int i = 0; i < copies; i++) {
         acc.add(v);
       }
-    }, (Vector.Builder left, Vector.Builder right) -> {
-      left.addAll(right);
+    } , (Series.Builder left, Series.Builder right) -> {
+      left.addAll(right.build());
       return left;
-    }, Vector.Builder::build);
+    } , Series.Builder::build);
   }
 
-  public static <T> Collector<T, ?, Vector> repeat(int copies) {
-    return repeat(TypeInferenceVectorBuilder::new, copies);
+  public static <T> Collector<T, ?, Series> repeat(int copies) {
+    return repeat(TypeInferenceBuilder::new, copies);
   }
 
-  public static <T> Collector<T, ?, Vector> repeat(Supplier<Vector.Builder> vb, int copies) {
-    return Collector.of(vb, Vector.Builder::add, (Vector.Builder left, Vector.Builder right) -> {
-      left.addAll(right);
+  public static <T> Collector<T, ?, Series> repeat(Supplier<Series.Builder> vb, int copies) {
+    return Collector.of(vb, Series.Builder::add, (Series.Builder left, Series.Builder right) -> {
+      left.addAll(right.build());
       return left;
-    }, (v) -> {
-      Vector temp = v.getView();
-      int size = temp.size();
-      for (int i = 1; i < copies; i++) {
+    } , (v) -> {
+      Series elements = v.build();
+      int size = elements.size();
+      Series.Builder builder = elements.newBuilder();
+      for (int i = 0; i < copies; i++) {
         for (int j = 0; j < size; j++) {
-          v.add(temp, j);
+          builder.add(elements, j);
         }
       }
-      return v.build();
+      return builder.build();
     });
   }
 
-  public static <T> Collector<T, ?, Vector> valueCounts() {
+  public static <T> Collector<T, ?, Series> valueCounts() {
     return Collector.of(HashMap::new, (map, t) -> map.compute(t, (v, c) -> c == null ? 1 : c + 1),
         new BinaryOperator<HashMap<T, Integer>>() {
           @Override
           public HashMap<T, Integer> apply(HashMap<T, Integer> left, HashMap<T, Integer> right) {
-            right.forEach((k, v) -> left.merge(k, v, (Integer o, Integer n) -> o == null ? n : o
-                + n));
+            right.forEach(
+                (k, v) -> left.merge(k, v, (Integer o, Integer n) -> o == null ? n : o + n));
             return left;
           }
         }, (map) -> {
-          Vector.Builder b = new TypeInferenceVectorBuilder();
+          Series.Builder b = new TypeInferenceBuilder();
           for (Map.Entry<T, Integer> e : map.entrySet()) {
             b.set(e.getKey(), e.getValue());
           }
           return b.build();
-        }, Collector.Characteristics.UNORDERED);
+        } , Collector.Characteristics.UNORDERED);
   }
 
-  public static <T> Collector<T, ?, Vector> unique() {
+  public static <T> Collector<T, ?, Series> unique() {
     return Collector.of(HashSet::new, HashSet::add, (ts, ts2) -> {
       ts.addAll(ts2);
       return ts;
-    }, ts -> new TypeInferenceVectorBuilder().addAll(ts).build());
+    } , ts -> new TypeInferenceBuilder().addAll(ts).build());
   }
 
   public static <T> Collector<T, ?, T> mode() {
-    return Collector.of(HashMap::new, (HashMap<T, Integer> map, T value) -> map.compute(value, (
-        key, count) -> count == null ? 1 : count + 1), (left, right) -> {
-      right.forEach((k, v) -> left.merge(k, v, (Integer o, Integer n) -> o == null ? n : o + n));
-      return left;
-    }, (HashMap<T, Integer> map) -> {
-      int max = 0;
-      T value = null;
-      for (Map.Entry<T, Integer> k : map.entrySet()) {
-        if (k.getValue() > max) {
-          value = k.getKey();
-        }
-      }
-      return value;
-    }, Collector.Characteristics.UNORDERED);
+    return Collector.of(HashMap::new, (HashMap<T, Integer> map, T value) -> map.compute(value,
+        (key, count) -> count == null ? 1 : count + 1), (left, right) -> {
+          right
+              .forEach((k, v) -> left.merge(k, v, (Integer o, Integer n) -> o == null ? n : o + n));
+          return left;
+        } , (HashMap<T, Integer> map) -> {
+          int max = 0;
+          T value = null;
+          for (Map.Entry<T, Integer> k : map.entrySet()) {
+            if (k.getValue() > max) {
+              value = k.getKey();
+            }
+          }
+          return value;
+        } , Collector.Characteristics.UNORDERED);
   }
 
   public static <T> Collector<T, ?, Integer> nunique() {
     return Collector.of(HashSet::new, HashSet::add, (left, right) -> {
       left.addAll(right);
       return left;
-    }, HashSet::size);
+    } , HashSet::size);
   }
 
-  public static Collector<Object, ?, Vector> factorize() {
+  public static Collector<Object, ?, Series> factorize() {
     class Factorize {
 
       Map<Object, Integer> map = new HashMap<>();
-      Vector.Builder builder = Vector.Builder.of(Integer.class);
+      Series.Builder builder = Series.Builder.of(Integer.class);
       int highest = 0;
     }
 
@@ -252,7 +249,7 @@ public final class Collectors {
         }
         acc.builder.add(code);
       }
-    }, (left, right) -> left, (acc) -> acc.builder.build());
+    } , (left, right) -> left, (acc) -> acc.builder.build());
   }
 
   public static Collector<Number, ?, Double> sum() {
@@ -270,9 +267,9 @@ public final class Collectors {
       if (!Is.NA(v)) {
         a.addValue(v.doubleValue());
       }
-    }, (left, right) -> {
+    } , (left, right) -> {
       throw new IllegalStateException("Can't collect statistics in parallel");
-    }, FastStatistics::getSummary);
+    } , FastStatistics::getSummary);
   }
 
   public static <T, A, R, F> Collector<T, ?, F> withFinisher(Collector<T, A, R> collector,
@@ -285,16 +282,13 @@ public final class Collectors {
         f.andThen(finisher), characteristics.toArray(empty));
   }
 
-  public static Collector<Number, ?, Vector> summary() {
-    return withFinisher(
-        statisticalSummary(),
-        v -> {
-          Vector summary =
-              Vector.of(v.getMean(), v.getSum(), v.getStandardDeviation(), v.getVariance(),
-                  v.getMin(), v.getMax(), v.getN());
-          summary.setIndex(ObjectIndex.of("mean", "sum", "std", "var", "min", "max", "n"));
-          return summary;
-        });
+  public static Collector<Number, ?, Series> summary() {
+    return withFinisher(statisticalSummary(), v -> {
+      Series summary = Series.of(v.getMean(), v.getSum(), v.getStandardDeviation(), v.getVariance(),
+          v.getMin(), v.getMax(), v.getN());
+      summary.setIndex(HashIndex.of("mean", "sum", "std", "var", "min", "max", "n"));
+      return summary;
+    });
   }
 
   public static Collector<Number, ?, Double> mean() {
@@ -334,7 +328,7 @@ public final class Collectors {
     return Collector.of(ArrayList::new, ArrayList::add, (left, right) -> {
       left.addAll(right);
       return left;
-    }, (ArrayList<Number> list) -> {
+    } , (ArrayList<Number> list) -> {
       int size = list.size();
       if (size == 0) {
         return Na.of(Double.class);
@@ -371,7 +365,7 @@ public final class Collectors {
     return Collector.of(MaxBox::new, (a, v) -> a.update(v.doubleValue()), (left, right) -> {
       left.update(right.value);
       return left;
-    }, (r) -> r.hasValue ? r.value : Na.DOUBLE);
+    } , (r) -> r.hasValue ? r.value : Na.DOUBLE);
   }
 
   public static Collector<Number, ?, Number> min() {
@@ -390,7 +384,7 @@ public final class Collectors {
     return Collector.of(MinBox::new, (a, v) -> a.update(v.doubleValue()), (left, right) -> {
       left.update(right.value);
       return left;
-    }, (r) -> r.hasValue ? r.value : Na.DOUBLE);
+    } , (r) -> r.hasValue ? r.value : Na.DOUBLE);
   }
 
   /**
@@ -403,29 +397,29 @@ public final class Collectors {
       if (!Is.NA(b)) {
         a[0] += 1;
       }
-    }, (int[] left, int[] right) -> {
+    } , (int[] left, int[] right) -> {
       left[0] += right[0];
       return left;
-    }, (int[] a) -> a[0]);
+    } , (int[] a) -> a[0]);
   }
 
   /**
-   * Returns a collector that collects objects into a vector while filling NA-values with the
+   * Returns a collector that collects objects into a series while filling NA-values with the
    * supplied value
    *
    * @param fill the value to fill NA with
    * @return a collector for filling NA values
    */
-  public static Collector<Object, ?, Vector> fillNa(Object fill) {
-    return Collector.of(TypeInferenceVectorBuilder::new, (builder, t) -> {
+  public static Collector<Object, ?, Series> fillNa(Object fill) {
+    return Collector.of(TypeInferenceBuilder::new, (builder, t) -> {
       if (Is.NA(t)) {
         builder.add(fill);
       } else {
         builder.add(t);
       }
-    }, (left, right) -> {
-      left.addAll(right);
+    } , (left, right) -> {
+      left.addAll(right.build());
       return left;
-    }, Vector.Builder::build);
+    } , Series.Builder::build);
   }
 }

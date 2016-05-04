@@ -20,17 +20,20 @@
  */
 package org.briljantframework.data.dataframe.join;
 
+import java.util.Collection;
+
 import org.briljantframework.Check;
 
 /**
  * @author Isak Karlsson
  */
-class ArrayJoiner extends Joiner {
+final class ArrayJoiner extends Joiner {
 
   private final int[] leftSorted;
   private final int[] rightSorted;
 
-  ArrayJoiner(int[] leftSorted, int[] rightSorted) {
+  ArrayJoiner(Collection<?> on, int[] leftSorted, int[] rightSorted) {
+    super(on);
     Check.argument(leftSorted.length == rightSorted.length, "indexers must have the same length.");
     this.leftSorted = leftSorted;
     this.rightSorted = rightSorted;

@@ -20,28 +20,9 @@
  */
 package org.briljantframework.array;
 
-import java.io.IOException;
-import java.util.AbstractList;
+import java.util.*;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.PrimitiveIterator;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.function.DoubleBinaryOperator;
-import java.util.function.DoubleConsumer;
-import java.util.function.DoubleFunction;
-import java.util.function.DoublePredicate;
-import java.util.function.DoubleSupplier;
-import java.util.function.DoubleToIntFunction;
-import java.util.function.DoubleToLongFunction;
-import java.util.function.DoubleUnaryOperator;
-import java.util.function.IntToDoubleFunction;
-import java.util.function.LongToDoubleFunction;
-import java.util.function.ObjDoubleConsumer;
-import java.util.function.Supplier;
-import java.util.function.ToDoubleFunction;
+import java.util.function.*;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 import java.util.stream.StreamSupport;
@@ -62,16 +43,15 @@ import org.briljantframework.util.sort.QuickSort;
  *
  * @author Isak Karlsson
  */
-public abstract class AbstractDoubleArray extends AbstractBaseArray<Double, DoubleArray> implements
-    DoubleArray {
+public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
+    implements DoubleArray {
 
   protected AbstractDoubleArray(ArrayBackend bj, int[] shape) {
     super(bj, shape);
   }
 
-  protected AbstractDoubleArray(ArrayBackend bj, int offset, int[] shape, int[] stride,
-      int majorStride) {
-    super(bj, offset, shape, stride, majorStride);
+  protected AbstractDoubleArray(ArrayBackend bj, int offset, int[] shape, int[] stride) {
+    super(bj, offset, shape, stride);
   }
 
   @Override
@@ -100,14 +80,13 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<Double, Doub
   }
 
   @Override
-  public DoubleArray asDouble() {
+  public DoubleArray asDoubleArray() {
     return this;
   }
 
   @Override
-  public IntArray asInt() {
-    return new AsIntArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public IntArray asIntArray() {
+    return new AsIntArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       protected int getElement(int index) {
         return (int) AbstractDoubleArray.this.getElement(index);
@@ -126,9 +105,8 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<Double, Doub
   }
 
   @Override
-  public LongArray asLong() {
-    return new AsLongArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public LongArray asLongArray() {
+    return new AsLongArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
 
       @Override
       public void setElement(int index, long value) {
@@ -148,9 +126,8 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<Double, Doub
   }
 
   @Override
-  public BooleanArray asBoolean() {
-    return new AsBooleanArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public BooleanArray asBooleanArray() {
+    return new AsBooleanArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
 
       @Override
       protected boolean getElement(int index) {
@@ -170,9 +147,8 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<Double, Doub
   }
 
   @Override
-  public ComplexArray asComplex() {
-    return new AsComplexArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public ComplexArray asComplexArray() {
+    return new AsComplexArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       public Complex getElement(int index) {
         return Complex.valueOf(AbstractDoubleArray.this.getElement(index));
@@ -256,6 +232,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<Double, Doub
 
   @Override
   public final void set(int index, double value) {
+    Check.index(index, size());
     setElement(StrideUtils.index(index, getOffset(), stride, shape), value);
   }
 
@@ -415,8 +392,8 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<Double, Doub
         builder.add(value);
       }
     }
-    return getArrayBackend().getArrayFactory().newDoubleVector(
-        Arrays.copyOf(builder.elementData, builder.size()));
+    return getArrayBackend().getArrayFactory()
+        .newDoubleVector(Arrays.copyOf(builder.elementData, builder.size()));
   }
 
   @Override
@@ -459,30 +436,31 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<Double, Doub
 
   @Override
   public final void set(int i, int j, double value) {
-    Check.argument(isMatrix());
+    Check.index(i, rows(), j, columns());
     setElement(getOffset() + i * stride(0) + j * stride(1), value);
   }
 
   @Override
   public final void set(int[] ix, double value) {
-    Check.argument(ix.length == dims());
+    Check.index(ix, shape);
     setElement(StrideUtils.index(ix, getOffset(), stride), value);
   }
 
   @Override
   public final double get(int index) {
+    Check.index(index, size());
     return getElement(StrideUtils.index(index, getOffset(), stride, shape));
   }
 
   @Override
   public final double get(int i, int j) {
-    Check.argument(isMatrix());
+    Check.index(i, rows(), j, columns());
     return getElement(getOffset() + i * stride(0) + j * stride(1));
   }
 
   @Override
   public final double get(int... ix) {
-    Check.argument(ix.length == dims());
+    Check.index(ix, shape);
     return getElement(StrideUtils.index(ix, getOffset(), stride));
   }
 
@@ -513,7 +491,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<Double, Doub
   }
 
   @Override
-  public DoubleStream stream() {
+  public DoubleStream doubleStream() {
     PrimitiveIterator.OfDouble ofDouble = new PrimitiveIterator.OfDouble() {
       public int current = 0;
 
@@ -534,17 +512,13 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<Double, Doub
   }
 
   @Override
-  public List<Double> toList() {
+  public List<Double> asList() {
     return new DoubleListView();
   }
 
   @Override
   public Array<Double> asArray() {
     return new AsArray<Double>(this) {
-      @Override
-      public DoubleArray asDouble() {
-        return AbstractDoubleArray.this;
-      }
 
       @Override
       protected void setElement(int i, Double value) {
@@ -790,7 +764,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<Double, Doub
 
   @Override
   public Iterator<Double> iterator() {
-    return toList().iterator();
+    return asList().iterator();
   }
 
   private class DoubleListView extends AbstractList<Double> {

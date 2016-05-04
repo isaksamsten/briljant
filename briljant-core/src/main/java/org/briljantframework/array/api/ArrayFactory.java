@@ -85,7 +85,7 @@ public interface ArrayFactory {
   IntArray newIntMatrix(int[][] data);
 
   /**
-   * Create a vector with the given data.
+   * Create a series with the given data.
    *
    * @param data the data array
    * @return a new matrix
@@ -109,7 +109,7 @@ public interface ArrayFactory {
   LongArray newLongMatrix(long[][] data);
 
   /**
-   * Create a vector with the given data.
+   * Create a series with the given data.
    *
    * @param data the data array
    * @return a new matrix
@@ -149,7 +149,7 @@ public interface ArrayFactory {
   DoubleArray newDoubleMatrix(double[][] data);
 
   /**
-   * Create a vector with the given data.
+   * Create a series with the given data.
    *
    * @param data the data array
    * @return a new matrix
@@ -234,20 +234,12 @@ public interface ArrayFactory {
   DoubleArray ones(int... shape);
 
   /**
-   * Creates a double array initialized with zeroes.
-   * 
-   * @param shape the shape of the array
-   * @return a new double array
-   */
-  DoubleArray zeros(int... shape);
-
-  /**
    * Extract or create a diagonal matrix
    *
    * <p>
    * If the argument is a 2d-array (matrix), a view of the diagonal entries will be
    * {@linkplain org.briljantframework.array.BaseArray#getDiagonal() extracted}. If the argument is
-   * a 1d-array (vector) of size {@code n}, a 2d-array {@code n x n} with the vector as the diagonal
+   * a 1d-array (series) of size {@code n}, a 2d-array {@code n x n} with the series as the diagonal
    * will be returned. Note that a {@code 1 x n} or {@code m x 1} 2d-array will be considered a
    * 1d-array.
    *
@@ -273,42 +265,42 @@ public interface ArrayFactory {
    * @return a 2d-array or a 1d-view
    * @throws java.lang.IllegalArgumentException if the array has more than 2 dimensions
    */
-  <E,T extends BaseArray<E, T>> T diag(T data);
+  <E,T extends BaseArray<T>> T diag(T data);
 
   /**
-   * Return a row vector of evenly spaced values
+   * Return a row series of evenly spaced values
    *
    * @param start start value
    * @param end end value
    * @param step step size
-   * @return a new row vector
+   * @return a new row series
    */
   Range range(int start, int end, int step);
 
   /**
-   * Return a row vector of evenly spaced values (step = 1)
+   * Return a row series of evenly spaced values (step = 1)
    *
    * @param start start value
    * @param end end value
-   * @return a new row vector
+   * @return a new row series
    */
   Range range(int start, int end);
 
   /**
-   * Return a row vector of evenly spaced values (start = 0, step = 1)
+   * Return a row series of evenly spaced values (start = 0, step = 1)
    *
    * @param end end value
-   * @return a new row vector
+   * @return a new row series
    */
   Range range(int end);
 
   /**
-   * Return a row vector of linearly spaced values
+   * Return a row series of linearly spaced values
    *
    * @param start start value
    * @param end end value
-   * @param size the size of the returned vector
-   * @return a new row vector
+   * @param size the size of the returned series
+   * @return a new row series
    */
   DoubleArray linspace(double start, double end, int size);
 

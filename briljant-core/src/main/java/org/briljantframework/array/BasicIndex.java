@@ -20,6 +20,7 @@
  */
 package org.briljantframework.array;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.*;
@@ -298,12 +299,12 @@ public final class BasicIndex implements Range {
   }
 
   @Override
-  public IntStream stream() {
+  public IntStream intStream() {
     throw unsupported();
   }
 
   @Override
-  public List<Integer> toList() {
+  public List<Integer> asList() {
     throw unsupported();
   }
 
@@ -622,7 +623,6 @@ public final class BasicIndex implements Range {
     throw unsupported();
   }
 
-  @Override
   public int getMajorStride() {
     throw unsupported();
   }
@@ -673,27 +673,27 @@ public final class BasicIndex implements Range {
   }
 
   @Override
-  public DoubleArray asDouble() {
+  public DoubleArray asDoubleArray() {
     throw unsupported();
   }
 
   @Override
-  public IntArray asInt() {
+  public IntArray asIntArray() {
     return this;
   }
 
   @Override
-  public LongArray asLong() {
+  public LongArray asLongArray() {
     throw unsupported();
   }
 
   @Override
-  public BooleanArray asBoolean() {
+  public BooleanArray asBooleanArray() {
     throw unsupported();
   }
 
   @Override
-  public ComplexArray asComplex() {
+  public ComplexArray asComplexArray() {
     throw unsupported();
   }
 

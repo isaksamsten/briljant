@@ -21,7 +21,7 @@
 package org.briljantframework.example.vector;
 
 import org.briljantframework.data.Collectors;
-import org.briljantframework.data.vector.Vector;
+import org.briljantframework.data.series.Vector;
 
 /**
  * Created by isak on 13/08/15.

@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.briljantframework.data.vector.Convert;
+import org.briljantframework.data.series.Convert;
 
 /**
  * Converts a {@link ResultSet} to an entry reader.

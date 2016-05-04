@@ -20,37 +20,35 @@
  */
 package org.briljantframework.data.dataframe;
 
-import org.briljantframework.data.dataframe.join.JoinType;
-import org.briljantframework.data.vector.Vector;
+import static org.briljantframework.data.dataframe.Join.inner;
+import static org.junit.Assert.assertEquals;
+
+import org.briljantframework.data.series.Series;
 import org.junit.Test;
 
 public class JoinTest {
 
   @Test
   public void testSimpleInnerJoin() throws Exception {
-    DataFrame left = DataFrame.of("key", Vector.of("foo", "foo", "ko"), "lval", Vector.of(1, 2, 4));
-    DataFrame right = DataFrame.of("key", Vector.of("foo", "bar"), "rval", Vector.of(3, 5));
+    DataFrame left = DataFrame.of("key", Series.of("foo", "foo", "ko"), "lval", Series.of(1, 2, 4));
+    DataFrame right = DataFrame.of("key", Series.of("foo", "bar"), "rval", Series.of(3, 5));
 
-    DataFrame actual = left.join(JoinType.INNER, right);
-    DataFrame expected =
-        DataFrame.of("key", Vector.of("foo", "foo"), "lval", Vector.of(1, 2), "rval",
-            Vector.of(3, 3));
-    // assertEquals(expected, actual);
+    DataFrame actual = inner(left, right).on("key");
+    DataFrame expected = DataFrame.of("key", Series.of("foo", "foo"), "lval", Series.of(1, 2),
+        "rval", Series.of(3, 3));
+    assertEquals(expected, actual);
   }
 
   @Test
   public void testComplexInnerJoin() throws Exception {
-    DataFrame left =
-        DataFrame.of("key1", Vector.of("foo", "foo", "bar"), "key2",
-            Vector.of("one", "two", "one"), "lval", Vector.of(1, 2, 3));
-    DataFrame right =
-        DataFrame.of("key1", Vector.of("foo", "foo", "bar", "bar"), "key2",
-            Vector.of("one", "one", "one", "two"), "rval", Vector.of(4, 5, 6, 7));
+    DataFrame left = DataFrame.of("key1", Series.of("foo", "foo", "bar"), "key2",
+        Series.of("one", "two", "one"), "lval", Series.of(1, 2, 3));
+    DataFrame right = DataFrame.of("key1", Series.of("foo", "foo", "bar", "bar"), "key2",
+        Series.of("one", "one", "one", "two"), "rval", Series.of(4, 5, 6, 7));
 
-    DataFrame actual = left.join(JoinType.INNER, right);
-    DataFrame expected =
-        DataFrame.of("key1", Vector.of("foo", "foo", "bar"), "key2",
-            Vector.of("one", "one", "one"), "lval", Vector.of(1, 1, 3), "rval", Vector.of(4, 5, 6));
-    // assertEquals(expected, actual);
+    DataFrame actual = inner(left, right).on("key1", "key2");
+    DataFrame expected = DataFrame.of("key1", Series.of("foo", "foo", "bar"), "key2",
+        Series.of("one", "one", "one"), "lval", Series.of(1, 1, 3), "rval", Series.of(4, 5, 6));
+    assertEquals(expected, actual);
   }
 }

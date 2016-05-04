@@ -105,6 +105,6 @@ public class OuterJoin implements JoinOperation {
         rightSorted[i] = rightSorter.get(ri);
       }
     }
-    return new ArrayJoiner(leftSorted, rightSorted);
+    return new ArrayJoiner(keys.getColumnKeys(), leftSorted, rightSorted);
   }
 }

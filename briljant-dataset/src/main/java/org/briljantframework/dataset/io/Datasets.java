@@ -31,9 +31,8 @@ import java.util.function.Function;
 
 import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.dataframe.MixedDataFrame;
-import org.briljantframework.data.dataseries.DataSeriesCollection;
-import org.briljantframework.data.index.ObjectIndex;
-import org.briljantframework.data.vector.Type;
+import org.briljantframework.data.index.HashIndex;
+import org.briljantframework.data.series.Type;
 
 /**
  * This class provides some classical benchmarking datasets
@@ -75,7 +74,7 @@ public class Datasets {
       Collection<Type> types = in.readColumnTypes();
       Collection<Object> names = in.readColumnIndex();
       DataFrame df = f.apply(types).readAll(in).build();
-      df.setColumnIndex(ObjectIndex.of(names));
+      df.setColumnIndex(HashIndex.of(names));
       return df;
     } finally {
       if (in != null) {
@@ -179,7 +178,7 @@ public class Datasets {
       return DATA_CACHE.get(SYNTHETIC_CONTROL);
     }
     DataFrame frame = loadSyntheticControl(
-        types -> new DataSeriesCollection.Builder(Type.DOUBLE)
+        types -> new MixedDataFrame.Builder()
     );
     DATA_CACHE.put(SYNTHETIC_CONTROL, frame);
     return frame;

@@ -29,7 +29,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.data.index.ObjectComparator;
+import org.briljantframework.data.index.NaturalOrdering;
 
 /**
  * Provide a skeletal implementation of an {@link Array} to minimize the effort required to
@@ -37,17 +37,16 @@ import org.briljantframework.data.index.ObjectComparator;
  *
  * @author Isak Karlsson
  */
-public abstract class AbstractArray<T> extends AbstractBaseArray<T, Array<T>> implements Array<T> {
+public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> implements Array<T> {
 
-  private final Comparator<T> comparator = ObjectComparator.getInstance();
+  private final Comparator<T> comparator = NaturalOrdering.ascending();
 
   protected AbstractArray(ArrayBackend backend, int[] shape) {
     super(backend, shape);
   }
 
-  protected AbstractArray(ArrayBackend backend, int offset, int[] shape, int[] stride,
-      int majorStride) {
-    super(backend, offset, shape, stride, majorStride);
+  protected AbstractArray(ArrayBackend backend, int offset, int[] shape, int[] stride) {
+    super(backend, offset, shape, stride);
   }
 
   @Override
@@ -75,62 +74,6 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<T, Array<T>> im
     set(toIndex, from.get(fromIndex));
   }
 
-  @Override
-  public DoubleArray asDouble() {
-    return mapToDouble(v -> {
-      if (v instanceof Number) {
-        return ((Number) v).doubleValue();
-      } else {
-        throw new ClassCastException("Can't convert to double");
-      }
-    });
-  }
-
-  @Override
-  public IntArray asInt() {
-    return mapToInt(v -> {
-      if (v instanceof Number) {
-        return ((Number) v).intValue();
-      } else {
-        throw new ClassCastException("Can't convert to int");
-      }
-    });
-  }
-
-  @Override
-  public LongArray asLong() {
-    return mapToLong(v -> {
-      if (v instanceof Number) {
-        return ((Number) v).longValue();
-      } else {
-        throw new ClassCastException("Can't convert to long");
-      }
-    });
-  }
-
-  @Override
-  public BooleanArray asBoolean() {
-    return mapToBoolean(v -> {
-      if (v instanceof Number) {
-        return ((Number) v).intValue() == 1;
-      } else if (v instanceof Boolean) {
-        return (Boolean) v;
-      } else {
-        throw new ClassCastException("Can't convert to boolean");
-      }
-    });
-  }
-
-  @Override
-  public ComplexArray asComplex() {
-    return mapToComplex(v -> {
-      if (v instanceof Number) {
-        return Complex.valueOf(((Number) v).doubleValue());
-      } else {
-        throw new ClassCastException("Can't convert to complex");
-      }
-    });
-  }
 
   @Override
   public Array<T> copy() {
@@ -272,8 +215,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<T, Array<T>> im
 
   public DoubleArray asDouble(ToDoubleFunction<? super T> getter,
       DoubleFunction<? extends T> setter) {
-    return new AsDoubleArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+    return new AsDoubleArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       protected double getElement(int i) {
         return getter.applyAsDouble(AbstractArray.this.getElement(i));
@@ -292,8 +234,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<T, Array<T>> im
   }
 
   public IntArray asInt(ToIntFunction<? super T> getter, IntFunction<? extends T> setter) {
-    return new AsIntArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+    return new AsIntArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       protected int getElement(int i) {
         return getter.applyAsInt(AbstractArray.this.getElement(i));
@@ -312,8 +253,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<T, Array<T>> im
   }
 
   public LongArray asLong(ToLongFunction<? super T> getter, LongFunction<? extends T> setter) {
-    return new AsLongArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+    return new AsLongArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       protected void setElement(int i, long value) {
         AbstractArray.this.setElement(i, setter.apply(value));
@@ -333,8 +273,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<T, Array<T>> im
 
   public BooleanArray asBoolean(Function<? super T, Boolean> getter,
       Function<Boolean, ? extends T> setter) {
-    return new AsBooleanArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+    return new AsBooleanArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       protected boolean getElement(int i) {
         return getter.apply(AbstractArray.this.getElement(i));
@@ -354,8 +293,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<T, Array<T>> im
 
   public ComplexArray asComplex(Function<? super T, Complex> getter,
       Function<Complex, ? extends T> setter) {
-    return new AsComplexArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+    return new AsComplexArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       protected Complex getElement(int i) {
         return getter.apply(AbstractArray.this.getElement(i));
@@ -480,11 +418,11 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<T, Array<T>> im
 
   @Override
   public Stream<T> stream() {
-    return toList().stream();
+    return asList().stream();
   }
 
   @Override
-  public List<T> toList() {
+  public List<T> asList() {
     return new AbstractList<T>() {
 
       @Override
@@ -532,7 +470,7 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<T, Array<T>> im
 
   @Override
   public Iterator<T> iterator() {
-    return toList().iterator();
+    return asList().iterator();
   }
 
   protected abstract void setElement(int i, T value);

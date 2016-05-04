@@ -21,6 +21,7 @@
 package org.briljantframework.data.index;
 
 import java.util.AbstractList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -40,10 +41,45 @@ abstract class AbstractIndex extends AbstractList<Object> implements Index {
   }
 
   @Override
-  public int[] locations(Object[] keys) {
-    int[] indicies = new int[keys.length];
-    for (int i = 0; i < keys.length; i++) {
-      indicies[i] = getLocation(keys[i]);
+  public Index setLocation(int loc, Object value) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Index intersection(Index other) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Index union(Index other) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Index difference(Index other) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Index drop(Collection<?> keys) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Index removeLocation(Collection<?> locations) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override public Index removeLocation(int loc) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int[] locations(Collection<?> keys) {
+    int[] indicies = new int[keys.size()];
+    int i = 0;
+    for (Object key : keys) {
+      indicies[i++] = getLocation(key);
     }
     return indicies;
   }

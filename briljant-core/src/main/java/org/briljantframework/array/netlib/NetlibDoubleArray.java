@@ -55,9 +55,8 @@ class NetlibDoubleArray extends AbstractDoubleArray {
     this.data = new double[size()];
   }
 
-  private NetlibDoubleArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
-      double[] data) {
-    super(bj, offset, shape, stride, majorStride);
+  private NetlibDoubleArray(ArrayBackend bj, int offset, int[] shape, int[] stride, double[] data) {
+    super(bj, offset, shape, stride);
     this.data = data;
   }
 
@@ -68,7 +67,7 @@ class NetlibDoubleArray extends AbstractDoubleArray {
 
   @Override
   public DoubleArray asView(int offset, int[] shape, int[] stride) {
-    return new NetlibDoubleArray(getArrayBackend(), offset, shape, stride, majorStride, data);
+    return new NetlibDoubleArray(getArrayBackend(), offset, shape, stride, data);
   }
 
   @Override

@@ -42,13 +42,12 @@ public class JCudaDoubleArray extends AbstractDoubleArray {
     super(bj, shape);
   }
 
-  protected JCudaDoubleArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride) {
-    super(bj, offset, shape, stride, majorStride);
+  protected JCudaDoubleArray(ArrayBackend bj, int offset, int[] shape, int[] stride) {
+    super(bj, offset, shape, stride);
   }
 
-  public JCudaDoubleArray(ArrayBackend arrayBackend, int offset, int[] shape, int[] stride,
-      int majorStride, double[] hostMemory, Pointer deviceMemory) {
-    super(arrayBackend, offset, shape, stride, majorStride);
+  public JCudaDoubleArray(ArrayBackend arrayBackend, int offset, int[] shape, int[] stride, double[] hostMemory, Pointer deviceMemory) {
+    super(arrayBackend, offset, shape, stride);
     this.hostMemory = hostMemory;
     this.deviceMemory = deviceMemory;
   }
@@ -112,7 +111,7 @@ public class JCudaDoubleArray extends AbstractDoubleArray {
 
   @Override
   public DoubleArray asView(int offset, int[] shape, int[] stride) {
-    return new JCudaDoubleArray(getArrayBackend(), offset, shape, stride, majorStride, hostMemory,
+    return new JCudaDoubleArray(getArrayBackend(), offset, shape, stride, hostMemory,
         deviceMemory);
   }
 

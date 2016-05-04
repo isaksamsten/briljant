@@ -35,7 +35,7 @@ import java.util.function.LongSupplier
 import java.util.function.Supplier
 
 /**
- * Created by isak on 29/07/15.
+ * Created by isak columnKeys 29/07/15.
  */
 abstract class ArrayFactorySpec extends Specification {
 
@@ -335,7 +335,7 @@ abstract class ArrayFactorySpec extends Specification {
     r.set(2, 2, 321)
 
     then:
-    thrown(IllegalArgumentException)
+    thrown(IllegalStateException)
 
     when:
     r.set(0, 2)
@@ -363,7 +363,7 @@ abstract class ArrayFactorySpec extends Specification {
     expect:
     def range = bj.range(a, b, c)
     range.size() == d
-    range.toList().last() == l
+    range.asList().last() == l
 
     where:
     a << [1, 2, 3, 4]
@@ -378,7 +378,7 @@ abstract class ArrayFactorySpec extends Specification {
     def r = bj.range(1, 10, 2)
 
     when:
-    def last = r.toList().last()
+    def last = r.asList().last()
 
     then:
     r.size() == 5
@@ -390,7 +390,7 @@ abstract class ArrayFactorySpec extends Specification {
     def r = bj.range(0, -10, -1)
 
     expect:
-    r.toList().last() == -9
+    r.asList().last() == -9
   }
 
 

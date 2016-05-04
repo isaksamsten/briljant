@@ -20,12 +20,7 @@
  */
 package org.briljantframework.data.parser;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,10 +29,10 @@ import java.util.function.Supplier;
 
 import org.briljantframework.Check;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.index.ObjectIndex;
+import org.briljantframework.data.index.HashIndex;
 import org.briljantframework.data.reader.EntryReaderException;
 import org.briljantframework.data.reader.SqlEntryReader;
-import org.briljantframework.data.vector.Type;
+import org.briljantframework.data.series.Type;
 
 /**
  * Parse a specified database using a given query.
@@ -78,7 +73,7 @@ public class SqlParser implements Parser {
       Connection connection = DriverManager.getConnection(url, properties);
       PreparedStatement stmt = connection.prepareStatement(query);
       ResultSet resultSet = stmt.executeQuery();
-      ObjectIndex.Builder index = new ObjectIndex.Builder();
+      HashIndex.Builder index = new HashIndex.Builder();
 
       if (header != null) {
         header.forEach(index::add);
@@ -104,10 +99,11 @@ public class SqlParser implements Parser {
       } else {
         columnTypes = entryReader.getTypes();
       }
-      columnTypes.stream().map(Type::of).forEach(builder::add);
+      columnTypes.stream().map(Type::of).forEach(builder::newColumn);
       builder.readAll(entryReader);
-      builder.setColumnIndex(index.build());
-      return builder.build();
+      DataFrame df = builder.build();
+      df.setColumnIndex(index.build());
+      return df;
     } catch (SQLException e) {
       throw new EntryReaderException(e);
     }
@@ -121,11 +117,13 @@ public class SqlParser implements Parser {
      * Set the path to the data base.
      * 
      * @param path the path
-     * @return receiver modified
      */
-    public Settings setPath(String path) {
+    public void setPath(String path) {
       SqlParser.this.url = path;
-      return this;
+    }
+
+    public String getPath() {
+      return SqlParser.this.url;
     }
 
     /**
@@ -134,9 +132,12 @@ public class SqlParser implements Parser {
      * @param query the query
      * @return receiver modified
      */
-    public Settings setQuery(String query) {
+    public void setQuery(String query) {
       SqlParser.this.query = query;
-      return this;
+    }
+
+    public String getQuery() {
+      return SqlParser.this.query;
     }
 
     /**
@@ -145,9 +146,8 @@ public class SqlParser implements Parser {
      * @param header the header
      * @return receiver modified
      */
-    public Settings setHeader(List<Object> header) {
+    public void setHeader(List<Object> header) {
       SqlParser.this.header = header;
-      return this;
     }
 
     /**
@@ -156,9 +156,8 @@ public class SqlParser implements Parser {
      * @param map a map of database headers to alternative headers
      * @return receiver modified
      */
-    public Settings setHeader(Map<String, Object> map) {
+    public void setHeader(Map<String, Object> map) {
       headerReMap = map;
-      return this;
     }
 
     /**
@@ -168,9 +167,8 @@ public class SqlParser implements Parser {
      * @param types the column types
      * @return receiver modified
      */
-    public Settings setTypes(List<Class<?>> types) {
+    public void setTypes(List<Class<?>> types) {
       SqlParser.this.types = types;
-      return this;
     }
 
     /**
@@ -180,23 +178,21 @@ public class SqlParser implements Parser {
      * @param header the new header name
      * @return receiver modified
      */
-    public Settings remap(String column, Object header) {
+    public void remap(String column, Object header) {
       headerReMap.put(column, header);
-      return this;
     }
 
     /**
      * Set a database property (the specific properties depend on the database driver found in the
      * database path). For example, MySQL requires
-     * {@code .setProperty("user", "username").setProperty("password", "password");}
+     * {@code a.setProperty("user", "username"); a.setProperty("password", "password");}
      * 
      * @param key the property key
      * @param value the property value
      * @return receiver modified
      */
-    public Settings setProperty(Object key, Object value) {
+    public void setProperty(Object key, Object value) {
       properties.put(key, value);
-      return this;
     }
   }
 }

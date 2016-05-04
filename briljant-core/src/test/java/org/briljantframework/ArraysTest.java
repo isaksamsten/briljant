@@ -24,12 +24,12 @@ import static java.util.Arrays.asList;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.*;
+import java.util.List;
 
-import org.briljantframework.array.*;
+import org.briljantframework.array.Array;
 import org.briljantframework.array.Arrays;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
 import org.junit.Test;
 
 /**
@@ -39,14 +39,14 @@ public class ArraysTest {
 
   @Test
   public void ReadIdx() throws Exception {
-//    DoubleArray array = Arrays
-//        .readIdx(new FileInputStream(new File("/home/isak/Tmp/mnist/train-images-idx3-ubyte")));
-//    DoubleArray x = array.select(2);
-//    ArrayPrinter.setMinimumTruncateSize(1000000);
-//    System.out.println(x);
-//
-//
-//    System.out.println(Arrays.unmodifiableArray(x));
+    // DoubleArray array = Arrays
+    // .readIdx(new FileInputStream(new File("/home/isak/Tmp/mnist/train-images-idx3-ubyte")));
+    // DoubleArray x = array.select(2);
+    // ArrayPrinter.setMinimumTruncateSize(1000000);
+    // System.out.println(x);
+    //
+    //
+    // System.out.println(Arrays.unmodifiableArray(x));
 
     // ArrayPrinter.setVisiblePerSlice(100000);
     // ArrayPrinter.setPrintSlices(1000000);
@@ -206,6 +206,7 @@ public class ArraysTest {
   public void testHstackedNd() throws Exception {
     IntArray x = Arrays.range(3 * 6 * 3).reshape(3, 6, 3);
     List<IntArray> split = Arrays.hsplit(x, 3);
+    System.out.println(split);
     IntArray hstack = Arrays.hstack(split);
     assertEquals(x, hstack);
   }
@@ -287,17 +288,25 @@ public class ArraysTest {
     assertEquals(expected_2.reshape(2, 2, 9), concat_2);
   }
 
-  @Test public void testConcat_1d() throws Exception {
+  @Test
+  public void testConcat_1d() throws Exception {
     IntArray x = Arrays.range(10);
     IntArray y = Arrays.range(10);
     System.out.println(Arrays.concatenate(asList(x, y), 0));
   }
 
-  @Test public void testVstack_1d() throws Exception {
+  @Test
+  public void testVstack_1d() throws Exception {
     IntArray x = Arrays.range(10);
     IntArray y = Arrays.range(10);
     System.out.println(Arrays.vstack(asList(x, y)));
     System.out.println(Arrays.hstack(asList(x, y)));
+    System.out.println(Arrays.concatenate(asList(x, y), 0));
+  }
+
+  @Test
+  public void testSplit_1d() throws Exception {
+    System.out.println(Arrays.split(Arrays.range(10), 10));
   }
 
   @Test

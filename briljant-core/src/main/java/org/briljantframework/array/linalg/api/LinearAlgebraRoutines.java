@@ -98,7 +98,7 @@ public interface LinearAlgebraRoutines {
    *
    * @param side 'L': apply Q or Q**T from the Left; = 'R': apply Q or Q**T from the Right.
    * @param transA transpose Q
-   * @param a (input) the i-th column must contain the vector which defines the elementary reflector
+   * @param a (input) the i-th column must contain the series which defines the elementary reflector
    *        H(i), for i = 1,2,...,k, as returned by
    *        {@link #geqrf(org.briljantframework.array.DoubleArray, org.briljantframework.array.DoubleArray)}
    *        in the first k columns of its array argument A.

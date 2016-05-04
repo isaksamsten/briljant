@@ -91,7 +91,7 @@ public class InnerJoin implements JoinOperation {
       rightSorted[i] = rightSorter.get(rightIndexer[i]);
     }
 
-    return new ArrayJoiner(leftSorted, rightSorted);
+    return new ArrayJoiner(keys.getColumnKeys(), leftSorted, rightSorted);
   }
 
 }

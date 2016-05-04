@@ -28,7 +28,6 @@ import org.briljantframework.array.AbstractIntArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.Range;
 import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.array.api.ArrayFactory;
 
 /**
  * @author Isak Karlsson
@@ -56,9 +55,8 @@ class BaseRange extends AbstractIntArray implements Range {
     }
   }
 
-  private BaseRange(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride,
-      int start, int end, int step) {
-    super(bj, offset, shape, stride, majorStride);
+  private BaseRange(ArrayBackend bj, int offset, int[] shape, int[] stride, int start, int end, int step) {
+    super(bj, offset, shape, stride);
     this.start = start;
     this.end = end;
     this.step = step;
@@ -66,7 +64,7 @@ class BaseRange extends AbstractIntArray implements Range {
 
   @Override
   public IntArray asView(int offset, int[] shape, int[] stride) {
-    return new BaseRange(getArrayBackend(), offset, shape, stride, majorStride, start(), end(),
+    return new BaseRange(getArrayBackend(), offset, shape, stride, start(), end(),
         step());
   }
 

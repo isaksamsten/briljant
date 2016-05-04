@@ -27,15 +27,15 @@ import org.briljantframework.array.api.ArrayBackend;
  * 
  * @author Isak Karlsson
  */
-abstract class AsDoubleArray extends AbstractDoubleArray {
+public abstract class AsDoubleArray extends AbstractDoubleArray {
 
-  AsDoubleArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int majorStride) {
-    super(bj, offset, shape, stride, majorStride);
+  public AsDoubleArray(ArrayBackend bj, int offset, int[] shape, int[] stride) {
+    super(bj, offset, shape, stride);
   }
 
   @Override
   public DoubleArray asView(int offset, int[] shape, int[] stride) {
-    return new AsDoubleArray(getArrayBackend(), offset, shape, stride, majorStride) {
+    return new AsDoubleArray(getArrayBackend(), offset, shape, stride) {
       @Override
       protected double getElement(int i) {
         return AsDoubleArray.this.getElement(i);

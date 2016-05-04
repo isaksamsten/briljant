@@ -29,5 +29,5 @@ public interface ComplexSequence {
 
   int size();
 
-  Complex getAsComplex(int i);
+  Complex getComplex(int i);
 }

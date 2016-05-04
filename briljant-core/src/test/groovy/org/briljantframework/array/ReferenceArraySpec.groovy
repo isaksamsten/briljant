@@ -32,7 +32,7 @@ import spock.lang.Specification
 import java.util.function.Supplier
 
 /**
- * Created by isak on 29/07/15.
+ * Created by isak columnKeys 29/07/15.
  */
 class ReferenceArraySpec extends Specification {
 

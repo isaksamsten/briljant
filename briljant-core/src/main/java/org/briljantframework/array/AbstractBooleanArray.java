@@ -40,7 +40,7 @@ import org.briljantframework.util.primitive.ArrayAllocations;
  *
  * @author Isak Karlsson
  */
-public abstract class AbstractBooleanArray extends AbstractBaseArray<Boolean, BooleanArray>
+public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArray>
     implements BooleanArray {
 
   protected AbstractBooleanArray(ArrayBackend backend, int size) {
@@ -51,9 +51,8 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<Boolean, Bo
     super(backend, shape);
   }
 
-  public AbstractBooleanArray(ArrayBackend backend, int offset, int[] shape, int[] stride,
-      int majorStride) {
-    super(backend, offset, shape, stride, majorStride);
+  public AbstractBooleanArray(ArrayBackend backend, int offset, int[] shape, int[] stride) {
+    super(backend, offset, shape, stride);
   }
 
   @Override
@@ -82,9 +81,8 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<Boolean, Bo
   }
 
   @Override
-  public DoubleArray asDouble() {
-    return new AsDoubleArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public DoubleArray asDoubleArray() {
+    return new AsDoubleArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       public double getElement(int index) {
         return AbstractBooleanArray.this.getElement(index) ? 1 : 0;
@@ -103,9 +101,8 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<Boolean, Bo
   }
 
   @Override
-  public IntArray asInt() {
-    return new AsIntArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public IntArray asIntArray() {
+    return new AsIntArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
 
       @Override
       public int getElement(int index) {
@@ -126,9 +123,8 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<Boolean, Bo
   }
 
   @Override
-  public LongArray asLong() {
-    return new AsLongArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public LongArray asLongArray() {
+    return new AsLongArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
 
       @Override
       public void setElement(int index, long value) {
@@ -149,14 +145,13 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<Boolean, Bo
   }
 
   @Override
-  public BooleanArray asBoolean() {
+  public BooleanArray asBooleanArray() {
     return this;
   }
 
   @Override
-  public ComplexArray asComplex() {
-    return new AsComplexArray(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStrideIndex()) {
+  public ComplexArray asComplexArray() {
+    return new AsComplexArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       public Complex getElement(int index) {
         return AbstractBooleanArray.this.getElement(index) ? Complex.ONE : Complex.ZERO;
@@ -354,12 +349,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<Boolean, Bo
 
   @Override
   public Array<Boolean> asArray() {
-    return new AsArray<Boolean>(getArrayBackend(), getOffset(), getShape(), getStride(),
-        getMajorStride()) {
-      @Override
-      public BooleanArray asBoolean() {
-        return AbstractBooleanArray.this;
-      }
+    return new AsArray<Boolean>(this) {
 
       @Override
       protected void setElement(int i, Boolean value) {
@@ -396,7 +386,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<Boolean, Bo
   }
 
   @Override
-  public List<Boolean> toList() {
+  public List<Boolean> asList() {
     return new AbstractList<Boolean>() {
       @Override
       public int size() {
@@ -467,7 +457,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<Boolean, Bo
 
   @Override
   public Iterator<Boolean> iterator() {
-    return toList().iterator();
+    return asList().iterator();
   }
 
   public class IncrementalBuilder {

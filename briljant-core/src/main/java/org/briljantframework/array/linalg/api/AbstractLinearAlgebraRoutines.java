@@ -145,7 +145,7 @@ public abstract class AbstractLinearAlgebraRoutines implements LinearAlgebraRout
    * computed from the entries of the matrix by a specific arithmetic expression, while other ways
    * to determine its value exist as well. The determinant provides important information about a
    * matrix of coefficients of a system of linear equations, or about a matrix that corresponds to a
-   * linear transformation of a vector space.
+   * linear transformation of a series space.
    *
    * @param x a square mutable array
    * @return the determinant

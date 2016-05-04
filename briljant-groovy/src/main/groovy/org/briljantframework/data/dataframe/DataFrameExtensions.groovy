@@ -22,7 +22,7 @@ package org.briljantframework.data.dataframe
 
 import groovy.transform.CompileStatic
 import org.briljantframework.data.index.DataFrameLocationGetter
-import org.briljantframework.data.vector.Vector
+import org.briljantframework.data.series.Vector
 
 /**
  * Extensions to support common Groovy idioms when working with {@link DataFrame data frames}.
@@ -47,7 +47,7 @@ class DataFrameExtensions {
    *
    * @param self the data frame
    * @param name the name of the property
-   * @return a (column) vector
+   * @return a (column) series
    */
   static Vector propertyMissing(DataFrame self, String name) {
     return self.get(name)
@@ -58,7 +58,7 @@ class DataFrameExtensions {
    *
    * @param self the data frame
    * @param key the key
-   * @return a (column) vector
+   * @return a (column) series
    */
   static Vector getAt(DataFrame self, Object key) {
     return self.get(key)

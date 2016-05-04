@@ -34,7 +34,7 @@ import org.briljantframework.function.LongBiPredicate;
  * 
  * @author Isak Karlsson
  */
-public interface LongArray extends BaseArray<Long, LongArray>, Iterable<Long> {
+public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
 
   static LongArray ones(int... shape) {
     LongArray array = zeros(shape);
@@ -186,9 +186,13 @@ public interface LongArray extends BaseArray<Long, LongArray>, Iterable<Long> {
 
   void sort(LongComparator comparator);
 
-  LongStream stream();
+  LongStream longStream();
 
   // Arithmetical operations ///////////
+
+  List<Long> asList();
+
+  Array<Long> asArray();
 
   /**
    * Element wise <u>m</u>ultiplication
@@ -306,6 +310,20 @@ public interface LongArray extends BaseArray<Long, LongArray>, Iterable<Long> {
    * @return a new matrix
    */
   LongArray negate();
+
+  default Array<Long> boxed() {
+    return asArray();
+  }
+
+  DoubleArray asDoubleArray();
+
+  IntArray asIntArray();
+
+  LongArray asLongArray();
+
+  BooleanArray asBooleanArray();
+
+  ComplexArray asComplexArray();
 
   BooleanArray lt(LongArray other);
 

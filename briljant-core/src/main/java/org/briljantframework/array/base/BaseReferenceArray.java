@@ -41,9 +41,8 @@ class BaseReferenceArray<T> extends AbstractArray<T> {
     this.data = data;
   }
 
-  private BaseReferenceArray(ArrayBackend bj, int offset, int[] shape, int[] stride,
-      int majorStride, T[] data) {
-    super(bj, offset, shape, stride, majorStride);
+  private BaseReferenceArray(ArrayBackend bj, int offset, int[] shape, int[] stride, T[] data) {
+    super(bj, offset, shape, stride);
     this.data = data;
   }
 
@@ -60,7 +59,7 @@ class BaseReferenceArray<T> extends AbstractArray<T> {
 
   @Override
   public Array<T> asView(int offset, int[] shape, int[] stride) {
-    return new BaseReferenceArray<>(getArrayBackend(), offset, shape, stride, majorStride, data);
+    return new BaseReferenceArray<>(getArrayBackend(), offset, shape, stride, data);
   }
 
   @Override

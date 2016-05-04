@@ -33,7 +33,7 @@ import org.briljantframework.ComplexSequence;
  * @author Isak Karlsson
  */
 public interface ComplexArray
-    extends BaseArray<Complex, ComplexArray>, Iterable<Complex>, ComplexSequence {
+    extends BaseArray<ComplexArray>, Iterable<Complex>, ComplexSequence {
 
   static ComplexArray ones(int... shape) {
     ComplexArray array = zeros(shape);
@@ -202,7 +202,7 @@ public interface ComplexArray
    * </pre>
    *
    * @param reduce takes a {@code ComplexMatrix} and returns {@code Complex}
-   * @return a new column vector with the reduced value
+   * @return a new column series with the reduced value
    */
   ComplexArray reduceColumns(Function<? super ComplexArray, ? extends Complex> reduce);
 
@@ -214,12 +214,12 @@ public interface ComplexArray
    * </pre>
    *
    * @param reduce takes a {@code ComplexMatrix} and returns {@code Complex}
-   * @return a new column vector with the reduced value
+   * @return a new column series with the reduced value
    */
   ComplexArray reduceRows(Function<? super ComplexArray, ? extends Complex> reduce);
 
   /**
-   * Returns the conjugate transpose of this vector.
+   * Returns the conjugate transpose of this series.
    *
    * @return the conjugate transpose
    */
@@ -274,15 +274,15 @@ public interface ComplexArray
   Complex get(int... index);
 
   @Override
-  default Complex getAsComplex(int i) {
+  default Complex getComplex(int i) {
     return get(i);
   }
 
-  Array<Complex> asArray();
+  abstract Array<Complex> asArray();
 
   Stream<Complex> stream();
 
-  List<Complex> toList();
+  abstract List<Complex> asList();
 
   /**
    * Element wise <u>m</u>ultiplication
@@ -401,5 +401,19 @@ public interface ComplexArray
    */
   ComplexArray negate();
 
+  default Array<Complex> boxed() {
+    return asArray();
+  }
+
   double[] data();
+
+  DoubleArray asDoubleArray();
+
+  IntArray asIntArray();
+
+  LongArray asLongArray();
+
+  BooleanArray asBooleanArray();
+
+  ComplexArray asComplexArray();
 }

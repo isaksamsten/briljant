@@ -27,7 +27,7 @@ package org.briljantframework.array.base
 import org.briljantframework.array.ArrayRoutinesSpec
 
 /**
- * Created by isak on 01/06/15.
+ * Created by isak columnKeys 01/06/15.
  */
 class BaseArrayRoutinesSpec extends ArrayRoutinesSpec {
 
