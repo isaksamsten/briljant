@@ -44,6 +44,7 @@ import com.univocity.parsers.common.ParsingContext;
 import com.univocity.parsers.common.processor.RowProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
+import org.briljantframework.data.series.Types;
 
 /**
  * Reads values from a typed CSV-file similar to those used in Rule Discovery System (RDS).
@@ -72,11 +73,11 @@ public class RdsDatasetReader extends DatasetReader {
 
   static {
     Map<String, Type> map = new HashMap<>();
-    map.put("numeric", Type.DOUBLE);
-    map.put("date", Type.of(LocalDate.class));
-    map.put("regressor", Type.DOUBLE);
-    map.put("class", Type.of(String.class));
-    map.put("categoric", Type.of(String.class));
+    map.put("numeric", Types.DOUBLE);
+    map.put("date", Types.from(LocalDate.class));
+    map.put("regressor", Types.DOUBLE);
+    map.put("class", Types.from(String.class));
+    map.put("categoric", Types.from(String.class));
 
     TYPE_MAP = Collections.unmodifiableMap(map);
   }

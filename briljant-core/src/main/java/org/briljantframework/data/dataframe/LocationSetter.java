@@ -31,10 +31,9 @@ import org.briljantframework.data.series.Series;
 public interface LocationSetter {
 
   /**
-   * Set value at {@code row} in {@code column} to NA. If {@code column >= columns()} adds empty
-   * {@link org.briljantframework.data.series.ObjectSeries} of all {@code NA} from {@code
-   * columns()
-   * ... column}.
+   * Set the value at the specified position to <tt>NA</tt>. If the row or column position exceeds
+   * the current number or rows or columns, the resulting data frame will be filled with appropriate
+   * <tt>NA</tt> values.
    *
    * @param r the row
    * @param c the column
@@ -42,10 +41,9 @@ public interface LocationSetter {
   void setNA(int r, int c);
 
   /**
-   * Set value at {@code row, column} to {@code value}. If {@code toCol >= columns()}, adds empty
-   * {@link org.briljantframework.data.series.ObjectSeries} columns from {@code columns() ...
-   * column
-   * - 1}, inferring the type at {@code toCol} using {@code Vectors.getInstance(object)}
+   * Set the value at the specified position. If the row or column position exceeds the current
+   * number or rows or columns, the resulting data frame will be filled with appropriate <tt>NA</tt>
+   * values.
    *
    * @param r the row
    * @param c the column
@@ -54,11 +52,11 @@ public interface LocationSetter {
   void set(int r, int c, Object value);
 
   /**
-   * Set value at {@code row, toCol} using the value at {@code fromRow, fromCol} in {@code from}. If
-   * {@code toCol >= columns()}, adds empty {@link org.briljantframework.data.series.ObjectSeries} x
-   * columns from {@code columns() ... column - 1}, inferring the type at {@code toCol} using
-   * {@code from.getColumnType(fromCol)}
-   *
+   * Set the value at the specified row and column position to the value from the specified row and
+   * column in the given <tt>DataFrame</tt>. If the row or column position exceeds the current
+   * number or rows or columns, the resulting data frame will be filled with appropriate <tt>NA</tt>
+   * values.
+   * 
    * @param tr the row
    * @param tc the column
    * @param df the series
@@ -68,10 +66,9 @@ public interface LocationSetter {
   void set(int tr, int tc, DataFrame df, int fr, int fc);
 
   /**
-   * Add the value {@code fromRow} from {@code from} to {@code toCol} and {@code toRow}. If
-   * {@code toCol >= columns()}, adds empty {@link org.briljantframework.data.series.ObjectSeries}
-   * columns from {@code columns() ... column - 1}, inferring the type at {@code toCol} using
-   * {@code from.getType(index)}
+   * Set the value at the specified row and column position to the value from the specified position
+   * in the given <tt>Series</tt>. If the row or column position exceeds the current number or rows
+   * or columns, the resulting data frame will be filled with appropriate <tt>NA</tt> values.
    *
    * @param tr the row in this
    * @param tc the column in this
@@ -81,40 +78,68 @@ public interface LocationSetter {
   void set(int tr, int tc, Series v, int i);
 
   /**
-   * Sets the column at {@code index} to {@code builder}. If {@code index >= columns()} adds empty
-   * {@link org.briljantframework.data.series.ObjectSeries} columns from {@code columns()
-   * ...
-   * column - 1}. If {@code index < columns()} each column is shifted to the right.
+   * Set the column at the specified position in this data frame. If the specified position is
+   * larger the the the current number of columns, empty columns (filled with <tt>NA</tt>) are added
+   * in between.
    *
    * <p/>
-   * Note that is not safe to call {@link Series.Builder#build()} after this method.
+   * Note that is not safe to call {@link Series.Builder#build()} on the supplied
+   * <tt>Series.Builder</tt> after this method has finished.
    *
    * @param c the index {@code index < columns()}
    * @param columnBuilder the builder
    */
   void set(int c, Series.Builder columnBuilder);
 
+  /**
+   * Set the column at the specified position in this data frame. If the specified position is
+   * larger the the the current number of columns, empty columns (filled with <tt>NA</tt>) are added
+   * in between.
+   *
+   * @param c the position
+   * @param column the column
+   */
   default void set(int c, Series column) {
     set(c, column.newCopyBuilder());
   }
 
+  /**
+   * Removes the column at the specified position in this data frame builder. Shifts any subsequent
+   * columns to the left (subtracts one from their indices).
+   *
+   * @param c the index
+   */
   void remove(int c);
 
   /**
-   * Sets the {@code builder} at {@code index}. *
-   * <p/>
-   * Note that is not safe to call {@link Series.Builder#build()} after this method.
+   * Set the column at the specified position in this data frame. If the specified position is
+   * larger the the the current number of rows, empty rows (filled with <tt>NA</tt>) are added in
+   * between.
    *
    * @param r the index
-   * @param recordBuilder the builder
+   * @param row the builder
    */
-  void setRecord(int r, Series.Builder recordBuilder);
+  void setRow(int r, Series.Builder row);
 
-  default void setRecord(int index, Series series) {
-    setRecord(index, series.newCopyBuilder());
+  /**
+   * Set the column at the specified position in this data frame. If the specified position is
+   * larger the the the current number of rows, empty rows (filled with <tt>NA</tt>) are added in
+   * between.
+   * 
+   * @param pos the position
+   * @param row the row
+   */
+  default void setRow(int pos, Series row) {
+    setRow(pos, row.newCopyBuilder());
   }
 
-  void removeRecord(int r);
+  /**
+   * Removes the row at the specified position in this data frame builder. Shifts any subsequent
+   * rows up (subtracts one from their indices).
+   *
+   * @param pos the index
+   */
+  void removeRow(int pos);
 
   /**
    * Swaps column series {@code a} and {@code b}.
@@ -130,5 +155,5 @@ public interface LocationSetter {
    * @param a the first row
    * @param b the second row
    */
-  void swapRecords(int a, int b);
+  void swapRows(int a, int b);
 }

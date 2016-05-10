@@ -750,7 +750,7 @@ public interface DataFrame {
    * @param col the column index
    * @return the specified element
    */
-  double getAsDouble(Object row, Object col);
+  double getDouble(Object row, Object col);
 
   /**
    * Get the element at the specified position as a primitive {@code in} value. With the right
@@ -760,7 +760,7 @@ public interface DataFrame {
    * @param col the column index
    * @return the specified element
    */
-  int getAsInt(Object row, Object col);
+  int getInt(Object row, Object col);
 
   /**
    * Return {@code true} if the element at the specified position is {@code NA}. This is in some
@@ -995,7 +995,7 @@ public interface DataFrame {
      * @param fc the column index to get from
      * @return this modified
      */
-    Builder set(Object tr, Object tc, DataFrame from, Object fr, Object fc);
+    Builder setFrom(Object tr, Object tc, DataFrame from, Object fr, Object fc);
 
     /**
      * Set the element at the specified position to the value of the specified series from the
@@ -1007,7 +1007,7 @@ public interface DataFrame {
      * @param key the index to get from
      * @return this modified
      */
-    Builder set(Object row, Object column, Series from, Object key);
+    Builder setFrom(Object row, Object column, Series from, Object key);
 
     /**
      * Set the element at the specified index to the specified value

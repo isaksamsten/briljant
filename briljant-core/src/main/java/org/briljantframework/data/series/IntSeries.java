@@ -242,7 +242,7 @@ public class IntSeries extends AbstractSeries {
 
   @Override
   public final Type getType() {
-    return Type.INT;
+    return Types.INT;
   }
 
   @Override
@@ -300,13 +300,8 @@ public class IntSeries extends AbstractSeries {
     }
 
     @Override
-    public Series.Builder add(Series from, int fromIndex) {
-      return add(from.loc().getInt(fromIndex));
-    }
-
-    @Override
-    public Series.Builder add(Series from, Object key) {
-      return add(from.getInt(key));
+    public Series.Builder addFrom(Series from, Object key) {
+      return addInt(from.getInt(key));
     }
 
     @Override
@@ -319,7 +314,7 @@ public class IntSeries extends AbstractSeries {
     }
 
     @Override
-    public Series.Builder add(double value) {
+    public Series.Builder addDouble(double value) {
       final int index = size;
       ensureCapacity(size + 1); // sets the size
       buffer[index] = (int) value;
@@ -328,7 +323,7 @@ public class IntSeries extends AbstractSeries {
     }
 
     @Override
-    public Series.Builder add(int value) {
+    public Series.Builder addInt(int value) {
       final int index = size;
       ensureCapacity(size + 1); // sets the size
       buffer[index] = value;
@@ -347,7 +342,7 @@ public class IntSeries extends AbstractSeries {
     }
 
     @Override
-    protected void setElement(int t, Series from, int f) {
+    protected void setElementFrom(int t, Series from, int f) {
       final int oldSize = size;
       ensureCapacity(t + 1);
       fillNa(oldSize, size, buffer);
@@ -364,7 +359,7 @@ public class IntSeries extends AbstractSeries {
     }
 
     @Override
-    public void setNaAt(int index) {
+    public void setElementNA(int index) {
       final int oldSize = size;
       ensureCapacity(index + 1);
       fillNa(oldSize, size, buffer);

@@ -23,14 +23,16 @@ package org.briljantframework.data.dataframe;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.distribution.NormalDistribution;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Logical;
+import org.briljantframework.data.index.Index;
+import org.briljantframework.data.resolver.Resolve;
 import org.briljantframework.data.series.Series;
-import org.briljantframework.data.series.Type;
+import org.briljantframework.data.series.Types;
 import org.junit.Test;
 
 /**
@@ -39,36 +41,15 @@ import org.junit.Test;
 public class MixedDataFrameTest extends DataFrameTest {
 
   @Test
-  public void testNiceBuilder() throws Exception {
-    NormalDistribution gaussian = new NormalDistribution();
-    DataFrame df =
-        DataFrame.of("a", Series.of(1, 2, 3), "b", Series.of(2, 3, 3), "c",
-            Series.generate(gaussian::sample, 3), "d", Series.repeat("hello", 3));
-
-    DataFrame df2 =
-        DataFrame.builder().set("a", Series.generate(gaussian::sample, 4))
-            .set("b", Series.generate(gaussian::sample, 4)).build();
-
-    System.out.println(df.transpose());
-
-  }
-
-  @Test
   public void testBuilderSetNA() throws Exception {
     DataFrame.Builder builder = getBuilder();
     builder.loc().setNA(0, 0);
     builder.loc().setNA(0, 4);
-    builder.newColumn(Type.DOUBLE);
+    builder.newColumn(Types.DOUBLE);
 
     builder.loc().setNA(5, 5);
 
     DataFrame build = builder.build();
-    // assertEquals(Type.OBJECT, build.getTypeAt(0));
-    // assertEquals(Type.OBJECT, build.getTypeAt(1));
-    // assertEquals(Type.OBJECT, build.getTypeAt(2));
-    // assertEquals(Type.OBJECT, build.getTypeAt(3));
-    // assertEquals(Type.OBJECT, build.getTypeAt(4));
-    // assertEquals(Type.DOUBLE, build.getTypeAt(5));
     assertTrue(Is.NA(build.loc().getDouble(5, 5)));
     assertTrue(Is.NA(build.loc().get(Double.class, 5, 5).doubleValue()));
   }
@@ -125,12 +106,12 @@ public class MixedDataFrameTest extends DataFrameTest {
   @Test
   public void testBuilderAddBuilder() throws Exception {
     DataFrame.Builder builder = getBuilder();
-    builder.newColumn(Type.STRING);
-    builder.newColumn(Type.INT);
-    builder.newColumn(Type.DOUBLE);
-    builder.newColumn(Type.COMPLEX);
-    builder.newColumn(Type.LOGICAL);
-    builder.newColumn(Type.OBJECT);
+    builder.newColumn(Types.STRING);
+    builder.newColumn(Types.INT);
+    builder.newColumn(Types.DOUBLE);
+    builder.newColumn(Types.COMPLEX);
+    builder.newColumn(Types.LOGICAL);
+    builder.newColumn(Types.OBJECT);
     builder.loc().set(0, 0, "hello");
     builder.loc().set(0, 1, 1);
     builder.loc().set(0, 2, 2);
@@ -139,28 +120,22 @@ public class MixedDataFrameTest extends DataFrameTest {
     builder.loc().set(0, 5, new Date());
 
     DataFrame df = builder.build();
-    // assertEquals(Type.STRING, df.getTypeAt(0));
-    // assertEquals(Type.INT, df.getTypeAt(1));
     assertEquals(1, df.loc().getInt(0, 1));
-    // assertEquals(Type.DOUBLE, df.getTypeAt(2));
     assertEquals(2, df.loc().getDouble(0, 2), 0);
-    // assertEquals(Type.COMPLEX, df.getTypeAt(3));
     assertEquals(Complex.I, df.loc().get(Complex.class, 0, 3));
-    // assertEquals(Type.LOGICAL, df.getTypeAt(4));
     assertEquals(Logical.TRUE, df.loc().get(Logical.class, 0, 4));
-    // assertEquals(Type.OBJECT, df.getTypeAt(5));
   }
 
   @Test
   public void testBuilderAddBuilder1() throws Exception {
     DataFrame.Builder builder = getBuilder();
-    builder.add(Type.STRING.newBuilder());
-    builder.add(Type.INT.newBuilder());
-    builder.add(Type.DOUBLE.newBuilder());
-    builder.add(Type.COMPLEX.newBuilder());
-    builder.add(Type.LOGICAL.newBuilder());
-    builder.add(Type.OBJECT.newBuilder());
-    builder.add(Type.of(Date.class).newBuilder());
+    builder.add(Types.STRING.newBuilder());
+    builder.add(Types.INT.newBuilder());
+    builder.add(Types.DOUBLE.newBuilder());
+    builder.add(Types.COMPLEX.newBuilder());
+    builder.add(Types.LOGICAL.newBuilder());
+    builder.add(Types.OBJECT.newBuilder());
+    builder.add(Types.from(LocalDate.class).newBuilder());
 
     builder.loc().set(0, 0, "hello");
     builder.loc().set(0, 1, 1);
@@ -173,18 +148,14 @@ public class MixedDataFrameTest extends DataFrameTest {
     builder.loc().set(2, 6, "2015-03-15");
 
     DataFrame build = builder.build();
-    // assertEquals(Type.STRING, build.getTypeAt(0));
-    // assertEquals(Type.INT, build.getTypeAt(1));
+    build.setColumnIndex(
+        Index.of("String", "Integer", "Double", "Complex", "Logical", "Object", "Date"));
     assertEquals(1, build.loc().getInt(0, 1));
-    // assertEquals(Type.DOUBLE, build.getTypeAt(2));
     assertEquals(2, build.loc().getDouble(0, 2), 0);
-    // assertEquals(Type.COMPLEX, build.getTypeAt(3));
     assertEquals(Complex.I, build.loc().get(Complex.class, 0, 3));
-    // assertEquals(Type.LOGICAL, build.getTypeAt(4));
     assertEquals(Logical.TRUE, build.loc().get(Logical.class, 0, 4));
-    // assertEquals(Type.OBJECT, build.getTypeAt(5));
-    // assertEquals(Type.from(Date.class), build.getTypeAt(6));
-    assertEquals(new Date(321321321738L), build.loc().get(6).loc().get(Date.class, 0));
+    assertEquals(Resolve.find(LocalDate.class).resolve(321321321738L),
+        build.loc().get(6).loc().get(LocalDate.class, 0));
     assertEquals(1, (int) build.loc().get(Integer.class, 0, 1));
   }
 

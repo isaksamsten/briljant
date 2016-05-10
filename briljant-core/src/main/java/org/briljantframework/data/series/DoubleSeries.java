@@ -228,7 +228,7 @@ public class DoubleSeries extends AbstractSeries {
 
   @Override
   public Type getType() {
-    return Type.DOUBLE;
+    return Types.DOUBLE;
   }
 
   // Specialized double method
@@ -266,10 +266,22 @@ public class DoubleSeries extends AbstractSeries {
       this(0);
     }
 
+    /**
+     * Construct a double series builder filled with the specified number of <tt>NA</tt>s.
+     * 
+     * @param size the initial size
+     */
     public Builder(int size) {
       this(size, Math.max(size, INITIAL_CAPACITY));
     }
 
+    /**
+     * Construct a double series builder filled with the specified number of <tt>NA</tt>s and the
+     * specified initial capacity.
+     * 
+     * @param size the size
+     * @param capacity the capacity
+     */
     public Builder(int size, int capacity) {
       this.buffer = new double[Math.max(size, capacity)];
       for (int i = 0; i < size; i++) {
@@ -284,7 +296,7 @@ public class DoubleSeries extends AbstractSeries {
       this.size = buffer.length;
     }
 
-    protected static Index.Builder getIndexBuilder(DoubleSeries vector) {
+    private static Index.Builder getIndexBuilder(DoubleSeries vector) {
       Index.Builder builder = vector.getIndex().newCopyBuilder();
       if (builder instanceof RangeIndex.Builder) {
         return null;
@@ -300,15 +312,15 @@ public class DoubleSeries extends AbstractSeries {
       extendIndex(index);
       return this;
     }
+//
+//    @Override
+//    public Series.Builder addFrom(Series from, int fromIndex) {
+//      return addDouble(from.loc().getDouble(fromIndex));
+//    }
 
     @Override
-    public Series.Builder add(Series from, int fromIndex) {
-      return add(from.loc().getDouble(fromIndex));
-    }
-
-    @Override
-    public Series.Builder add(Series from, Object key) {
-      return add(from.getInt(key));
+    public Series.Builder addFrom(Series from, Object key) {
+      return addInt(from.getInt(key));
     }
 
     @Override
@@ -321,7 +333,7 @@ public class DoubleSeries extends AbstractSeries {
     }
 
     @Override
-    public Series.Builder add(double value) {
+    public Series.Builder addDouble(double value) {
       final int index = size;
       ensureCapacity(size + 1); // sets the size
       buffer[index] = value;
@@ -330,7 +342,7 @@ public class DoubleSeries extends AbstractSeries {
     }
 
     @Override
-    public Series.Builder add(int value) {
+    public Series.Builder addInt(int value) {
       final int index = size;
       ensureCapacity(size + 1); // sets the size
       buffer[index] = value;
@@ -349,7 +361,7 @@ public class DoubleSeries extends AbstractSeries {
     }
 
     @Override
-    protected void setElement(int t, Series from, int f) {
+    protected void setElementFrom(int t, Series from, int f) {
       final int oldSize = size;
       ensureCapacity(t + 1);
       fillNa(oldSize, size, buffer);
@@ -365,7 +377,7 @@ public class DoubleSeries extends AbstractSeries {
     }
 
     @Override
-    protected void setNaAt(int index) {
+    protected void setElementNA(int index) {
       final int oldSize = size;
       ensureCapacity(index + 1);
       fillNa(oldSize, size, buffer);

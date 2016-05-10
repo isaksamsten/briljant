@@ -20,9 +20,9 @@
  */
 package org.briljantframework.function;
 
-import static org.briljantframework.data.Collectors.repeat;
-import static org.briljantframework.data.Collectors.valueCounts;
+import static org.briljantframework.data.Collectors.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 
@@ -38,15 +38,17 @@ public class CollectorsTest {
     Series vec = Series.of(1.0, 2.0, 3.0, 4.0, 5.0);
     Series vecX2 = vec.collect(repeat(2));
     assertEquals(vec.size() * 2, vecX2.size());
+    assertEquals(Series.of(1.0, 2, 3, 4, 5, 1, 2, 3, 4, 5), vecX2);
   }
 
   @Test
   public void testValueCounts() throws Exception {
     Series vec = Series.of('a', 'b', 'c', 'd', 'e', 'e');
     Series counts = vec.collect(Character.class, valueCounts());
-    assertEquals(2, counts.get(Integer.class, 'e').intValue());
+    assertEquals(2, counts.getInt('e'));
+    assertEquals(1, counts.getInt('d'));
+    assertTrue(counts.getIndex().containsAll(Arrays.asList('a', 'b', 'c', 'd', 'e')));
   }
-
 
   @Test
   public void testFactorize() throws Exception {
@@ -56,12 +58,32 @@ public class CollectorsTest {
   }
 
   @Test
+  public void testFillNa() throws Exception {
+    Series a = Series.of("1", null, "3", "4");
+    Series filled = a.collect(fillNa("2"));
+    assertEquals(Series.of("1", "2", "3", "4"), filled);
+  }
+
+  @Test
+  public void testCount() throws Exception {
+    assertEquals(5, (int) Series.of("1", null, null, "4", "5", "6", "7").collect(count()));
+  }
+
+  @Test
+  public void testMedian() throws Exception {
+    assertEquals(20.0,
+        Series.copyOf(new double[] {10, 20, 30, 50, 10}).collect(Double.class, median()), 0);
+    assertEquals(15.0,
+        Series.copyOf(new double[] {10, 10, 20, 30, 50, 0}).collect(Double.class, median()), 0);
+
+  }
+
+  @Test
   public void testToDataFrame() throws Exception {
-    DataFrame df =
-        Arrays.asList(Series.of(1, 2, 3), Series.of(1, 2, 3), Series.of(1, 2, 3)).stream()
-            .collect(Collectors.toDataFrame());
+    DataFrame df = Arrays.asList(Series.of(1, 2, 3), Series.of(1, 2, 3), Series.of(1, 2, 3))
+        .stream().collect(Collectors.toDataFrame());
     System.out.println(df);
 
-    assertEquals(2, df.getAsInt(1, 1));
+    assertEquals(2, df.getInt(1, 1));
   }
 }

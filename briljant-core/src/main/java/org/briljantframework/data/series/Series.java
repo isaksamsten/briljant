@@ -139,7 +139,7 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
       return of();
     }
     Object value = supplier.get();
-    Series.Builder builder = Type.of(value).newBuilder().add(value);
+    Series.Builder builder = Types.inferFrom(value).newBuilder().add(value);
     for (int i = 1; i < size; i++) {
       builder.add(supplier.get());
     }
@@ -163,11 +163,50 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
       return of();
     }
 
-    TypeInferenceBuilder builder = new TypeInferenceBuilder();
+    Builder builder;
+    if (values instanceof DoubleArray) {
+      builder = new DoubleSeries.Builder();
+    } else if (values instanceof IntArray) {
+      builder = new IntSeries.Builder();
+    } else {
+      builder = new TypeInferenceBuilder();
+    }
     while (it.hasNext()) {
       builder.add(it.next());
     }
     return builder.build();
+  }
+
+  static Series copyOf(char[] values) {
+    Series.Builder b = new IntSeries.Builder(0, values.length);
+    for (char value : values) {
+      b.addInt(value);
+    }
+    return b.build();
+  }
+
+  static Series copyOf(int[] values) {
+    Series.Builder b = new IntSeries.Builder(0, values.length);
+    for (int value : values) {
+      b.addInt(value);
+    }
+    return b.build();
+  }
+
+  static Series copyOf(double[] values) {
+    Series.Builder b = new DoubleSeries.Builder(0, values.length);
+    for (double value : values) {
+      b.addDouble(value);
+    }
+    return b.build();
+  }
+
+  static Series copyOf(long[] values) {
+    Series.Builder b = new DoubleSeries.Builder(0, values.length);
+    for (long value : values) {
+      b.addDouble(value);
+    }
+    return b.build();
   }
 
   /**
@@ -231,8 +270,8 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
    * @param predicate the predicate
    * @return a series
    */
-  default Series filter(Predicate<? super Object> predicate) {
-    return filter(Object.class, predicate);
+  default Series retainIf(Predicate<? super Object> predicate) {
+    return retainIf(Object.class, predicate);
   }
 
   /**
@@ -244,7 +283,13 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
    * @param predicate the predicate
    * @return a new series with only values for which {@code predicate} returns true
    */
-  <T> Series filter(Class<T> cls, Predicate<? super T> predicate);
+  <T> Series retainIf(Class<T> cls, Predicate<? super T> predicate);
+
+  default Series dropIf(Predicate<? super Object> predicate) {
+    return dropIf(Object.class, predicate);
+  }
+
+  <T> Series dropIf(Class<T> cls, Predicate<? super T> predicate);
 
   /**
    * Transform each value in this series.
@@ -349,6 +394,12 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
   default Series reverseMinus(Number other) {
     return repeat(other, size()).zipWith(Object.class, this, Combine.sub());
   }
+
+  Series drop(Object key);
+
+  Series dropAll(Collection<?> keys);
+
+  Series getAll(Collection<?> keys);
 
   /**
    * Sort the series in its <i>natural order</i> in ascending or descending order
@@ -728,14 +779,14 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
    *
    * @param <T> the type of the input value to the mutable aggregation
    * @param <R> the type of the mutable collector
-   * @param <C> the type of the return type of the aggregation
+   * @param <A> the type of the return type of the aggregation
    * @param in the input type
    * @param collector the collector
    * @return a value of type {@code R} (i.e. the result of the aggregation)
    * @see java.util.stream.Collector
    * @see java.util.stream.Stream#collect(java.util.stream.Collector)
    */
-  <T, R, C> R collect(Class<T> in, Collector<? super T, C, ? extends R> collector);
+  <T, R, A> R collect(Class<T> in, Collector<? super T, A, R> collector);
 
   /**
    * Returns the mean of the values in this series or {@code NA}.
@@ -850,6 +901,12 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
    */
   LocationGetter loc();
 
+  /**
+   * Return a shallow copy of the specified series indexed using the given indexer.
+   *
+   * @param index the index
+   * @return a new series
+   */
   Series reindex(Index index);
 
   /**
@@ -890,12 +947,12 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
    * </p>
    *
    * <p>
-   * When transferring values between series, prefer {@link #set(Object, Series, int)} to
-   * {@link #set(Object, Object)}. For example, {@code Series.Builder a; Series b; a.set(0, b, 10)}
-   * sets the value of {@code a} at index {@code 0} to the value at index {@code 10} in {@code b}.
-   * This avoids unboxing values from one series to another. For the numerical vectors, values are
-   * coerced, e.g. {@code 1} from an int-series becomes {@code 1.0} in a double series or
-   * {@code Logical.TRUE} in a logical-series.
+   * When transferring values between series, prefer {@link #setFromLocation(Object, Series, int)}
+   * to {@link #set(Object, Object)}. For example,
+   * {@code Series.Builder a; Series b; a.set(0, b, 10)} sets the value of {@code a} at index
+   * {@code 0} to the value at index {@code 10} in {@code b}. This avoids unboxing values from one
+   * series to another. For the numerical vectors, values are coerced, e.g. {@code 1} from an
+   * int-series becomes {@code 1.0} in a double series or {@code Logical.TRUE} in a logical-series.
    * </p>
    */
   interface Builder {
@@ -910,10 +967,10 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
      *
      * @param cls the class of the builder
      * @return a primitive or reference builder
-     * @see Type#of(Class)
+     * @see Types#from(Class)
      */
     static Builder of(Class<?> cls) {
-      return Type.of(cls).newBuilder();
+      return Types.from(cls).newBuilder();
     }
 
     /**
@@ -939,7 +996,7 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
      * @return a new builder
      */
     static Builder withCapacity(Class<?> cls, int capacity) {
-      return Type.of(cls).newBuilderWithCapacity(capacity);
+      return Types.from(cls).newBuilderWithCapacity(capacity);
     }
 
     /**
@@ -958,32 +1015,25 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
     Builder setNA(Object key);
 
     /**
-     * Add the value from the specified series and location.
-     *
-     * @param from the series to take the value from
-     * @param fromIndex the index
-     * @return a modified builder
-     */
-    Builder add(Series from, int fromIndex);
-
-    /**
      * Add the value from the specified series and key.
      * 
      * @param from the series to take the value from
      * @param key the key in from
      * @return a modified builder
      */
-    Builder add(Series from, Object key);
+    Builder addFrom(Series from, Object key);
+
+    Builder addFromLocation(Series from, int pos);
 
     /**
      * Associate the specified key with the value from the specified series and location.
-     * 
+     *
      * @param atKey the key to set
      * @param from the source
      * @param fromIndex the index in from
      * @return a modified builder
      */
-    Builder set(Object atKey, Series from, int fromIndex);
+    Builder setFromLocation(Object atKey, Series from, int fromIndex);
 
     /**
      * Associate the specified key with the value from from the specified series and key
@@ -993,7 +1043,7 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
      * @param fromIndex the key in from
      * @return a modified builder
      */
-    Builder set(Object atKey, Series from, Object fromIndex);
+    Builder setFrom(Object atKey, Series from, Object fromIndex);
 
     /**
      * Associate the specified key with the specified value.
@@ -1003,6 +1053,10 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
      * @return a modified builder
      */
     Builder set(Object key, Object value);
+
+    Builder setInt(Object key, int value);
+
+    Builder setDouble(Object key, double value);
 
     /**
      * Add the specified value.
@@ -1018,7 +1072,7 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
      * @param value the value
      * @return a modified builder
      */
-    Builder add(double value);
+    Builder addDouble(double value);
 
     /**
      * Add the specified value.
@@ -1026,7 +1080,7 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
      * @param value the value
      * @return a modified builder
      */
-    Builder add(int value);
+    Builder addInt(int value);
 
     /**
      * Add all values in iterable
@@ -1064,10 +1118,6 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
      */
     Builder readAll(DataEntry entry);
 
-    /**
-     * Returns a
-     * @return
-     */
     LocationSetter loc();
 
     /**

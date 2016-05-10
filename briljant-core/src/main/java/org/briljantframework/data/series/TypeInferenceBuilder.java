@@ -33,8 +33,8 @@ import org.briljantframework.data.reader.DataEntry;
  * <p/>
  * For example, {@code new TypeInferenceBuilder().plus(1.0).build()} returns a {@code double}
  * series. The builder is unable to infer the correct type if the first call is
- * {@link #setNA(Object)}, {@link #read(DataEntry)} or {@link Series.Builder#readAll(DataEntry)} an {@link Object}
- * series is returned.
+ * {@link #setNA(Object)}, {@link #read(DataEntry)} or {@link Series.Builder#readAll(DataEntry)} an
+ * {@link Object} series is returned.
  */
 public final class TypeInferenceBuilder implements Series.Builder {
 
@@ -56,12 +56,12 @@ public final class TypeInferenceBuilder implements Series.Builder {
 
   private Series.Builder getObjectBuilder() {
     if (builder == null) {
-      initializeBuilder(Type.OBJECT);
+      initBuilderFromType(Types.OBJECT);
     }
     return builder;
   }
 
-  private void initializeBuilder(Type type) {
+  private void initBuilderFromType(Type type) {
     if (builder == null) {
       builder = type.newBuilder();
       for (int i = 0; i < noNaValues; i++) {
@@ -71,52 +71,75 @@ public final class TypeInferenceBuilder implements Series.Builder {
   }
 
   @Override
-  public Series.Builder add(Series from, int fromIndex) {
-    initializeBuilder(from.getType());
-    builder.add(from, fromIndex);
+  public Series.Builder addFrom(Series from, Object key) {
+    initBuilderFromType(from.getType());
+    builder.addFrom(from, key);
     return this;
   }
 
   @Override
-  public Series.Builder add(Series from, Object key) {
-    initializeBuilder(from.getType());
-    builder.add(from, key);
-    return this;
-  }
-
-  @Override
-  public Series.Builder set(Object atKey, Series from, int fromIndex) {
-    initializeBuilder(from.getType());
+  public Series.Builder addFromLocation(Series from, int pos) {
+    initBuilderFromType(from.getType());
     if (builder != null) {
-      builder.set(atKey, from, fromIndex);
+      builder.addFromLocation(from, pos);
     }
     return this;
   }
 
   @Override
-  public Series.Builder set(Object atKey, Series from, Object fromKey) {
-    initializeBuilder(from.getType());
+  public Series.Builder setFromLocation(Object atKey, Series from, int fromIndex) {
+    initBuilderFromType(from.getType());
     if (builder != null) {
-      builder.set(atKey, from, fromKey);
+      builder.setFromLocation(atKey, from, fromIndex);
+    }
+    return this;
+  }
+
+  @Override
+  public Series.Builder setFrom(Object atKey, Series from, Object fromKey) {
+    initBuilderFromType(from.getType());
+    if (builder != null) {
+      builder.setFrom(atKey, from, fromKey);
     }
     return this;
   }
 
   @Override
   public Series.Builder set(Object key, Object value) {
-    initializeBuilder(value);
+    initBuilderFromObject(value);
     if (builder != null) {
       builder.set(key, value);
     }
     return this;
   }
 
-  private void initializeBuilder(Object value) {
+  @Override
+  public Series.Builder setInt(Object key, int value) {
+    initBuilderFromType(Types.INT);
+    builder.setInt(key, value);
+    return this;
+  }
+
+  @Override
+  public Series.Builder setDouble(Object key, double value) {
+    initBuilderFromType(Types.DOUBLE);
+    builder.setDouble(key, value);
+    return this;
+  }
+
+  /**
+   * Initializes the builder if value is non-<tt>NA</tt>.
+   *
+   * Always perform null check on the builder after the call to this method.
+   * 
+   * @param value the element
+   */
+  private void initBuilderFromObject(Object value) {
     if (builder == null) {
       if (Is.NA(value)) {
         noNaValues++;
       } else {
-        builder = Type.of(value).newBuilder();
+        builder = Types.inferFrom(value).newBuilder();
         for (int i = 0; i < noNaValues; i++) {
           builder.addNA();
         }
@@ -131,21 +154,21 @@ public final class TypeInferenceBuilder implements Series.Builder {
   }
 
   @Override
-  public Series.Builder add(double value) {
-    loc().set(size(), value);
+  public Series.Builder addDouble(double value) {
+    loc().setDouble(size(), value);
     return this;
   }
 
   @Override
-  public Series.Builder add(int value) {
-    loc().set(size(), value);
+  public Series.Builder addInt(int value) {
+    loc().setInt(size(), value);
     return this;
   }
 
   @Override
   public Series.Builder addAll(Series from) {
     if (from.size() > 0) {
-      initializeBuilder(from.getType());
+      initBuilderFromType(from.getType());
       if (builder != null) {
         builder.addAll(from);
       }
@@ -216,41 +239,41 @@ public final class TypeInferenceBuilder implements Series.Builder {
 
     @Override
     public void set(int i, Object value) {
-      initializeBuilder(value);
+      initBuilderFromObject(value);
       if (builder != null) {
         builder.loc().set(i, value);
       }
     }
 
     @Override
-    public void set(int i, double value) {
+    public void setDouble(int i, double value) {
       if (builder == null) {
-        builder = Type.of(Double.class).newBuilder();
+        builder = Types.from(Double.class).newBuilder();
       }
-      builder.loc().set(i, value);
+      builder.loc().setDouble(i, value);
     }
 
     @Override
-    public void set(int i, int value) {
+    public void setInt(int i, int value) {
       if (builder == null) {
-        builder = Type.of(Integer.class).newBuilder();
+        builder = Types.from(Integer.class).newBuilder();
       }
-      builder.loc().set(i, value);
+      builder.loc().setInt(i, value);
     }
 
     @Override
-    public void set(int t, Series from, int f) {
-      initializeBuilder(from.getType());
+    public void setFrom(int t, Series from, int f) {
+      initBuilderFromType(from.getType());
       if (builder != null) {
-        builder.loc().set(t, from, f);
+        builder.loc().setFrom(t, from, f);
       }
     }
 
     @Override
-    public void set(int atIndex, Series from, Object fromKey) {
-      initializeBuilder(from.getType());
+    public void setFromKey(int atIndex, Series from, Object fromKey) {
+      initBuilderFromType(from.getType());
       if (builder != null) {
-        builder.loc().set(atIndex, from, fromKey);
+        builder.loc().setFromKey(atIndex, from, fromKey);
       }
     }
 

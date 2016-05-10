@@ -56,7 +56,7 @@ public class ObjectSeries extends AbstractSeries {
   }
 
   private ObjectSeries(Index index, Class<?> cls, List<Object> elements) {
-    this(index, 0, new int[] {elements.size()}, new int[] {1}, Type.of(cls), elements);
+    this(index, 0, new int[] {elements.size()}, new int[] {1}, Types.from(cls), elements);
   }
 
   private ObjectSeries(Index index, int offset, int[] shape, int[] stride, Type type,
@@ -214,7 +214,7 @@ public class ObjectSeries extends AbstractSeries {
     }
 
     @Override
-    protected void setElement(int t, Series from, int f) {
+    protected void setElementFrom(int t, Series from, int f) {
       ensureCapacity(t);
       buffer.set(t, from.loc().get(cls, f));
     }
@@ -237,7 +237,7 @@ public class ObjectSeries extends AbstractSeries {
     }
 
     @Override
-    protected void setNaAt(int index) {
+    protected void setElementNA(int index) {
       ensureCapacity(index);
       buffer.set(index, null);
     }

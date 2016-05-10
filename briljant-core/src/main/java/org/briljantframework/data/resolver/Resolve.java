@@ -22,7 +22,10 @@ package org.briljantframework.data.resolver;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -70,8 +73,8 @@ import org.briljantframework.data.series.Series;
  * Employee e = Resolve.to(Employee.class, &quot;Foo Bar&quot;);
  * </pre>
  *
- * Once installed, {@link Series.Builder#read(DataEntry)} will
- * pick up the resolver and produce vectors accordingly, e.g., we can produce a series of employees
+ * Once installed, {@link Series.Builder#read(DataEntry)} will pick up the resolver and produce
+ * vectors accordingly, e.g., we can produce a series of employees
  *
  * <pre>
  * DataEntry entry = new StringDataEntry(new String[] {&quot;Foo Bar&quot;, &quot;Bob Bobson&quot;, &quot;John Doe&quot;});
@@ -96,16 +99,17 @@ public final class Resolve {
   private static final ComplexFormat COMPLEX_FORMAT = ComplexFormat.getInstance();
 
   static {
-    Resolver<LocalDate> localDateResolver = initializeLocalDateResolver();
-    Resolver<Integer> integerResolver = initializeIntegerResolver();
-    Resolver<Double> doubleResolver = initializeDoubleResolver();
-    Resolver<String> stringResolver = initializeStringResolver();
-    Resolver<Complex> complexResolver = initializeComplexResolver();
-    Resolver<Logical> logicalResolver = initializeLogicalResolver();
-    Resolver<Object> objectResolver = initializeObjectResolver();
+    Resolver<LocalDate> localDateResolver = getLocalDateResolver();
+    Resolver<Integer> integerResolver = getIntegerResolver();
+    Resolver<Double> doubleResolver = getDoubleResolver();
+    Resolver<String> stringResolver = getStringResolver();
+    Resolver<Complex> complexResolver = getComplexResolver();
+    Resolver<Logical> logicalResolver = getLogicalResolver();
+    Resolver<Object> objectResolver = getObjectResolver();
 
     install(Logical.class, logicalResolver);
     install(LocalDate.class, localDateResolver);
+    install(LocalDateTime.class, getLocalDateTimeResolver());
     install(String.class, stringResolver);
     install(Double.class, doubleResolver);
     install(Integer.class, integerResolver);
@@ -115,13 +119,13 @@ public final class Resolve {
 
   private Resolve() {}
 
-  private static Resolver<Object> initializeObjectResolver() {
+  private static Resolver<Object> getObjectResolver() {
     Resolver<Object> objectResolver = new Resolver<>(Object.class);
     objectResolver.put(Object.class, v -> v);
     return objectResolver;
   }
 
-  private static Resolver<Logical> initializeLogicalResolver() {
+  private static Resolver<Logical> getLogicalResolver() {
     Resolver<Logical> logicalResolver = new Resolver<>(Logical.class);
     logicalResolver.put(String.class, v -> Logical.valueOf(v.trim().equalsIgnoreCase("true")));
     logicalResolver.put(Boolean.class, v -> v ? Logical.TRUE : Logical.FALSE);
@@ -129,7 +133,7 @@ public final class Resolve {
     return logicalResolver;
   }
 
-  private static Resolver<Complex> initializeComplexResolver() {
+  private static Resolver<Complex> getComplexResolver() {
     Resolver<Complex> complexResolver = new Resolver<>(Complex.class);
     complexResolver.put(Number.class, v -> Complex.valueOf(v.doubleValue()));
     complexResolver.put(Double.class, Complex::valueOf);
@@ -148,7 +152,7 @@ public final class Resolve {
     return complexResolver;
   }
 
-  private static Resolver<Double> initializeDoubleResolver() {
+  private static Resolver<Double> getDoubleResolver() {
     Resolver<Double> doubleResolver = new Resolver<>(Double.class);
     doubleResolver.put(Number.class, Number::doubleValue);
     doubleResolver.put(Double.class, Number::doubleValue);
@@ -175,13 +179,13 @@ public final class Resolve {
     return NumberUtils.isNumber(str) ? NumberUtils.createNumber(str) : null;
   }
 
-  private static Resolver<String> initializeStringResolver() {
+  private static Resolver<String> getStringResolver() {
     Resolver<String> stringResolver = new Resolver<>(String.class);
-    stringResolver.put(Object.class, Object::toString);
+    stringResolver.put(Object.class, (o) -> Is.NA(o) ? "NA" : o.toString());
     return stringResolver;
   }
 
-  private static Resolver<Integer> initializeIntegerResolver() {
+  private static Resolver<Integer> getIntegerResolver() {
     Resolver<Integer> resolver = new Resolver<>(Integer.class);
     resolver.put(Number.class, Number::intValue);
     resolver.put(Double.class, Number::intValue);
@@ -206,14 +210,38 @@ public final class Resolve {
     return resolver;
   }
 
-  private static Resolver<LocalDate> initializeLocalDateResolver() {
+  private static Resolver<LocalDate> getLocalDateResolver() {
     Resolver<LocalDate> resolver = new Resolver<>(LocalDate.class);
+    Converter<Date, LocalDate> dateToLocalDate =
+        (date) -> date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    Converter<java.sql.Date, LocalDate> sqlDateToLocalDate = java.sql.Date::toLocalDate;
     Converter<Long, LocalDate> longToLocalDate =
         (l) -> Instant.ofEpochMilli(l).atZone(ZoneId.systemDefault()).toLocalDate();
 
+    resolver.put(Date.class, dateToLocalDate);
+    resolver.put(java.sql.Date.class, sqlDateToLocalDate);
     resolver.put(String.class, StringToLocalDate.ISO_DATE);
     resolver.put(Long.class, longToLocalDate);
     resolver.put(Long.TYPE, longToLocalDate);
+    return resolver;
+  }
+
+  private static Resolver<LocalDateTime> getLocalDateTimeResolver() {
+    Resolver<LocalDateTime> resolver = new Resolver<>(LocalDateTime.class);
+    Converter<Date, LocalDateTime> dateLocalDateTimeConverter =
+        (date) -> date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+    Converter<String, LocalDateTime> stringLocalDateTimeConverter =
+        new ConvertStringLocalDateTime(DateTimeFormatter.ISO_DATE_TIME);
+    Converter<Long, LocalDateTime> longLocalDateTimeConverter =
+        (l) -> Instant.ofEpochMilli(l).atZone(ZoneId.systemDefault()).toLocalDateTime();
+    Converter<java.sql.Date, LocalDateTime> sqlDateLocalDateTimeConverter =
+        (date) -> date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+    resolver.put(Date.class, dateLocalDateTimeConverter);
+    resolver.put(java.sql.Date.class, sqlDateLocalDateTimeConverter);
+    resolver.put(Long.class, longLocalDateTimeConverter);
+    resolver.put(String.class, stringLocalDateTimeConverter);
+    resolver.put(Long.TYPE, longLocalDateTimeConverter);
     return resolver;
   }
 

@@ -44,35 +44,35 @@ public class TypeInferenceBuilderTest {
   @Test
   public void testSetNA_NoneIntegerKey() throws Exception {
     builder.setNA("key");
-    builder.add(1);
+    builder.addInt(1);
     Series series = builder.build();
-    assertEquals(Type.OBJECT, series.getType());
+    assertEquals(Types.OBJECT, series.getType());
     assertEquals(2, series.size());
   }
 
   @Test
   public void testAddNA() throws Exception {
-    builder.addNA().add(1);
+    builder.addNA().addInt(1);
     Series series = builder.build();
-    assertEquals(Type.INT, series.getType());
+    assertEquals(Types.INT, series.getType());
     assertEquals(2, series.size());
     assertEquals(Arrays.asList(Na.INT, 1), series.asList(Integer.class));
   }
 
   @Test
   public void testAdd_int() throws Exception {
-    builder.add(1);
+    builder.addInt(1);
     Series series = builder.build();
-    assertEquals(Type.INT, series.getType());
+    assertEquals(Types.INT, series.getType());
     assertEquals(1, series.size());
     assertEquals(Collections.singletonList(1), series.asList(Integer.class));
   }
 
   @Test
   public void testAdd_double() throws Exception {
-    builder.add(1.0);
+    builder.addDouble(1.0);
     Series series = builder.build();
-    assertEquals(Type.DOUBLE, series.getType());
+    assertEquals(Types.DOUBLE, series.getType());
     assertEquals(1, series.size());
     assertEquals(Collections.singletonList(1.0), series.asList(Double.class));
   }
@@ -81,7 +81,7 @@ public class TypeInferenceBuilderTest {
   public void testAdd_ReferenceType() throws Exception {
     builder.add("hello");
     Series series = builder.build();
-    assertEquals(Type.of(String.class), series.getType());
+    assertEquals(Types.from(String.class), series.getType());
     assertEquals(1, series.size());
     assertEquals(Collections.singletonList("hello"), series.asList(String.class));
   }

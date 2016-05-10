@@ -27,6 +27,6 @@ public class ObjectSeriesBuilderTest extends VectorBuilderTest {
 
   @Override
   Series.Builder getBuilder() {
-    return Type.of(Object.class).newBuilder();
+    return Types.from(Object.class).newBuilder();
   }
 }

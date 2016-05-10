@@ -1,3 +1,23 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2016 Isak Karlsson
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package org.briljantframework.data.series;
 
 import java.util.Objects;
@@ -13,8 +33,8 @@ import org.briljantframework.data.reader.DataEntry;
  * <p>
  * Implementers must define
  * <ul>
- * <li>{@link #setNaAt(int)}</li>
- * <li>{@link #setElement(int, Series, int)}</li>
+ * <li>{@link #setElementNA(int)}</li>
+ * <li>{@link #setElementFrom(int, Series, int)}</li>
  * <li>{@link #setElement(int, Object)}</li>
  * <li>{@link #setElement(int, Series, Object)}</li>
  * <li>{@link #removeElement(int)}</li>
@@ -141,7 +161,7 @@ abstract class AbstractSeriesBuilder implements Series.Builder {
    */
   @Override
   public Series.Builder addNA() {
-    setNaAt(size());
+    setElementNA(size());
     extendIndex(size());
     return this;
   }
@@ -162,23 +182,7 @@ abstract class AbstractSeriesBuilder implements Series.Builder {
    * {@code extendIndex(size())}
    */
   @Override
-  public Series.Builder add(Series from, int fromIndex) {
-    // loc().set(size(), from, fromIndex);
-    setElement(size(), from, fromIndex);
-    extendIndex(size());
-    return this;
-  }
-
-  /**
-   * Provides a default implementation. To improve performance, minus-classes can override.
-   *
-   * <p>
-   * If overridden, the implementor should make sure to extend the index using
-   * {@link #extendIndex(int)}, for {@code plus}-operations, this usually amounts to
-   * {@code extendIndex(size())}
-   */
-  @Override
-  public Series.Builder add(Series from, Object key) {
+  public Series.Builder addFrom(Series from, Object key) {
     // loc().set(size(), from, key);
     setElement(size(), from, key);
     extendIndex(size());
@@ -186,14 +190,21 @@ abstract class AbstractSeriesBuilder implements Series.Builder {
   }
 
   @Override
-  public final Series.Builder set(Object atKey, Series from, int fromIndex) {
-    int index = getOrCreateIndex(atKey);
-    setElement(index, from, fromIndex);
+  public Series.Builder addFromLocation(Series from, int pos) {
+    setElementFrom(size(), from, pos);
+    extendIndex(size());
     return this;
   }
 
   @Override
-  public final Series.Builder set(Object atKey, Series from, Object fromIndex) {
+  public final Series.Builder setFromLocation(Object atKey, Series from, int fromIndex) {
+    int index = getOrCreateIndex(atKey);
+    setElementFrom(index, from, fromIndex);
+    return this;
+  }
+
+  @Override
+  public final Series.Builder setFrom(Object atKey, Series from, Object fromIndex) {
     int index = getOrCreateIndex(atKey);
     setElement(index, from, fromIndex);
     return this;
@@ -206,6 +217,16 @@ abstract class AbstractSeriesBuilder implements Series.Builder {
     return this;
   }
 
+  @Override
+  public Series.Builder setInt(Object key, int value) {
+    return set(key, value);
+  }
+
+  @Override
+  public Series.Builder setDouble(Object key, double value) {
+    return set(key, value);
+  }
+
   /**
    * Provides a default implementation. To improve performance, minus-classes can override.
    *
@@ -216,7 +237,6 @@ abstract class AbstractSeriesBuilder implements Series.Builder {
    */
   @Override
   public Series.Builder add(Object value) {
-    // loc().set(size(), value);
     setElement(size(), value);
     extendIndex(size());
     return this;
@@ -231,8 +251,7 @@ abstract class AbstractSeriesBuilder implements Series.Builder {
    * {@code extendIndex(size())}
    */
   @Override
-  public Series.Builder add(double value) {
-    // loc().set(size(), value);
+  public Series.Builder addDouble(double value) {
     setElement(size(), value);
     extendIndex(size());
     return this;
@@ -247,17 +266,24 @@ abstract class AbstractSeriesBuilder implements Series.Builder {
    * {@code extendIndex(size())}
    */
   @Override
-  public Series.Builder add(int value) {
-    // loc().set(size(), value);
+  public Series.Builder addInt(int value) {
     setElement(size(), value);
     extendIndex(size());
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * Implementors should override to improve performance.
+   *
+   * @param from the series
+   * @return a modified builder
+   */
   @Override
-  public final Series.Builder addAll(Series from) {
+  public Series.Builder addAll(Series from) {
     for (int i = 0; i < from.size(); i++) {
-      add(from, i);
+      setElementFrom(size(), from, i);
     }
     return this;
   }
@@ -266,7 +292,6 @@ abstract class AbstractSeriesBuilder implements Series.Builder {
   public final Series.Builder remove(Object key) {
     initIndexBuilder();
     int location = indexBuilder.getLocation(key);
-    // loc().remove(location);
     removeElement(location);
     removeIndexLocation(location);
     return this;
@@ -341,7 +366,7 @@ abstract class AbstractSeriesBuilder implements Series.Builder {
    * @param from the supplier
    * @param f the index in the supplier
    */
-  protected abstract void setElement(int t, Series from, int f);
+  protected abstract void setElementFrom(int t, Series from, int f);
 
   /**
    * Set the value at the specified index. Fill with {@code NA} between {@code size()} and
@@ -385,7 +410,7 @@ abstract class AbstractSeriesBuilder implements Series.Builder {
    *
    * @param index the index
    */
-  protected abstract void setNaAt(int index);
+  protected abstract void setElementNA(int index);
 
   /**
    * Set value at the specified index. Fill with {@code NA} between {@code size()} and {@code index}
@@ -466,7 +491,7 @@ abstract class AbstractSeriesBuilder implements Series.Builder {
 
     @Override
     public void setNA(int i) {
-      setNaAt(i);
+      setElementNA(i);
       extendIndex(i);
     }
 
@@ -477,25 +502,25 @@ abstract class AbstractSeriesBuilder implements Series.Builder {
     }
 
     @Override
-    public void set(int i, double value) {
+    public void setDouble(int i, double value) {
       setElement(i, value);
       extendIndex(i);
     }
 
     @Override
-    public void set(int i, int value) {
+    public void setInt(int i, int value) {
       setElement(i, value);
       extendIndex(i);
     }
 
     @Override
-    public void set(int t, Series from, int f) {
-      setElement(t, from, f);
+    public void setFrom(int t, Series from, int f) {
+      setElementFrom(t, from, f);
       extendIndex(t);
     }
 
     @Override
-    public void set(int t, Series from, Object f) {
+    public void setFromKey(int t, Series from, Object f) {
       setElement(t, from, f);
       extendIndex(t);
     }

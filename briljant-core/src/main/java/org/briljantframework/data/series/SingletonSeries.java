@@ -51,7 +51,7 @@ final class SingletonSeries extends AbstractSeries {
   private SingletonSeries(Index index, int offset, int[] shape, int[] stride, Object element) {
     super(index, offset, shape, stride);
     this.element = element;
-    this.type = Type.of(element != null ? element.getClass() : Object.class);
+    this.type = Types.from(element != null ? element.getClass() : Object.class);
     this.elementSize = ShapeUtils.size(shape);
   }
 

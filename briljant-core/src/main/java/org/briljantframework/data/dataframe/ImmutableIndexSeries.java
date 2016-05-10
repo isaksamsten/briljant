@@ -28,7 +28,7 @@ import org.briljantframework.data.series.Series;
 import org.briljantframework.data.series.Type;
 
 /**
- * A series which cannot be reindexed.
+ * A series for which the index cannot be changed
  */
 final class ImmutableIndexSeries extends AbstractSeries {
   private final Series delegate;

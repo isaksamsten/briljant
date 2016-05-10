@@ -22,13 +22,14 @@ package org.briljantframework.data.series;
 
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.resolver.Resolve;
+import org.briljantframework.util.sort.Swappable;
 
 /**
  * This class provides location based indexing of {@link Series}.
  * 
  * @author Isak Karlsson
  */
-public interface LocationSetter {
+public interface LocationSetter extends Swappable {
 
   /**
    * Add NA at {@code index}. If {@code index > size()} the resulting series should be padded with
@@ -62,9 +63,9 @@ public interface LocationSetter {
    */
   void set(int i, Object value);
 
-  void set(int index, double value);
+  void setDouble(int index, double value);
 
-  void set(int index, int value);
+  void setInt(int index, int value);
 
   /**
    * Add value at {@code fromIndex} in {@code from} to {@code atIndex}. Padding with NA:s between
@@ -74,9 +75,9 @@ public interface LocationSetter {
    * @param from the series to take the value from
    * @param f the index
    */
-  void set(int t, Series from, int f);
+  void setFrom(int t, Series from, int f);
 
-  void set(int atIndex, Series from, Object fromKey);
+  void setFromKey(int atIndex, Series from, Object fromKey);
 
   /**
    * Reads a value from the input stream and set {@code index} to the next value in the stream.
@@ -92,12 +93,4 @@ public interface LocationSetter {
    * @param i the index
    */
   void remove(int i);
-
-  /**
-   * Swaps value at {@code a} with value at {@code b}
-   *
-   * @param a the first index
-   * @param b the seconds index
-   */
-  void swap(int a, int b);
 }

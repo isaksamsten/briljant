@@ -1,20 +1,64 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2016 Isak Karlsson
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package org.briljantframework.data.series;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.List;
 
+import org.briljantframework.array.AbstractBaseArrayTest;
+import org.briljantframework.data.index.Index;
+import org.junit.Test;
+
 /**
  * Created by isak on 5/4/16.
  */
-public class ObjectSeriesTest extends org.briljantframework.array.AbstractBaseArrayTest<Series> {
+public class ObjectSeriesTest extends AbstractBaseArrayTest<Series> {
 
   protected Series seriesOf(Object... values) {
     Series.Builder builder = new ObjectSeries.Builder(Object.class);
     builder.addAll(Arrays.asList(values));
     return builder.build();
+  }
+
+  @Test
+  public void testGetAll() throws Exception {
+    Series x = seriesOf("A", "B", "C", "D");
+    Series y = x.getAll(Arrays.asList(1, 2));
+    assertEquals(seriesOf("B", "C").reindex(Index.of(1, 2)), y);
+  }
+
+  @Test
+  public void testDropAll() throws Exception {
+    Series x = seriesOf(1, 2, 3, 4, 5);
+    Series y = x.dropAll(Index.of(2, 3));
+    assertEquals(seriesOf(1, 2, 5).reindex(Index.of(0, 1, 4)), y);
+  }
+
+  @Test
+  public void testNewCopyBuilderReturnsLazyBuilder() throws Exception {
+    Series x = seriesOf(1, 2, 3, 4, 5);
+    Series y = x.newCopyBuilder().build();
+    assertTrue(x == y);
   }
 
   @Override
@@ -51,12 +95,12 @@ public class ObjectSeriesTest extends org.briljantframework.array.AbstractBaseAr
       public List<Series> create() {
         //@formatter:off
         return java.util.Arrays.asList(
-            seriesOf(1,2,3,4),
+            seriesOf(1, 2, 3, 4),
 
-            seriesOf(1,2,3,4,5,6,7,8).reshape(2,4),
-            seriesOf("a","a","a","a","a","a","a","a").reshape(2, 4),
+            seriesOf(1, 2, 3, 4, 5, 6, 7, 8).reshape(2,4),
+            seriesOf("a", "a", "a", "a", "a", "a", "a", "a").reshape(2, 4),
 
-            new ObjectSeries(Type.OBJECT, 2,1,2)
+            new ObjectSeries(Types.OBJECT, 2, 1, 2)
         );
         //@formatter:on
       }
@@ -77,10 +121,10 @@ public class ObjectSeriesTest extends org.briljantframework.array.AbstractBaseAr
       public List<Series> create() {
         //@formatter:off
         return Arrays.asList(
-            new ObjectSeries(Type.OBJECT, 3,3,3),
+            new ObjectSeries(Types.OBJECT, 3,3,3),
             seriesOf(10),
 
-            new ObjectSeries(Type.OBJECT, 1,3,4),
+            new ObjectSeries(Types.OBJECT, 1,3,4),
             seriesOf(1,2,3,4)
         );
         //@formatter:on

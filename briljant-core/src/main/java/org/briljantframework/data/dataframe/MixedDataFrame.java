@@ -31,6 +31,7 @@ import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.series.Series;
 import org.briljantframework.data.series.Type;
 import org.briljantframework.data.series.TypeInferenceBuilder;
+import org.briljantframework.data.series.Types;
 
 /**
  * A mixed (i.e. heterogeneous) data frame contains vectors of possibly different types.
@@ -73,7 +74,7 @@ public class MixedDataFrame extends AbstractDataFrame {
       typeSet.add(series.getType());
       this.columns.add(series);
     }
-    this.mostSpecificColumnType = typeSet.size() == 1 ? typeSet.iterator().next() : Type.OBJECT;
+    this.mostSpecificColumnType = typeSet.size() == 1 ? typeSet.iterator().next() : Types.OBJECT;
     this.rows = rows;
   }
 
@@ -104,7 +105,7 @@ public class MixedDataFrame extends AbstractDataFrame {
 
     }
     this.rows = rows;
-    this.mostSpecificColumnType = typeSet.size() == 1 ? typeSet.iterator().next() : Type.OBJECT;
+    this.mostSpecificColumnType = typeSet.size() == 1 ? typeSet.iterator().next() : Types.OBJECT;
     setColumnIndex(HashIndex.of(columnIndex));
   }
 
@@ -120,7 +121,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     this.columns = columns;
     this.rows = rows;
     Set<Type> typeSet = columns.stream().map(Series::getType).collect(Collectors.toSet());
-    this.mostSpecificColumnType = typeSet.size() == 1 ? typeSet.iterator().next() : Type.OBJECT;
+    this.mostSpecificColumnType = typeSet.size() == 1 ? typeSet.iterator().next() : Types.OBJECT;
   }
 
   private MixedDataFrame(List<Series> columns, int rows, Index columnIndex, Index index) {
@@ -128,7 +129,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     Check.argument(columns.size() == columnIndex.size());
     Check.argument(index.size() == rows);
     Set<Type> typeSet = columns.stream().map(Series::getType).collect(Collectors.toSet());
-    this.mostSpecificColumnType = typeSet.size() == 1 ? typeSet.iterator().next() : Type.OBJECT;
+    this.mostSpecificColumnType = typeSet.size() == 1 ? typeSet.iterator().next() : Types.OBJECT;
     this.columns = columns;
     this.rows = rows;
 
@@ -439,7 +440,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     @Override
     public void setAt(int r, int c, Object value) {
       ensureColumnCapacity(c - 1);
-      ensureColumnCapacity(c, Type.of(value));
+      ensureColumnCapacity(c, Types.inferFrom(value));
       buffers.get(c).loc().set(r, value);
     }
 
@@ -461,7 +462,7 @@ public class MixedDataFrame extends AbstractDataFrame {
       for (int j = 0; j < Math.max(size, columns); j++) {
         if (j < size) {
           Object value = series.loc().get(Object.class, j);
-          ensureColumnCapacity(j, Type.of(value));
+          ensureColumnCapacity(j, Types.inferFrom(value));
           setAt(index, j, value);
           // setAt(index, j, series, j);
         } else {
@@ -474,7 +475,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     public void setAt(int r, int c, Series from, int i) {
       ensureColumnCapacity(c - 1);
       ensureColumnCapacity(c, from.getType());
-      buffers.get(c).loc().set(r, from, i);
+      buffers.get(c).loc().setFrom(r, from, i);
     }
 
     @Override

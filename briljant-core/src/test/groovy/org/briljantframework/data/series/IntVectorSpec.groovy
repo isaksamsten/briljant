@@ -63,7 +63,7 @@ class IntVectorSpec extends Specification {
     def ib = new IntSeries.Builder()
 
     when:
-    def a = ib.add(1).add(2).add(3).addNA().add(5).build()
+    def a = ib.addInt(1).addInt(2).addInt(3).addNA().addInt(5).build()
 
     then:
     a.loc().getInt(0) == 1

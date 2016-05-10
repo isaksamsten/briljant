@@ -313,7 +313,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   public Series getDiagonal() {
     Series.Builder builder = Series.Builder.of(Object.class);
     for (int i = 0; i < size(0); i++) {
-      builder.loc().set(i, loc().get(Object.class, i, i));
+      builder.add(loc().get(Object.class, i, i));
     }
     return builder.build();
   }
@@ -340,9 +340,9 @@ public abstract class AbstractDataFrame implements DataFrame {
         Series.Builder columnBuilder = column.newBuilder();
         for (int i = 0; i < array.rows(); i++) {
           if (array.get(i, j)) {
-            columnBuilder.loc().set(i, column, i);
+            columnBuilder.addFromLocation(column, i);
           } else {
-            columnBuilder.loc().setNA(i);
+            columnBuilder.addNA();
           }
         }
         builder.set(getColumnIndex().get(j), columnBuilder);
@@ -376,9 +376,9 @@ public abstract class AbstractDataFrame implements DataFrame {
         Series.Builder columnBuilder = column.newBuilder();
         for (int i = 0; i < array.rows(); i++) {
           if (array.get(i, j)) {
-            columnBuilder.loc().set(i, value);
+            columnBuilder.add(value);
           } else {
-            columnBuilder.loc().set(i, column, i);
+            columnBuilder.addFromLocation(column, i);
           }
         }
         builder.set(getColumnIndex().get(j), columnBuilder);
@@ -463,12 +463,12 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public final double getAsDouble(Object row, Object col) {
+  public final double getDouble(Object row, Object col) {
     return getAsDoubleAt(getIndex().getLocation(row), getColumnIndex().getLocation(col));
   }
 
   @Override
-  public final int getAsInt(Object row, Object col) {
+  public final int getInt(Object row, Object col) {
     return getAsIntAt(getIndex().getLocation(row), getColumnIndex().getLocation(col));
   }
 
@@ -679,29 +679,12 @@ public abstract class AbstractDataFrame implements DataFrame {
     Index.Builder columnIndex = getColumnIndex().newBuilder();
     for (int i = 0; i < indices.size(); i++) {
       columnIndex.add(getColumnIndex().get(indices.get(i)));
-      builder.loc().set(i, getAt(indices.get(i)));
+      builder.add(getAt(indices.get(i)));
     }
     DataFrame df = builder.build();
     df.setIndex(getIndex());
     df.setColumnIndex(columnIndex.build());
     return df;
-  }
-
-  /**
-   * Constructs a new DataFrame by including the rows in {@code indexes}
-   *
-   * @param indexes the indexes to take
-   * @return a new data frame as created by {@link #newBuilder()}
-   */
-  protected DataFrame getRecordAt(int... indexes) {
-    Builder builder = newBuilder();
-    for (int i : indexes) {
-      for (int j = 0; j < size(1); j++) {
-        builder.loc().set(i, j, this, i, j);
-      }
-    }
-
-    return builder.build();
   }
 
   /**
@@ -950,22 +933,22 @@ public abstract class AbstractDataFrame implements DataFrame {
       }
 
       @Override
-      public void setRecord(int r, Series.Builder recordBuilder) {
+      public void setRow(int r, Series.Builder row) {
         extendIndex(r + 1);
-        extendColumnIndex(recordBuilder.size());
-        setRecordAt(r, recordBuilder);
+        extendColumnIndex(row.size());
+        setRecordAt(r, row);
       }
 
       @Override
-      public void removeRecord(int r) {
+      public void removeRow(int pos) {
         if (rowIndexBuilder != null) {
-          rowIndexBuilder.removeLocation(r);
+          rowIndexBuilder.removeLocation(pos);
         }
-        removeRecordAt(r);
+        removeRecordAt(pos);
       }
 
       @Override
-      public void swapRecords(int a, int b) {
+      public void swapRows(int a, int b) {
         if (rowIndexBuilder != null) {
           rowIndexBuilder.swap(a, b);
         }
@@ -974,7 +957,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
-    public final Builder set(Object tr, Object tc, DataFrame from, Object fr, Object fc) {
+    public final Builder setFrom(Object tr, Object tc, DataFrame from, Object fr, Object fc) {
       int r = getOrAddIndex(tr);
       int c = getOrAddColumnIndex(tc);
       setAt(r, c, from, from.getIndex().getLocation(fr), from.getColumnIndex().getLocation(fc));
@@ -982,7 +965,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
-    public final Builder set(Object row, Object column, Series from, Object key) {
+    public final Builder setFrom(Object row, Object column, Series from, Object key) {
       int r = getOrAddIndex(row);
       int c = getOrAddColumnIndex(column);
       setAt(r, c, from, from.getIndex().getLocation(key));
@@ -1021,7 +1004,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
     @Override
     public final Builder addRow(Series.Builder recordBuilder) {
-      loc().setRecord(size(0), recordBuilder);
+      loc().setRow(size(0), recordBuilder);
       return this;
     }
 

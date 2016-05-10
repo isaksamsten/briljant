@@ -27,8 +27,6 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import net.mintern.primitive.comparators.IntComparator;
-
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.*;
@@ -39,6 +37,8 @@ import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.NaturalOrdering;
 import org.briljantframework.data.index.RangeIndex;
+
+import net.mintern.primitive.comparators.IntComparator;
 
 /**
  * Provide a skeletal implementation of a series.
@@ -257,7 +257,7 @@ public abstract class AbstractSeries extends AbstractBaseArray<Series> implement
   }
 
   @Override
-  public <T> Series filter(Class<T> cls, Predicate<? super T> predicate) {
+  public <T> Series retainIf(Class<T> cls, Predicate<? super T> predicate) {
     return collect(cls, Collectors.filter(this::newBuilder, predicate));
   }
 
@@ -279,6 +279,44 @@ public abstract class AbstractSeries extends AbstractBaseArray<Series> implement
   public <T> Series zipWith(Class<T> cls, Series other,
       BiFunction<? super T, ? super T, ? extends T> combiner) {
     return zipWith(cls, other, combiner, new TypeInferenceBuilder());
+  }
+
+  @Override
+  public Series drop(Object key) {
+    Series.Builder builder = newCopyBuilder();
+    builder.remove(key);
+    return builder.build();
+  }
+
+  @Override
+  public Series dropAll(Collection<?> keys) {
+    Series.Builder builder = newBuilder();
+    for (Object key : getIndex()) {
+      if (!keys.contains(key)) {
+        builder.setFrom(key, this, key);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public Series getAll(Collection<?> keys) {
+    Series.Builder builder = newBuilder();
+    for (Object key : keys) {
+      builder.setFrom(key, this, key);
+    }
+    return builder.build();
+  }
+
+  @Override
+  public <T> Series dropIf(Class<T> cls, Predicate<? super T> predicate) {
+    Series.Builder builder = newBuilder();
+    for (Object key : getIndex()) {
+      if (!predicate.test(get(cls, key))) {
+        builder.setFrom(key, this, key);
+      }
+    }
+    return builder.build();
   }
 
   @Override
@@ -311,7 +349,7 @@ public abstract class AbstractSeries extends AbstractBaseArray<Series> implement
         break;
       }
       i++;
-      b.set(key, this, key);
+      b.setFrom(key, this, key);
     }
     return b.build();
   }
@@ -373,7 +411,7 @@ public abstract class AbstractSeries extends AbstractBaseArray<Series> implement
     Builder builder = newBuilder();
     for (int i = 0; i < array.size(); i++) {
       if (array.get(i)) {
-        builder.set(getIndex().get(i), this, i);
+        builder.setFromLocation(getIndex().get(i), this, i);
       }
     }
     return builder.build();
@@ -471,7 +509,7 @@ public abstract class AbstractSeries extends AbstractBaseArray<Series> implement
   }
 
   @Override
-  public <T, R, C> R collect(Class<T> in, Collector<? super T, C, ? extends R> collector) {
+  public <T, R, C> R collect(Class<T> in, Collector<? super T, C, R> collector) {
     C accumulator = collector.supplier().get();
     for (int i = 0; i < size(); i++) {
       collector.accumulator().accept(accumulator, loc().get(in, i));
@@ -627,9 +665,9 @@ public abstract class AbstractSeries extends AbstractBaseArray<Series> implement
         if (thisIndexContainsKey && otherIndexContainsKey) {
           builder.set(key, combiner.apply(get(cls, key), other.get(cls, key)));
         } else if (thisIndexContainsKey) {
-          builder.set(key, this, key);
+          builder.setFrom(key, this, key);
         } else {
-          builder.set(key, other, key);
+          builder.setFrom(key, other, key);
         }
       }
     }
@@ -647,7 +685,6 @@ public abstract class AbstractSeries extends AbstractBaseArray<Series> implement
   }
 
   public Iterator<Object> iterator() {
-    System.err.println("dbg: using series iterator (no longer index!!!!!)");
     return new Iterator<Object>() {
       private final Iterator<Object> keys = getIndex().iterator();
 
@@ -952,7 +989,7 @@ public abstract class AbstractSeries extends AbstractBaseArray<Series> implement
       Index index = getIndex();
       for (int i = 0; i < locations.size(); i++) {
         int location = locations.get(i);
-        builder.set(index.get(location), AbstractSeries.this, location);
+        builder.setFromLocation(index.get(location), AbstractSeries.this, location);
       }
       return builder.build();
     }

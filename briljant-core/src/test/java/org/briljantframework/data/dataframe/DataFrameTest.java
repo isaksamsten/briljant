@@ -215,11 +215,14 @@ public abstract class DataFrameTest {
   public void testGroupBy_apply() throws Exception {
     DataFrame df = getBuilder().set("A", Series.of(1, 2, 1, 2))
         .set("B", Series.of(30.0, 2.0, 33.0, 6.0)).build();
+    Index index = Index.of("a", "b", "c", "d");
+    df.setIndex(index);
     DataFrame actual = df.groupBy("A").apply(v -> v.minus(v.mean()));
 
     DataFrame expected = getBuilder().set("A", Series.of(1, 2, 1, 2)).set("B",
         Series.of(30 - (30 + 33) / 2.0, 2 - (2 + 6) / 2.0, 33 - (30 + 33) / 2.0, 6 - (2 + 6) / 2.0))
         .build();
+    expected.setIndex(index);
     assertEquals(expected, actual);
   }
 
@@ -329,7 +332,7 @@ public abstract class DataFrameTest {
     Series[] series = new Series[] {Series.of(1, 2, 3, 4), Series.of(1, 2, 3, 4)};
     DataFrame.Builder builder = getBuilder();
     for (int i = 0; i < series.length; i++) {
-      builder.loc().setRecord(i, series[i]);
+      builder.addRow(series[i]);
     }
     DataFrame df = builder.build();
 
@@ -537,8 +540,8 @@ public abstract class DataFrameTest {
         .set("j", Series.of(1, 2, 3, 3, 3, 3)).build();
 
     DataFrame sums = df.groupBy("i").collect(Series::sum);
-    assertEquals(9, sums.getAsInt(2, "j"));
-    assertEquals(6, sums.getAsInt(1, "j"));
+    assertEquals(9, sums.getInt(2, "j"));
+    assertEquals(6, sums.getInt(1, "j"));
   }
 
   @Test
@@ -563,7 +566,7 @@ public abstract class DataFrameTest {
     assertEquals(2, sums.size(0));
     assertEquals(3, sums.size(1));
     assertEquals(66, sums.get("C").getInt(2011));
-    assertEquals(1, sums.getAsInt(2010, "A"));
+    assertEquals(1, sums.getInt(2010, "A"));
   }
 
   @Test

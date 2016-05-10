@@ -24,10 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.briljantframework.data.index.Index;
-import org.briljantframework.data.series.AbstractSeries;
-import org.briljantframework.data.series.ObjectSeries;
-import org.briljantframework.data.series.Series;
-import org.briljantframework.data.series.Type;
+import org.briljantframework.data.series.*;
 
 /**
  * View a row in a data frame.
@@ -74,7 +71,7 @@ class RowView extends AbstractSeries {
     for (Series column : df.columns()) {
       types.add(column.getType());
     }
-    return types.size() == 1 ? types.iterator().next() : Type.OBJECT;
+    return types.size() == 1 ? types.iterator().next() : Types.OBJECT;
   }
 
   @Override

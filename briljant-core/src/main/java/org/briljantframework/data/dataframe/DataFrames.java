@@ -43,7 +43,7 @@ import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.NaturalOrdering;
 import org.briljantframework.data.series.Series;
-import org.briljantframework.data.series.Type;
+import org.briljantframework.data.series.Types;
 import org.briljantframework.data.series.Vectors;
 
 /**
@@ -187,9 +187,9 @@ public final class DataFrames {
    */
   public static DataFrame summary(DataFrame df) {
     DataFrame.Builder builder = new MixedDataFrame.Builder();
-    builder.newColumn("mean", Type.DOUBLE).newColumn("var", Type.DOUBLE)
-        .newColumn("std", Type.DOUBLE).newColumn("min", Type.DOUBLE).newColumn("max", Type.DOUBLE)
-        .newColumn("mode", Type.OBJECT);
+    builder.newColumn("mean", Types.DOUBLE).newColumn("var", Types.DOUBLE)
+        .newColumn("std", Types.DOUBLE).newColumn("min", Types.DOUBLE).newColumn("max", Types.DOUBLE)
+        .newColumn("mode", Types.OBJECT);
 
     for (Object columnKey : df.getColumnIndex().keySet()) {
       Series column = df.get(columnKey);
@@ -250,29 +250,9 @@ public final class DataFrames {
     DataFrame.Builder builder = df.newCopyBuilder();
     LocationSetter loc = builder.loc();
     for (int i = builder.size(0); i > 1; i--) {
-      loc.swapRecords(i - 1, random.nextInt(i));
+      loc.swapRows(i - 1, random.nextInt(i));
     }
     return builder.build();
-  }
-
-  /**
-   * Drop columns with NA
-   *
-   * @param x the data frame
-   * @return a new data frame with no missing values
-   */
-  public static DataFrame dropMissingColumns(DataFrame x) {
-    throw new UnsupportedOperationException("Not implemented yet");
-  }
-
-  /**
-   * Drop cases (rows) with NA
-   *
-   * @param x the data frame
-   * @return a new data frame with no missing values
-   */
-  public static DataFrame dropIncompleteCases(DataFrame x) {
-    throw new UnsupportedOperationException("not implemented yet");
   }
 
   /**

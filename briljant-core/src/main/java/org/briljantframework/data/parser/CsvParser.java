@@ -37,6 +37,7 @@ import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.series.Type;
 
 import com.univocity.parsers.csv.CsvParserSettings;
+import org.briljantframework.data.series.Types;
 
 /**
  * Parses delimited files.
@@ -96,7 +97,7 @@ public class CsvParser implements Parser {
     // If no types are set, use the entry reader to infer the types
     if (types == null) {
       for (Class<?> type : entryReader.getTypes()) {
-        builder.newColumn(Type.of(type));
+        builder.newColumn(Types.from(type));
       }
     } else {
       types.forEach(builder::newColumn);
@@ -192,7 +193,7 @@ public class CsvParser implements Parser {
      * @return this
      */
     public Settings setTypes(List<Class> types) {
-      CsvParser.this.types = types.stream().map(Type::of).collect(Collectors.toList());
+      CsvParser.this.types = types.stream().map(Types::from).collect(Collectors.toList());
       return this;
     }
 

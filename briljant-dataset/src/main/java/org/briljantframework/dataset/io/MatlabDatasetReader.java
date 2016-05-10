@@ -31,6 +31,7 @@ import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReaderException;
 import org.briljantframework.data.reader.StringDataEntry;
 import org.briljantframework.data.series.Type;
+import org.briljantframework.data.series.Types;
 
 /**
  * Load a time series as formatted in the <a
@@ -73,7 +74,7 @@ public class MatlabDatasetReader extends DatasetReader {
     initializeValues();
     if (currentType < columns) {
       currentType++;
-      return Type.DOUBLE;
+      return Types.DOUBLE;
     } else {
       return null;
     }

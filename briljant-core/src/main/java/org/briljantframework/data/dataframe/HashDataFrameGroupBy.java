@@ -133,7 +133,7 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
         Series column = dataFrame.get(columnKey);
         Series.Builder groupVector = column.newBuilder();
         for (int i = 0, size = group.getValue().size(); i < size; i++) {
-          groupVector.add(column, index.get(i));
+          groupVector.addFromLocation(column, index.get(i));
         }
         builder.set(group.getKey(), columnKey, function.apply(groupVector.build()));
       }
@@ -195,7 +195,7 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
         Check.state(selectedColumn.size() == transformed.size(), "transformation must retain size");
         for (int i = 0; i < index.size(); i++) {
           int id = index.get(i);
-          columnBuilder.loc().set(id, transformed, i);
+          columnBuilder.loc().setFrom(id, transformed, i);
         }
       }
       builder.set(columnKey, columnBuilder);

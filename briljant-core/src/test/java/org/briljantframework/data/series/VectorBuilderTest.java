@@ -121,7 +121,7 @@ public abstract class VectorBuilderTest {
     Series expected = Series.of(1, 2, 3, 4);
     Series.Builder builder = getBuilder();
     for (int i = 0; i < expected.size(); i++) {
-      builder.add(expected, i);
+      builder.addFromLocation(expected, i);
     }
 
     Series series = builder.build();
@@ -175,7 +175,7 @@ public abstract class VectorBuilderTest {
     Series expected = Series.of(1, 2, 3, 4, 5);
     Series.Builder builder = getBuilder();
     for (int i = 0; i < expected.size(); i++) {
-      builder.loc().set(i, expected, i);
+      builder.loc().setFrom(i, expected, i);
     }
 
     Series series = builder.build();
@@ -193,7 +193,7 @@ public abstract class VectorBuilderTest {
 
     Series.Builder builder = getBuilder();
     for (int i = 0; i < index.size(); i++) {
-      builder.loc().set(i, expected, index.get(i));
+      builder.loc().setFromKey(i, expected, index.get(i));
     }
 
     Series actual = builder.build();
@@ -212,7 +212,7 @@ public abstract class VectorBuilderTest {
     Series.Builder builder = getBuilder();
     for (int i = 0; i < index.size(); i++) {
       Object key = index.get(i);
-      builder.set(key, expected, i);
+      builder.setFromLocation(key, expected, i);
     }
 
     Series actual = builder.build();
@@ -230,7 +230,7 @@ public abstract class VectorBuilderTest {
 
     Series.Builder builder = getBuilder();
     for (Object key : index) {
-      builder.set(key, expected, key);
+      builder.setFrom(key, expected, key);
     }
 
     Series actual = builder.build();
@@ -242,9 +242,9 @@ public abstract class VectorBuilderTest {
   @Test
   public void testOverwriteObjectLocationIndex() throws Exception {
     Series.Builder builder = getBuilder();
-    builder.loc().set(0, 1);
-    builder.loc().set(3, 10);
-    builder.loc().set(3, 100);
+    builder.loc().setInt(0, 1);
+    builder.loc().setInt(3, 10);
+    builder.loc().setInt(3, 100);
 
     Series expected = Series.of(1, null, null, 100);
     Series actual = builder.build();

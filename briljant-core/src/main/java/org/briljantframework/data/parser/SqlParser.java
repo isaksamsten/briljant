@@ -32,7 +32,6 @@ import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.index.HashIndex;
 import org.briljantframework.data.reader.EntryReaderException;
 import org.briljantframework.data.reader.SqlEntryReader;
-import org.briljantframework.data.series.Type;
 
 /**
  * Parse a specified database using a given query.
@@ -99,7 +98,7 @@ public class SqlParser implements Parser {
       } else {
         columnTypes = entryReader.getTypes();
       }
-      columnTypes.stream().map(Type::of).forEach(builder::newColumn);
+      columnTypes.stream().map(org.briljantframework.data.series.Types::from).forEach(builder::newColumn);
       builder.readAll(entryReader);
       DataFrame df = builder.build();
       df.setColumnIndex(index.build());

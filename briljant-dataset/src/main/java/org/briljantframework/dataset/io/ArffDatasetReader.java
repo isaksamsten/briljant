@@ -37,6 +37,7 @@ import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReaderException;
 import org.briljantframework.data.reader.StringDataEntry;
 import org.briljantframework.data.series.Type;
+import org.briljantframework.data.series.Types;
 
 /**
  * @author Isak Karlsson
@@ -56,8 +57,8 @@ public class ArffDatasetReader extends DatasetReader {
 
   static {
     TYPE_MAP = new HashMap<>();
-    TYPE_MAP.put("real", Type.DOUBLE);
-    TYPE_MAP.put("numeric", Type.DOUBLE);
+    TYPE_MAP.put("real", Types.DOUBLE);
+    TYPE_MAP.put("numeric", Types.DOUBLE);
   }
 
   private BufferedReader reader;
@@ -99,7 +100,7 @@ public class ArffDatasetReader extends DatasetReader {
       if (type != null) {
         columnTypes.add(type);
       } else if ((NOMINAL.matcher(typeRepr)).matches()) {
-        columnTypes.add(Type.of(String.class));
+        columnTypes.add(Types.from(String.class));
       } else {
         throw new IllegalArgumentException(String.format(INVALID_TYPE, typeRepr));
       }

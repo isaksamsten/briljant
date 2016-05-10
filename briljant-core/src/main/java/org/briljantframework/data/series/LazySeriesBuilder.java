@@ -33,7 +33,7 @@ final class LazySeriesBuilder implements Series.Builder {
     this.data = data;
   }
 
-  private void initializeBuilder() {
+  private void initLazyBuilder() {
     if (builder == null) {
       builder = data.newBuilder();
       builder.addAll(data);
@@ -42,104 +42,118 @@ final class LazySeriesBuilder implements Series.Builder {
 
   @Override
   public Series.Builder addNA() {
-    initializeBuilder();
+    initLazyBuilder();
     builder.addNA();
     return this;
   }
 
   @Override
   public Series.Builder setNA(Object key) {
-    initializeBuilder();
+    initLazyBuilder();
     builder.setNA(key);
     return this;
   }
 
   @Override
-  public Series.Builder add(Series from, int fromIndex) {
-    initializeBuilder();
-    builder.add(from, fromIndex);
+  public Series.Builder addFrom(Series from, Object key) {
+    initLazyBuilder();
+    builder.addFrom(from, key);
     return this;
   }
 
   @Override
-  public Series.Builder add(Series from, Object key) {
-    initializeBuilder();
-    builder.add(from, key);
+  public Series.Builder addFromLocation(Series from, int pos) {
+    initLazyBuilder();
+    builder.addFromLocation(from, pos);
     return this;
   }
 
   @Override
-  public Series.Builder set(Object atKey, Series from, int fromIndex) {
-    initializeBuilder();
-    builder.set(atKey, from, fromIndex);
+  public Series.Builder setFromLocation(Object atKey, Series from, int fromIndex) {
+    initLazyBuilder();
+    builder.setFromLocation(atKey, from, fromIndex);
     return this;
   }
 
   @Override
-  public Series.Builder set(Object atKey, Series from, Object fromIndex) {
-    initializeBuilder();
-    builder.set(atKey, from, fromIndex);
+  public Series.Builder setFrom(Object atKey, Series from, Object fromIndex) {
+    initLazyBuilder();
+    builder.setFrom(atKey, from, fromIndex);
     return this;
   }
 
   @Override
   public Series.Builder set(Object key, Object value) {
-    initializeBuilder();
+    initLazyBuilder();
     builder.set(key, value);
     return this;
   }
 
   @Override
+  public Series.Builder setInt(Object key, int value) {
+    initLazyBuilder();
+    builder.setInt(key, value);
+    return this;
+  }
+
+  @Override
+  public Series.Builder setDouble(Object key, double value) {
+    initLazyBuilder();
+    builder.setDouble(key, value);
+    return this;
+  }
+
+  @Override
   public Series.Builder add(Object value) {
-    initializeBuilder();
+    initLazyBuilder();
     builder.add(value);
     return this;
   }
 
   @Override
-  public Series.Builder add(double value) {
-    initializeBuilder();
-    builder.add(value);
+  public Series.Builder addDouble(double value) {
+    initLazyBuilder();
+    builder.addDouble(value);
     return this;
   }
 
   @Override
-  public Series.Builder add(int value) {
-    initializeBuilder();
-    builder.add(value);
+  public Series.Builder addInt(int value) {
+    initLazyBuilder();
+    builder.addInt(value);
     return this;
   }
 
   @Override
   public Series.Builder addAll(Series from) {
-    initializeBuilder();
+    initLazyBuilder();
     builder.addAll(from);
     return this;
   }
 
   @Override
   public Series.Builder remove(Object key) {
-    initializeBuilder();
+    initLazyBuilder();
     builder.remove(key);
     return this;
   }
 
   @Override
   public Series.Builder readAll(DataEntry entry) {
-    initializeBuilder();
+    initLazyBuilder();
     builder.readAll(entry);
     return this;
   }
 
   @Override
   public LocationSetter loc() {
-    initializeBuilder();
+    initLazyBuilder();
     return builder.loc();
   }
 
   @Override
   public Series.Builder read(DataEntry entry) {
-    initializeBuilder();
+    initLazyBuilder();
     builder.read(entry);
     return this;
   }

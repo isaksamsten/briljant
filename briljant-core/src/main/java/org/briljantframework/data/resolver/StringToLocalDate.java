@@ -21,6 +21,7 @@
 package org.briljantframework.data.resolver;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -28,16 +29,16 @@ import java.time.format.DateTimeFormatter;
  * 
  * @author Isak Karlsson
  */
-public class StringToLocalDate implements Converter<String, LocalDate> {
+class StringToLocalDate implements Converter<String, LocalDate> {
 
-  public static final StringToLocalDate ISO_DATE = new StringToLocalDate();
+  static final StringToLocalDate ISO_DATE = new StringToLocalDate();
   private final DateTimeFormatter format;
 
-  public StringToLocalDate(String pattern) {
+  StringToLocalDate(String pattern) {
     this(DateTimeFormatter.ofPattern(pattern));
   }
 
-  public StringToLocalDate(DateTimeFormatter format) {
+  private StringToLocalDate(DateTimeFormatter format) {
     this.format = format;
   }
 

@@ -18,15 +18,29 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.briljantframework.data.series;
+package org.briljantframework.data.resolver;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
- * @author Isak Karlsson
+ * Created by isak on 5/10/16.
  */
-public class IntSeriesBuilderTest extends VectorBuilderTest {
+class ConvertStringLocalDateTime implements Converter<String, LocalDateTime> {
 
-  @Override
-  Series.Builder getBuilder() {
-    return Types.from(Integer.class).newBuilder();
+  private final DateTimeFormatter formatter;
+
+  ConvertStringLocalDateTime(DateTimeFormatter formatter) {
+    this.formatter = formatter;
+  }
+
+
+
+  @Override public LocalDateTime convert(String s) {
+    try {
+      return LocalDateTime.parse(s, formatter);
+    } catch (Exception ignored) {
+      return null;
+    }
   }
 }
