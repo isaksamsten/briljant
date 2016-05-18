@@ -79,27 +79,27 @@ public abstract class AbstractSeries extends AbstractBaseArray<Series> implement
 
   @Override
   public void set(int toIndex, Series from, int fromIndex) {
-    throw new UnsupportedOperationException();
+    loc().set(toIndex, from.loc().get(fromIndex));
   }
 
   @Override
   public void set(int toRow, int toColumn, Series from, int fromRow, int fromColumn) {
-    throw new UnsupportedOperationException();
+    loc().set(toRow, fromColumn, from.loc().get(fromRow, fromColumn));
   }
 
   @Override
   public void set(int[] toIndex, Series from, int[] fromIndex) {
-    throw new UnsupportedOperationException();
+    loc().set(toIndex, from.loc().get(fromIndex));
   }
 
   @Override
   public void set(int[] toIndex, Series from, int fromIndex) {
-    throw new UnsupportedOperationException();
+    loc().set(toIndex, from.loc().get(fromIndex));
   }
 
   @Override
   public void set(int toIndex, Series from, int[] fromIndex) {
-    throw new UnsupportedOperationException();
+    loc().set(toIndex, from.loc().get(fromIndex));
   }
 
   @Override
@@ -705,12 +705,12 @@ public abstract class AbstractSeries extends AbstractBaseArray<Series> implement
 
   @Override
   public Object[] toArray() {
-    throw new UnsupportedOperationException();
+    return asList().toArray();
   }
 
   @Override
   public <T> T[] toArray(T[] a) {
-    throw new UnsupportedOperationException();
+    return asList().toArray(a);
   }
 
   @Override

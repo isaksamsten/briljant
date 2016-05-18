@@ -80,17 +80,12 @@ public interface LocationGetter {
    * @return the value
    */
   int getInt(int r, int c);
-//
-//  /**
-//   * Returns string representation of value at {@code row, column}. In most cases this is equivalent
-//   * to {@code get(Object.class, row, column).toString()}, but it handles {@code NA} values, i.e.
-//   * the returned {@linkplain String string} is never {@code null}.
-//   *
-//   * @param r the row
-//   * @param c the column
-//   * @return the representation
-//   */
-//  String toString(int r, int c);
+
+  void set(int pos, Series column);
+
+  void setRow(int pos, Series row);
+
+  void set(int r, int c, Object value);
 
   /**
    * Returns true if value at {@code row, column} is {@code NA}.

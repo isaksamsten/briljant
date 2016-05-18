@@ -573,6 +573,24 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
   void set(BooleanArray array, Object value);
 
   /**
+   * Unsupported operation.
+   * 
+   * @param o {@inheritDoc}
+   * @return {@inheritDoc}
+   */
+  @Override
+  boolean add(Object o);
+
+  /**
+   * Unsupported operation.
+   * 
+   * @param c {@inheritDoc}
+   * @return {@inheritDoc}
+   */
+  @Override
+  boolean addAll(Collection<?> c);
+
+  /**
    * Return true if the value with the given key is {@code NA}
    *
    * @param key the key

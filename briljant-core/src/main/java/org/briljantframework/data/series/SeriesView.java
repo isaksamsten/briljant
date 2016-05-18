@@ -54,6 +54,21 @@ public abstract class SeriesView extends AbstractSeries {
   }
 
   @Override
+  public Series asView(int offset, int[] shape, int[] stride) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Series newEmptyArray(int... shape) {
+    return parent.newEmptyArray(shape);
+  }
+
+  @Override
+  protected int elementSize() {
+    return size();
+  }
+
+  @Override
   public boolean hasNA() {
     return parent.hasNA();
   }

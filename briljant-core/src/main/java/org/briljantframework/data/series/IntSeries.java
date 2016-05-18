@@ -92,27 +92,27 @@ public class IntSeries extends AbstractSeries {
 
   @Override
   public void set(int toIndex, Series from, int fromIndex) {
-    loc().set(toIndex, from.loc().getInt(fromIndex));
+    loc().setInt(toIndex, from.loc().getInt(fromIndex));
   }
 
   @Override
   public void set(int toRow, int toColumn, Series from, int fromRow, int fromColumn) {
-    loc().set(toRow, fromColumn, from.loc().getInt(fromRow, fromColumn));
+    loc().setInt(toRow, fromColumn, from.loc().getInt(fromRow, fromColumn));
   }
 
   @Override
   public void set(int[] toIndex, Series from, int[] fromIndex) {
-    loc().set(toIndex, from.loc().getInt(fromIndex));
+    loc().setInt(toIndex, from.loc().getInt(fromIndex));
   }
 
   @Override
   public void set(int[] toIndex, Series from, int fromIndex) {
-    loc().set(toIndex, from.loc().getInt(fromIndex));
+    loc().setInt(toIndex, from.loc().getInt(fromIndex));
   }
 
   @Override
   public void set(int toIndex, Series from, int[] fromIndex) {
-    loc().set(toIndex, from.loc().getInt(fromIndex));
+    loc().setInt(toIndex, from.loc().getInt(fromIndex));
   }
 
   @Override

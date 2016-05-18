@@ -492,14 +492,14 @@ public interface DataFrame {
   <T> DataFrameGroupBy groupBy(Class<T> cls, Function<? super T, ?> keyFunction);
 
   /**
-   * Return a new data frame where the values of the specificed column is replaced with (a series)
+   * Return a new data frame where the values of the specified column is replaced with (a series)
    * of value
    *
    * @param key the key
    * @param value the value
    * @return a new data frame
    */
-  DataFrame set(Object key, Object value);
+  void set(Object key, Object value);
 
   /**
    * Set the specified column to the given series
@@ -508,7 +508,7 @@ public interface DataFrame {
    * @param column the column
    * @return a new data frame
    */
-  DataFrame set(Object key, Series column);
+  void set(Object key, Series column);
 
   /**
    * Set the specified column(s) to the specified vectors

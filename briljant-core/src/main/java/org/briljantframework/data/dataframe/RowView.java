@@ -51,9 +51,12 @@ class RowView extends AbstractSeries {
     this.parent = parent;
     this.type = type;
     this.row = row;
-
   }
 
+  @Override
+  protected void setElement(int index, Object value) {
+    parent.loc().set(row, index, value);
+  }
 
   @Override
   public void setIndex(Index index) {

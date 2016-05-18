@@ -39,6 +39,21 @@ final class ImmutableIndexSeries extends AbstractSeries {
   }
 
   @Override
+  protected void setElement(int index, Object value) {
+    delegate.loc().set(index, value);
+  }
+
+  @Override
+  protected void setDoubleElement(int index, double value) {
+    delegate.loc().setDouble(index, value);
+  }
+
+  @Override
+  protected void setIntElement(int index, int value) {
+    delegate.loc().setInt(index, value);
+  }
+
+  @Override
   protected boolean isElementNA(int i) {
     return delegate.loc().isNA(i);
   }
@@ -71,6 +86,10 @@ final class ImmutableIndexSeries extends AbstractSeries {
   @Override
   public Series asView(int offset, int[] shape, int[] stride) {
     return new ImmutableIndexSeries(delegate.asView(offset, shape, stride), getIndex());
+  }
+
+  @Override public Builder newCopyBuilder() {
+    return newBuilder().addAll(this);
   }
 
   @Override

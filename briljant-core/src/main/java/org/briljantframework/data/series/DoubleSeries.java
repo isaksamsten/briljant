@@ -198,27 +198,27 @@ public class DoubleSeries extends AbstractSeries {
 
   @Override
   public void set(int toIndex, Series from, int fromIndex) {
-    loc().set(toIndex, from.loc().getDouble(fromIndex));
+    loc().setDouble(toIndex, from.loc().getDouble(fromIndex));
   }
 
   @Override
   public void set(int toRow, int toColumn, Series from, int fromRow, int fromColumn) {
-    loc().set(toRow, fromColumn, from.loc().getDouble(fromRow, fromColumn));
+    loc().setDouble(toRow, fromColumn, from.loc().getDouble(fromRow, fromColumn));
   }
 
   @Override
   public void set(int[] toIndex, Series from, int[] fromIndex) {
-    loc().set(toIndex, from.loc().getDouble(fromIndex));
+    loc().setDouble(toIndex, from.loc().getDouble(fromIndex));
   }
 
   @Override
   public void set(int[] toIndex, Series from, int fromIndex) {
-    loc().set(toIndex, from.loc().getDouble(fromIndex));
+    loc().setDouble(toIndex, from.loc().getDouble(fromIndex));
   }
 
   @Override
   public void set(int toIndex, Series from, int[] fromIndex) {
-    loc().set(toIndex, from.loc().getDouble(fromIndex));
+    loc().setDouble(toIndex, from.loc().getDouble(fromIndex));
   }
 
   @Override
