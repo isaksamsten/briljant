@@ -171,22 +171,14 @@ public class ObjectSeries extends AbstractSeries {
     private List<Object> buffer;
     private Resolver<?> resolver = null;
 
-    public <T> Builder(Class<T> cls, Resolver<T> resolver) {
+    public <T> Builder(Class<T> cls, Resolver<? extends T> resolver) {
       this.cls = ensureValidClass(cls);
       this.resolver = resolver;
       this.buffer = new ArrayList<>();
     }
 
-    private <T> Class<?> ensureValidClass(Class<T> cls) {
-      if (INVALID_CLASSES.contains(cls)) {
-        throw new IllegalArgumentException(
-            String.format("ObjectSeries should not be used for: %s", cls));
-      }
-      return cls;
-    }
-
-    public Builder(Class<?> cls, int size) {
-      this.cls = cls;
+    public <T> Builder(Class<T> cls, int size) {
+      this(cls, Resolve.find(cls));
       buffer = new ArrayList<>();
       for (int i = 0; i < size; i++) {
         buffer.add(null);
@@ -198,8 +190,15 @@ public class ObjectSeries extends AbstractSeries {
     }
 
     public Builder(Class<?> cls) {
-      this.cls = ensureValidClass(cls);
-      buffer = new ArrayList<>();
+      this(cls, 0);
+    }
+
+    private <T> Class<?> ensureValidClass(Class<T> cls) {
+      if (INVALID_CLASSES.contains(cls)) {
+        throw new IllegalArgumentException(
+            String.format("ObjectSeries should not be used for: %s", cls));
+      }
+      return cls;
     }
 
     @Override
@@ -225,7 +224,7 @@ public class ObjectSeries extends AbstractSeries {
       if (value != null && cls.isInstance(value)) {
         buffer.set(index, value);
       } else if (value != null) {
-        Resolver<?> resolver = this.resolver == null ? Resolve.find(cls) : this.resolver;
+//        Resolver<?> resolver = this.resolver == null ? Resolve.find(cls) : this.resolver;
         if (resolver == null) {
           buffer.set(index, null);
         } else {

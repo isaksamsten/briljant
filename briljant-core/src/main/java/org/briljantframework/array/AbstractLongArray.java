@@ -29,8 +29,6 @@ import java.util.function.*;
 import java.util.stream.LongStream;
 import java.util.stream.StreamSupport;
 
-import net.mintern.primitive.comparators.LongComparator;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
@@ -39,6 +37,8 @@ import org.briljantframework.exceptions.MultiDimensionMismatchException;
 import org.briljantframework.function.LongBiPredicate;
 import org.briljantframework.util.primitive.ArrayAllocations;
 import org.briljantframework.util.sort.QuickSort;
+
+import net.mintern.primitive.comparators.LongComparator;
 
 /**
  * This class provides a skeletal implementation of a long array.
@@ -88,7 +88,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public DoubleArray asDoubleArray() {
+  public DoubleArray doubleArray() {
     return new AsDoubleArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       protected double getElement(int i) {
@@ -108,10 +108,10 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public IntArray asIntArray() {
+  public IntArray intArray() {
     return new AsIntArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
-      public LongArray asLongArray() {
+      public LongArray longArray() {
         return AbstractLongArray.this;
       }
 
@@ -135,33 +135,12 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public LongArray asLongArray() {
+  public LongArray longArray() {
     return this;
   }
 
   @Override
-  public BooleanArray asBooleanArray() {
-    return new AsBooleanArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
-
-      @Override
-      public boolean getElement(int index) {
-        return AbstractLongArray.this.getElement(index) == 1;
-      }
-
-      @Override
-      public void setElement(int index, boolean value) {
-        AbstractLongArray.this.setElement(index, value ? 1 : 0);
-      }
-
-      @Override
-      protected int elementSize() {
-        return AbstractLongArray.this.elementSize();
-      }
-    };
-  }
-
-  @Override
-  public ComplexArray asComplexArray() {
+  public ComplexArray complexArray() {
     return new AsComplexArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       public Complex getElement(int index) {
@@ -223,7 +202,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public BooleanArray lte(LongArray other) {
+  public BooleanArray leq(LongArray other) {
     Check.size(this, other);
     BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
     int m = size();
@@ -234,7 +213,7 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public BooleanArray gte(LongArray other) {
+  public BooleanArray geq(LongArray other) {
     Check.size(this, other);
     BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
     int m = size();
@@ -268,48 +247,53 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public void assign(LongArray array, LongUnaryOperator operator) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.size(this, array);
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.applyAsLong(array.get(i)));
-    }
+  public void assign(LongArray other, LongUnaryOperator operator) {
+    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+      Check.size(a, b);
+      for (int i = 0, size = a.size(); i < size; i++) {
+        a.set(i, operator.applyAsLong(b.get(i)));
+      }
+    });
   }
 
   @Override
-  public void combineAssign(LongArray array, LongBinaryOperator combine) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.dimension(this, array);
-    for (int i = 0; i < size(); i++) {
-      set(i, combine.applyAsLong(get(i), array.get(i)));
-    }
+  public void combineAssign(LongArray other, LongBinaryOperator combine) {
+    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+      Check.size(a, b);
+      for (int i = 0, size = a.size(); i < size; i++) {
+        a.set(i, combine.applyAsLong(a.get(i), b.get(i)));
+      }
+    });
   }
 
   @Override
-  public void assign(ComplexArray array, ToLongFunction<? super Complex> function) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.size(this, array);
-    for (int i = 0; i < size(); i++) {
-      set(i, function.applyAsLong(array.get(i)));
-    }
+  public void assign(ComplexArray other, ToLongFunction<? super Complex> function) {
+    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+      Check.size(a, b);
+      for (int i = 0, size = a.size(); i < size; i++) {
+        a.set(i, function.applyAsLong(b.get(i)));
+      }
+    });
   }
 
   @Override
-  public void assign(IntArray array, IntToLongFunction operator) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.size(this, array);
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.applyAsLong(array.get(i)));
-    }
+  public void assign(IntArray other, IntToLongFunction function) {
+    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+      Check.size(a, b);
+      for (int i = 0, size = a.size(); i < size; i++) {
+        a.set(i, function.applyAsLong(b.get(i)));
+      }
+    });
   }
 
   @Override
-  public void assign(DoubleArray array, DoubleToLongFunction function) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.size(this, array);
-    for (int i = 0; i < array.size(); i++) {
-      set(i, function.applyAsLong(array.get(i)));
-    }
+  public void assign(DoubleArray other, DoubleToLongFunction function) {
+    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+      Check.size(a, b);
+      for (int i = 0, size = a.size(); i < size; i++) {
+        a.set(i, function.applyAsLong(b.get(i)));
+      }
+    });
   }
 
   @Override
@@ -374,14 +358,14 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public BooleanArray where(LongArray array, LongBiPredicate predicate) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.dimension(this, array);
-    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray();
-    for (int i = 0; i < size(); i++) {
-      bits.set(i, predicate.test(get(i), array.get(i)));
-    }
-    return bits;
+  public BooleanArray where(LongArray other, LongBiPredicate predicate) {
+    return org.briljantframework.array.Arrays.broadcast(this, other, (a, b) -> {
+      BooleanArray out = getArrayBackend().getArrayFactory().newBooleanArray(a.getShape());
+      for (int i = 0, size = a.size(); i < size; i++) {
+        out.set(i, predicate.test(a.get(i), b.get(i)));
+      }
+      return out;
+    });
   }
 
   @Override

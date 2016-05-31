@@ -40,7 +40,7 @@ public class VectorsTest {
   @Test
   public void testIndexSort() throws Exception {
     Series v = DoubleSeries.of(10, 23, 5, 31, 0);
-    int[] order = Vectors.indexSort(v);
+    int[] order = SeriesUtils.indexSort(v);
     System.out.println(Arrays.toString(order));
     for (int i : order) {
       System.out.println(v.loc().getDouble(i));
@@ -75,7 +75,7 @@ public class VectorsTest {
 
   @Test
   public void testSplitExact() throws Exception {
-    Collection<Series> chunks = Vectors.split(vec6, 3);
+    Collection<Series> chunks = SeriesUtils.split(vec6, 3);
     List<Series> listChunks = new ArrayList<>(chunks);
 
     assertEquals(3, chunks.size());
@@ -86,7 +86,7 @@ public class VectorsTest {
 
   @Test
   public void testSplitSingleton() throws Exception {
-    Collection<Series> chunks = Vectors.split(vec6, 6);
+    Collection<Series> chunks = SeriesUtils.split(vec6, 6);
     List<Series> listChunks = new ArrayList<>(chunks);
 
     assertEquals(1, chunks.size());
@@ -95,7 +95,7 @@ public class VectorsTest {
 
   @Test
   public void testSplitUneven() throws Exception {
-    Collection<Series> chunks = Vectors.split(vec6, 4);
+    Collection<Series> chunks = SeriesUtils.split(vec6, 4);
     List<Series> listChunks = new ArrayList<>(chunks);
 
     assertEquals(4, chunks.size());

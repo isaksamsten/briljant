@@ -1,4 +1,4 @@
-/*
+/**
  * The MIT License (MIT)
  *
  * Copyright (c) 2016 Isak Karlsson
@@ -18,22 +18,30 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.briljantframework.array
-
-import spock.lang.Specification
+package org.briljantframework.array;
 
 /**
- * @author Isak Karlsson <isak-kar@dsv.su.se>
+ * A super interface for interfaces representing arrays over values that are convertible to the
+ * primive types (and {@link org.apache.commons.math3.complex.Complex Complex}.
+ *
+ * The specific semantics of the conversion from the numeric values of a particular
+ * {@code NumberArray} implementation to a given primitive type is defined by the number array in
+ * question.
+ *
+ * For the default implementations, the conversion follows the narrowing or widening of primitives
+ * as defined by Java.
+ *
+ * Implementations may or may not return views.
+ * 
+ * @author Isak Karlsson
  */
-class ArrayExtensionsTest extends Specification {
+public interface NumberArray {
 
-  def "testit"() {
-    given:
-    def a = Arrays.linspace(0, 1, 20).reshape(4, 5)
+  DoubleArray doubleArray();
 
-    expect:
-    println a
-    println a[0, 1]
+  IntArray intArray();
 
-  }
+  LongArray longArray();
+
+  ComplexArray complexArray();
 }

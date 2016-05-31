@@ -22,6 +22,7 @@ package org.briljantframework.array.netlib;
 
 import org.briljantframework.Check;
 import org.briljantframework.array.ArrayOperation;
+import org.briljantframework.array.Arrays;
 import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.api.ArrayBackend;
@@ -40,6 +41,22 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
 
   NetlibArrayRoutines(ArrayBackend backend) {
     super(backend);
+  }
+
+  @Override
+  public void plusAssign(DoubleArray a, DoubleArray out) {
+    Arrays.withBroadcast(out, a, (y, x) -> {
+      Check.size(x, out);
+      axpy(1.0, x, y);
+    });
+  }
+
+  @Override
+  public void minusAssign(DoubleArray a, DoubleArray out) {
+    Arrays.withBroadcast(out, a, (y, x) -> {
+      Check.size(x, out);
+      axpy(-1.0, x, y);
+    });
   }
 
   @Override
@@ -101,8 +118,9 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
       return;
     } // TODO: 11/01/16 we need alternative treatment of transposed vectors
     if (isContinuousNetlibArray(x) && isContinuousNetlibArray(y)) {
-      Check.argument(x.isVector() && y.isVector(), VECTOR_REQUIRED);
-      Check.size(x, y);
+      // TODO: 5/27/16 we need to rework this
+      // Check.argument(x.isVector() && y.isVector(), VECTOR_REQUIRED);
+      // Check.size(x, y);
       blas.daxpy(x.size(), alpha, x.data(), x.getOffset(), getVectorMajorStride(x), y.data(),
           y.getOffset(), getVectorMajorStride(y));
     } else {
@@ -178,20 +196,22 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
     DoubleArray maybeC =
         c instanceof NetlibDoubleArray && c.isContiguous() && c.stride(0) == 1 ? c : c.copy();
 
-    double[] ca = maybeC.data();
+
     blas.dgemm(transA.getCblasString(), transB.getCblasString(), m, n, k, alpha, a.data(),
         a.getOffset(), Math.max(1, a.stride(1)), b.data(), b.getOffset(), Math.max(1, b.stride(1)),
-        beta, ca, maybeC.getOffset(), Math.max(1, maybeC.stride(1)));
+        beta, maybeC.data(), maybeC.getOffset(), Math.max(1, maybeC.stride(1)));
 
     // If c was copied, maybeC and c won't be the same instance.
     // To simulate an out parameter, c is assigned the new data if this is the case.
     if (maybeC != c) {
-      c.assign(ca);
+      c.assign(maybeC);
     }
   }
 
   @Override
   public <T extends BaseArray<T>> void copy(T from, T to) {
+    // This is a naive optimization that relies on the fact that netlib arrays expose their
+    // internal data representation
     if (from instanceof NetlibDoubleArray && to instanceof NetlibDoubleArray && !from.isView()
         && from.stride(0) == 1 && !to.isView() && to.stride(0) == 1) {
       System.arraycopy(((NetlibDoubleArray) from).data(), from.getOffset(),
@@ -201,6 +221,12 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
     }
   }
 
+  /**
+   * Returns true if the given array is an a proper array with the proper strides.
+   *
+   * @param x the
+   * @return
+   */
   private boolean isContinuousNetlibArray(DoubleArray x) {
     return x instanceof NetlibDoubleArray && x.stride(0) == 1;
   }
@@ -216,11 +242,12 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
         } else if (array.size(0) >= 1 && array.size(1) == 1) {
           return array.stride(0);
         } else {
-          throw new IllegalArgumentException("Can't get series stride of Matrix");
+          return array.stride(0);
         }
       default:
-        throw new IllegalArgumentException(
-            String.format("Can't get series stride of %dd-array", array.dims()));
+        return array.stride(0);
+      // throw new IllegalArgumentException(
+      // String.format("Can't get series stride of %dd-array", array.dims()));
     }
   }
 

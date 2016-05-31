@@ -315,7 +315,7 @@ class BaseArraySpec extends Specification {
 
   def "Array#getVector returns a vector along a given dimension"() {
     given: "an array"
-    def r = bj.range(2 * 2 * 2).asDoubleArray().reshape(2, 2, 2)
+    def r = bj.range(2 * 2 * 2).doubleArray().reshape(2, 2, 2)
 
     expect: "#getVector returns the correct series along the specified dimension"
     r.getVector(dim, idx) == vector
@@ -409,11 +409,11 @@ class BaseArraySpec extends Specification {
 
   def getRangeArrays(int length) {
     return [
-        bj.range(length).asBooleanArray().copy(),
-        bj.range(length).asIntArray().copy(),
-        bj.range(length).asDoubleArray().copy(),
-        bj.range(length).asLongArray().copy(),
-        bj.range(length).asComplexArray().copy(),
+        bj.range(length).mapToObj({it== 1}).mapToBoolean({it}).copy(),
+        bj.range(length).intArray().copy(),
+        bj.range(length).doubleArray().copy(),
+        bj.range(length).longArray().copy(),
+        bj.range(length).complexArray().copy(),
     ]
   }
 

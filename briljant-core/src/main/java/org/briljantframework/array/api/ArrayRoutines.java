@@ -528,6 +528,44 @@ public interface ArrayRoutines {
 
   <T extends BaseArray<T>> void swap(T a, T b);
 
+  DoubleArray plus(DoubleArray a, DoubleArray b);
+
+  /**
+   * out <- a + out
+   * @param a
+   * @param out
+   */
+  void plusAssign(DoubleArray a, DoubleArray out);
+
+  DoubleArray minus(DoubleArray a, DoubleArray b);
+
+  /**
+   * out <- a - out
+   * @param a
+   * @param out
+   */
+  void minusAssign(DoubleArray a, DoubleArray out);
+
+  DoubleArray times(DoubleArray a, DoubleArray b);
+
+  /**
+   * out <- a * out
+   * @param a
+   * @param out
+   */
+  void timesAssign(DoubleArray a, DoubleArray out);
+
+  DoubleArray div(DoubleArray nominator, DoubleArray denominator);
+
+  /**
+   * out <- a / out
+   * @param nominator
+   * @param denominatorOut
+   */
+  void divAssign(DoubleArray nominator, DoubleArray denominatorOut);
+
+
+
   /**
    * @see Math#sin(double)
    */

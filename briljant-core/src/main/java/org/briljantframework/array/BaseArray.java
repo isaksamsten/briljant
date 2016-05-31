@@ -69,11 +69,11 @@ import org.briljantframework.util.sort.Swappable;
  * Finally, all specialized types must return them self when the specialization method is called. In
  * all other cases, a view should be returned. That is:
  * <ul>
- * <li>{@link DoubleArray#asDoubleArray()} must return {@code this}</li>
- * <li>{@link IntArray#asIntArray()} must return {@code this}</li>
- * <li>{@link org.briljantframework.array.LongArray#asLongArray()} must return {@code this}</li>
+ * <li>{@link DoubleArray#doubleArray()} must return {@code this}</li>
+ * <li>{@link IntArray#intArray()} must return {@code this}</li>
+ * <li>{@link org.briljantframework.array.LongArray#longArray()} must return {@code this}</li>
  * <li>{@link BooleanArray#asBooleanArray()} must return {@code this}</li>
- * <li>{@link ComplexArray#asComplexArray()} must return {@code this}</li>
+ * <li>{@link ComplexArray#complexArray()} must return {@code this}</li>
  * </ul>
  * 
  * <p/>
@@ -190,7 +190,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * array([1.000, 2.000, 3.000, 4.000])
    * </pre>
    *
-   * The given array will be {@link Arrays#broadcast(BaseArray, int...) broadcast} to the this
+   * The given array will be {@link Arrays#broadcastTo(BaseArray, int...) broadcast} to the this
    * shape.
    * 
    * @param o the array to assign
@@ -1046,7 +1046,7 @@ public interface BaseArray<S extends BaseArray<S>> extends Swappable {
    * purpose is hence when using advanced indexing.
    *
    * <p/>
-   * The value must be {@link Arrays#broadcast(BaseArray, int...) broadcastable} to the same shape
+   * The value must be {@link Arrays#broadcastTo(BaseArray, int...) broadcastable} to the same shape
    * as the selected array.
    *
    * @param arrays the indexer

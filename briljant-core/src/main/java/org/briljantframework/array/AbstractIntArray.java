@@ -26,16 +26,15 @@ import java.util.function.*;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
-import net.mintern.primitive.comparators.IntComparator;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.function.IntBiPredicate;
-import org.briljantframework.function.ToIntObjIntBiFunction;
 import org.briljantframework.util.primitive.IntList;
 import org.briljantframework.util.sort.QuickSort;
+
+import net.mintern.primitive.comparators.IntComparator;
 
 /**
  * This class provides a skeletal implementation of an int array.
@@ -85,7 +84,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public DoubleArray asDoubleArray() {
+  public DoubleArray doubleArray() {
     return new AsDoubleArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       protected double getElement(int i) {
@@ -105,12 +104,12 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public IntArray asIntArray() {
+  public IntArray intArray() {
     return this;
   }
 
   @Override
-  public LongArray asLongArray() {
+  public LongArray longArray() {
     return new AsLongArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       public void setElement(int index, long value) {
@@ -130,28 +129,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public BooleanArray asBooleanArray() {
-    return new AsBooleanArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
-
-      @Override
-      public boolean getElement(int index) {
-        return AbstractIntArray.this.getElement(index) == 1;
-      }
-
-      @Override
-      public void setElement(int index, boolean value) {
-        AbstractIntArray.this.set(index, value ? 1 : 0);
-      }
-
-      @Override
-      protected int elementSize() {
-        return AbstractIntArray.this.elementSize();
-      }
-    };
-  }
-
-  @Override
-  public ComplexArray asComplexArray() {
+  public ComplexArray complexArray() {
     return new AsComplexArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       public Complex getElement(int index) {
@@ -177,61 +155,6 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
       matrix.set(i, get(i));
     }
     return matrix;
-  }
-
-  @Override
-  public BooleanArray lt(IntArray other) {
-    Check.size(this, other);
-    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
-    int m = size();
-    for (int i = 0; i < m; i++) {
-      bits.set(i, get(i) < other.get(i));
-    }
-    return bits;
-  }
-
-  @Override
-  public BooleanArray gt(IntArray other) {
-    Check.size(this, other);
-    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
-    int m = size();
-    for (int i = 0; i < m; i++) {
-      bits.set(i, get(i) > other.get(i));
-    }
-    return bits;
-  }
-
-  @Override
-  public BooleanArray eq(IntArray other) {
-    Check.size(this, other);
-    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
-    int m = size();
-    for (int i = 0; i < m; i++) {
-      bits.set(i, get(i) == other.get(i));
-    }
-    return bits;
-  }
-
-  @Override
-  public BooleanArray lte(IntArray other) {
-    Check.size(this, other);
-    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
-    int m = size();
-    for (int i = 0; i < m; i++) {
-      bits.set(i, get(i) <= other.get(i));
-    }
-    return bits;
-  }
-
-  @Override
-  public BooleanArray gte(IntArray other) {
-    Check.size(this, other);
-    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
-    int m = size();
-    for (int i = 0; i < m; i++) {
-      bits.set(i, get(i) >= other.get(i));
-    }
-    return bits;
   }
 
   @Override
@@ -265,48 +188,53 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public void combineAssign(IntArray array, IntBinaryOperator combine) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.dimension(this, array);
-    for (int i = 0; i < size(); i++) {
-      set(i, combine.applyAsInt(get(i), array.get(i)));
-    }
+  public void combineAssign(IntArray other, IntBinaryOperator combine) {
+    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+      Check.size(a, b);
+      for (int i = 0, size = a.size(); i < size; i++) {
+        a.set(i, combine.applyAsInt(a.get(i), b.get(i)));
+      }
+    });
   }
 
   @Override
-  public void assign(ComplexArray array, ToIntFunction<? super Complex> function) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.size(this, array);
-    for (int i = 0; i < size(); i++) {
-      set(i, function.applyAsInt(array.get(i)));
-    }
+  public void assign(ComplexArray other, ToIntFunction<? super Complex> function) {
+    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+      Check.size(a, b);
+      for (int i = 0, size = a.size(); i < size; i++) {
+        a.set(i, function.applyAsInt(b.get(i)));
+      }
+    });
   }
 
   @Override
-  public void assign(DoubleArray array, DoubleToIntFunction function) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.size(this, array);
-    for (int i = 0; i < array.size(); i++) {
-      set(i, function.applyAsInt(array.get(i)));
-    }
+  public void assign(DoubleArray other, DoubleToIntFunction function) {
+    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+      Check.size(a, b);
+      for (int i = 0, size = a.size(); i < size; i++) {
+        a.set(i, function.applyAsInt(b.get(i)));
+      }
+    });
   }
 
   @Override
-  public void assign(LongArray array, LongToIntFunction operator) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.size(this, array);
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.applyAsInt(array.get(i)));
-    }
+  public void assign(LongArray other, LongToIntFunction function) {
+    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+      Check.size(a, b);
+      for (int i = 0, size = a.size(); i < size; i++) {
+        a.set(i, function.applyAsInt(b.get(i)));
+      }
+    });
   }
 
   @Override
-  public void assign(BooleanArray array, ToIntObjIntBiFunction<Boolean> function) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.dimension(this, array);
-    for (int i = 0; i < size(); i++) {
-      set(i, function.applyAsInt(array.get(i), get(i)));
-    }
+  public void assign(BooleanArray other, ToIntFunction<Boolean> function) {
+    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+      Check.size(a, b);
+      for (int i = 0, size = a.size(); i < size; i++) {
+        a.set(i, function.applyAsInt(b.get(i)));
+      }
+    });
   }
 
   @Override
@@ -384,14 +312,14 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public BooleanArray where(IntArray array, IntBiPredicate predicate) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.dimension(this, array);
-    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      bits.set(i, predicate.test(get(i), array.get(i)));
-    }
-    return bits;
+  public BooleanArray where(IntArray other, IntBiPredicate predicate) {
+    return org.briljantframework.array.Arrays.broadcast(this, other, (a, b) -> {
+      BooleanArray out = getArrayBackend().getArrayFactory().newBooleanArray(a.getShape());
+      for (int i = 0, size = a.size(); i < size; i++) {
+        out.set(i, predicate.test(a.get(i), b.get(i)));
+      }
+      return out;
+    });
   }
 
   @Override
@@ -461,16 +389,6 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public void apply(int index, IntUnaryOperator operator) {
-    set(index, operator.applyAsInt(get(index)));
-  }
-
-  @Override
-  public void apply(int i, int j, IntUnaryOperator operator) {
-    set(i, j, operator.applyAsInt(get(i, j)));
-  }
-
-  @Override
   public IntStream intStream() {
     PrimitiveIterator.OfInt ofInt = new PrimitiveIterator.OfInt() {
       private int current = 0;
@@ -529,16 +447,10 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public IntArray times(IntArray other) {
-    return times(1, other);
-  }
-
-  @Override
-  public IntArray times(int alpha, IntArray other) {
-    other = ShapeUtils.broadcastIfSensible(this, other);
     Check.size(this, other);
     IntArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
-      m.set(i, alpha * get(i) * other.get(i));
+      m.set(i, get(i) * other.get(i));
     }
     return m;
   }
@@ -554,7 +466,12 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public IntArray plus(IntArray other) {
-    return plus(1, other);
+    Check.size(this, other);
+    IntArray m = newEmptyArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      m.set(i, get(i) + other.get(i));
+    }
+    return m;
   }
 
   @Override
@@ -577,35 +494,18 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public IntArray plus(int alpha, IntArray other) {
-    other = ShapeUtils.broadcastIfSensible(this, other);
-    Check.size(this, other);
-    IntArray m = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      m.set(i, alpha * get(i) + other.get(i));
-    }
-    return m;
-  }
-
-  @Override
   public IntArray minus(IntArray other) {
-    return minus(1, other);
+    Check.size(this, other);
+    IntArray out = newEmptyArray(getShape());
+    for (int i = 0; i < size(); i++) {
+      out.set(i, get(i) - other.get(i));
+    }
+    return out;
   }
 
   @Override
   public IntArray minus(int scalar) {
     return plus(-scalar);
-  }
-
-  @Override
-  public IntArray minus(int alpha, IntArray other) {
-    other = ShapeUtils.broadcastIfSensible(this, other);
-    Check.size(this, other);
-    IntArray out = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      out.set(i, alpha * get(i) - other.get(i));
-    }
-    return out;
   }
 
   @Override
@@ -634,7 +534,6 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public IntArray div(IntArray other) {
-    other = ShapeUtils.broadcastIfSensible(this, other);
     Check.size(this, other);
     IntArray out = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
@@ -736,6 +635,65 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   @Override
   public Iterator<Integer> iterator() {
     return asList().iterator();
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return size() == 0;
+  }
+
+  @Override
+  public boolean contains(Object o) {
+    return asList().contains(o);
+  }
+
+  @Override
+  public Object[] toArray() {
+    Object[] data = new Object[size()];
+    for (int i = 0; i < size(); i++) {
+      data[i] = get(i);
+    }
+    return data;
+  }
+
+  @Override
+  public <T> T[] toArray(T[] a) {
+    return asList().toArray(a);
+  }
+
+  @Override
+  public void clear() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean retainAll(Collection<?> c) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public final boolean add(Integer integer) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public final boolean remove(Object o) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public final boolean containsAll(Collection<?> c) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public final boolean addAll(Collection<? extends Integer> c) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public final boolean removeAll(Collection<?> c) {
+    throw new UnsupportedOperationException();
   }
 
   private class IntListView extends AbstractList<Integer> {

@@ -102,7 +102,7 @@ public final class ArrayPrinter {
   }
 
   public static void append(StringBuilder out, IntArray matrix) {
-    append(out, new LongToStringArray(matrix.asLongArray(), intFormat), "[", "]");
+    append(out, new LongToStringArray(matrix.longArray(), intFormat), "[", "]");
   }
 
   public static void append(StringBuilder out, Array<?> array) {

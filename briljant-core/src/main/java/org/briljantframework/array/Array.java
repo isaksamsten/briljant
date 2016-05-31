@@ -20,6 +20,7 @@
  */
 package org.briljantframework.array;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.*;
 import java.util.stream.Stream;
@@ -32,7 +33,7 @@ import org.apache.commons.math3.complex.Complex;
  * @author Isak Karlsson
  * @see BaseArray
  */
-public interface Array<T> extends BaseArray<Array<T>>, Iterable<T> {
+public interface Array<T> extends BaseArray<Array<T>>, Collection<T> {
 
   /**
    * @see Arrays#vector(Object[])

@@ -20,6 +20,11 @@
  */
 package org.briljantframework.array;
 
+import java.util.Collection;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
@@ -29,18 +34,29 @@ public class ShapeUtils {
     return !(a.isVector() && b.isVector());
   }
 
-  public static <S extends BaseArray<S>> S broadcastIfSensible(BaseArray<?> targetShape,
-      S toBroadcast) {
-    if (isBroadcastSensible(targetShape, toBroadcast)) {
-      return Arrays.broadcast(toBroadcast, targetShape.getShape());
+  public static <E extends BaseArray<? extends E>> E broadcastToShapeOf(E array,
+      BaseArray<?> newShape) {
+    if (isBroadcastSensible(newShape, array)) {
+      return Arrays.broadcastTo(array, newShape.getShape());
     } else {
-      return toBroadcast;
+      return array;
+    }
+  }
+
+  public static <A extends BaseArray<? extends A>, B extends BaseArray<? extends B>> Pair<A, B> combinedBroadcast(
+      A a, B b) {
+    if (isBroadcastSensible(a, b)) {
+      int[] combinedShape = findCombinedBroadcastShape(java.util.Arrays.asList(a, b));
+      return new ImmutablePair<>(Arrays.broadcastTo(a, combinedShape),
+          Arrays.broadcastTo(b, combinedShape));
+    } else {
+      return new ImmutablePair<>(a, b);
     }
   }
 
   /**
    * Checks if the given shapes are broadcast compatible.
-   * 
+   *
    * <p/>
    * An array can be broadcast to a specified shape if the dimensions are compatible. The shapes are
    * by compared element-wise starting with the trailing dimension. Two dimensions are compatible
@@ -49,7 +65,7 @@ public class ShapeUtils {
    * <li>they are equal; or</li>
    * <li>one of them is equal to {@code 1}</li>
    * </ul>
-   * 
+   *
    * @param a the first shape
    * @param b the second shape
    * @return true if the shapes are broadcast compatible
@@ -70,7 +86,7 @@ public class ShapeUtils {
 
   /**
    * Compute the size of an array with the given shape.
-   * 
+   *
    * @param shape the shape
    * @return the size
    * @throws ArithmeticException if the size is larger than an int
@@ -86,38 +102,81 @@ public class ShapeUtils {
   /**
    * Return the shape of the given array brodcasted to the specified shape.
    *
-   * @param oldShape the old shape
-   * @param shape the broadcast shape
+   * @param from the old shape
+   * @param to the broadcast shape
    * @return the shape of the new broadcast array
    */
-  public static int[] broadcast(int[] oldShape, int[] shape) {
-    int[] newShape = new int[shape.length];
+  public static int[] findBroadcastShape(int[] from, int[] to) {
+    int[] newShape = new int[to.length];
     for (int i = 0; i < newShape.length; i++) {
       int index = newShape.length - 1 - i;
-      int dim = oldShape.length - 1 - i;
-      int broadcastShape = shape[index];
-      if (oldShape.length == 1) {
+      int dim = from.length - 1 - i;
+      int broadcastShape = to[index];
+      if (from.length == 1) {
         if (i == 0) {
-          if (i < (double) oldShape.length) {
+          if (i < (double) from.length) {
             newShape[index] = Math.max(1, broadcastShape);
           } else {
             newShape[index] = broadcastShape;
           }
         } else {
-          if (i < (double) oldShape.length) {
-            newShape[index] = Math.max(oldShape[dim], broadcastShape);
+          if (i < (double) from.length) {
+            newShape[index] = Math.max(from[dim], broadcastShape);
           } else {
             newShape[index] = broadcastShape;
           }
         }
       } else {
-        if (i < (double) oldShape.length) {
-          newShape[index] = Math.max(broadcastShape, oldShape[dim]);
+        if (i < (double) from.length) {
+          newShape[index] = Math.max(broadcastShape, from[dim]);
         } else {
           newShape[index] = broadcastShape;
         }
       }
     }
     return newShape;
+  }
+
+
+  public static int[] findCombinedBroadcastShape(Collection<? extends BaseArray<?>> arrays) {
+    int dims = arrays.stream().mapToInt(BaseArray::dims).max()
+        .orElseThrow(() -> new IllegalArgumentException("no arrays given."));
+    int[] shape = new int[dims];
+    java.util.Arrays.fill(shape, 1);
+    for (BaseArray<?> array : arrays) {
+      for (int i = 0; i < shape.length; i++) {
+        int shapeIndex = shape.length - 1 - i;
+        int arrayIndex = array.dims() - 1 - i;
+        if (i < array.dims()) {
+          if (shape[shapeIndex] != array.size(arrayIndex)
+              && (shape[shapeIndex] != 1 && array.size(arrayIndex) != 1)) {
+            throw new IllegalArgumentException("arrays cannot be broadcast to the same shape");
+          }
+          shape[shapeIndex] = Math.max(shape[shapeIndex], array.size(arrayIndex));
+        } else {
+          shape[shapeIndex] = Math.max(shape[shapeIndex], 1);
+        }
+      }
+    }
+    return shape;
+  }
+
+  /**
+   * Returns true if both arrays has the exact same shape.
+   *
+   * @param a an array
+   * @param b an array
+   * @return true if both arrays has the exact same shape
+   */
+  public static boolean hasMatchingShape(BaseArray<?> a, BaseArray<?> b) {
+    if (a.dims() == b.dims()) {
+      for (int i = 0; i < a.dims(); i++) {
+        if (a.size(i) != b.size(i)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return false;
   }
 }

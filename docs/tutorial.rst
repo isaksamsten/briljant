@@ -32,7 +32,7 @@ Briljants main abstractions are the (nd)-array, ``DataFrame`` and
   ``Binary`` (i.e. true/false/NA), ``Integer`` and ``Complex``
   numbers. All providing a unique ``NA`` representation.
 
-* ``Array<T>``, ``DoubleArray``, ``IntArray``, ``LongArray``,
+* ``Array<E>``, ``DoubleArray``, ``IntArray``, ``LongArray``,
   ``ComplexArray`` and ``BitArray`` are d-dimensional data containers
   of, reference and numerical (primitive) elements supporting a
   multitude of linear algebra operations.
@@ -269,7 +269,7 @@ the ``MatrixBackend``. For details, please refer to the discussion columnKeys
 .. note:: Briljant implements five difference array types for some
     common domains including the primitive types: `int`, `double`,
     `long` and `boolean` and for `Complex` numbers. There is also a
-    generic array `Array<T>` for arbitary objects, e.g., `String`.
+    generic array `Array<E>` for arbitary objects, e.g., `String`.
 
 Creation
 ^^^^^^^^
@@ -566,7 +566,7 @@ which resides in the namespace
 * ``ComplexVector`` for storing complex numbers.
   (``org.briljantframework.complex.Complex``).
 * ``Intvector`` for storing integers (``int``).
-* ``GenericVector(Class<? extends T>)`` for storing values of ``T``.
+* ``GenericVector(Class<? extends E>)`` for storing values of ``E``.
 
 In addition to values, each series can store a distinct value, called
 ``NA``, which represents the absence of a value. For the reference
@@ -658,9 +658,9 @@ underlying type and how to copy, compare and identify ``NA``-values.
 Perhaps the simplest, and most common, way of creating a series is to
 call ``Vector.of(data)``. Here, ``data`` can be:
 
-* A ``T[]``
-* a ``Supplier<T>``; or
-* an ``Iterable<T>``
+* A ``E[]``
+* a ``Supplier<E>``; or
+* an ``Iterable<E>``
 
 The type of series is inferred from the argument to ``#of``. For
 example:
@@ -709,7 +709,7 @@ be used. For example:
    Vector v = Vector.of(1,null, 3, null, 4, null); // [1, NA, 3, NA, 4, NA]
    
 
-A series acts very similar to a ``List<T>`` with the difference that
+A series acts very similar to a ``List<E>`` with the difference that
 it natively handles primitive types (using ``#getAsInt(int)`` and
 ``#getAsDouble(int)``).
 
@@ -722,7 +722,7 @@ it natively handles primitive types (using ``#getAsInt(int)`` and
 
    double mean = vec.aggregate(Double.class, Aggregates.mean());
 
-   // Get a List<T> view
+   // Get a List<E> view
    List<Double> l = vec.asList(Double.class); // [1.1, 1.2, 1.3, 1.4, 1.5]
 
    v instanceof DoubleVector // true
@@ -827,10 +827,10 @@ above. For example:
 Collectors (i.e. aggregate operations) are, however, more general than
 that! The ``collect``-method of ``Vector`` (and as we will see later,
 data frames and grouped data frames) accepts as arguments a type ``E``
-(in the example above ``String.class``) and, either a ``Supplier<T>``
-and a ``BiConsumer<T, E>``, or an instance of ``Collector<T, R, C>``
+(in the example above ``String.class``) and, either a ``Supplier<E>``
+and a ``BiConsumer<E, E>``, or an instance of ``Collector<E, R, C>``
 where each type-argument in order denotes the type of value, the
-return type and the mutable container type. The ``Collector<T, R,
+return type and the mutable container type. The ``Collector<E, R,
 C>``, is a mutable reduction operator that accumulates values into a
 mutable container. We can specify an ``Collector`` by four functions:
 

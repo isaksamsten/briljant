@@ -83,7 +83,7 @@ public abstract class Joiner {
       }
 
       if (columnKeys.contains(key)) {
-        builder.add(a.get(key).newBuilder(size));
+        builder.addColumn(a.getColumn(key).newBuilder(size));
         indexColumn.put(key, currentColumnIndex);
         columnIndexer.add(key);
         currentColumnIndex += 1;
@@ -92,20 +92,20 @@ public abstract class Joiner {
 
     int columnIndex = columnKeys.size();
     for (Object key : a.getColumnIndex().keySet()) {
-      Series sourceColumn = a.get(key);
+      Series sourceColumn = a.getColumn(key);
       if (columnKeys.contains(key)) {
         int targetColumn = indexColumn.get(key);
         appendColumnFromLeftIndexIgnoreNA(size, builder, targetColumn, sourceColumn);
       } else {
         columnIndexer.add(key);
-        builder.add(a.get(key).newBuilder(size));
+        builder.addColumn(a.getColumn(key).newBuilder(size));
         appendColumnFromLeftIndexIgnoreNA(size, builder, columnIndex, sourceColumn);
         columnIndex++;
       }
     }
 
     for (Object key : b.getColumnIndex().keySet()) {
-      Series sourceColumn = b.get(key);
+      Series sourceColumn = b.getColumn(key);
       if (columnKeys.contains(key)) {
         int targetColumn = indexColumn.get(key);
         appendColumnFromRightIndexIgnoreNA(size, builder, targetColumn, sourceColumn);
@@ -115,7 +115,7 @@ public abstract class Joiner {
           newKey = key.toString() + " (right)";
         }
         columnIndexer.add(newKey);
-        builder.add(b.get(key).newBuilder(size));
+        builder.addColumn(b.getColumn(key).newBuilder(size));
         appendColumnFromRightIndexIgnoreNA(size, builder, columnIndex, sourceColumn);
         columnIndex++;
       }

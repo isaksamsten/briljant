@@ -33,9 +33,16 @@ import org.briljantframework.data.series.Type;
 final class ImmutableIndexSeries extends AbstractSeries {
   private final Series delegate;
 
-  ImmutableIndexSeries(Series series, Index index) {
+  private ImmutableIndexSeries(Series series, Index index) {
     super(index, series.getOffset(), series.getShape(), series.getStride());
     this.delegate = Objects.requireNonNull(series);
+  }
+
+  static Series newInstance(Series series, Index index) {
+    if (series instanceof ImmutableIndexSeries && series.getIndex() == index) {
+      return series;
+    }
+    return new ImmutableIndexSeries(series, index);
   }
 
   @Override
@@ -75,7 +82,7 @@ final class ImmutableIndexSeries extends AbstractSeries {
 
   @Override
   public Series reindex(Index index) {
-    return new ImmutableIndexSeries(delegate, index);
+    return newInstance(delegate, index);
   }
 
   @Override
@@ -85,10 +92,11 @@ final class ImmutableIndexSeries extends AbstractSeries {
 
   @Override
   public Series asView(int offset, int[] shape, int[] stride) {
-    return new ImmutableIndexSeries(delegate.asView(offset, shape, stride), getIndex());
+    return newInstance(delegate.asView(offset, shape, stride), getIndex());
   }
 
-  @Override public Builder newCopyBuilder() {
+  @Override
+  public Builder newCopyBuilder() {
     return newBuilder().addAll(this);
   }
 

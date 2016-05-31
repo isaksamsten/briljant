@@ -49,7 +49,7 @@ public final class DiscreteFourierTransform {
   }
 
   public static ComplexArray fft(DoubleArray a) {
-    return fft(a.asComplexArray());
+    return fft(a.complexArray());
   }
 
   public static ComplexArray ifft(ComplexArray a) {

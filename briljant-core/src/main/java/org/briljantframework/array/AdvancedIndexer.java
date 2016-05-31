@@ -79,7 +79,7 @@ public final class AdvancedIndexer {
       }
 
       // Broadcast all advanced indicies to the same shape
-      advancedIndexes = Arrays.broadcastArrays(advancedIndexes);
+      advancedIndexes = Arrays.broadcastAll(advancedIndexes);
       int[] broadcastShape = advancedIndexes.get(0).getShape();
       IntList dims = new IntList();
       if (hasBasicIndexGap) {
@@ -156,7 +156,7 @@ public final class AdvancedIndexer {
   }
 
   private IntArray broadcastCompatible(IntArray i, int[] compatibleShape, int[] newShape) {
-    return Arrays.broadcast(i.reshape(compatibleShape), newShape);
+    return Arrays.broadcastTo(i.reshape(compatibleShape), newShape);
   }
 
   /**

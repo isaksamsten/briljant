@@ -83,11 +83,11 @@ public class MixedDataFrameTest extends DataFrameTest {
   @Test
   public void testBuilderAddColumn() throws Exception {
     DataFrame.Builder builder = getBuilder();
-    builder.add(Series.of((Object[]) "1 2 3 4 5".split(" ")));
-    builder.add(Series.of(1, 2, 3, 4, 5));
-    builder.add(Series.of(1.0, 2, 3, 4, 5));
-    builder.add(Series.of(Complex.I, Complex.I, Complex.I, Complex.I, Complex.I));
-    builder.add(Series.of(true, true, false, false, false));
+    builder.addColumn(Series.of((Object[]) "1 2 3 4 5".split(" ")));
+    builder.addColumn(Series.of(1, 2, 3, 4, 5));
+    builder.addColumn(Series.of(1.0, 2, 3, 4, 5));
+    builder.addColumn(Series.of(Complex.I, Complex.I, Complex.I, Complex.I, Complex.I));
+    builder.addColumn(Series.of(true, true, false, false, false));
 
     DataFrame build = builder.build();
     // assertEquals(Type.STRING, build.getTypeAt(0));
@@ -129,13 +129,13 @@ public class MixedDataFrameTest extends DataFrameTest {
   @Test
   public void testBuilderAddBuilder1() throws Exception {
     DataFrame.Builder builder = getBuilder();
-    builder.add(Types.STRING.newBuilder());
-    builder.add(Types.INT.newBuilder());
-    builder.add(Types.DOUBLE.newBuilder());
-    builder.add(Types.COMPLEX.newBuilder());
-    builder.add(Types.LOGICAL.newBuilder());
-    builder.add(Types.OBJECT.newBuilder());
-    builder.add(Types.from(LocalDate.class).newBuilder());
+    builder.addColumn(Types.STRING.newBuilder());
+    builder.addColumn(Types.INT.newBuilder());
+    builder.addColumn(Types.DOUBLE.newBuilder());
+    builder.addColumn(Types.COMPLEX.newBuilder());
+    builder.addColumn(Types.LOGICAL.newBuilder());
+    builder.addColumn(Types.OBJECT.newBuilder());
+    builder.addColumn(Types.from(LocalDate.class).newBuilder());
 
     builder.loc().set(0, 0, "hello");
     builder.loc().set(0, 1, 1);

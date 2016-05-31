@@ -27,7 +27,7 @@ import static org.briljantframework.data.dataframe.DataFrames.sortColumns;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.series.IntSeries;
 import org.briljantframework.data.series.Series;
-import org.briljantframework.data.series.Vectors;
+import org.briljantframework.data.series.SeriesUtils;
 import org.junit.Test;
 
 public class DataFramesTest {
@@ -68,7 +68,7 @@ public class DataFramesTest {
 
     Series of = Series.of(0.3, 0.33333, 0.299, 0.311);
     of.setIndex(Index.of("dsadsadsadsa", "dsadsadsadsadsadsa", "dsaa", "dsa"));
-    System.out.println(Vectors.toString(of, 2));
+    System.out.println(SeriesUtils.toString(of, 2));
 
     // Index of = Index.of(0.1, 0.3, 0.001, 0.22, 0.33);
     // Index.Builder index = of.newCopyBuilder();

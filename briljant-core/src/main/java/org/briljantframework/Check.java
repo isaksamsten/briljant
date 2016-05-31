@@ -90,7 +90,8 @@ public final class Check<T> {
    * @param a an array
    * @param b an array
    */
-  public static void dimension(BaseArray a, BaseArray b) throws MultiDimensionMismatchException {
+  public static void dimension(BaseArray<?> a, BaseArray<?> b)
+      throws MultiDimensionMismatchException {
     dimension(a.getShape(), b.getShape());
   }
 

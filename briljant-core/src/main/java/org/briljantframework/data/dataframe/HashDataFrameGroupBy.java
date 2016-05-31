@@ -130,7 +130,7 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
         if (dropColumnKey(columnKey)) {
           continue; // do not include the key used for grouping
         }
-        Series column = dataFrame.get(columnKey);
+        Series column = dataFrame.getColumn(columnKey);
         Series.Builder groupVector = column.newBuilder();
         for (int i = 0, size = group.getValue().size(); i < size; i++) {
           groupVector.addFromLocation(column, index.get(i));
@@ -161,7 +161,7 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
       IntArray index = group.getValue();
 
       for (Object columnKey : dataFrame.getColumnIndex().keySet()) {
-        Series column = dataFrame.get(columnKey);
+        Series column = dataFrame.getColumn(columnKey);
         if (dropColumnKey(columnKey) || !cls.isAssignableFrom(column.getType().getDataClass())) {
           continue;
         }
@@ -181,13 +181,13 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
   public DataFrame apply(UnaryOperator<Series> op) {
     DataFrame.Builder builder = dataFrame.newBuilder();
     for (Object dropKey : dropKeys) {
-      builder.set(dropKey, dataFrame.get(dropKey).newCopyBuilder());
+      builder.setColumn(dropKey, dataFrame.getColumn(dropKey).newCopyBuilder());
     }
     for (Object columnKey : dataFrame.getColumnIndex()) {
       if (dropColumnKey(columnKey)) {
         continue;
       }
-      Series column = dataFrame.get(columnKey);
+      Series column = dataFrame.getColumn(columnKey);
       Series.Builder columnBuilder = column.newBuilder();
       for (IntArray index : groups.values()) {
         Series selectedColumn = column.loc().get(index);
@@ -198,7 +198,7 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
           columnBuilder.loc().setFrom(id, transformed, i);
         }
       }
-      builder.set(columnKey, columnBuilder);
+      builder.setColumn(columnKey, columnBuilder);
     }
     DataFrame df = builder.build();
     df.setIndex(dataFrame.getIndex());

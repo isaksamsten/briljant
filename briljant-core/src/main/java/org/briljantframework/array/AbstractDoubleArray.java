@@ -27,8 +27,6 @@ import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 import java.util.stream.StreamSupport;
 
-import net.mintern.primitive.comparators.DoubleComparator;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.Precision;
@@ -37,6 +35,8 @@ import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.function.DoubleBiPredicate;
 import org.briljantframework.util.primitive.DoubleList;
 import org.briljantframework.util.sort.QuickSort;
+
+import net.mintern.primitive.comparators.DoubleComparator;
 
 /**
  * This class provides a skeletal implementation of a double array.
@@ -80,12 +80,12 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public DoubleArray asDoubleArray() {
+  public DoubleArray doubleArray() {
     return this;
   }
 
   @Override
-  public IntArray asIntArray() {
+  public IntArray intArray() {
     return new AsIntArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       protected int getElement(int index) {
@@ -105,7 +105,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public LongArray asLongArray() {
+  public LongArray longArray() {
     return new AsLongArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
 
       @Override
@@ -126,28 +126,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public BooleanArray asBooleanArray() {
-    return new AsBooleanArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
-
-      @Override
-      protected boolean getElement(int index) {
-        return AbstractDoubleArray.this.get(index) == 1;
-      }
-
-      @Override
-      protected void setElement(int index, boolean value) {
-        AbstractDoubleArray.this.setElement(index, value ? 1 : 0);
-      }
-
-      @Override
-      protected int elementSize() {
-        return AbstractDoubleArray.this.elementSize();
-      }
-    };
-  }
-
-  @Override
-  public ComplexArray asComplexArray() {
+  public ComplexArray complexArray() {
     return new AsComplexArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       public Complex getElement(int index) {
@@ -173,61 +152,6 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
       n.set(i, get(i));
     }
     return n;
-  }
-
-  @Override
-  public BooleanArray lt(DoubleArray other) {
-    Check.size(this, other);
-    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
-    int m = size();
-    for (int i = 0; i < m; i++) {
-      bits.set(i, get(i) < other.get(i));
-    }
-    return bits;
-  }
-
-  @Override
-  public BooleanArray gt(DoubleArray other) {
-    Check.size(this, other);
-    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
-    int m = size();
-    for (int i = 0; i < m; i++) {
-      bits.set(i, get(i) > other.get(i));
-    }
-    return bits;
-  }
-
-  @Override
-  public BooleanArray eq(DoubleArray other) {
-    Check.size(this, other);
-    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
-    int m = size();
-    for (int i = 0; i < m; i++) {
-      bits.set(i, get(i) == other.get(i));
-    }
-    return bits;
-  }
-
-  @Override
-  public BooleanArray lte(DoubleArray other) {
-    Check.size(this, other);
-    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
-    int m = size();
-    for (int i = 0; i < m; i++) {
-      bits.set(i, get(i) <= other.get(i));
-    }
-    return bits;
-  }
-
-  @Override
-  public BooleanArray gte(DoubleArray other) {
-    Check.size(this, other);
-    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
-    int m = size();
-    for (int i = 0; i < m; i++) {
-      bits.set(i, get(i) >= other.get(i));
-    }
-    return bits;
   }
 
   @Override
@@ -260,57 +184,64 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public void assign(DoubleArray array, DoubleUnaryOperator operator) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.size(this, array);
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.applyAsDouble(array.get(i)));
-    }
+  public void assign(DoubleArray other, DoubleUnaryOperator operator) {
+    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+      Check.size(a, b);
+      for (int i = 0, size = a.size(); i < size; i++) {
+        a.set(i, operator.applyAsDouble(b.get(i)));
+      }
+    });
   }
 
   @Override
-  public void assign(IntArray array, IntToDoubleFunction function) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.size(this, array);
-    for (int i = 0; i < size(); i++) {
-      set(i, function.applyAsDouble(array.get(i)));
-    }
+  public void assign(IntArray other, IntToDoubleFunction function) {
+    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+      Check.size(a, b);
+      for (int i = 0, size = a.size(); i < size; i++) {
+        a.set(i, function.applyAsDouble(b.get(i)));
+      }
+    });
   }
 
   @Override
-  public void assign(LongArray array, LongToDoubleFunction function) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.size(this, array);
-    for (int i = 0; i < size(); i++) {
-      set(i, function.applyAsDouble(array.get(i)));
-    }
+  public void assign(LongArray other, LongToDoubleFunction function) {
+    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+      Check.size(a, b);
+      for (int i = 0, size = a.size(); i < size; i++) {
+        a.set(i, function.applyAsDouble(b.get(i)));
+      }
+    });
   }
 
   @Override
-  public void assign(ComplexArray array, ToDoubleFunction<? super Complex> function) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.size(this, array);
-    for (int i = 0; i < size(); i++) {
-      set(i, function.applyAsDouble(array.get(i)));
-    }
+  public void assign(ComplexArray other, ToDoubleFunction<? super Complex> function) {
+    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+      Check.size(a, b);
+      for (int i = 0, size = a.size(); i < size; i++) {
+        a.set(i, function.applyAsDouble(b.get(i)));
+      }
+    });
   }
 
   @Override
-  public void combineAssign(DoubleArray array, DoubleBinaryOperator combine) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.size(this, array);
-    for (int i = 0; i < size(); i++) {
-      set(i, combine.applyAsDouble(get(i), array.get(i)));
-    }
+  public void combineAssign(DoubleArray other, DoubleBinaryOperator combine) {
+    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+      Check.size(a, b);
+      for (int i = 0, size = a.size(); i < size; i++) {
+        a.set(i, combine.applyAsDouble(a.get(i), b.get(i)));
+      }
+    });
   }
 
   @Override
-  public DoubleArray combine(DoubleArray array, DoubleBinaryOperator combine) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.size(this, array);
-    DoubleArray empty = newEmptyArray(getShape());
-    empty.combineAssign(array, combine);
-    return empty;
+  public DoubleArray combine(DoubleArray other, DoubleBinaryOperator combine) {
+    return org.briljantframework.array.Arrays.broadcast(this, other, (a, b) -> {
+      DoubleArray out = newEmptyArray(a.getShape());
+      for (int i = 0, size = a.size(); i < size; i++) {
+        out.set(i, combine.applyAsDouble(a.get(i), b.get(i)));
+      }
+      return out;
+    });
   }
 
   @Override
@@ -397,14 +328,14 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public BooleanArray where(DoubleArray array, DoubleBiPredicate predicate) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.dimension(this, array);
-    BooleanArray bits = getArrayBackend().getArrayFactory().newBooleanArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      bits.set(i, predicate.test(get(i), array.get(i)));
-    }
-    return bits;
+  public BooleanArray where(DoubleArray other, DoubleBiPredicate predicate) {
+    return org.briljantframework.array.Arrays.broadcast(this, other, (a, b) -> {
+      BooleanArray out = getArrayBackend().getArrayFactory().newBooleanArray(a.getShape());
+      for (int i = 0, size = a.size(); i < size; i++) {
+        out.set(i, predicate.test(a.get(i), b.get(i)));
+      }
+      return out;
+    });
   }
 
   @Override
@@ -534,165 +465,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
       protected int elementSize() {
         return AbstractDoubleArray.this.elementSize();
       }
-
-
     };
-  }
-
-  @Override
-  public DoubleArray times(DoubleArray other) {
-    return times(1, other);
-  }
-
-  @Override
-  public DoubleArray times(double alpha, DoubleArray other) {
-    other = ShapeUtils.broadcastIfSensible(this, other);
-    Check.size(this, other);
-    DoubleArray m = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      m.set(i, alpha * get(i) * other.get(i));
-    }
-    return m;
-  }
-
-  @Override
-  public DoubleArray times(double scalar) {
-    DoubleArray m = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      m.set(i, get(i) * scalar);
-    }
-    return m;
-  }
-
-  @Override
-  public void timesAssign(double scalar) {
-    apply(v -> v * scalar);
-  }
-
-  @Override
-  public void timesAssign(DoubleArray array) {
-    combineAssign(array, (a, b) -> a * b);
-  }
-
-  @Override
-  public DoubleArray plus(DoubleArray other) {
-    return plus(1, other);
-  }
-
-  @Override
-  public DoubleArray plus(double scalar) {
-    DoubleArray x = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      x.set(i, get(i) + scalar);
-    }
-    return x;
-  }
-
-  @Override
-  public void plusAssign(DoubleArray other) {
-    combineAssign(other, (a, b) -> a + b);
-  }
-
-  @Override
-  public void plusAssign(double scalar) {
-    apply(v -> v + scalar);
-  }
-
-  @Override
-  public DoubleArray plus(double alpha, DoubleArray other) {
-    other = ShapeUtils.broadcastIfSensible(this, other);
-    Check.size(this, other);
-    DoubleArray matrix = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      matrix.set(i, alpha * get(i) + other.get(i));
-    }
-    return matrix;
-  }
-
-  @Override
-  public DoubleArray minus(double scalar) {
-    return plus(-scalar);
-  }
-
-  @Override
-  public DoubleArray minus(DoubleArray other) {
-    return minus(1, other);
-  }
-
-  @Override
-  public void minusAssign(double scalar) {
-    apply(v -> v - scalar);
-  }
-
-  @Override
-  public void minusAssign(DoubleArray array) {
-    combineAssign(array, (a, b) -> a - b);
-  }
-
-  @Override
-  public DoubleArray minus(double alpha, DoubleArray other) {
-    other = ShapeUtils.broadcastIfSensible(this, other);
-    Check.size(this, other);
-    DoubleArray matrix = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      matrix.set(i, alpha * get(i) - other.get(i));
-    }
-    return matrix;
-  }
-
-  @Override
-  public DoubleArray reverseMinus(double scalar) {
-    DoubleArray array = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      array.set(i, scalar - get(i));
-    }
-
-    return array;
-  }
-
-  @Override
-  public void reverseMinusAssign(double scalar) {
-    apply(v -> scalar - v);
-  }
-
-  @Override
-  public DoubleArray div(double other) {
-    return times(1.0 / other);
-  }
-
-  @Override
-  public DoubleArray div(DoubleArray other) {
-    other = ShapeUtils.broadcastIfSensible(this, other);
-    Check.size(this, other);
-    DoubleArray matrix = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      matrix.set(i, get(i) / other.get(i));
-    }
-    return matrix;
-  }
-
-  @Override
-  public void divAssign(DoubleArray other) {
-    combineAssign(other, (x, y) -> x / y);
-  }
-
-  @Override
-  public void divAssign(double value) {
-    apply(v -> v / value);
-  }
-
-  @Override
-  public DoubleArray reverseDiv(double other) {
-    DoubleArray matrix = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      matrix.set(i, other / get(i));
-    }
-    return matrix;
-  }
-
-  @Override
-  public void reverseDivAssign(double other) {
-    apply(v -> other / v);
   }
 
   @Override
@@ -765,6 +538,65 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   @Override
   public Iterator<Double> iterator() {
     return asList().iterator();
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return size() == 0;
+  }
+
+  @Override
+  public boolean contains(Object o) {
+    return asList().contains(o);
+  }
+
+  @Override
+  public Object[] toArray() {
+    Object[] data = new Object[size()];
+    for (int i = 0; i < size(); i++) {
+      data[i] = get(i);
+    }
+    return data;
+  }
+
+  @Override
+  public <T> T[] toArray(T[] a) {
+    return asList().toArray(a);
+  }
+
+  @Override
+  public void clear() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean retainAll(Collection<?> c) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public final boolean add(Double integer) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public final boolean remove(Object o) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public final boolean containsAll(Collection<?> c) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public final boolean addAll(Collection<? extends Double> c) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public final boolean removeAll(Collection<?> c) {
+    throw new UnsupportedOperationException();
   }
 
   private class DoubleListView extends AbstractList<Double> {

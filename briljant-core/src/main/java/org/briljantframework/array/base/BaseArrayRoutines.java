@@ -39,12 +39,12 @@ import org.briljantframework.util.complex.MutableComplex;
 
 /**
  * Base array routines implemented in Java.
- * 
+ *
  * @author Isak Karlsson
  */
 public class BaseArrayRoutines implements ArrayRoutines {
 
-  protected static final String VECTOR_REQUIRED = "series required";
+  protected static final String VECTOR_REQUIRED = "1d-array required";
   private static final double LOG_2 = Math.log(2);
   private static final double EPS = 1e-10;
   protected final ArrayBackend backend;
@@ -218,25 +218,21 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public double sum(DoubleArray x) {
-    Check.argument(x.isVector(), VECTOR_REQUIRED);
     return x.reduce(0, Double::sum);
   }
 
   @Override
   public int sum(IntArray x) {
-    Check.argument(x.isVector(), VECTOR_REQUIRED);
     return x.reduce(0, Integer::sum);
   }
 
   @Override
   public long sum(LongArray x) {
-    Check.argument(x.isVector(), VECTOR_REQUIRED);
     return x.reduce(0, Long::sum);
   }
 
   @Override
   public Complex sum(ComplexArray x) {
-    Check.argument(x.isVector(), VECTOR_REQUIRED);
     MutableComplex sum = new MutableComplex(0);
     for (int i = 0; i < x.size(); i++) {
       sum.plus(x.get(i));
@@ -422,7 +418,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public void axpy(double alpha, DoubleArray x, DoubleArray y) {
-    Check.argument(x.isVector() && y.isVector(), VECTOR_REQUIRED);
+    // Check.argument(x.isVector() && y.isVector(), VECTOR_REQUIRED);
     Check.size(x, y);
     if (alpha == 0) {
       return;
@@ -512,6 +508,86 @@ public class BaseArrayRoutines implements ArrayRoutines {
       a.set(i, b, i);
       b.set(i, tmp, 0);
     }
+  }
+
+  @Override
+  public DoubleArray plus(DoubleArray a, DoubleArray b) {
+    return Arrays.broadcast(a, b, (x, y) -> {
+      DoubleArray out = x.newEmptyArray(x.getShape());
+      for (int i = 0, size = x.size(); i < size; i++) {
+        out.set(i, x.get(i) + y.get(i));
+      }
+      return out;
+    });
+  }
+
+  @Override
+  public void plusAssign(DoubleArray a, final DoubleArray out) {
+    Arrays.withBroadcast(out, a, (x, y) -> {
+      for (int i = 0, size = x.size(); i < size; i++) {
+        x.set(i, x.get(i) + y.get(i));
+      }
+    });
+  }
+
+  @Override
+  public DoubleArray minus(DoubleArray a, DoubleArray b) {
+    return Arrays.broadcast(a, b, (x, y) -> {
+      DoubleArray out = x.newEmptyArray(x.getShape());
+      for (int i = 0, size = x.size(); i < size; i++) {
+        out.set(i, x.get(i) - y.get(i));
+      }
+      return out;
+    });
+  }
+
+  @Override
+  public void minusAssign(DoubleArray a, DoubleArray out) {
+    Arrays.withBroadcast(out, a, (x, y) -> {
+      for (int i = 0, size = x.size(); i < size; i++) {
+        x.set(i, y.get(i) - x.get(i));
+      }
+    });
+  }
+
+  @Override
+  public DoubleArray times(DoubleArray a, DoubleArray b) {
+    return Arrays.broadcast(a, b, (x, y) -> {
+      DoubleArray out = x.newEmptyArray(x.getShape());
+      for (int i = 0, size = x.size(); i < size; i++) {
+        out.set(i, x.get(i) * y.get(i));
+      }
+      return out;
+    });
+  }
+
+  @Override
+  public void timesAssign(DoubleArray a, DoubleArray out) {
+    Arrays.withBroadcast(out, a, (x, y) -> {
+      for (int i = 0, size = x.size(); i < size; i++) {
+        x.set(i, x.get(i) * y.get(i));
+      }
+    });
+  }
+
+  @Override
+  public DoubleArray div(DoubleArray nominator, DoubleArray denominator) {
+    return Arrays.broadcast(nominator, denominator, (x, y) -> {
+      DoubleArray out = x.newEmptyArray(x.getShape());
+      for (int i = 0, size = x.size(); i < size; i++) {
+        out.set(i, x.get(i) / y.get(i));
+      }
+      return out;
+    });
+  }
+
+  @Override
+  public void divAssign(DoubleArray nominator, DoubleArray denominatorOut) {
+    Arrays.withBroadcast(denominatorOut, nominator, (x, y) -> {
+      for (int i = 0, size = x.size(); i < size; i++) {
+        x.set(i, y.get(i) / x.get(i));
+      }
+    });
   }
 
   @Override
@@ -714,7 +790,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public LongArray round(DoubleArray in) {
-    LongArray out = in.asLongArray().newEmptyArray(in.getShape());
+    LongArray out = in.longArray().newEmptyArray(in.getShape());
     out.assign(in, Math::round);
     return out;
   }

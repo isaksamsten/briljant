@@ -473,6 +473,65 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
     return asList().iterator();
   }
 
+  @Override
+  public boolean isEmpty() {
+    return size() == 0;
+  }
+
+  @Override
+  public boolean contains(Object o) {
+    return asList().contains(o);
+  }
+
+  @Override
+  public Object[] toArray() {
+    Object[] data = new Object[size()];
+    for (int i = 0; i < size(); i++) {
+      data[i] = get(i);
+    }
+    return data;
+  }
+
+  @Override
+  public <E> E[] toArray(E[] a) {
+    return asList().toArray(a);
+  }
+
+  @Override
+  public void clear() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean retainAll(Collection<?> c) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public final boolean add(T integer) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public final boolean remove(Object o) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public final boolean containsAll(Collection<?> c) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public final boolean addAll(Collection<? extends T> c) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public final boolean removeAll(Collection<?> c) {
+    throw new UnsupportedOperationException();
+  }
+
   protected abstract void setElement(int i, T value);
 
   protected abstract T getElement(int i);

@@ -99,16 +99,6 @@ class NetlibDoubleArray extends AbstractDoubleArray {
   }
 
   @Override
-  public void timesAssign(double scalar) {
-    getArrayBackend().getArrayRoutines().scal(scalar, this);
-  }
-
-  @Override
-  public void plusAssign(DoubleArray other) {
-    getArrayBackend().getArrayRoutines().axpy(1, other, this);
-  }
-
-  @Override
   protected double getElement(int i) {
     return data[i];
   }

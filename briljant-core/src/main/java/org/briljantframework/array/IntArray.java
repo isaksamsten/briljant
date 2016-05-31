@@ -20,22 +20,24 @@
  */
 package org.briljantframework.array;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.*;
 import java.util.stream.IntStream;
 
-import net.mintern.primitive.comparators.IntComparator;
-
 import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.IntSequence;
 import org.briljantframework.function.IntBiPredicate;
-import org.briljantframework.function.ToIntObjIntBiFunction;
+
+import net.mintern.primitive.comparators.IntComparator;
 
 /**
  * A n-dimensional array of integer values.
  * 
  * @author Isak Karlsson
  */
-public interface IntArray extends BaseArray<IntArray>, Iterable<Integer> {
+public interface IntArray
+    extends NumberArray, BaseArray<IntArray>, Collection<Integer>, IntSequence {
 
   static IntArray ones(int... shape) {
     IntArray array = zeros(shape);
@@ -110,7 +112,7 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer> {
 
   void assign(LongArray array, LongToIntFunction operator);
 
-  void assign(BooleanArray array, ToIntObjIntBiFunction<Boolean> function);
+  void assign(BooleanArray array, ToIntFunction<Boolean> function);
 
   void apply(IntUnaryOperator operator);
 
@@ -202,10 +204,6 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer> {
    */
   int get(int index);
 
-  void apply(int index, IntUnaryOperator operator);
-
-  void apply(int i, int j, IntUnaryOperator operator);
-
   IntStream intStream();
 
   List<Integer> asList();
@@ -225,15 +223,6 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer> {
    * @return a new matrix
    */
   IntArray times(IntArray other);
-
-  /**
-   * Element wise multiplication.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  IntArray times(int alpha, IntArray other);
 
   /**
    * Element wise <u>m</u>ultiplication
@@ -264,17 +253,6 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer> {
   void plusAssign(int scalar);
 
   /**
-   * Element wise addition. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.times(alpha).plus(other.times(beta))}, but in one
-   * pass.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  IntArray plus(int alpha, IntArray other);
-
-  /**
    * Element wise subtraction. {@code this - other}.
    *
    * @param other the other matrix
@@ -289,17 +267,6 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer> {
    * @return r r
    */
   IntArray minus(int scalar);
-
-  /**
-   * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.times(alpha).minus(other.times(beta))}, but in one
-   * pass.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  IntArray minus(int alpha, IntArray other);
 
   void minusAssign(IntArray other);
 
@@ -359,25 +326,18 @@ public interface IntArray extends BaseArray<IntArray>, Iterable<Integer> {
     return asArray();
   }
 
-  DoubleArray asDoubleArray();
+  DoubleArray doubleArray();
 
-  IntArray asIntArray();
+  IntArray intArray();
 
-  LongArray asLongArray();
+  LongArray longArray();
 
-  BooleanArray asBooleanArray();
+  ComplexArray complexArray();
 
-  ComplexArray asComplexArray();
-
-  BooleanArray lt(IntArray other);
-
-  BooleanArray gt(IntArray other);
-
-  BooleanArray eq(IntArray other);
-
-  BooleanArray lte(IntArray other);
-
-  BooleanArray gte(IntArray other);
+  @Override
+  default int getInt(int i) {
+    return get(i);
+  }
 
   int[] data();
 }

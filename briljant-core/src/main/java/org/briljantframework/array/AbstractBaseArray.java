@@ -21,7 +21,6 @@
 package org.briljantframework.array;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -44,8 +43,7 @@ import org.briljantframework.util.sort.Swappable;
  * @see AbstractDoubleArray
  * @see AbstractComplexArray
  */
-public abstract class AbstractBaseArray<E extends BaseArray<E>>
-    implements BaseArray<E>, Swappable {
+public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseArray<E>, Swappable {
 
   protected static final String INVALID_DIMENSION = "Dimension out of bounds (%s < %s)";
   protected static final String INVALID_VECTOR = "Series index out of bounds (%s < %s)";
@@ -113,41 +111,41 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>>
     this.size = ShapeUtils.size(shape);
     this.offset = offset;
   }
-//
-//  @Override
-//  public boolean contains(Object o) {
-//    for (T v : this) {
-//      if (Objects.equals(v, o)) {
-//        return true;
-//      }
-//    }
-//    return false;
-//  }
-//
-//  @Override
-//  public boolean containsAll(Collection<?> c) {
-//    for (Object o : c) {
-//      if (!contains(o)) {
-//        return false;
-//      }
-//    }
-//    return true;
-//  }
-//
-//  @Override
-//  public Object[] toArray() {
-//    throw new UnsupportedOperationException();
-//  }
-//
-//  @Override
-//  public <T1> T1[] toArray(T1[] a) {
-//    throw new UnsupportedOperationException();
-//  }
-//
-//  @Override
-//  public boolean isEmpty() {
-//    return size() == 0;
-//  }
+  //
+  // @Override
+  // public boolean contains(Object o) {
+  // for (T v : this) {
+  // if (Objects.equals(v, o)) {
+  // return true;
+  // }
+  // }
+  // return false;
+  // }
+  //
+  // @Override
+  // public boolean containsAll(Collection<?> c) {
+  // for (Object o : c) {
+  // if (!contains(o)) {
+  // return false;
+  // }
+  // }
+  // return true;
+  // }
+  //
+  // @Override
+  // public Object[] toArray() {
+  // throw new UnsupportedOperationException();
+  // }
+  //
+  // @Override
+  // public <T1> T1[] toArray(T1[] a) {
+  // throw new UnsupportedOperationException();
+  // }
+  //
+  // @Override
+  // public boolean isEmpty() {
+  // return size() == 0;
+  // }
 
   /**
    * Returns the array factory
@@ -186,11 +184,12 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>>
 
   @Override
   public void assign(E o) {
-    o = ShapeUtils.broadcastIfSensible(this, o);
-    Check.size(this, o);
-    for (int i = 0, size = size(); i < size; i++) {
-      set(i, o, i);
-    }
+    org.briljantframework.array.Arrays.withBroadcast(this, o, (x, y) -> {
+      Check.size(x, y);
+      for (int i = 0, size = x.size(); i < size; i++) {
+        x.set(i, y, i);
+      }
+    });
   }
 
   @Override
@@ -454,7 +453,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>>
       getView(ranges).assign(value);
     } else {
       // broadcast the value to the indexer shape
-      value = org.briljantframework.array.Arrays.broadcast(value, indexer.getShape());
+      value = org.briljantframework.array.Arrays.broadcastTo(value, indexer.getShape());
       int size = value.size();
       int dims = dims();
       int[] toIndex = new int[dims];

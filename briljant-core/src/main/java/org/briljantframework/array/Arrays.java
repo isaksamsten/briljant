@@ -25,15 +25,10 @@ import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
 
-import net.mintern.primitive.comparators.DoubleComparator;
-import net.mintern.primitive.comparators.IntComparator;
-import net.mintern.primitive.comparators.LongComparator;
-
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.distribution.IntegerDistribution;
 import org.apache.commons.math3.distribution.RealDistribution;
 import org.apache.commons.math3.distribution.UniformIntegerDistribution;
-import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.apache.commons.math3.exception.NotStrictlyPositiveException;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayBackend;
@@ -46,9 +41,12 @@ import org.briljantframework.exceptions.MultiDimensionMismatchException;
 import org.briljantframework.function.DoubleBiPredicate;
 import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.function.LongBiPredicate;
-import org.briljantframework.function.ToIntObjIntBiFunction;
 import org.briljantframework.util.sort.IndexComparator;
 import org.briljantframework.util.sort.QuickSort;
+
+import net.mintern.primitive.comparators.DoubleComparator;
+import net.mintern.primitive.comparators.IntComparator;
+import net.mintern.primitive.comparators.LongComparator;
 
 /**
  * Utilities for multidimensional arrays. The arrays produces depend on the selected backend.
@@ -98,7 +96,6 @@ public final class Arrays {
    */
   public static final LinearAlgebraRoutines linalg;
 
-  private static final RealDistribution uniformDistribution = new UniformRealDistribution(-1, 1);
   private static final ArrayBackend ARRAY_BACKEND;
   private static final ArrayFactory ARRAY_FACTORY;
   private static final ArrayRoutines ARRAY_ROUTINES;
@@ -200,7 +197,7 @@ public final class Arrays {
       double d = array.get(i);
       int bin = (int) ((d - min) / binSize);
       if (bin >= 0 && bin < bins) {
-        result.apply(bin, v -> v + 1);
+        result.set(bin, result.get(bin) + 1);
       }
     }
     return result;
@@ -1495,12 +1492,12 @@ public final class Arrays {
    * @param arrays the arrays to broadcast
    * @param <E> the array type
    * @return a list of broadcasted array views
-   * @see #broadcastArrays(List)
+   * @see #broadcastAll(List)
    */
   @SafeVarargs
   @SuppressWarnings("varargs")
-  public static <E extends BaseArray<E>> List<E> broadcastArrays(E... arrays) {
-    return broadcastArrays(java.util.Arrays.asList(arrays));
+  public static <E extends BaseArray<E>> List<E> broadcastAll(E... arrays) {
+    return broadcastAll(java.util.Arrays.asList(arrays));
   }
 
   /**
@@ -1510,30 +1507,12 @@ public final class Arrays {
    * @param <E> the array type
    * @return a list of broadcasted array views
    */
-  public static <E extends BaseArray<E>> List<E> broadcastArrays(List<? extends E> arrays) {
+  public static <E extends BaseArray<E>> List<E> broadcastAll(List<? extends E> arrays) {
     Check.argument(!arrays.isEmpty(), "no arrays given");
     if (arrays.size() == 1) {
       return new ArrayList<>(arrays);
     }
-    int dims = arrays.stream().mapToInt(BaseArray::dims).max().getAsInt();
-    int[] shape = new int[dims];
-    java.util.Arrays.fill(shape, 1);
-    for (E array : arrays) {
-      for (int i = 0; i < shape.length; i++) {
-        int shapeIndex = shape.length - 1 - i;
-        int arrayIndex = array.dims() - 1 - i;
-        if (i < array.dims()) {
-          if (shape[shapeIndex] != array.size(arrayIndex)
-              && (shape[shapeIndex] != 1 && array.size(arrayIndex) != 1)) {
-            throw new IllegalArgumentException("arrays cannot be broadcast to the same shape");
-          }
-          shape[shapeIndex] = Math.max(shape[shapeIndex], array.size(arrayIndex));
-        } else {
-          shape[shapeIndex] = Math.max(shape[shapeIndex], 1);
-        }
-      }
-    }
-
+    int[] shape = ShapeUtils.findCombinedBroadcastShape(arrays);
     return new BroadcastArrayList<>(arrays, shape);
   }
 
@@ -1586,7 +1565,7 @@ public final class Arrays {
    * @param <E> the array type
    * @return a broadcasted view
    */
-  public static <E extends BaseArray<E>> E broadcast(E x, int... newShape) {
+  public static <E extends BaseArray<? extends E>> E broadcastTo(E x, int... newShape) {
     Check.argument(newShape.length > 0 && x.dims() <= newShape.length, "to few new dimensions");
     int[] oldShape = x.getShape();
     Check.argument(ShapeUtils.isBroadcastCompatible(oldShape, newShape),
@@ -1597,10 +1576,42 @@ public final class Arrays {
     if (java.util.Arrays.equals(oldShape, newShape)) {
       return x.asView(oldShape, oldStrides);
     } else {
-      newShape = ShapeUtils.broadcast(oldShape, newShape);
+      newShape = ShapeUtils.findBroadcastShape(oldShape, newShape);
       int[] newStrides = StrideUtils.broadcastStrides(oldStrides, oldShape, newShape);
       return x.asView(newShape, newStrides);
     }
+  }
+
+  /**
+   * Broadcasts (if possible) the two arrays to the same size and apply the specified function.
+   *
+   * @param <T> the type of the first array
+   * @param <U> the type of the second array
+   * @param <R> the return type
+   * @param a the first array
+   * @param b the second array
+   * @param function the function
+   * @return the function applied to the arrays
+   */
+  public static <T extends BaseArray<? extends T>, U extends BaseArray<? extends U>, R> R broadcast(
+      T a, U b, BiFunction<? super T, ? super U, ? extends R> function) {
+    int[] combinedShape = ShapeUtils.findCombinedBroadcastShape(java.util.Arrays.asList(a, b));
+    return function.apply(Arrays.broadcastTo(a, combinedShape),
+        Arrays.broadcastTo(b, combinedShape));
+  }
+
+  /**
+   * Broadcast the second array argument to the shape of the first, applying the specified consumer.
+   * 
+   * @param <T> the type of the first array
+   * @param <U> the type of the second array
+   * @param a the first array
+   * @param b the second array broadcasted to the shape of the first
+   * @param consumer the consumer
+   */
+  public static <T extends BaseArray<? extends T>, U extends BaseArray<? extends U>> void withBroadcast(
+      T a, U b, BiConsumer<? super T, ? super U> consumer) {
+    consumer.accept(a, ShapeUtils.broadcastToShapeOf(b, a));
   }
 
   /**
@@ -1612,14 +1623,14 @@ public final class Arrays {
    * @param <E> the array type
    * @return a new array
    */
-  public static <E extends BaseArray<E>> E swapDimension(E array, int a, int b) {
-    int[] dims = new int[array.dims()];
-    for (int i = 0; i < dims.length; i++) {
-      dims[i] = i;
+  public static <E extends BaseArray<? extends E>> E swapDimension(E array, int a, int b) {
+    int[] permute = new int[array.dims()];
+    for (int i = 0; i < permute.length; i++) {
+      permute[i] = i;
     }
-    dims[a] = b;
-    dims[b] = a;
-    return transpose(array, dims);
+    permute[a] = b;
+    permute[b] = a;
+    return transpose(array, permute);
   }
 
   /**
@@ -1630,15 +1641,7 @@ public final class Arrays {
    * @param <E> the array type
    * @return a view
    */
-  private static <E extends BaseArray<E>> E transpose(E array, int[] permute) {
-    // If no permutation is given, just transpose the array
-    if (permute == null) {
-      permute = new int[array.dims()];
-      for (int i = 0; i < permute.length; i++) {
-        permute[i] = permute.length - 1 - i;
-      }
-    }
-
+  public static <E extends BaseArray<? extends E>> E transpose(E array, int[] permute) {
     Check.argument(array.dims() == permute.length, "dimension don't match array");
     int n = permute.length;
 
@@ -1668,6 +1671,14 @@ public final class Arrays {
     }
 
     return array.asView(array.getOffset(), shape, stride);
+  }
+
+  public static <E extends BaseArray<? extends E>> E transpose(E array) {
+    int[] permute = new int[array.dims()];
+    for (int i = 0; i < permute.length; i++) {
+      permute[i] = permute.length - 1 - i;
+    }
+    return transpose(array, permute);
   }
 
   /**
@@ -2119,6 +2130,42 @@ public final class Arrays {
     return out;
   }
 
+  public static DoubleArray div(DoubleArray nominator, DoubleArray denominator) {
+    return ARRAY_ROUTINES.div(nominator, denominator);
+  }
+
+  public static void minusAssign(DoubleArray a, DoubleArray out) {
+    ARRAY_ROUTINES.minusAssign(a, out);
+  }
+
+  public static DoubleArray minus(DoubleArray a, DoubleArray b) {
+    return ARRAY_ROUTINES.minus(a, b);
+  }
+
+  public static void plusAssign(DoubleArray a, DoubleArray out) {
+    ARRAY_ROUTINES.plusAssign(a, out);
+  }
+
+  public static void timesAssign(DoubleArray a, DoubleArray out) {
+    ARRAY_ROUTINES.timesAssign(a, out);
+  }
+
+  public static DoubleArray plus(DoubleArray a, DoubleArray b) {
+    return ARRAY_ROUTINES.plus(a, b);
+  }
+
+  public static void divAssign(DoubleArray nominator, DoubleArray denominatorOut) {
+    ARRAY_ROUTINES.divAssign(nominator, denominatorOut);
+  }
+
+  public static DoubleArray times(DoubleArray a, DoubleArray b) {
+    return ARRAY_ROUTINES.times(a, b);
+  }
+
+  public static DoubleArray times(DoubleArray a, double b) {
+    return times(a, doubleVector(b));
+  }
+
   /**
    * Dot product of two 2d-arrays. It is equivalent to matrix multiplication.
    *
@@ -2438,22 +2485,6 @@ public final class Arrays {
     }
   }
 
-  /**
-   * Selects the values in {@code a} according to the values in {@code where}, replacing those not
-   * selected with {@code replace}.
-   *
-   * @param a the source matrix
-   * @param where the selection matrix; same shape as {@code a}
-   * @param replace the replacement value
-   * @return a new matrix; the returned matrix has the same type as {@code a}.
-   */
-  public static IntArray select(IntArray a, BooleanArray where, int replace) {
-    Check.dimension(a, where);
-    IntArray copy = a.copy();
-    copy.assign(where, (b, i) -> b ? replace : i);
-    return copy;
-  }
-
   public static int arg(Predicate<Boolean> predicate, BooleanArray array) {
     for (int i = 0; i < array.size(); i++) {
       if (predicate.test(array.get(i))) {
@@ -2564,14 +2595,29 @@ public final class Arrays {
    */
   public static <E extends BaseArray<E>> E where(BooleanArray condition, E x, E y) {
     int[] shape = condition.getShape();
-    x = broadcast(x, shape); // performs error checking
-    y = broadcast(y, shape);
+    x = broadcastTo(x, shape); // performs error checking
+    y = broadcastTo(y, shape);
     int size = x.size();
     E selected = x.newEmptyArray(shape);
     for (int i = 0; i < size; i++) {
       selected.set(i, condition.get(i) ? x : y, i);
     }
     return selected;
+  }
+
+  public static <E extends BaseArray<E>> void set(E in, BooleanArray mask, E from) {
+    Check.argument(from.dims() == 1, "value-array must be 1d");
+    Check.dimension(in, mask);
+    int sum = sum(mask);
+    if (sum != from.size()) {
+      from = broadcastTo(from, sum);
+    }
+    int fromIndex = 0;
+    for (int i = 0; i < in.size(); i++) {
+      if (mask.get(i)) {
+        in.set(i, from, fromIndex++);
+      }
+    }
   }
 
   public static DoubleArray select(DoubleBiPredicate predicate, DoubleArray x, DoubleArray y) {
@@ -3088,13 +3134,73 @@ public final class Arrays {
       return array.spliterator();
     }
 
+    @Override
+    public boolean isEmpty() {
+      return size() == 0;
+    }
+
+    @Override
+    public boolean contains(Object o) {
+      return asList().contains(o);
+    }
+
+    @Override
+    public Object[] toArray() {
+      Object[] data = new Object[size()];
+      for (int i = 0; i < size(); i++) {
+        data[i] = get(i);
+      }
+      return data;
+    }
+
+    @Override
+    public <T> T[] toArray(T[] a) {
+      return asList().toArray(a);
+    }
+
+    @Override
+    public void clear() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public final boolean add(T integer) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public final boolean remove(Object o) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public final boolean containsAll(Collection<?> c) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public final boolean addAll(Collection<? extends T> c) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public final boolean removeAll(Collection<?> c) {
+      throw new UnsupportedOperationException();
+    }
+
     UnmodifiableArray(Array<T> array) {
       this.array = array;
     }
   }
 
 
-  private static class UnmodifiableDoubleArray implements DoubleArray {
+  private static final class UnmodifiableDoubleArray extends AbstractCollection<Double>
+      implements DoubleArray {
     private final DoubleArray array;
 
     @Override
@@ -3288,128 +3394,8 @@ public final class Arrays {
     }
 
     @Override
-    public DoubleArray times(DoubleArray other) {
-      return array.times(other);
-    }
-
-    @Override
-    public DoubleArray times(double alpha, DoubleArray other) {
-      return array.times(alpha, other);
-    }
-
-    @Override
-    public DoubleArray times(double scalar) {
-      return array.times(scalar);
-    }
-
-    @Override
-    public void timesAssign(double scalar) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void timesAssign(DoubleArray array) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public DoubleArray plus(DoubleArray other) {
-      return array.plus(other);
-    }
-
-    @Override
-    public DoubleArray plus(double scalar) {
-      return array.plus(scalar);
-    }
-
-    @Override
-    public void plusAssign(DoubleArray other) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void plusAssign(double scalar) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public DoubleArray plus(double alpha, DoubleArray other) {
-      return array.plus(alpha, other);
-    }
-
-    @Override
-    public DoubleArray minus(double scalar) {
-      return array.minus(scalar);
-    }
-
-    @Override
-    public DoubleArray minus(DoubleArray other) {
-      return array.minus(other);
-    }
-
-    @Override
-    public void minusAssign(double scalar) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void minusAssign(DoubleArray scalar) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public DoubleArray minus(double alpha, DoubleArray other) {
-      return array.minus(alpha, other);
-    }
-
-    @Override
-    public DoubleArray reverseMinus(double scalar) {
-      return array.reverseMinus(scalar);
-    }
-
-    @Override
-    public void reverseMinusAssign(double scalar) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public DoubleArray div(double other) {
-      return array.div(other);
-    }
-
-    @Override
-    public DoubleArray div(DoubleArray other) {
-      return array.div(other);
-    }
-
-    @Override
-    public void divAssign(DoubleArray other) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void divAssign(double value) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public DoubleArray reverseDiv(double other) {
-      return array.reverseDiv(other);
-    }
-
-    @Override
-    public void reverseDivAssign(double other) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public DoubleArray negate() {
       return array.negate();
-    }
-
-    @Override
-    public BooleanArray gt(double v) {
-      return array.gt(v);
     }
 
     @Override
@@ -3659,28 +3645,23 @@ public final class Arrays {
     }
 
     @Override
-    public DoubleArray asDoubleArray() {
+    public DoubleArray doubleArray() {
       return this;
     }
 
     @Override
-    public IntArray asIntArray() {
-      return unmodifiableArray(array.asIntArray());
+    public IntArray intArray() {
+      return unmodifiableArray(array.intArray());
     }
 
     @Override
-    public LongArray asLongArray() {
-      return unmodifiableArray(array.asLongArray());
+    public LongArray longArray() {
+      return unmodifiableArray(array.longArray());
     }
 
     @Override
-    public BooleanArray asBooleanArray() {
-      return unmodifiableArray(array.asBooleanArray());
-    }
-
-    @Override
-    public ComplexArray asComplexArray() {
-      return unmodifiableArray(array.asComplexArray());
+    public ComplexArray complexArray() {
+      return unmodifiableArray(array.complexArray());
     }
 
     @Override
@@ -3696,31 +3677,6 @@ public final class Arrays {
     @Override
     public DoubleArray copy() {
       return array.copy();
-    }
-
-    @Override
-    public BooleanArray lt(DoubleArray other) {
-      return array.lt(other);
-    }
-
-    @Override
-    public BooleanArray gt(DoubleArray other) {
-      return array.gt(other);
-    }
-
-    @Override
-    public BooleanArray eq(DoubleArray other) {
-      return array.eq(other);
-    }
-
-    @Override
-    public BooleanArray lte(DoubleArray other) {
-      return array.lte(other);
-    }
-
-    @Override
-    public BooleanArray gte(DoubleArray other) {
-      return array.gte(other);
     }
 
     @Override
@@ -3748,7 +3704,8 @@ public final class Arrays {
     }
   }
 
-  private static class UnmodifiableIntArray implements IntArray {
+  private static class UnmodifiableIntArray extends AbstractCollection<Integer>
+      implements IntArray {
     private final IntArray array;
 
     UnmodifiableIntArray(IntArray array) {
@@ -3811,7 +3768,7 @@ public final class Arrays {
     }
 
     @Override
-    public void assign(BooleanArray array, ToIntObjIntBiFunction<Boolean> function) {
+    public void assign(BooleanArray array, ToIntFunction<Boolean> function) {
       throw new UnsupportedOperationException();
     }
 
@@ -3911,16 +3868,6 @@ public final class Arrays {
     }
 
     @Override
-    public void apply(int index, IntUnaryOperator operator) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void apply(int i, int j, IntUnaryOperator operator) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public IntStream intStream() {
       return array.intStream();
     }
@@ -3951,11 +3898,6 @@ public final class Arrays {
     }
 
     @Override
-    public IntArray times(int alpha, IntArray other) {
-      return array.times(alpha, other);
-    }
-
-    @Override
     public IntArray times(int scalar) {
       return array.times(scalar);
     }
@@ -3981,11 +3923,6 @@ public final class Arrays {
     }
 
     @Override
-    public IntArray plus(int alpha, IntArray other) {
-      return array.plus(alpha, other);
-    }
-
-    @Override
     public IntArray minus(IntArray other) {
       return array.minus(other);
     }
@@ -3993,11 +3930,6 @@ public final class Arrays {
     @Override
     public IntArray minus(int scalar) {
       return array.minus(scalar);
-    }
-
-    @Override
-    public IntArray minus(int alpha, IntArray other) {
-      return array.minus(alpha, other);
     }
 
     @Override
@@ -4292,28 +4224,23 @@ public final class Arrays {
     }
 
     @Override
-    public DoubleArray asDoubleArray() {
-      return unmodifiableArray(array.asDoubleArray());
+    public DoubleArray doubleArray() {
+      return unmodifiableArray(array.doubleArray());
     }
 
     @Override
-    public IntArray asIntArray() {
-      return unmodifiableArray(array.asIntArray());
+    public IntArray intArray() {
+      return unmodifiableArray(array.intArray());
     }
 
     @Override
-    public LongArray asLongArray() {
-      return unmodifiableArray(array.asLongArray());
+    public LongArray longArray() {
+      return unmodifiableArray(array.longArray());
     }
 
     @Override
-    public BooleanArray asBooleanArray() {
-      return unmodifiableArray(array.asBooleanArray());
-    }
-
-    @Override
-    public ComplexArray asComplexArray() {
-      return unmodifiableArray(array.asComplexArray());
+    public ComplexArray complexArray() {
+      return unmodifiableArray(array.complexArray());
     }
 
     @Override
@@ -4329,31 +4256,6 @@ public final class Arrays {
     @Override
     public IntArray copy() {
       return unmodifiableArray(array.copy());
-    }
-
-    @Override
-    public BooleanArray lt(IntArray other) {
-      return array.lt(other);
-    }
-
-    @Override
-    public BooleanArray gt(IntArray other) {
-      return array.gt(other);
-    }
-
-    @Override
-    public BooleanArray eq(IntArray other) {
-      return array.eq(other);
-    }
-
-    @Override
-    public BooleanArray lte(IntArray other) {
-      return array.lte(other);
-    }
-
-    @Override
-    public BooleanArray gte(IntArray other) {
-      return array.gte(other);
     }
 
     @Override
@@ -4872,28 +4774,23 @@ public final class Arrays {
     }
 
     @Override
-    public DoubleArray asDoubleArray() {
-      return unmodifiableArray(array.asDoubleArray());
+    public DoubleArray doubleArray() {
+      return unmodifiableArray(array.doubleArray());
     }
 
     @Override
-    public IntArray asIntArray() {
-      return unmodifiableArray(array.asIntArray());
+    public IntArray intArray() {
+      return unmodifiableArray(array.intArray());
     }
 
     @Override
-    public LongArray asLongArray() {
-      return unmodifiableArray(array.asLongArray());
+    public LongArray longArray() {
+      return unmodifiableArray(array.longArray());
     }
 
     @Override
-    public BooleanArray asBooleanArray() {
-      return unmodifiableArray(array.asBooleanArray());
-    }
-
-    @Override
-    public ComplexArray asComplexArray() {
-      return unmodifiableArray(array.asComplexArray());
+    public ComplexArray complexArray() {
+      return unmodifiableArray(array.complexArray());
     }
 
     @Override
@@ -4927,13 +4824,13 @@ public final class Arrays {
     }
 
     @Override
-    public BooleanArray lte(LongArray other) {
-      return array.lte(other);
+    public BooleanArray leq(LongArray other) {
+      return array.leq(other);
     }
 
     @Override
-    public BooleanArray gte(LongArray other) {
-      return array.gte(other);
+    public BooleanArray geq(LongArray other) {
+      return array.geq(other);
     }
 
     @Override
@@ -5479,28 +5376,23 @@ public final class Arrays {
     }
 
     @Override
-    public DoubleArray asDoubleArray() {
-      return unmodifiableArray(array.asDoubleArray());
+    public DoubleArray doubleArray() {
+      return unmodifiableArray(array.doubleArray());
     }
 
     @Override
-    public IntArray asIntArray() {
-      return unmodifiableArray(array.asIntArray());
+    public IntArray intArray() {
+      return unmodifiableArray(array.intArray());
     }
 
     @Override
-    public LongArray asLongArray() {
-      return unmodifiableArray(array.asLongArray());
+    public LongArray longArray() {
+      return unmodifiableArray(array.longArray());
     }
 
     @Override
-    public BooleanArray asBooleanArray() {
-      return unmodifiableArray(array.asBooleanArray());
-    }
-
-    @Override
-    public ComplexArray asComplexArray() {
-      return unmodifiableArray(array.asComplexArray());
+    public ComplexArray complexArray() {
+      return unmodifiableArray(array.complexArray());
     }
 
     @Override

@@ -44,7 +44,7 @@ import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.NaturalOrdering;
 import org.briljantframework.data.series.Series;
 import org.briljantframework.data.series.Types;
-import org.briljantframework.data.series.Vectors;
+import org.briljantframework.data.series.SeriesUtils;
 
 /**
  * Utility methods for handling {@code DataFrame}s
@@ -132,7 +132,7 @@ public final class DataFrames {
   }
 
   public static DataFrame sortBy(DataFrame df, Object key, SortOrder order) {
-    org.briljantframework.data.series.LocationGetter loc = df.get(key).loc();
+    org.briljantframework.data.series.LocationGetter loc = df.getColumn(key).loc();
     boolean asc = order == SortOrder.ASC;
     IntComparator cmp = asc ? loc::compare : (a, b) -> loc.compare(b, a);
     Index.Builder index = df.getIndex().newCopyBuilder();
@@ -142,7 +142,7 @@ public final class DataFrames {
 
   public static <T> DataFrame sortBy(DataFrame df, Object key, Class<? extends T> cls,
       Comparator<? super T> cmp) {
-    org.briljantframework.data.series.LocationGetter loc = df.get(key).loc();
+    org.briljantframework.data.series.LocationGetter loc = df.getColumn(key).loc();
     Index.Builder index = df.getIndex().newCopyBuilder();
     index.sortIterationOrder((a, b) -> cmp.compare(loc.get(cls, a), loc.get(cls, b)));
     return df.reindex(df.getColumnIndex(), index.build());
@@ -192,7 +192,7 @@ public final class DataFrames {
         .newColumn("mode", Types.OBJECT);
 
     for (Object columnKey : df.getColumnIndex().keySet()) {
-      Series column = df.get(columnKey);
+      Series column = df.getColumn(columnKey);
       if (Is.numeric(column)) {
         StatisticalSummary summary = column.collect(Number.class, Collectors.statisticalSummary());
         builder.set(columnKey, "mean", summary.getMean())
@@ -206,11 +206,11 @@ public final class DataFrames {
   }
 
   public static Series sum(DataFrame df) {
-    return df.reduce(Vectors::sum);
+    return df.reduce(SeriesUtils::sum);
   }
 
   public static Series mean(DataFrame df) {
-    return df.reduce(Vectors::mean);
+    return df.reduce(SeriesUtils::mean);
   }
 
   public static Series min(DataFrame df) {
@@ -416,7 +416,7 @@ public final class DataFrames {
   }
 
   private static int[] longestColumnValues(DataFrame df, int max, Index columnIndex, int padding) {
-    return columnIndex.keySet().stream().map(df::get).mapToInt(v -> {
+    return columnIndex.keySet().stream().map(df::getColumn).mapToInt(v -> {
       int longest = df.size(0) > max * 2 ? 3 : 0;
       for (int i = 0; i < df.size(0); i++) {
         Object recordKey = df.getIndex().get(i);

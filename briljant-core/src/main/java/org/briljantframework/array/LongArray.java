@@ -24,17 +24,17 @@ import java.util.List;
 import java.util.function.*;
 import java.util.stream.LongStream;
 
-import net.mintern.primitive.comparators.LongComparator;
-
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.function.LongBiPredicate;
+
+import net.mintern.primitive.comparators.LongComparator;
 
 /**
  * A n-dimensional array of long values.
  * 
  * @author Isak Karlsson
  */
-public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
+public interface LongArray extends NumberArray, BaseArray<LongArray>, Iterable<Long> {
 
   static LongArray ones(int... shape) {
     LongArray array = zeros(shape);
@@ -315,15 +315,13 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
     return asArray();
   }
 
-  DoubleArray asDoubleArray();
+  DoubleArray doubleArray();
 
-  IntArray asIntArray();
+  IntArray intArray();
 
-  LongArray asLongArray();
+  LongArray longArray();
 
-  BooleanArray asBooleanArray();
-
-  ComplexArray asComplexArray();
+  ComplexArray complexArray();
 
   BooleanArray lt(LongArray other);
 
@@ -331,9 +329,9 @@ public interface LongArray extends BaseArray<LongArray>, Iterable<Long> {
 
   BooleanArray eq(LongArray other);
 
-  BooleanArray lte(LongArray other);
+  BooleanArray leq(LongArray other);
 
-  BooleanArray gte(LongArray other);
+  BooleanArray geq(LongArray other);
 
   long[] data();
 }

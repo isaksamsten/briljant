@@ -44,9 +44,9 @@ import org.briljantframework.util.sort.QuickSort;
  *
  * @author Isak Karlsson
  */
-public final class Vectors {
+public final class SeriesUtils {
 
-  private Vectors() {}
+  private SeriesUtils() {}
 
   public static Series remove(Series series, Object key) {
     return series.newCopyBuilder().remove(key).build();

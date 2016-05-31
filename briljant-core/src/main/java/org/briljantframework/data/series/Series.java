@@ -133,7 +133,7 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
    * }
    * </pre>
    */
-  static Series generate(Supplier<Object> supplier, int size) {
+  static Series generate(Supplier<?> supplier, int size) {
     Check.argument(size > 0, "illegal size");
     if (size == 1) {
       return of();
@@ -153,7 +153,7 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
    * @return a new series
    */
   @SuppressWarnings("unchecked")
-  static Series copyOf(Iterable<?> values) {
+  static Series copyOf(Collection<?> values) {
     if (values instanceof Series) {
       return (Series) values;
     }
@@ -889,7 +889,7 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
   }
 
   default StatisticalSummary statisticalSummary() {
-    return Vectors.statisticalSummary(this);
+    return SeriesUtils.statisticalSummary(this);
   }
 
   default boolean allMatch(Predicate<Object> predicate) {

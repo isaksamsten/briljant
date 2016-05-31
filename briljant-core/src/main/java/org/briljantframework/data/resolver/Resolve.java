@@ -220,7 +220,7 @@ public final class Resolve {
 
     resolver.put(Date.class, dateToLocalDate);
     resolver.put(java.sql.Date.class, sqlDateToLocalDate);
-    resolver.put(String.class, StringToLocalDate.ISO_DATE);
+    resolver.put(String.class, StringToLocalDateConverter.ISO_DATE);
     resolver.put(Long.class, longToLocalDate);
     resolver.put(Long.TYPE, longToLocalDate);
     return resolver;
@@ -231,7 +231,7 @@ public final class Resolve {
     Converter<Date, LocalDateTime> dateLocalDateTimeConverter =
         (date) -> date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     Converter<String, LocalDateTime> stringLocalDateTimeConverter =
-        new ConvertStringLocalDateTime(DateTimeFormatter.ISO_DATE_TIME);
+        new StringLocalDateTimeConverter(DateTimeFormatter.ISO_DATE_TIME);
     Converter<Long, LocalDateTime> longLocalDateTimeConverter =
         (l) -> Instant.ofEpochMilli(l).atZone(ZoneId.systemDefault()).toLocalDateTime();
     Converter<java.sql.Date, LocalDateTime> sqlDateLocalDateTimeConverter =

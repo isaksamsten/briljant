@@ -39,7 +39,7 @@ public class SqlParserTest {
     settings.remap("Name", "Artist");
 
     DataFrame df = parser.parse();
-    System.out.println(df.get("Artist").valueCounts().sort(SortOrder.DESC));
+    System.out.println(df.getColumn("Artist").valueCounts().sort(SortOrder.DESC));
     // for (int i = 0; i < sort.rows(); i++) {
     // System.out.println(sort.loc().getRecord(i));
     // }

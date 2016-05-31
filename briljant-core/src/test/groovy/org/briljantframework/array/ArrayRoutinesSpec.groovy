@@ -50,13 +50,13 @@ abstract class ArrayRoutinesSpec extends Specification {
     where:
     a << [
         bj.newDoubleVector([1, 2, 3, 4] as double[]), // simple
-        bj.range(10).asDoubleArray().copy().get([bj.range(1, 10, 2)]), // slice
+        bj.range(10).doubleArray().copy().get([bj.range(1, 10, 2)]), // slice
         bj.linspace(0, 15, 16).reshape(4, 4).getColumn(0)
     ]
 
     b << [
         bj.newDoubleVector([1, 2, 3, 4] as double[]),
-        bj.range(10).asDoubleArray().copy().get([bj.range(1, 10, 2)]), // slice
+        bj.range(10).doubleArray().copy().get([bj.range(1, 10, 2)]), // slice
         bj.linspace(0, 11, 12).reshape(3, 4).getRow(2)
     ]
 
@@ -132,7 +132,7 @@ abstract class ArrayRoutinesSpec extends Specification {
     where:
     a << [
         bj.linspace(0, 3, 4),
-        bj.range(10).asDoubleArray(),
+        bj.range(10).doubleArray(),
         bj.linspace(0, 9, 10).reshape(2, 5).getRow(1)
     ]
 
@@ -179,7 +179,7 @@ abstract class ArrayRoutinesSpec extends Specification {
                              [2, 2],
                              [3, 3]] as double[][]),
          0.0,
-         bj.newIntArray(3, 3).asDoubleArray() // test a non-native view as output
+         bj.newIntArray(3, 3).doubleArray() // test a non-native view as output
         ],
         [ArrayOperation.KEEP, ArrayOperation.KEEP, 2.0,
          bj.newDoubleMatrix([[1, 1],

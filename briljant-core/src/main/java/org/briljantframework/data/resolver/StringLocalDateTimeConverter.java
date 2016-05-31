@@ -1,4 +1,4 @@
-/*
+/**
  * The MIT License (MIT)
  *
  * Copyright (c) 2016 Isak Karlsson
@@ -18,21 +18,24 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.briljantframework.data.series
+package org.briljantframework.data.resolver;
 
-import groovy.transform.CompileStatic
-import org.briljantframework.data.index.VectorLocationGetter
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-/**
- * Extensions to support common Groovy idioms when working with {@link VectorLocationGetter series location getters}.
- *
- * @author Isak Karlsson
- */
-@CompileStatic
-class VectorLocationGetterExtensions {
+class StringLocalDateTimeConverter implements Converter<String, LocalDateTime> {
 
-  static <T> T getAt(VectorLocationGetter self, int i) {
-    return self.get(T, i)
+  private final DateTimeFormatter formatter;
+
+  StringLocalDateTimeConverter(DateTimeFormatter formatter) {
+    this.formatter = formatter;
   }
 
+  @Override public LocalDateTime convert(String s) {
+    try {
+      return LocalDateTime.parse(s, formatter);
+    } catch (Exception ignored) {
+      return null;
+    }
+  }
 }

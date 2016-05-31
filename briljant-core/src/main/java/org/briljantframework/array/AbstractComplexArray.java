@@ -20,30 +20,14 @@
  */
 package org.briljantframework.array;
 
-import java.util.AbstractList;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.function.BiPredicate;
-import java.util.function.BinaryOperator;
-import java.util.function.DoubleFunction;
-import java.util.function.Function;
-import java.util.function.IntFunction;
-import java.util.function.LongFunction;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.function.ToDoubleFunction;
-import java.util.function.ToIntFunction;
-import java.util.function.ToLongFunction;
-import java.util.function.UnaryOperator;
+import java.util.function.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayBackend;
@@ -53,8 +37,8 @@ import org.briljantframework.array.api.ArrayBackend;
  *
  * @author Isak Karlsson
  */
-public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArray> implements
-    ComplexArray {
+public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArray>
+    implements ComplexArray {
 
   protected AbstractComplexArray(ArrayBackend backend, int size) {
     super(backend, new int[] {size});
@@ -101,56 +85,68 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public void assign(ComplexArray array, UnaryOperator<Complex> operator) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.size(this, array);
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.apply(array.get(i)));
+  public void assign(ComplexArray other, UnaryOperator<Complex> operator) {
+    Pair<ComplexArray, ComplexArray> pair = ShapeUtils.combinedBroadcast(this, other);
+    other = pair.getRight();
+    ComplexArray me = pair.getLeft();
+    Check.size(this, other);
+    for (int i = 0, size = me.size(); i < size; i++) {
+      me.set(i, operator.apply(other.get(i)));
     }
   }
 
   @Override
-  public void combineAssign(ComplexArray array, BinaryOperator<Complex> combine) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.dimension(this, array);
-    for (int i = 0; i < size(); i++) {
-      set(i, combine.apply(get(i), array.get(i)));
+  public void combineAssign(ComplexArray other, BinaryOperator<Complex> combine) {
+    Pair<ComplexArray, ComplexArray> pair = ShapeUtils.combinedBroadcast(this, other);
+    other = pair.getRight();
+    ComplexArray me = pair.getLeft();
+    Check.size(this, other);
+    for (int i = 0, size = me.size(); i < size; i++) {
+      me.set(i, combine.apply(me.get(i), other.get(i)));
     }
   }
 
   @Override
-  public void assign(DoubleArray array) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.argument(array.size() == size());
-    for (int i = 0; i < size(); i++) {
-      set(i, Complex.valueOf(array.get(i)));
+  public void assign(DoubleArray other) {
+    Pair<ComplexArray, DoubleArray> pair = ShapeUtils.combinedBroadcast(this, other);
+    other = pair.getRight();
+    ComplexArray me = pair.getLeft();
+    Check.size(this, other);
+    for (int i = 0, size = me.size(); i < size; i++) {
+      me.set(i, Complex.valueOf(other.get(i)));
     }
   }
 
   @Override
-  public void assign(DoubleArray array, DoubleFunction<Complex> operator) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.argument(array.size() == size());
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.apply(array.get(i)));
+  public void assign(DoubleArray other, DoubleFunction<Complex> operator) {
+    Pair<ComplexArray, DoubleArray> pair = ShapeUtils.combinedBroadcast(this, other);
+    other = pair.getRight();
+    ComplexArray me = pair.getLeft();
+    Check.size(this, other);
+    for (int i = 0, size = me.size(); i < size; i++) {
+      me.set(i, operator.apply(other.get(i)));
     }
   }
 
   @Override
-  public void assign(LongArray array, LongFunction<Complex> operator) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.size(this, array);
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.apply(array.get(i)));
+  public void assign(LongArray other, LongFunction<Complex> operator) {
+    Pair<ComplexArray, LongArray> pair = ShapeUtils.combinedBroadcast(this, other);
+    other = pair.getRight();
+    ComplexArray me = pair.getLeft();
+    Check.size(me, other);
+    for (int i = 0, size = me.size(); i < size; i++) {
+      me.set(i, operator.apply(other.get(i)));
     }
   }
 
   @Override
-  public void assign(IntArray array, IntFunction<Complex> operator) {
-    array = ShapeUtils.broadcastIfSensible(this, array);
-    Check.size(this, array);
-    for (int i = 0; i < size(); i++) {
-      set(i, operator.apply(array.get(i)));
+  public void assign(IntArray other, IntFunction<Complex> operator) {
+    Pair<ComplexArray, IntArray> pair = ShapeUtils.combinedBroadcast(this, other);
+    other = pair.getRight();
+    ComplexArray me = pair.getLeft();
+    Check.size(me, other);
+    for (int i = 0, size = me.size(); i < size; i++) {
+      me.set(i, operator.apply(other.get(i)));
     }
   }
 
@@ -255,7 +251,8 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public Complex reduce(Complex identity, BinaryOperator<Complex> reduce, UnaryOperator<Complex> map) {
+  public Complex reduce(Complex identity, BinaryOperator<Complex> reduce,
+      UnaryOperator<Complex> map) {
     for (int i = 0; i < size(); i++) {
       identity = reduce.apply(map.apply(get(i)), identity);
     }
@@ -392,13 +389,16 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public ComplexArray times(Complex alpha, ComplexArray other) {
-    other = ShapeUtils.broadcastIfSensible(this, other);
-    Check.dimension(this, other);
-    ComplexArray m = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      m.set(i, alpha.multiply(get(i)).multiply(other.get(i)));
+    Pair<ComplexArray, ComplexArray> pair = ShapeUtils.combinedBroadcast(this, other);
+    other = pair.getRight();
+    ComplexArray me = pair.getLeft();
+    Check.size(me, other);
+
+    ComplexArray out = newEmptyArray(me.getShape());
+    for (int i = 0, size = me.size(); i < size; i++) {
+      out.set(i, alpha.multiply(me.get(i)).multiply(other.get(i)));
     }
-    return m;
+    return out;
   }
 
   @Override
@@ -426,11 +426,13 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public ComplexArray plus(Complex alpha, ComplexArray other) {
-    other = ShapeUtils.broadcastIfSensible(this, other);
-    Check.dimension(this, other);
-    ComplexArray m = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      m.set(i, get(i).multiply(alpha).add(other.get(i)));
+    Pair<ComplexArray, ComplexArray> pair = ShapeUtils.combinedBroadcast(this, other);
+    other = pair.getRight();
+    ComplexArray me = pair.getLeft();
+    Check.size(me, other);
+    ComplexArray m = newEmptyArray(me.getShape());
+    for (int i = 0, size = me.size(); i < size; i++) {
+      m.set(i, me.get(i).multiply(alpha).add(other.get(i)));
     }
     return m;
   }
@@ -451,13 +453,16 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public ComplexArray minus(Complex alpha, ComplexArray other) {
-    other = ShapeUtils.broadcastIfSensible(this, other);
-    Check.size(this, other);
-    ComplexArray m = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      m.set(i, alpha.multiply(get(i)).subtract(other.get(i)));
+    Pair<ComplexArray, ComplexArray> pair = ShapeUtils.combinedBroadcast(this, other);
+    other = pair.getRight();
+    ComplexArray me = pair.getLeft();
+    Check.size(me, other);
+
+    ComplexArray out = newEmptyArray(me.getShape());
+    for (int i = 0, size = me.size(); i < size; i++) {
+      out.set(i, alpha.multiply(me.get(i)).subtract(other.get(i)));
     }
-    return m;
+    return out;
   }
 
   @Override
@@ -471,13 +476,15 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
 
   @Override
   public ComplexArray div(ComplexArray other) {
-    other = ShapeUtils.broadcastIfSensible(this, other);
-    Check.size(this, other);
-    ComplexArray m = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      m.set(i, get(i).divide(other.get(i)));
+    Pair<ComplexArray, ComplexArray> pair = ShapeUtils.combinedBroadcast(this, other);
+    other = pair.getRight();
+    ComplexArray me = pair.getLeft();
+    Check.size(me, other);
+    ComplexArray out = newEmptyArray(me.getShape());
+    for (int i = 0, size = me.size(); i < size; i++) {
+      out.set(i, me.get(i).divide(other.get(i)));
     }
-    return m;
+    return out;
   }
 
   @Override
@@ -595,7 +602,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public DoubleArray asDoubleArray() {
+  public DoubleArray doubleArray() {
     return new AsDoubleArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
 
       @Override
@@ -616,7 +623,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public IntArray asIntArray() {
+  public IntArray intArray() {
     return new AsIntArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
 
       @Override
@@ -637,7 +644,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public LongArray asLongArray() {
+  public LongArray longArray() {
     return new AsLongArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       public void setElement(int index, long value) {
@@ -657,28 +664,7 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public BooleanArray asBooleanArray() {
-    return new AsBooleanArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
-
-      @Override
-      public boolean getElement(int index) {
-        return AbstractComplexArray.this.getElement(index).equals(Complex.ONE);
-      }
-
-      @Override
-      public void setElement(int index, boolean value) {
-        AbstractComplexArray.this.set(index, value ? Complex.ONE : Complex.ZERO);
-      }
-
-      @Override
-      protected int elementSize() {
-        return AbstractComplexArray.this.elementSize();
-      }
-    };
-  }
-
-  @Override
-  public ComplexArray asComplexArray() {
+  public ComplexArray complexArray() {
     return this;
   }
 
@@ -720,7 +706,8 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
     private List<Complex> buffer = new ArrayList<>();
 
     public ComplexArray build() {
-      return getArrayBackend().getArrayFactory().newComplexVector(buffer.toArray(new Complex[buffer.size()]));
+      return getArrayBackend().getArrayFactory()
+          .newComplexVector(buffer.toArray(new Complex[buffer.size()]));
     }
 
     public void add(Complex value) {

@@ -32,7 +32,9 @@ import org.briljantframework.array.ArrayFactorySpec
 class NetlibArrayFactorySpec extends ArrayFactorySpec {
 
   def setupSpec() {
-    bj = new NetlibArrayBackend().arrayFactory
+    def backend = new NetlibArrayBackend()
+    bj = backend.arrayFactory
+    bjr = backend.arrayRoutines
   }
 
 }

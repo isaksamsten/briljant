@@ -792,7 +792,7 @@ public abstract class AbstractSeries extends AbstractBaseArray<Series> implement
 
   @Override
   public String toString() {
-    return Vectors.toString(this, 100);
+    return SeriesUtils.toString(this, 100);
   }
 
   /**

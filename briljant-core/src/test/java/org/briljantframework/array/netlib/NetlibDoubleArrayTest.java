@@ -41,11 +41,11 @@ public class NetlibDoubleArrayTest {
     DoubleArray expected = bj.newDoubleMatrix(new double[][] {{2, 4, 6}, {4, 8, 12}, {6, 12, 18}});
 
     ArrayAssert.assertArrayEquals(expected, Arrays.dot(b, a), EPSILON);
-    ArrayAssert.assertArrayEquals(expected.times(2), Arrays.dot(2, b, a), EPSILON);
+    ArrayAssert.assertArrayEquals(Arrays.times(expected, 2), Arrays.dot(2, b, a), EPSILON);
     ArrayAssert.assertArrayEquals(expected,
         Arrays.dot(ArrayOperation.TRANSPOSE, ArrayOperation.KEEP, a, a), EPSILON);
-    ArrayAssert.assertArrayEquals(expected.times(2),
-        Arrays.dot(ArrayOperation.TRANSPOSE, ArrayOperation.KEEP, a,2, a), EPSILON);
+    ArrayAssert.assertArrayEquals(Arrays.times(expected, 2),
+        Arrays.dot(ArrayOperation.TRANSPOSE, ArrayOperation.KEEP, a, 2, a), EPSILON);
   }
 
   @Test
@@ -62,8 +62,8 @@ public class NetlibDoubleArrayTest {
   public void testGetRowAndColumnVectorMatrixMultiply() throws Exception {
     DoubleArray a = bj.newDoubleMatrix(new double[][] {{2, 4, 6}, {4, 8, 12}, {6, 12, 18}});
 
-    DoubleArray[] expected =
-        new DoubleArray[] {bj.newDoubleMatrix(new double[][] {{4, 8, 12}, {8, 16, 24}, {12, 24, 36}}),
+    DoubleArray[] expected = new DoubleArray[] {
+        bj.newDoubleMatrix(new double[][] {{4, 8, 12}, {8, 16, 24}, {12, 24, 36}}),
 
         bj.newDoubleMatrix(new double[][] {{16, 32, 48}, {32, 64, 96}, {48, 96, 144}}),
 

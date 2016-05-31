@@ -20,27 +20,37 @@
  */
 package org.briljantframework.data.resolver;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Created by isak on 5/10/16.
+ * Converts a string to a {@link LocalDate}.
+ * 
+ * @author Isak Karlsson
  */
-class ConvertStringLocalDateTime implements Converter<String, LocalDateTime> {
+class StringToLocalDateConverter implements Converter<String, LocalDate> {
 
-  private final DateTimeFormatter formatter;
+  static final StringToLocalDateConverter ISO_DATE = new StringToLocalDateConverter();
+  private final DateTimeFormatter format;
 
-  ConvertStringLocalDateTime(DateTimeFormatter formatter) {
-    this.formatter = formatter;
+  StringToLocalDateConverter(String pattern) {
+    this(DateTimeFormatter.ofPattern(pattern));
   }
 
+  private StringToLocalDateConverter(DateTimeFormatter format) {
+    this.format = format;
+  }
 
+  private StringToLocalDateConverter() {
+    this(DateTimeFormatter.ISO_DATE);
+  }
 
-  @Override public LocalDateTime convert(String s) {
+  @Override
+  public LocalDate convert(String t) {
     try {
-      return LocalDateTime.parse(s, formatter);
-    } catch (Exception ignored) {
-      return null;
+      return LocalDate.parse(t, format);
+    } catch (Exception e) {
+      return null; // NA
     }
   }
 }

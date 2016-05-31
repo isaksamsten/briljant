@@ -67,10 +67,31 @@ public class ArraysTest {
     // frame.setVisible(true);
   }
 
+  @Test public void testPlus() throws Exception {
+    DoubleArray a = Arrays.doubleVector(1, 2, 3, 4, 5, 6).reshape(2, 3);
+    DoubleArray b = Arrays.doubleVector(1,2,3);
+    System.out.println(a);
+    System.out.println(b);
+    System.out.println(Arrays.plus(a, b));
+
+    Arrays.plusAssign(b, a);
+    System.out.println(a);
+
+  }
+
+  @Test public void testBroadcast_BiFunction() throws Exception {
+    DoubleArray x = DoubleArray.zeros(3, 3, 3);
+    DoubleArray y = DoubleArray.linspace(-1, 1, 3 * 3).reshape(3, 3);
+
+    DoubleArray broadcast = Arrays.broadcast(x, y, Arrays::plus);
+    System.out.println(broadcast);
+
+  }
+
   @Test
   public void testSwapdimensions() throws Exception {
     // IntArray x = IntArray.of(0, 4, 2, 6, 1, 5, 3, 7).reshape(2, 2, 2);
-    IntArray x = Arrays.broadcast(IntArray.of(1, 2), 2, 2, 2);
+    IntArray x = Arrays.broadcastTo(IntArray.of(1, 2), 2, 2, 2);
     System.out.println(x);
 
     System.out.println(Arrays.swapDimension(x, 0, 2));
@@ -79,7 +100,7 @@ public class ArraysTest {
   @Test
   public void testBroadcast_reshape() throws Exception {
     Array<String> a = Array.of("a", "b", "c");
-    Array<String> x = Arrays.broadcast(a, 6, 3).reshape(2, 9);
+    Array<String> x = Arrays.broadcastTo(a, 6, 3).reshape(2, 9);
     assertEquals(Array.of("a", "a", "a", "a", "a", "a", "b", "b", "b", "b", "b", "b", "c", "c", "c",
         "c", "c", "c").reshape(2, 9), x);
   }
@@ -88,20 +109,20 @@ public class ArraysTest {
   public void testBroadcast_column_vector() throws Exception {
     IntArray a = IntArray.of(0, 1, 2).reshape(3, 1);
     IntArray expected = IntArray.of(0, 1, 2, 0, 1, 2, 0, 1, 2).reshape(3, 3);
-    assertEquals(expected, Arrays.broadcast(a, 3, 3));
+    assertEquals(expected, Arrays.broadcastTo(a, 3, 3));
   }
 
   @Test
   public void testBroadcastTo_row_vector() throws Exception {
     IntArray a = IntArray.of(0, 1, 2).reshape(1, 3);
     IntArray expected = IntArray.of(0, 0, 0, 1, 1, 1, 2, 2, 2).reshape(3, 3);
-    assertEquals(expected, Arrays.broadcast(a, 3, 3));
+    assertEquals(expected, Arrays.broadcastTo(a, 3, 3));
   }
 
   @Test
   public void testBroadcastTo_1darray() throws Exception {
     IntArray a = IntArray.of(0, 1, 2);
-    IntArray y = Arrays.broadcast(a, 3, 3, 3);
+    IntArray y = Arrays.broadcastTo(a, 3, 3, 3);
     for (int i = 0; i < y.vectors(2); i++) {
       assertEquals(a, y.getVector(2, i));
     }
@@ -110,10 +131,10 @@ public class ArraysTest {
   @Test
   public void testBroadcast() throws Exception {
     IntArray a = IntArray.of(10032, 3, 3).reshape(3, 1);
-    System.out.println(Arrays.broadcast(a, 3, 3, 3));
+    System.out.println(Arrays.broadcastTo(a, 3, 3, 3));
     IntArray x = IntArray.of(0, 1, 2).reshape(1, 3);
     IntArray y = IntArray.of(0, 1, 2).reshape(3, 1);
-    System.out.println(Arrays.broadcastArrays(asList(x, y)));
+    System.out.println(Arrays.broadcastAll(asList(x, y)));
   }
 
   @Test

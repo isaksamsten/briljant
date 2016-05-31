@@ -45,7 +45,7 @@ import org.briljantframework.data.series.Type;
  * 
  * <p/>
  * Columns and records can either be accessed by their intrinsic location using {@link #loc()} or by
- * their index e.g, using {@link #get(Object)} and {@link #getRow(Object)}.
+ * their index e.g, using {@link #getColumn(Object)} and {@link #getRow(Object)}.
  *
  * @author Isak Karlsson
  */
@@ -105,7 +105,7 @@ public interface DataFrame {
   static DataFrame.Builder builder(Class... cls) {
     DataFrame.Builder builder = builder();
     for (Class c : cls) {
-      builder.add(Series.Builder.of(c));
+      builder.addColumn(Series.Builder.of(c));
     }
     return builder;
   }
@@ -491,6 +491,10 @@ public interface DataFrame {
    */
   <T> DataFrameGroupBy groupBy(Class<T> cls, Function<? super T, ?> keyFunction);
 
+  DataFrame getAll(Collection<?> rows, Collection<?> columns);
+
+  void setAll(Collection<?> rows, Collection<?> columns, DataFrame values);
+
   /**
    * Return a new data frame where the values of the specified column is replaced with (a series)
    * of value
@@ -499,7 +503,7 @@ public interface DataFrame {
    * @param value the value
    * @return a new data frame
    */
-  void set(Object key, Object value);
+  void setColumn(Object key, Object value);
 
   /**
    * Set the specified column to the given series
@@ -508,7 +512,7 @@ public interface DataFrame {
    * @param column the column
    * @return a new data frame
    */
-  void set(Object key, Series column);
+  void setColumn(Object key, Series column);
 
   /**
    * Set the specified column(s) to the specified vectors
@@ -516,7 +520,7 @@ public interface DataFrame {
    * @param columns the map of keys to vectors
    * @return a new data frame
    */
-  DataFrame setAll(Map<?, Series> columns);
+  DataFrame setColumns(Map<?, Series> columns);
 
   /**
    * Get the specified column
@@ -525,7 +529,7 @@ public interface DataFrame {
    * @return the column
    * @throws java.util.NoSuchElementException if key is not found
    */
-  Series get(Object key);
+  Series getColumn(Object key);
 
   /**
    * Select the specified columns
@@ -533,7 +537,7 @@ public interface DataFrame {
    * @param keys the keys
    * @return a new data frame
    */
-  DataFrame getAll(Collection<?> keys);
+  DataFrame getColumns(Collection<?> keys);
 
   /**
    * Drop the columns with the specified keys
@@ -671,7 +675,7 @@ public interface DataFrame {
    * @param value the value
    * @return a new data frame where the new value is set
    */
-  DataFrame set(BooleanArray array, Object value);
+  void set(BooleanArray array, Object value);
 
   /**
    * Return a new data frame with the first {@code n} records
@@ -728,6 +732,8 @@ public interface DataFrame {
   default Object get(Object row, Object col) {
     return get(Object.class, row, col);
   }
+
+  void set(Object row, Object col, Object value);
 
   /**
    * Get the element with the specified row and column index as an instance of the specified class
@@ -1026,17 +1032,17 @@ public interface DataFrame {
      * @param column the series
      * @return this modified
      */
-    default Builder set(Object key, Series column) {
-      return set(key, column.newCopyBuilder());
+    default Builder setColumn(Object key, Series column) {
+      return setColumn(key, column.newCopyBuilder());
     }
 
-    default Builder set(Object key, Iterable<?> column) {
-      return set(key, Series.copyOf(column));
+    default Builder setColumn(Object key, Collection<?> column) {
+      return setColumn(key, Series.copyOf(column));
     }
 
     default Builder setAll(Map<?, ? extends Series> columns) {
       for (Map.Entry<?, ? extends Series> e : columns.entrySet()) {
-        set(e.getKey(), e.getValue());
+        setColumn(e.getKey(), e.getValue());
       }
       return this;
     }
@@ -1048,7 +1054,7 @@ public interface DataFrame {
      * @param columnBuilder the series
      * @return this modified
      */
-    Builder set(Object key, Series.Builder columnBuilder);
+    Builder setColumn(Object key, Series.Builder columnBuilder);
 
     /**
      * Set the column at the specified index to a new empty series builder of the specified type.
@@ -1058,7 +1064,7 @@ public interface DataFrame {
      * @return this modified
      */
     default Builder newColumn(Object key, Type columnType) {
-      return set(key, columnType.newBuilder());
+      return setColumn(key, columnType.newBuilder());
     }
 
     /**
@@ -1068,11 +1074,11 @@ public interface DataFrame {
      * @return receiver modified
      */
     default Builder newColumn(Type columnType) {
-      return add(columnType.newBuilder());
+      return addColumn(columnType.newBuilder());
     }
 
     default Builder newRow(Object key, Type rowType) {
-      set(key, rowType.newBuilder());
+      setColumn(key, rowType.newBuilder());
       return this;
     }
 
@@ -1087,12 +1093,12 @@ public interface DataFrame {
      * @param column the series
      * @return a modified builder
      */
-    default Builder add(Series column) {
-      return add(column.newCopyBuilder());
+    default Builder addColumn(Series column) {
+      return addColumn(column.newCopyBuilder());
     }
 
-    default Builder add(Iterable<?> column) {
-      return add(Series.copyOf(column));
+    default Builder addColumn(Collection<?> column) {
+      return addColumn(Series.copyOf(column));
     }
 
     /**
@@ -1102,7 +1108,7 @@ public interface DataFrame {
      * @param columnBuilder builder to plus
      * @return a modified builder
      */
-    Builder add(Series.Builder columnBuilder);
+    Builder addColumn(Series.Builder columnBuilder);
 
     /**
      * Add all series builders
@@ -1110,9 +1116,9 @@ public interface DataFrame {
      * @param vectors add all the series builders
      * @return a modified builder
      */
-    default Builder addAll(Collection<? extends Series.Builder> vectors) {
+    default Builder addColumns(Collection<? extends Series.Builder> vectors) {
       for (Series.Builder vector : vectors) {
-        add(vector);
+        addColumn(vector);
       }
       return this;
     }
@@ -1128,7 +1134,7 @@ public interface DataFrame {
       return setRow(key, row.newCopyBuilder());
     }
 
-    default Builder setRow(Object key, Iterable<?> values) {
+    default Builder setRow(Object key, Collection<?> values) {
       return setRow(key, Series.copyOf(values));
     }
 
@@ -1151,7 +1157,7 @@ public interface DataFrame {
       return addRow(series.newCopyBuilder());
     }
 
-    default Builder addRow(Iterable<?> values) {
+    default Builder addRow(Collection<?> values) {
       return addRow(Series.copyOf(values));
     }
 

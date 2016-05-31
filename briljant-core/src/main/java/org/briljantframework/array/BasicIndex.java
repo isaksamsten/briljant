@@ -30,7 +30,6 @@ import net.mintern.primitive.comparators.IntComparator;
 
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.function.IntBiPredicate;
-import org.briljantframework.function.ToIntObjIntBiFunction;
 
 /**
  * Special indexer for inserting new dimensions and selecting everything along a specified dimension
@@ -95,7 +94,7 @@ import org.briljantframework.function.ToIntObjIntBiFunction;
  * 
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
-public final class BasicIndex implements Range {
+public final class BasicIndex implements Range, Collection<Integer> {
 
   /**
    * Special selector that selects everything along the indicated dimension
@@ -189,7 +188,7 @@ public final class BasicIndex implements Range {
   }
 
   @Override
-  public void assign(BooleanArray array, ToIntObjIntBiFunction<Boolean> function) {
+  public void assign(BooleanArray array, ToIntFunction<Boolean> function) {
     throw unsupported();
   }
 
@@ -289,16 +288,6 @@ public final class BasicIndex implements Range {
   }
 
   @Override
-  public void apply(int index, IntUnaryOperator operator) {
-    throw unsupported();
-  }
-
-  @Override
-  public void apply(int i, int j, IntUnaryOperator operator) {
-    throw unsupported();
-  }
-
-  @Override
   public IntStream intStream() {
     throw unsupported();
   }
@@ -329,11 +318,6 @@ public final class BasicIndex implements Range {
   }
 
   @Override
-  public IntArray times(int alpha, IntArray other) {
-    throw unsupported();
-  }
-
-  @Override
   public IntArray times(int scalar) {
     throw unsupported();
   }
@@ -359,22 +343,12 @@ public final class BasicIndex implements Range {
   }
 
   @Override
-  public IntArray plus(int alpha, IntArray other) {
-    throw unsupported();
-  }
-
-  @Override
   public IntArray minus(IntArray other) {
     throw unsupported();
   }
 
   @Override
   public IntArray minus(int scalar) {
-    throw unsupported();
-  }
-
-  @Override
-  public IntArray minus(int alpha, IntArray other) {
     throw unsupported();
   }
 
@@ -430,31 +404,6 @@ public final class BasicIndex implements Range {
 
   @Override
   public IntArray negate() {
-    throw unsupported();
-  }
-
-  @Override
-  public BooleanArray lt(IntArray other) {
-    throw unsupported();
-  }
-
-  @Override
-  public BooleanArray gt(IntArray other) {
-    throw unsupported();
-  }
-
-  @Override
-  public BooleanArray eq(IntArray other) {
-    throw unsupported();
-  }
-
-  @Override
-  public BooleanArray lte(IntArray other) {
-    throw unsupported();
-  }
-
-  @Override
-  public BooleanArray gte(IntArray other) {
     throw unsupported();
   }
 
@@ -593,6 +542,14 @@ public final class BasicIndex implements Range {
     throw unsupported();
   }
 
+  @Override public boolean isEmpty() {
+    throw unsupported();
+  }
+
+  @Override public boolean contains(Object o) {
+    throw unsupported();
+  }
+
   @Override
   public int size(int dim) {
     throw unsupported();
@@ -673,27 +630,22 @@ public final class BasicIndex implements Range {
   }
 
   @Override
-  public DoubleArray asDoubleArray() {
+  public DoubleArray doubleArray() {
     throw unsupported();
   }
 
   @Override
-  public IntArray asIntArray() {
+  public IntArray intArray() {
     return this;
   }
 
   @Override
-  public LongArray asLongArray() {
+  public LongArray longArray() {
     throw unsupported();
   }
 
   @Override
-  public BooleanArray asBooleanArray() {
-    throw unsupported();
-  }
-
-  @Override
-  public ComplexArray asComplexArray() {
+  public ComplexArray complexArray() {
     throw unsupported();
   }
 
@@ -714,6 +666,42 @@ public final class BasicIndex implements Range {
 
   @Override
   public Iterator<Integer> iterator() {
+    throw unsupported();
+  }
+
+  @Override public Object[] toArray() {
+    throw unsupported();
+  }
+
+  @Override public <T> T[] toArray(T[] a) {
+    throw unsupported();
+  }
+
+  @Override public boolean add(Integer o) {
+    throw unsupported();
+  }
+
+  @Override public boolean remove(Object o) {
+    throw unsupported();
+  }
+
+  @Override public boolean containsAll(Collection<?> c) {
+    throw unsupported();
+  }
+
+  @Override public boolean addAll(Collection<? extends Integer> c) {
+    throw unsupported();
+  }
+
+  @Override public boolean removeAll(Collection<?> c) {
+    throw unsupported();
+  }
+
+  @Override public boolean retainAll(Collection<?> c) {
+    throw unsupported();
+  }
+
+  @Override public void clear() {
     throw unsupported();
   }
 

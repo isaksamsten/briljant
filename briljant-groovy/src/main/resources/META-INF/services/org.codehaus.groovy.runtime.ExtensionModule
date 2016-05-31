@@ -1,9 +1,0 @@
-moduleName = briljant-core
-moduleVersion = 1.0
-extensionClasses = org.briljantframework.array.ArrayExtensions,\
-                   org.briljantframework.data.dataframe.DataFrameExtensions,\
-                   org.briljantframework.data.series.VectorExtensions,\
-                   org.briljantframework.data.dataframe.DataFrameLocationGetterExtensions,\
-                   org.briljantframework.data.series.VectorLocationGetterExtensions,\
-                   org.briljantframework.groovy.data.SettingsExtensions
-staticExtensionClasses = org.briljantframework.data.dataframe.DataFrameStaticExtensions

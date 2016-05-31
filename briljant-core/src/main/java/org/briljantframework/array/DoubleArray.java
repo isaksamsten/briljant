@@ -26,12 +26,12 @@ import java.util.function.*;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 
-import net.mintern.primitive.comparators.DoubleComparator;
-
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.DoubleSequence;
 import org.briljantframework.function.DoubleBiPredicate;
+
+import net.mintern.primitive.comparators.DoubleComparator;
 
 /**
  * A n-dimensional array of double values.
@@ -39,7 +39,7 @@ import org.briljantframework.function.DoubleBiPredicate;
  * @author Isak Karlsson
  */
 public interface DoubleArray
-    extends BaseArray<DoubleArray>, Iterable<Double>, DoubleSequence {
+    extends NumberArray, BaseArray<DoubleArray>, Collection<Double>, DoubleSequence {
 
   static DoubleArray ones(int... shape) {
     return Arrays.ones(shape);
@@ -416,125 +416,12 @@ public interface DoubleArray
 
   Array<Double> asArray();
 
-  DoubleArray times(DoubleArray other);
-
-  // Arithmetical operations ///////////
-
-  /**
-   * Element wise multiplication.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  DoubleArray times(double alpha, DoubleArray other);
-
-  /**
-   * Element wise <u>m</u>ultiplication
-   *
-   * @param scalar the scalar
-   * @return a new matrix
-   */
-  DoubleArray times(double scalar);
-
-  void timesAssign(double scalar);
-
-  void timesAssign(DoubleArray array);
-
-  DoubleArray plus(DoubleArray other);
-
-  /**
-   * Element wise addition.
-   *
-   * @param scalar the scalar
-   * @return a new matrix
-   */
-  DoubleArray plus(double scalar);
-
-  void plusAssign(DoubleArray other);
-
-  void plusAssign(double scalar);
-
-  /**
-   * Element wise addition.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  DoubleArray plus(double alpha, DoubleArray other);
-
-  /**
-   * Element wise subtraction. {@code this - other}.
-   *
-   * @param scalar the scalar
-   * @return r r
-   */
-  DoubleArray minus(double scalar);
-
-  DoubleArray minus(DoubleArray other);
-
-  void minusAssign(double scalar);
-
-  void minusAssign(DoubleArray scalar);
-
-  /**
-   * Element wise subtraction. Scaling {@code this} with {@code alpha} and {@code other} with
-   * {@code beta}. Hence, it computes {@code this.times(alpha).minus(other.times(beta))}, but in one
-   * pass.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  DoubleArray minus(double alpha, DoubleArray other);
-
-  /**
-   * <u>R</u>eversed element wise subtraction. {@code scalar - this}.
-   *
-   * @param scalar the scalar
-   * @return a new matrix
-   */
-  DoubleArray reverseMinus(double scalar);
-
-  void reverseMinusAssign(double scalar);
-
-  /**
-   * Element wise division. {@code this / other}.
-   *
-   * @param other the scalar
-   * @return a new matrix
-   * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
-   */
-  DoubleArray div(double other);
-
-  DoubleArray div(DoubleArray other);
-
-  void divAssign(DoubleArray other);
-
-  void divAssign(double value);
-
-  /**
-   * Element wise division. {@code other / this}.
-   *
-   * @param other the scalar
-   * @return a new matrix
-   * @throws java.lang.ArithmeticException if {@code this} contains {@code 0}
-   */
-  DoubleArray reverseDiv(double other);
-
-  void reverseDivAssign(double other);
-
   /**
    * Returns a new matrix with elements negated.
    *
    * @return a new matrix
    */
   DoubleArray negate();
-
-  default BooleanArray gt(double v) {
-    return where(x -> x > v);
-  }
 
   /**
    * Return a boolean array of indicator values using the given predicate
@@ -548,25 +435,13 @@ public interface DoubleArray
     return asArray();
   }
 
-  DoubleArray asDoubleArray();
+  DoubleArray doubleArray();
 
-  IntArray asIntArray();
+  IntArray intArray();
 
-  LongArray asLongArray();
+  LongArray longArray();
 
-  BooleanArray asBooleanArray();
-
-  ComplexArray asComplexArray();
-
-  BooleanArray lt(DoubleArray other);
-
-  BooleanArray gt(DoubleArray other);
-
-  BooleanArray eq(DoubleArray other);
-
-  BooleanArray lte(DoubleArray other);
-
-  BooleanArray gte(DoubleArray other);
+  ComplexArray complexArray();
 
   @Override
   default double getDouble(int index) {
