@@ -20,17 +20,280 @@
  */
 package org.briljantframework.array.netlib;
 
-import org.briljantframework.array.DoubleArray;
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.distribution.RealDistribution;
+import org.apache.commons.math3.distribution.UniformRealDistribution;
+import org.briljantframework.Check;
+import org.briljantframework.array.*;
 import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.array.base.BaseArrayFactory;
+import org.briljantframework.array.api.ArrayFactory;
 
 /**
  * @author Isak Karlsson
  */
-class NetlibArrayFactory extends BaseArrayFactory {
+class NetlibArrayFactory implements ArrayFactory {
+  private static final ThreadLocal<RealDistribution> normalDistribution =
+      new ThreadLocal<RealDistribution>() {
+        @Override
+        protected RealDistribution initialValue() {
+          return new NormalDistribution(0, 1);
+        }
+      };
+
+  private static final ThreadLocal<RealDistribution> uniformDistribution =
+      new ThreadLocal<RealDistribution>() {
+        @Override
+        protected RealDistribution initialValue() {
+          return new UniformRealDistribution(0, 1);
+        }
+      };
+
+  private final ArrayBackend backend;
 
   NetlibArrayFactory(ArrayBackend backend) {
-    super(backend);
+    this.backend = backend;
+  }
+
+  @Override
+  public <T> Array<T> newVector(T[] data) {
+    return new NetlibReferenceArray<>(backend, data);
+  }
+
+  @Override
+  public <T> Array<T> newMatrix(T[][] data) {
+    Check.argument(data.length > 0, "illegal row count");
+    Check.argument(data[0].length > 0, "illegal column count");
+
+    int m = data.length;
+    int n = data[0].length;
+    Array<T> array = newArray(m, n);
+    for (int i = 0; i < m; i++) {
+      T[] row = data[i];
+      Check.argument(row.length == n, "illegal row count");
+      for (int j = 0; j < n; j++) {
+        array.set(i, j, row[j]);
+      }
+    }
+    return array;
+  }
+
+  @Override
+  public <T> Array<T> newArray(int... shape) {
+    return new NetlibReferenceArray<>(backend, shape);
+  }
+
+  @Override
+  public BooleanArray newBooleanMatrix(boolean[][] data) {
+    Check.argument(data.length > 0, "illegal row count");
+    Check.argument(data[0].length > 0, "illegal column count");
+
+    int m = data.length;
+    int n = data[0].length;
+    BooleanArray array = newBooleanArray(m, n);
+    for (int i = 0; i < m; i++) {
+      boolean[] row = data[i];
+      Check.argument(row.length == n, "illegal row count");
+      for (int j = 0; j < n; j++) {
+        array.set(i, j, row[j]);
+      }
+    }
+    return array;
+  }
+
+  @Override
+  public BooleanArray newBooleanVector(boolean[] data) {
+    return new NetlibBooleanArray(backend, data);
+  }
+
+  @Override
+  public BooleanArray newBooleanArray(int... shape) {
+    return new NetlibBooleanArray(backend, shape);
+  }
+
+  @Override
+  public IntArray newIntMatrix(int[][] data) {
+    Check.argument(data.length > 0, "illegal row count");
+    Check.argument(data[0].length > 0, "illegal column count");
+
+    int m = data.length;
+    int n = data[0].length;
+    IntArray array = newIntArray(m, n);
+    for (int i = 0; i < m; i++) {
+      int[] row = data[i];
+      Check.argument(row.length == n, "illegal row count");
+      for (int j = 0; j < n; j++) {
+        array.set(i, j, row[j]);
+      }
+    }
+    return array;
+  }
+
+  @Override
+  public IntArray newIntVector(int[] data) {
+    return new NetlibIntArray(backend, true, data);
+  }
+
+  @Override
+  public IntArray newIntArray(int... shape) {
+    return new NetlibIntArray(backend, shape);
+  }
+
+  @Override
+  public LongArray newLongMatrix(long[][] data) {
+    Check.argument(data.length > 0, "illegal row count");
+    Check.argument(data[0].length > 0, "illegal column count");
+
+    int m = data.length;
+    int n = data[0].length;
+    LongArray array = newLongArray(m, n);
+    for (int i = 0; i < m; i++) {
+      long[] row = data[i];
+      Check.argument(row.length == n, "illegal row count");
+      for (int j = 0; j < n; j++) {
+        array.set(i, j, row[j]);
+      }
+    }
+    return array;
+  }
+
+  @Override
+  public LongArray newLongVector(long[] data) {
+    return new NetlibLongArray(backend, data);
+  }
+
+  @Override
+  public LongArray newLongArray(int... shape) {
+    return new NetlibLongArray(backend, shape);
+  }
+
+  @Override
+  public DoubleArray newDoubleMatrix(double[][] data) {
+    Check.argument(data.length > 0, "illegal row count");
+    Check.argument(data[0].length > 0, "illegal column count");
+
+    int m = data.length;
+    int n = data[0].length;
+    DoubleArray array = newDoubleArray(m, n);
+    for (int i = 0; i < m; i++) {
+      double[] row = data[i];
+      Check.argument(row.length == n, "illegal row count");
+      for (int j = 0; j < n; j++) {
+        array.set(i, j, row[j]);
+      }
+    }
+    return array;
+  }
+
+  @Override
+  public ComplexArray newComplexMatrix(Complex[][] data) {
+    Check.argument(data.length > 0, "illegal row count");
+    Check.argument(data[0].length > 0, "illegal column count");
+
+    int m = data.length;
+    int n = data[0].length;
+    ComplexArray array = newComplexArray(m, n);
+    for (int i = 0; i < m; i++) {
+      Complex[] row = data[i];
+      Check.argument(row.length == n, "illegal row count");
+      for (int j = 0; j < n; j++) {
+        array.set(i, j, row[j]);
+      }
+    }
+    return array;
+  }
+
+  @Override
+  public ComplexArray newComplexVector(Complex[] data) {
+    return new NetlibComplexArray(backend, data);
+  }
+
+  public ComplexArray newComplexVector(double... data) {
+    Complex[] c = new Complex[data.length];
+    for (int i = 0; i < data.length; i++) {
+      c[i] = Complex.valueOf(data[i]);
+    }
+    return newComplexVector(c);
+  }
+
+  @Override
+  public ComplexArray newComplexArray(int... shape) {
+    return new NetlibComplexArray(backend, shape);
+  }
+
+  @Override
+  public DoubleArray randn(int size) {
+    RealDistribution distribution = normalDistribution.get();
+    DoubleArray array = newDoubleArray(size);
+    for (int i = 0; i < size; i++) {
+      array.set(i, distribution.sample());
+    }
+    return array;
+  }
+
+  @Override
+  public DoubleArray rand(int size) {
+    RealDistribution distribution = uniformDistribution.get();
+    DoubleArray array = newDoubleArray(size);
+    for (int i = 0; i < size; i++) {
+      array.set(i, distribution.sample());
+    }
+    return array;
+  }
+
+  @Override
+  public DoubleArray ones(int... shape) {
+    DoubleArray array = newDoubleArray(shape);
+    array.assign(1);
+    return array;
+  }
+
+  @Override
+  public <T extends BaseArray<T>> T diag(T data) {
+    if (data.isVector()) {
+      int n = data.size();
+      T arr = data.newEmptyArray(n, n);
+      arr.getDiagonal().assign(data);
+      return arr;
+    } else if (data.isMatrix()) {
+      return data.getDiagonal();
+    } else {
+      throw new IllegalArgumentException("Input must be 1- or 2-d");
+    }
+  }
+
+  @Override
+  public Range range(int start, int end, int step) {
+    return new NetlibIntRange(backend, start, end, step);
+  }
+
+  @Override
+  public Range range(int start, int end) {
+    return range(start, end, 1);
+  }
+
+  @Override
+  public Range range(int end) {
+    return range(0, end);
+  }
+
+  @Override
+  public DoubleArray linspace(double start, double end, int size) {
+    DoubleArray values = newDoubleArray(size);
+    double step = (end - start) / (size - 1);
+    double value = start;
+    for (int index = 0; index < size; index++) {
+      values.set(index, value);
+      value += step;
+    }
+    return values;
+  }
+
+  @Override
+  public DoubleArray eye(int size) {
+    DoubleArray eye = newDoubleArray(size, size);
+    eye.getDiagonal().assign(1);
+    return eye;
   }
 
   @Override

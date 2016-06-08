@@ -20,62 +20,35 @@
  */
 package org.briljantframework.array.linalg.decomposition;
 
-import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 
 /**
  * Represents the singular value decomposition of a double array.
  * 
  * @author Isak Karlsson
- */ // TODO: 4/5/16 interface
-public class SingularValueDecomposition {
+ */
+public abstract class SingularValueDecomposition {
 
-  /**
-   * \Sigma is an m×n rectangular diagonal matrix with nonnegative real numbers on the diagonal. The
-   * diagonal entries \Sigma_{i,i} of \Sigma are known as the singular values of M
-   */
-  public final DoubleArray s;
-
-  /**
-   * U is a m×m real or complex unitary matrix
-   */
-  public final DoubleArray u;
-
-  /**
-   * V* (or simply the transpose of V if V is real) is an n×n real unitary matrix
-   */
-  public final DoubleArray v;
-
-  public SingularValueDecomposition(DoubleArray s, DoubleArray u, DoubleArray v) {
-    this.s = s;
-    this.u = u;
-    this.v = v;
-  }
-
-  public DoubleArray getSingularValues() {
-    return s;
-  }
+  public abstract DoubleArray getSingularValues();
 
   /**
    * Gets left singular values.
    *
    * @return the left singular values
    */
-  public DoubleArray getLeftSingularValues() {
-    return u;
-  }
+  public abstract DoubleArray getLeftSingularValues();
 
   /**
    * Gets right singular values.
    *
    * @return the right singular values
    */
-  public DoubleArray getRightSingularValues() {
-    return v;
-  }
+  public abstract DoubleArray getRightSingularValues();
 
   @Override
   public String toString() {
-    return "SingularValueDecomposition{" + "s=" + s + ", u=" + u + ", v=" + v + '}';
+    return "SingularValueDecomposition{" + "singularValues=" + getSingularValues()
+        + ", leftSingularValues=" + getLeftSingularValues() + ", rightSingularValues="
+        + getRightSingularValues() + '}';
   }
 }

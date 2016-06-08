@@ -25,7 +25,7 @@ import java.util.List;
 
 import org.briljantframework.Check;
 import org.briljantframework.array.*;
-import org.briljantframework.array.linalg.api.AbstractLinearAlgebraRoutines;
+import org.briljantframework.array.api.AbstractLinearAlgebraRoutines;
 import org.briljantframework.exceptions.MultiDimensionMismatchException;
 import org.netlib.util.intW;
 
@@ -213,13 +213,13 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     intW info = new intW(0);
     int lwork = -1;
     double[] work = new double[1];
-    lapack.dsyev(String.valueOf(jobz), String.valueOf(uplo), n, safeA.data(),
-        Math.max(1, safeA.stride(1)), safeW.data(), work, lwork, info);
+    lapack.dsyev(String.valueOf(jobz), String.valueOf(uplo), n, getBackingArray(safeA),
+        Math.max(1, safeA.stride(1)), getBackingArray(safeW), work, lwork, info);
     ensureInfo(info);
     lwork = (int) work[0];
     work = new double[lwork];
-    lapack.dsyev(String.valueOf(jobz), String.valueOf(uplo), n, safeA.data(),
-        Math.max(1, safeA.stride(1)), safeW.data(), work, lwork, info);
+    lapack.dsyev(String.valueOf(jobz), String.valueOf(uplo), n, getBackingArray(safeA),
+        Math.max(1, safeA.stride(1)), getBackingArray(safeW), work, lwork, info);
     ensureInfo(info);
 
 
@@ -359,11 +359,19 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     DoubleArray aCopy = copyIfView(a);
     IntArray ipivCopy = copyIfView(ipiv);
     intW info = new intW(0);
-    lapack.dgetrf(a.rows(), a.columns(), aCopy.data(), a.rows(), ipivCopy.data(), info);
+    lapack.dgetrf(a.rows(), a.columns(), getBackingArray(aCopy), a.rows(), getBackingArray(ipivCopy), info);
     ensureValidParameterInfo(info);
     copyToIfNeeded(a, aCopy);
     copyToIfNeeded(ipiv, ipivCopy);
     return info.val;
+  }
+
+  private double[] getBackingArray(DoubleArray doubleArray) {
+    return ((NetlibDoubleArray) doubleArray).getBackingArray();
+  }
+
+  private int[] getBackingArray(IntArray intArray) {
+    return ((NetlibIntArray)intArray).getBackingArray();
   }
 
   @Override
@@ -379,11 +387,11 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
     IntArray ipivCopy = copyIfView(ipiv);
 
     intW info = new intW(0);
-    lapack.dgetri(n, aCopy.data(), lda, ipivCopy.data(), work, lwork, info);
+    lapack.dgetri(n, getBackingArray(aCopy), lda, getBackingArray(ipivCopy), work, lwork, info);
     ensureInfo(info);
     lwork = (int) work[0];
     work = new double[lwork];
-    lapack.dgetri(n, aCopy.data(), lda, ipivCopy.data(), work, lwork, info);
+    lapack.dgetri(n, getBackingArray(aCopy), lda, getBackingArray(ipivCopy), work, lwork, info);
 
     copyToIfNeeded(ipiv, ipivCopy);
     copyToIfNeeded(a, aCopy);
@@ -582,9 +590,9 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
 
   private int[] getData(IntArray ipiv) {
     if (ipiv.getOffset() > 0 || ipiv.stride(0) != 1) {
-      return ipiv.copy().data();
+      return getBackingArray(ipiv.copy());
     } else {
-      return ipiv.data();
+      return getBackingArray(ipiv);
     }
   }
 
@@ -610,9 +618,9 @@ class NetlibLinearAlgebraRoutines extends AbstractLinearAlgebraRoutines {
    */
   private double[] getData(DoubleArray a) {
     if (!a.isContiguous() || a.getOffset() > 0 || a.stride(0) != 1) {
-      return a.copy().data();
+      return getBackingArray(a.copy());
     } else {
-      return a.data();
+      return getBackingArray(a);
     }
   }
 

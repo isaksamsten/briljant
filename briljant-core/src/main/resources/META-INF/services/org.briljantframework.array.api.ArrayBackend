@@ -1,2 +1,1 @@
-org.briljantframework.array.base.BaseArrayBackend
 org.briljantframework.array.netlib.NetlibArrayBackend

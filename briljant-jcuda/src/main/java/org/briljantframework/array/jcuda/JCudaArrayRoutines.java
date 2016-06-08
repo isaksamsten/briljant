@@ -28,12 +28,12 @@ import jcuda.jcublas.JCublas2;
 import org.briljantframework.array.ArrayOperation;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.array.base.BaseArrayRoutines;
+import org.briljantframework.array.api.AbstractArrayRoutines;
 
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
-public class JCudaArrayRoutines extends BaseArrayRoutines {
+public class JCudaArrayRoutines extends AbstractArrayRoutines {
 
   protected JCudaArrayRoutines(ArrayBackend backend) {
     super(backend);

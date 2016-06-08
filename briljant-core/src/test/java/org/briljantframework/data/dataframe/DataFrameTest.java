@@ -62,9 +62,12 @@ public abstract class DataFrameTest {
   public void testSet_rowView() throws Exception {
     DataFrame df = getBuilder().setColumn("A", Series.of(1, 2, 3, 4))
         .setColumn("B", Series.of(4, 3, 2, 1)).build();
-    df.getColumn("A").set(0, 10);
-    df.getRow(0).set(df.getRow(0).where(Integer.class, i -> i > 2), 20);
+    df.setIndex(Index.of("DSV", "SU", "STAT", "VE"));
     System.out.println(df);
+
+
+//    df.getRow("DSV").set(df.getRow("DSV").where(Integer.class, i -> i > 2), 20);
+    System.out.println(df.loc().get(Range.of(2), Range.of(1)));
   }
 
   @Test
@@ -169,7 +172,7 @@ public abstract class DataFrameTest {
         .setColumn("B", IntSeries.of(1, 2, 3)).build();
     DataFrame expected = getBuilder().setColumn("A", IntSeries.of(2, 4, 6))
         .setColumn("B", IntSeries.of(2, 4, 6)).build();
-    DataFrame actual = df.apply(a -> a.times(2));
+    DataFrame actual = df.apply(a -> a.map(Integer.class, i -> i * 2));
     assertEquals(expected, actual);
   }
 
@@ -247,7 +250,7 @@ public abstract class DataFrameTest {
         .setColumn("B", Series.of(30.0, 2.0, 33.0, 6.0)).build();
     Index index = Index.of("a", "b", "c", "d");
     df.setIndex(index);
-    DataFrame actual = df.groupBy("A").apply(v -> v.minus(v.mean()));
+    DataFrame actual = df.groupBy("A").apply(v -> v.map(Double.class, i -> i - v.mean()));
 
     DataFrame expected = getBuilder().setColumn("A", Series.of(1, 2, 1, 2)).setColumn("B",
         Series.of(30 - (30 + 33) / 2.0, 2 - (2 + 6) / 2.0, 33 - (30 + 33) / 2.0, 6 - (2 + 6) / 2.0))

@@ -81,7 +81,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
   }
 
   @Override
-  public DoubleArray asDoubleArray() {
+  public DoubleArray doubleArray() {
     return new AsDoubleArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
       @Override
       public double getElement(int index) {
@@ -101,7 +101,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
   }
 
   @Override
-  public IntArray asIntArray() {
+  public IntArray intArray() {
     return new AsIntArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
 
       @Override
@@ -123,7 +123,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
   }
 
   @Override
-  public LongArray asLongArray() {
+  public LongArray longArray() {
     return new AsLongArray(getArrayBackend(), getOffset(), getShape(), getStride()) {
 
       @Override
@@ -145,7 +145,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
   }
 
   @Override
-  public BooleanArray asBooleanArray() {
+  public BooleanArray booleanArray() {
     return this;
   }
 
@@ -241,58 +241,6 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
   }
 
   @Override
-  public BooleanArray xor(BooleanArray other) {
-    Check.dimension(this, other);
-    BooleanArray bm = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      boolean otherHas = other.get(i);
-      boolean thisHas = get(i);
-      bm.set(i, (thisHas || otherHas) && !(thisHas && otherHas));
-    }
-    return bm;
-  }
-
-  @Override
-  public BooleanArray or(BooleanArray other) {
-    Check.dimension(this, other);
-    BooleanArray bm = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      bm.set(i, get(i) || other.get(i));
-    }
-    return bm;
-  }
-
-  @Override
-  public BooleanArray orNot(BooleanArray other) {
-    Check.dimension(this, other);
-    BooleanArray bm = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      bm.set(i, get(i) || !other.get(i));
-    }
-    return bm;
-  }
-
-  @Override
-  public BooleanArray and(BooleanArray other) {
-    Check.dimension(this, other);
-    BooleanArray bm = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      bm.set(i, get(i) && other.get(i));
-    }
-    return bm;
-  }
-
-  @Override
-  public BooleanArray andNot(BooleanArray other) {
-    Check.dimension(this, other);
-    BooleanArray bm = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      bm.set(i, get(i) && !other.get(i));
-    }
-    return bm;
-  }
-
-  @Override
   public BooleanArray not() {
     BooleanArray bm = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
@@ -348,7 +296,7 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
   }
 
   @Override
-  public Array<Boolean> asArray() {
+  public Array<Boolean> boxed() {
     return new AsArray<Boolean>(this) {
 
       @Override

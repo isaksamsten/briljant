@@ -51,13 +51,13 @@ public interface BooleanArray extends BaseArray<BooleanArray>, Iterable<Boolean>
     return Arrays.booleanArray(shape);
   }
 
-  DoubleArray asDoubleArray();
+  DoubleArray doubleArray();
 
-  IntArray asIntArray();
+  IntArray intArray();
 
-  LongArray asLongArray();
+  LongArray longArray();
 
-  BooleanArray asBooleanArray();
+  BooleanArray booleanArray();
 
   ComplexArray asComplexArray();
 
@@ -115,16 +115,6 @@ public interface BooleanArray extends BaseArray<BooleanArray>, Iterable<Boolean>
 
   void apply(UnaryOperator<Boolean> operator);
 
-  BooleanArray xor(BooleanArray other);
-
-  BooleanArray or(BooleanArray other);
-
-  BooleanArray orNot(BooleanArray other);
-
-  BooleanArray and(BooleanArray other);
-
-  BooleanArray andNot(BooleanArray other);
-
   BooleanArray not();
 
   /**
@@ -170,11 +160,7 @@ public interface BooleanArray extends BaseArray<BooleanArray>, Iterable<Boolean>
    */
   boolean all();
 
-  default Array<Boolean> boxed() {
-    return asArray();
-  }
-
-  Array<Boolean> asArray();
+  Array<Boolean> boxed();
 
   Stream<Boolean> stream();
 

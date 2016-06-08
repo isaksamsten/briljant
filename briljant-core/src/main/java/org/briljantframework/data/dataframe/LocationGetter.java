@@ -45,6 +45,8 @@ import org.briljantframework.data.series.Series;
  */
 public interface LocationGetter {
 
+  DataFrame get(IntArray rows, IntArray column);
+
   default Object get(int r, int c) {
     return get(Object.class, r, c);
   }

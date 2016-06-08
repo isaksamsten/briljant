@@ -242,7 +242,6 @@ abstract class ArrayFactorySpec extends Specification {
   def "create new range"() {
     expect:
     def range = bj.range(start, end, step)
-    range.data() == result as int[]
     range.start() == start
     range.end() == end
     range.size() == (end - start) / step
@@ -379,7 +378,6 @@ abstract class ArrayFactorySpec extends Specification {
     expect:
     def range = bj.range(a, b, c)
     range.size() == d
-    range.asList().last() == l
 
     where:
     a << [1, 2, 3, 4]
@@ -394,7 +392,7 @@ abstract class ArrayFactorySpec extends Specification {
     def r = bj.range(1, 10, 2)
 
     when:
-    def last = r.asList().last()
+    def last = r.get(4)
 
     then:
     r.size() == 5
@@ -406,7 +404,7 @@ abstract class ArrayFactorySpec extends Specification {
     def r = bj.range(0, -10, -1)
 
     expect:
-    r.asList().last() == -9
+    r.get(9) == -9
   }
 
 

@@ -26,7 +26,7 @@ package org.briljantframework.array
 
 import org.apache.commons.math3.complex.Complex
 import org.apache.commons.math3.complex.ComplexFormat
-import org.briljantframework.array.base.BaseArrayBackend
+import org.briljantframework.array.netlib.NetlibArrayBackend
 import spock.lang.Specification
 
 import java.util.function.Supplier
@@ -36,7 +36,7 @@ import java.util.function.Supplier
  */
 class ReferenceArraySpec extends Specification {
 
-  def bj = new BaseArrayBackend().arrayFactory
+  def bj = new NetlibArrayBackend().arrayFactory
 
   def "assigning a single element"() {
     given:

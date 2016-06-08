@@ -50,26 +50,27 @@ public class Datasets {
   private static final String RESOURCE_PATTERN = "%s.txt";
   private static final Map<String, DataFrame> DATA_CACHE = new HashMap<>();
 
-  private Datasets() {
-  }
+  private Datasets() {}
 
   /**
-   * Load data frame using {@code in} and construct a new {@link org.briljantframework.data.dataframe.DataFrame}
-   * using the function {@code f} which should return a {@link org.briljantframework.data.dataframe.DataFrame.Builder}
-   * using the column names and the column types. The values from {@code in} are read to the {@code
-   * DataFrame.Builder} and returned as the DataFrame created by {@link
-   * org.briljantframework.data.dataframe.DataFrame.Builder#build()}. <p>
+   * Load data frame using {@code in} and construct a new
+   * {@link org.briljantframework.data.dataframe.DataFrame} using the function {@code f} which
+   * should return a {@link org.briljantframework.data.dataframe.DataFrame.Builder} using the column
+   * names and the column types. The values from {@code in} are read to the {@code
+   * DataFrame.Builder} and returned as the DataFrame created by
+   * {@link org.briljantframework.data.dataframe.DataFrame.Builder#build()}.
+   * <p>
    * <code><pre>
    *    DataFrame dataframe =
    *        DataFrames.load(MixedDataFrame.Builder::new, new CsvInputStream("iris.txt"));
    * </pre></code>
    *
-   * @param f  the producing {@code BiFunction}
+   * @param f the producing {@code BiFunction}
    * @param in the input stream
    * @return a new dataframe
    */
   public static DataFrame load(Function<Collection<? extends Type>, DataFrame.Builder> f,
-                               DatasetReader in) throws IOException {
+      DatasetReader in) throws IOException {
     try {
       Collection<Type> types = in.readColumnTypes();
       Collection<Object> names = in.readColumnIndex();
@@ -100,14 +101,12 @@ public class Datasets {
    * @return a new data frame constructed from the supplied builder
    * @see #loadIris()
    */
-  public static DataFrame loadIris(
-      Function<Collection<? extends Type>, DataFrame.Builder> f) {
+  public static DataFrame loadIris(Function<Collection<? extends Type>, DataFrame.Builder> f) {
     return load(f, RdsDatasetReader::new, IRIS);
   }
 
   /**
-   * The Iris flower data set or Fisher's Iris data set is a multivariate data set introduced by
-   * Sir
+   * The Iris flower data set or Fisher's Iris data set is a multivariate data set introduced by Sir
    * Ronald Fisher (1936) as an example of discriminant analysis. It is sometimes called Anderson's
    * Iris data set because Edgar Anderson collected the data to quantify the morphologic variation
    * of Iris flowers of three related species.
@@ -164,8 +163,7 @@ public class Datasets {
    * @return a new data frame constructed from the supplied builder
    * @see #loadConnect4()
    */
-  public static DataFrame loadConnect4(
-      Function<Collection<? extends Type>, DataFrame.Builder> f) {
+  public static DataFrame loadConnect4(Function<Collection<? extends Type>, DataFrame.Builder> f) {
     return load(f, RdsDatasetReader::new, CONNECT_4);
   }
 
@@ -177,9 +175,7 @@ public class Datasets {
     if (DATA_CACHE.containsKey(SYNTHETIC_CONTROL)) {
       return DATA_CACHE.get(SYNTHETIC_CONTROL);
     }
-    DataFrame frame = loadSyntheticControl(
-        types -> new MixedDataFrame.Builder()
-    );
+    DataFrame frame = loadSyntheticControl(types -> new MixedDataFrame.Builder());
     DATA_CACHE.put(SYNTHETIC_CONTROL, frame);
     return frame;
   }
@@ -212,13 +208,12 @@ public class Datasets {
    * @param f
    * @return
    */
-  public static DataFrame loadDummy(
-      Function<Collection<? extends Type>, DataFrame.Builder> f) {
+  public static DataFrame loadDummy(Function<Collection<? extends Type>, DataFrame.Builder> f) {
     return load(f, RdsDatasetReader::new, DUMMY);
   }
 
   public static DataFrame load(Function<Collection<? extends Type>, DataFrame.Builder> f,
-                               Function<InputStream, DatasetReader> fin, String name) {
+      Function<InputStream, DatasetReader> fin, String name) {
     try (DatasetReader dfis = fin.apply(new BufferedInputStream(getResourceAsStream(name)))) {
       return load(f, dfis);
     } catch (IOException e) {
@@ -228,8 +223,7 @@ public class Datasets {
 
   private static InputStream getResourceAsStream(String name) {
     String fileName = String.format(RESOURCE_PATTERN, name);
-    InputStream inputStream =
-        Datasets.class.getResourceAsStream(fileName);
+    InputStream inputStream = Datasets.class.getResourceAsStream(fileName);
 
     if (inputStream == null) {
       throw new IOError(new IOException(String.format("Unable to find %s", fileName)));

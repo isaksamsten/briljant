@@ -32,6 +32,7 @@ import org.briljantframework.data.Logical;
 public final class Types {
   private Types() {}
 
+  public static final Type INFERENCE = new InferenceType();
   public static final Type STRING = new GenericType(String.class);
   public static final Type LOGICAL = new GenericType(Logical.class);
   public static final Type INT = new IntType();

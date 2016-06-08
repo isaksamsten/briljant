@@ -58,12 +58,16 @@ public abstract class AbstractDataFrame implements DataFrame {
   private Index columnIndex = null;
 
   /**
-   * @param columnIndex allowed to be {@code null}
-   * @param index allowed to be {@code null}
+   * @param columnIndex {@code null} is allowed
+   * @param index {@code null} is allowed
    */
   protected AbstractDataFrame(Index columnIndex, Index index) {
     this.columnIndex = columnIndex;
     this.index = index;
+  }
+
+  protected AbstractDataFrame() {
+    this(null, null);
   }
 
   @Override
@@ -405,6 +409,7 @@ public abstract class AbstractDataFrame implements DataFrame {
       }
     } else if (array.isVector()) { // Select rows;
       for (int i = 0; i < array.size(); i++) {
+
 //        Object key = getIndex().get(i);
         if (array.get(i)) {
           Series row = loc().getRow(i);
@@ -717,7 +722,7 @@ public abstract class AbstractDataFrame implements DataFrame {
    */
   protected DataFrame getRowIndexElement(IntArray indexes) {
     Builder builder = newBuilder();
-    for (Integer index : indexes.asList()) {
+    for (Integer index : indexes) {
       builder.setRow(getIndex().get(index), getRowElement(index).newCopyBuilder());
     }
     DataFrame df = builder.build();
@@ -901,11 +906,11 @@ public abstract class AbstractDataFrame implements DataFrame {
       return loc;
     }
 
-    protected abstract void removeRecordAt(int r);
+    protected abstract void removeRowElement(int r);
 
     protected abstract void swapAt(int a, int b);
 
-    protected abstract void swapRecordsAt(int a, int b);
+    protected abstract void swapRowElement(int a, int b);
 
     private class LocationSetterImpl implements LocationSetter {
 
@@ -968,7 +973,7 @@ public abstract class AbstractDataFrame implements DataFrame {
         if (rowIndexBuilder != null) {
           rowIndexBuilder.removeLocation(pos);
         }
-        removeRecordAt(pos);
+        removeRowElement(pos);
       }
 
       @Override
@@ -976,7 +981,7 @@ public abstract class AbstractDataFrame implements DataFrame {
         if (rowIndexBuilder != null) {
           rowIndexBuilder.swap(a, b);
         }
-        swapRecordsAt(a, b);
+        swapRowElement(a, b);
       }
     }
 
@@ -1104,6 +1109,25 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   private class LocationGetterImpl implements LocationGetter {
+
+    @Override
+    public DataFrame get(IntArray rows, IntArray column) {
+      DataFrame.Builder out = newBuilder();
+      for (int i = 0; i < column.size(); i++) {
+        int columnLocation = column.get(i);
+        Object columnKey = getColumnIndex().get(columnLocation);
+        Series oldColumn = get(columnLocation);
+        Series.Builder newColumn = oldColumn.newBuilder();
+        for (int j = 0; j < rows.size(); j++) {
+          int rowLocation = rows.get(j);
+          Object rowKey = getIndex().get(rowLocation);
+          newColumn.setFrom(rowKey, oldColumn, rowKey);
+        }
+        out.setColumn(columnKey, newColumn);
+      }
+
+      return out.build();
+    }
 
     @Override
     public <T> T get(Class<T> cls, int r, int c) {

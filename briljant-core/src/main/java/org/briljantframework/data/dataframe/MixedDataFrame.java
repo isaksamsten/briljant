@@ -512,7 +512,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     }
 
     @Override
-    protected void removeRecordAt(int r) {
+    protected void removeRowElement(int r) {
       for (Series.Builder buffer : buffers) {
         buffer.loc().remove(r);
       }
@@ -529,7 +529,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     }
 
     @Override
-    public void swapRecordsAt(int a, int b) {
+    public void swapRowElement(int a, int b) {
       for (int i = 0; i < size(1); i++) {
         swapInColumn(i, a, b);
       }

@@ -22,14 +22,14 @@ package org.briljantframework.data.series;
 
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.resolver.Resolve;
-import org.briljantframework.util.sort.Swappable;
+import org.briljantframework.util.sort.ElementSwapper;
 
 /**
  * This class provides location based indexing of {@link Series}.
  * 
  * @author Isak Karlsson
  */
-public interface LocationSetter extends Swappable {
+public interface LocationSetter extends ElementSwapper {
 
   /**
    * Add NA at {@code index}. If {@code index > size()} the resulting series should be padded with

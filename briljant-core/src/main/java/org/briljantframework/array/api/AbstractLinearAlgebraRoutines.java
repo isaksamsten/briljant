@@ -18,7 +18,7 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.briljantframework.array.linalg.api;
+package org.briljantframework.array.api;
 
 import java.util.Objects;
 
@@ -28,8 +28,6 @@ import org.briljantframework.array.ArrayOperation;
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.IntArray;
-import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.linalg.decomposition.EigenDecomposition;
 import org.briljantframework.array.linalg.decomposition.LuDecomposition;
 import org.briljantframework.array.linalg.decomposition.SingularValueDecomposition;
@@ -94,7 +92,7 @@ public abstract class AbstractLinearAlgebraRoutines implements LinearAlgebraRout
     } else {
       gesdd('a', a, s, u, vt);
     }
-    return new SingularValueDecomposition(s, u, vt.transpose());
+    return new GesddSingularValueDecomposition(s, u, vt.transpose());
   }
 
   @Override
@@ -110,7 +108,7 @@ public abstract class AbstractLinearAlgebraRoutines implements LinearAlgebraRout
     Check.argument(x.isMatrix(), "require 2d-array");
     ArrayFactory bj = getArrayBackend().getArrayFactory();
     SingularValueDecomposition svd = svd(x);
-    DoubleArray d = svd.getSingularValues();
+    DoubleArray d = svd.getSingularValues().copy();
     int r1 = 0;
     for (int i = 0; i < d.size(); i++) {
       if (d.get(i) > MACHINE_EPSILON) {
@@ -120,7 +118,7 @@ public abstract class AbstractLinearAlgebraRoutines implements LinearAlgebraRout
     }
 
     DoubleArray u = svd.getLeftSingularValues();
-    DoubleArray v = svd.getRightSingularValues();
+    DoubleArray v = svd.getRightSingularValues().copy();
     u = u.getView(0, 0, u.rows(), r1);
     v = v.getView(0, 0, v.rows(), r1);
     d = d.get(bj.range(r1));
@@ -190,6 +188,33 @@ public abstract class AbstractLinearAlgebraRoutines implements LinearAlgebraRout
     @Override
     public DoubleArray getEigenVectors() {
       return vl;
+    }
+  }
+
+  private static class GesddSingularValueDecomposition extends SingularValueDecomposition {
+    private final DoubleArray s;
+    private final DoubleArray u;
+    private final DoubleArray vt;
+
+    public GesddSingularValueDecomposition(DoubleArray s, DoubleArray u, DoubleArray vt) {
+      this.s = Arrays.unmodifiableArray(s);
+      this.u = Arrays.unmodifiableArray(u);
+      this.vt = Arrays.unmodifiableArray(vt);
+    }
+
+    @Override
+    public DoubleArray getSingularValues() {
+      return s;
+    }
+
+    @Override
+    public DoubleArray getLeftSingularValues() {
+      return u;
+    }
+
+    @Override
+    public DoubleArray getRightSingularValues() {
+      return vt;
     }
   }
 }

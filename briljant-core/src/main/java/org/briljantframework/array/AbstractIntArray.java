@@ -26,6 +26,8 @@ import java.util.function.*;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
+import net.mintern.primitive.comparators.IntComparator;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
@@ -33,8 +35,6 @@ import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.util.primitive.IntList;
 import org.briljantframework.util.sort.QuickSort;
-
-import net.mintern.primitive.comparators.IntComparator;
 
 /**
  * This class provides a skeletal implementation of an int array.
@@ -189,7 +189,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void combineAssign(IntArray other, IntBinaryOperator combine) {
-    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+    org.briljantframework.array.Arrays.broadcastWith(this, other, (a, b) -> {
       Check.size(a, b);
       for (int i = 0, size = a.size(); i < size; i++) {
         a.set(i, combine.applyAsInt(a.get(i), b.get(i)));
@@ -199,7 +199,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void assign(ComplexArray other, ToIntFunction<? super Complex> function) {
-    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+    org.briljantframework.array.Arrays.broadcastWith(this, other, (a, b) -> {
       Check.size(a, b);
       for (int i = 0, size = a.size(); i < size; i++) {
         a.set(i, function.applyAsInt(b.get(i)));
@@ -209,7 +209,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void assign(DoubleArray other, DoubleToIntFunction function) {
-    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+    org.briljantframework.array.Arrays.broadcastWith(this, other, (a, b) -> {
       Check.size(a, b);
       for (int i = 0, size = a.size(); i < size; i++) {
         a.set(i, function.applyAsInt(b.get(i)));
@@ -219,7 +219,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void assign(LongArray other, LongToIntFunction function) {
-    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+    org.briljantframework.array.Arrays.broadcastWith(this, other, (a, b) -> {
       Check.size(a, b);
       for (int i = 0, size = a.size(); i < size; i++) {
         a.set(i, function.applyAsInt(b.get(i)));
@@ -229,7 +229,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void assign(BooleanArray other, ToIntFunction<Boolean> function) {
-    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+    org.briljantframework.array.Arrays.broadcastWith(this, other, (a, b) -> {
       Check.size(a, b);
       for (int i = 0, size = a.size(); i < size; i++) {
         a.set(i, function.applyAsInt(b.get(i)));
@@ -313,7 +313,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public BooleanArray where(IntArray other, IntBiPredicate predicate) {
-    return org.briljantframework.array.Arrays.broadcast(this, other, (a, b) -> {
+    return org.briljantframework.array.Arrays.broadcastCombine(this, other, (a, b) -> {
       BooleanArray out = getArrayBackend().getArrayFactory().newBooleanArray(a.getShape());
       for (int i = 0, size = a.size(); i < size; i++) {
         out.set(i, predicate.test(a.get(i), b.get(i)));
@@ -361,9 +361,9 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public final int get(int i, int j) {
-    Check.index(i, rows(), j, columns());
-    return getElement(getOffset() + i * stride(0) + j * stride(1));
+  public final int get(int row, int column) {
+    Check.index(row, rows(), column, columns());
+    return getElement(getOffset() + row * stride(0) + column * stride(1));
   }
 
   @Override
@@ -372,14 +372,14 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
     setElement(getOffset() + i * stride(0) + j * stride(1), value);
   }
 
-  public final void set(int[] ix, int value) {
-    Check.index(ix, shape);
-    setElement(StrideUtils.index(ix, getOffset(), stride), value);
+  public final void set(int[] index, int value) {
+    Check.index(index, shape);
+    setElement(StrideUtils.index(index, getOffset(), stride), value);
   }
 
-  public final int get(int... ix) {
-    Check.index(ix, shape);
-    return getElement(StrideUtils.index(ix, getOffset(), stride));
+  public final int get(int... index) {
+    Check.index(index, shape);
+    return getElement(StrideUtils.index(index, getOffset(), stride));
   }
 
   @Override
@@ -410,12 +410,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public List<Integer> asList() {
-    return new IntListView();
-  }
-
-  @Override
-  public Array<Integer> asArray() {
+  public Array<Integer> boxed() {
     return new AsArray<Integer>(this) {
 
       @Override
@@ -445,134 +440,12 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
     QuickSort.quickSort(0, size(), (left, right) -> cmp.compare(get(left), get(right)), this);
   }
 
-  @Override
-  public IntArray times(IntArray other) {
-    Check.size(this, other);
-    IntArray m = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      m.set(i, get(i) * other.get(i));
-    }
-    return m;
-  }
-
-  @Override
-  public IntArray times(int scalar) {
-    IntArray m = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      m.set(i, get(i) * scalar);
-    }
-    return m;
-  }
-
-  @Override
-  public IntArray plus(IntArray other) {
-    Check.size(this, other);
-    IntArray m = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      m.set(i, get(i) + other.get(i));
-    }
-    return m;
-  }
-
-  @Override
-  public IntArray plus(int scalar) {
+  private IntArray plus(int scalar) {
     IntArray m = newEmptyArray(getShape());
     for (int i = 0; i < size(); i++) {
       m.set(i, get(i) + scalar);
     }
     return m;
-  }
-
-  @Override
-  public void plusAssign(IntArray other) {
-    combineAssign(other, Integer::sum);
-  }
-
-  @Override
-  public void plusAssign(int scalar) {
-    apply(i -> i + scalar);
-  }
-
-  @Override
-  public IntArray minus(IntArray other) {
-    Check.size(this, other);
-    IntArray out = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      out.set(i, get(i) - other.get(i));
-    }
-    return out;
-  }
-
-  @Override
-  public IntArray minus(int scalar) {
-    return plus(-scalar);
-  }
-
-  @Override
-  public void minusAssign(IntArray other) {
-    combineAssign(other, (a, b) -> a - b);
-  }
-
-  @Override
-  public void minusAssign(int scalar) {
-    apply(i -> i - scalar);
-  }
-
-  @Override
-  public IntArray reverseMinus(int scalar) {
-    IntArray out = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      out.set(i, scalar - get(i));
-    }
-    return out;
-  }
-
-  @Override
-  public void reverseMinusAssign(int scalar) {
-    apply(i -> scalar - i);
-  }
-
-  @Override
-  public IntArray div(IntArray other) {
-    Check.size(this, other);
-    IntArray out = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      out.set(i, get(i) / other.get(i));
-    }
-    return out;
-  }
-
-  @Override
-  public IntArray div(int other) {
-    IntArray m = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      m.set(i, get(i) / other);
-    }
-    return m;
-  }
-
-  @Override
-  public void divAssign(IntArray other) {
-    combineAssign(other, (a, b) -> a / b);
-  }
-
-  @Override
-  public void divAssign(int other) {
-    apply(i -> i / other);
-  }
-
-  @Override
-  public IntArray reverseDiv(int other) {
-    IntArray matrix = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      matrix.set(i, other / get(i));
-    }
-    return matrix;
-  }
-
-  @Override
-  public void reverseDivAssign(int other) {
-    apply(i -> other / i);
   }
 
   @Override
@@ -634,7 +507,22 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public Iterator<Integer> iterator() {
-    return asList().iterator();
+    return new Iterator<Integer>() {
+      private int current = 0;
+
+      @Override
+      public boolean hasNext() {
+        return current < size();
+      }
+
+      @Override
+      public Integer next() {
+        if (current >= size()) {
+          throw new NoSuchElementException();
+        }
+        return get(current++);
+      }
+    };
   }
 
   @Override
@@ -644,7 +532,15 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public boolean contains(Object o) {
-    return asList().contains(o);
+    if (!(o instanceof Integer)) {
+      return false;
+    }
+    for (int i = 0; i < size(); i++) {
+      if (o.equals(get(i))) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override
@@ -657,8 +553,14 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public <T> T[] toArray(T[] a) {
-    return asList().toArray(a);
+    T[] r = a.length >= size ? a
+        : (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
+    for (int i = 0; i < size(); i++) {
+      r[i] = (T) Integer.valueOf(get(i));
+    }
+    return r;
   }
 
   @Override
@@ -696,23 +598,4 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
     throw new UnsupportedOperationException();
   }
 
-  private class IntListView extends AbstractList<Integer> {
-
-    @Override
-    public Integer get(int i) {
-      return AbstractIntArray.this.get(i);
-    }
-
-    @Override
-    public Integer set(int i, Integer value) {
-      int old = AbstractIntArray.this.get(i);
-      AbstractIntArray.this.set(i, value);
-      return old;
-    }
-
-    @Override
-    public int size() {
-      return AbstractIntArray.this.size();
-    }
-  }
 }

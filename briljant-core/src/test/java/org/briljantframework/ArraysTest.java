@@ -83,7 +83,7 @@ public class ArraysTest {
     DoubleArray x = DoubleArray.zeros(3, 3, 3);
     DoubleArray y = DoubleArray.linspace(-1, 1, 3 * 3).reshape(3, 3);
 
-    DoubleArray broadcast = Arrays.broadcast(x, y, Arrays::plus);
+    DoubleArray broadcast = Arrays.broadcastCombine(x, y, Arrays::plus);
     System.out.println(broadcast);
 
   }

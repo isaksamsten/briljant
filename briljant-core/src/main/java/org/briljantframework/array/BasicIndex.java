@@ -94,7 +94,7 @@ import org.briljantframework.function.IntBiPredicate;
  * 
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
-public final class BasicIndex implements Range, Collection<Integer> {
+public final class BasicIndex implements Range {
 
   /**
    * Special selector that selects everything along the indicated dimension
@@ -135,11 +135,6 @@ public final class BasicIndex implements Range, Collection<Integer> {
 
   @Override
   public int end() {
-    throw unsupported();
-  }
-
-  @Override
-  public boolean contains(int value) {
     throw unsupported();
   }
 
@@ -263,7 +258,7 @@ public final class BasicIndex implements Range, Collection<Integer> {
   }
 
   @Override
-  public int get(int i, int j) {
+  public int get(int row, int column) {
     throw unsupported();
   }
 
@@ -273,12 +268,12 @@ public final class BasicIndex implements Range, Collection<Integer> {
   }
 
   @Override
-  public void set(int[] ix, int value) {
+  public void set(int[] index, int value) {
     throw unsupported();
   }
 
   @Override
-  public int get(int... ix) {
+  public int get(int... index) {
     throw unsupported();
   }
 
@@ -293,12 +288,7 @@ public final class BasicIndex implements Range, Collection<Integer> {
   }
 
   @Override
-  public List<Integer> asList() {
-    throw unsupported();
-  }
-
-  @Override
-  public Array<Integer> asArray() {
+  public Array<Integer> boxed() {
     throw unsupported();
   }
 
@@ -313,102 +303,7 @@ public final class BasicIndex implements Range, Collection<Integer> {
   }
 
   @Override
-  public IntArray times(IntArray other) {
-    throw unsupported();
-  }
-
-  @Override
-  public IntArray times(int scalar) {
-    throw unsupported();
-  }
-
-  @Override
-  public IntArray plus(IntArray other) {
-    throw unsupported();
-  }
-
-  @Override
-  public IntArray plus(int scalar) {
-    throw unsupported();
-  }
-
-  @Override
-  public void plusAssign(IntArray other) {
-    throw unsupported();
-  }
-
-  @Override
-  public void plusAssign(int scalar) {
-    throw unsupported();
-  }
-
-  @Override
-  public IntArray minus(IntArray other) {
-    throw unsupported();
-  }
-
-  @Override
-  public IntArray minus(int scalar) {
-    throw unsupported();
-  }
-
-  @Override
-  public void minusAssign(IntArray other) {
-    throw unsupported();
-  }
-
-  @Override
-  public void minusAssign(int scalar) {
-    throw unsupported();
-  }
-
-  @Override
-  public IntArray reverseMinus(int scalar) {
-    throw unsupported();
-  }
-
-  @Override
-  public void reverseMinusAssign(int scalar) {
-    throw unsupported();
-  }
-
-  @Override
-  public IntArray div(IntArray other) {
-    throw unsupported();
-  }
-
-  @Override
-  public IntArray div(int other) {
-    throw unsupported();
-  }
-
-  @Override
-  public void divAssign(IntArray other) {
-    throw unsupported();
-  }
-
-  @Override
-  public void divAssign(int other) {
-    throw unsupported();
-  }
-
-  @Override
-  public IntArray reverseDiv(int other) {
-    throw unsupported();
-  }
-
-  @Override
-  public void reverseDivAssign(int other) {
-    throw unsupported();
-  }
-
-  @Override
   public IntArray negate() {
-    throw unsupported();
-  }
-
-  @Override
-  public int[] data() {
     throw unsupported();
   }
 

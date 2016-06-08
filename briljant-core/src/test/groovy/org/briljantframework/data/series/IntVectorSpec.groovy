@@ -40,23 +40,6 @@ class IntVectorSpec extends Specification {
     x instanceof IntSeries
   }
 
-  def "IntVector arithmetic"() {
-    setup:
-    def a = Series.copyOf([1, 2, 3, 4])
-    def b = Series.copyOf([1, 2, 3, 4])
-
-    when:
-    def c = a.plus(b)
-    def d = a.minus(b)
-    def e = a.times(b)
-    def f = a.div(b)
-
-    then:
-    c == Series.copyOf([2, 4, 6, 8])
-    d == Series.copyOf([0, 0, 0, 0])
-    e == Series.copyOf([1, 4, 9, 16])
-    f == Series.copyOf([1, 1, 1, 1])
-  }
 
   def "IntVector builder adds NA values"() {
     setup:

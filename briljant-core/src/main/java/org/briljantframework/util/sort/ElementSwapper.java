@@ -18,18 +18,32 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.briljantframework.array;
+package org.briljantframework.util.sort;
 
-import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.array.base.BaseArrayBackend;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Created by isak on 5/4/16.
+ * @author Isak Karlsson
  */
-public class BaseIntArrayTest extends IntArrayTest {
+public interface ElementSwapper {
 
-  @Override protected ArrayFactory getArrayFactory() {
-    return new BaseArrayBackend().getArrayFactory();
+  default void permute(int count) {
+    Random random = ThreadLocalRandom.current();
+    permute(count, random);
   }
+
+  default void permute(int count, Random random) {
+    for (int i = count; i > 1; i--) {
+      swap(i - 1, random.nextInt(i));
+    }
+  }
+
+  /**
+   * Swaps, in for example a list, the value at position {@code a} and {@code b}.
+   *
+   * @param a the first index
+   * @param b the second index
+   */
+  void swap(int a, int b);
 }

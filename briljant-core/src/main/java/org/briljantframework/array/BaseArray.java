@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.briljantframework.util.sort.Swappable;
+import org.briljantframework.util.sort.ElementSwapper;
 
 /**
  * A multi dimensional array of unknown element type. An nd-array is a (usually fixed size)
@@ -72,7 +72,7 @@ import org.briljantframework.util.sort.Swappable;
  * <li>{@link DoubleArray#doubleArray()} must return {@code this}</li>
  * <li>{@link IntArray#intArray()} must return {@code this}</li>
  * <li>{@link org.briljantframework.array.LongArray#longArray()} must return {@code this}</li>
- * <li>{@link BooleanArray#asBooleanArray()} must return {@code this}</li>
+ * <li>{@link BooleanArray#booleanArray()} must return {@code this}</li>
  * <li>{@link ComplexArray#complexArray()} must return {@code this}</li>
  * </ul>
  * 
@@ -101,7 +101,7 @@ import org.briljantframework.util.sort.Swappable;
  * @see IntArray
  * @see BooleanArray
  */
-public interface BaseArray<S extends BaseArray<S>> extends Swappable {
+public interface BaseArray<S extends BaseArray<S>> extends ElementSwapper {
 
   /**
    * Set the value at {@code toIndex} using the value at {@code fromIndex} in {@code from}, enabling

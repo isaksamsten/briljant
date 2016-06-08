@@ -94,11 +94,9 @@ public class Matrices {
    * @param <T> the type of array
    * @return a
    */
+  @SuppressWarnings("unchecked")
   public static <T extends FieldElement<T>> FieldVector<T> asFieldVector(Array<T> array) {
-    if (array.isView() || !array.isContiguous()) {
-      array = array.copy();
-    }
-    return new ArrayFieldVector<>(array.data(), false);
+    return new ArrayFieldVector<>((T[])array.toArray(), false);
   }
 
   /**

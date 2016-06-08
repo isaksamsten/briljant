@@ -23,13 +23,7 @@ package org.briljantframework.array.api;
 import java.util.Comparator;
 
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.array.Array;
-import org.briljantframework.array.ArrayOperation;
-import org.briljantframework.array.BaseArray;
-import org.briljantframework.array.ComplexArray;
-import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.IntArray;
-import org.briljantframework.array.LongArray;
+import org.briljantframework.array.*;
 
 /**
  * Array routines perform different operations on arrays.
@@ -564,7 +558,59 @@ public interface ArrayRoutines {
    */
   void divAssign(DoubleArray nominator, DoubleArray denominatorOut);
 
+  IntArray plus(IntArray a, IntArray b);
 
+  void plusAssign(IntArray a, IntArray out);
+
+  IntArray minus(IntArray a, IntArray b);
+
+  void minusAssign(IntArray a, IntArray out);
+  
+  IntArray times(IntArray a, IntArray b);
+
+  void timesAssign(IntArray a, IntArray out);
+  
+  IntArray div(IntArray a, IntArray b);
+
+  void divAssign(IntArray a, IntArray out);
+
+  LongArray plus(LongArray a, LongArray b);
+
+  void plusAssign(LongArray a, LongArray out);
+
+  LongArray minus(LongArray a, LongArray b);
+
+  void minusAssign(LongArray a, LongArray out);
+
+  LongArray times(LongArray a, LongArray b);
+
+  void timesAssign(LongArray a, LongArray out);
+
+  LongArray div(LongArray a, LongArray b);
+
+  void divAssign(LongArray a, LongArray out);
+
+  ComplexArray plus(ComplexArray a, ComplexArray b);
+
+  void plusAssign(ComplexArray a, ComplexArray out);
+
+  ComplexArray minus(ComplexArray a, ComplexArray b);
+
+  void minusAssign(ComplexArray a, ComplexArray out);
+
+  ComplexArray times(ComplexArray a, ComplexArray b);
+
+  void timesAssign(ComplexArray a, ComplexArray out);
+
+  ComplexArray div(ComplexArray a, ComplexArray b);
+
+  void divAssign(ComplexArray a, ComplexArray out);
+
+  BooleanArray and(BooleanArray a, BooleanArray b);
+
+  BooleanArray or(BooleanArray a, BooleanArray b);
+
+  BooleanArray xor(BooleanArray a, BooleanArray b);
 
   /**
    * @see Math#sin(double)

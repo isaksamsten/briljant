@@ -60,14 +60,14 @@ public abstract class ArrayFactoryTest {
 
   @Test
   public void testArrayGet_BooleanArray() throws Exception {
-    Array<Integer> a = getFactory().range(3 * 3).reshape(3, 3).asArray();
+    Array<Integer> a = getFactory().range(3 * 3).reshape(3, 3).boxed();
     Array<Integer> x = a.get(a.where(i -> i > 2));
     assertEquals(getFactory().newVector(new Integer[]{3, 4, 5, 6, 7, 8}), x);
   }
 
   @Test
   public void testArraySet_BooleanArray() throws Exception {
-    Array<Integer> a = getFactory().range(3 * 3).reshape(3, 3).asArray();
+    Array<Integer> a = getFactory().range(3 * 3).reshape(3, 3).boxed();
     Array<Integer> b = getFactory().newArray(3, 3);
     b.set(a.where(i -> i > 2), 10);
     assertEquals(getFactory().newVector(new Integer[]{null, null, null, 10, 10, 10, 10, 10, 10}).reshape(3, 3), b);
@@ -125,27 +125,5 @@ public abstract class ArrayFactoryTest {
     DoubleArray y = DoubleArray.zeros(4);
     Arrays.axpy(2, x, y);
     System.out.println(y);
-  }
-
-  @Test
-  public void testfuck() throws Exception {
-    DoubleArray x1 = Arrays.linspace(0, 11, 12).reshape(3, 4);
-    DoubleArray y1 = Arrays.linspace(0, 11, 12).reshape(4, 3);
-    DoubleArray x = x1.getRow(2);
-    DoubleArray y = y1.getColumn(0);
-
-    System.out.println(x1);
-    System.out.println(y1);
-    double alpha = 1;
-
-    System.out.println(x.ravel());
-    System.out.println(y.ravel());
-    Arrays.axpy(alpha, x.ravel(), y.ravel());
-    System.out.println(y);
-
-    for (int i = 0; i < x.size(); i++) {
-      System.out.println(x.data()[x.getOffset() + i * 3] + " + " + y.data()[y.getOffset() + i]);
-    }
-
   }
 }

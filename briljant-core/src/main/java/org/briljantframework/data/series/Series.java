@@ -334,7 +334,7 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
    */
   <T> Series map(Class<T> cls, Function<? super T, ?> operator);
 
-  Series zipWith(Series other, BiFunction<? super Object, ? super Object, ?> combiner);
+  Series merge(Series other, BiFunction<? super Object, ? super Object, ?> combiner);
 
   /**
    * Combine two vectors using the specified combination function. For example, concatenating two
@@ -352,48 +352,8 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
    * @param <T> a type
    * @return a new series
    */
-  <T> Series zipWith(Class<T> cls, Series other,
+  <T> Series merge(Class<T> cls, Series other,
       BiFunction<? super T, ? super T, ? extends T> combiner);
-
-  default Series plus(Object other) {
-    return plus(repeat(other, size()));
-  }
-
-  default Series plus(Series other) {
-    return zipWith(Object.class, other, Combine.add());
-  }
-
-  default Series times(Number other) {
-    return times(repeat(other, size()));
-  }
-
-  default Series times(Series other) {
-    return zipWith(Object.class, other, Combine.mul());
-  }
-
-  default Series div(Number other) {
-    return div(repeat(other, size()));
-  }
-
-  default Series div(Series other) {
-    return zipWith(Object.class, other, Combine.div());
-  }
-
-  default Series reverseDiv(Number other) {
-    return repeat(other, size()).zipWith(Object.class, this, Combine.div());
-  }
-
-  default Series minus(Number other) {
-    return minus(repeat(other, size()));
-  }
-
-  default Series minus(Series other) {
-    return zipWith(Object.class, other, Combine.sub());
-  }
-
-  default Series reverseMinus(Number other) {
-    return repeat(other, size()).zipWith(Object.class, this, Combine.sub());
-  }
 
   Series drop(Object key);
 

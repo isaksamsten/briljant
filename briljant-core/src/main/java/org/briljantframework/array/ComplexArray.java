@@ -20,6 +20,7 @@
  */
 package org.briljantframework.array;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.*;
 import java.util.stream.Stream;
@@ -33,7 +34,7 @@ import org.briljantframework.ComplexSequence;
  * @author Isak Karlsson
  */
 public interface ComplexArray
-    extends NumberArray, BaseArray<ComplexArray>, Iterable<Complex>, ComplexSequence {
+    extends NumberArray, BaseArray<ComplexArray>, Collection<Complex>, ComplexSequence {
 
   static ComplexArray ones(int... shape) {
     ComplexArray array = zeros(shape);
@@ -85,7 +86,6 @@ public interface ComplexArray
    * {@link java.util.function.DoubleSupplier#getAsDouble()}
    *
    * @param supplier the supplier
-   * @return receiver modified
    */
   void assign(Supplier<Complex> supplier);
 
@@ -94,7 +94,6 @@ public interface ComplexArray
    *
    * @param array the matrix
    * @param operator the operator
-   * @return receiver modified
    */
   void assign(ComplexArray array, UnaryOperator<Complex> operator);
 
@@ -104,7 +103,6 @@ public interface ComplexArray
    * Assign {@code matrix} to this complex matrix.
    *
    * @param array matrix of real values
-   * @return receiver modified
    */
   void assign(DoubleArray array);
 
@@ -113,7 +111,6 @@ public interface ComplexArray
    *
    * @param array the matrix
    * @param operator the operator
-   * @return receiver modified
    */
   void assign(DoubleArray array, DoubleFunction<Complex> operator);
 
@@ -195,30 +192,6 @@ public interface ComplexArray
   Complex reduce(Complex identity, BinaryOperator<Complex> reduce, UnaryOperator<Complex> map);
 
   /**
-   * Reduces each column. Column wise summing can be implemented as
-   *
-   * <pre>
-   * matrix.reduceColumns(col -&gt; col.reduce(0, (a, b) -&gt; a + b, x -&gt; x));
-   * </pre>
-   *
-   * @param reduce takes a {@code ComplexMatrix} and returns {@code Complex}
-   * @return a new column series with the reduced value
-   */
-  ComplexArray reduceColumns(Function<? super ComplexArray, ? extends Complex> reduce);
-
-  /**
-   * Reduces each rows. Row wise summing can be implemented as
-   *
-   * <pre>
-   * matrix.reduceRows(row -&gt; row.reduce(0, (a, b) -&gt; a + b, x -&gt; x));
-   * </pre>
-   *
-   * @param reduce takes a {@code ComplexMatrix} and returns {@code Complex}
-   * @return a new column series with the reduced value
-   */
-  ComplexArray reduceRows(Function<? super ComplexArray, ? extends Complex> reduce);
-
-  /**
    * Returns the conjugate transpose of this series.
    *
    * @return the conjugate transpose
@@ -278,121 +251,9 @@ public interface ComplexArray
     return get(i);
   }
 
-  abstract Array<Complex> asArray();
+  Array<Complex> asArray();
 
   Stream<Complex> stream();
-
-  abstract List<Complex> asList();
-
-  /**
-   * Element wise <u>m</u>ultiplication
-   *
-   * @param other the matrix
-   * @return a new matrix
-   */
-  ComplexArray times(ComplexArray other);
-
-  /**
-   * Element wise multiplication.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  ComplexArray times(Complex alpha, ComplexArray other);
-
-  /**
-   * Element wise <u>m</u>ultiplication
-   *
-   * @param scalar the scalar
-   * @return a new matrix
-   */
-  ComplexArray times(Complex scalar);
-
-  /**
-   * Element wise addition.
-   *
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  ComplexArray plus(ComplexArray other);
-
-  /**
-   * Element wise addition.
-   *
-   * @param scalar the scalar
-   * @return a new matrixget(
-   */
-  ComplexArray plus(Complex scalar);
-
-  /**
-   * Element wise addition.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  ComplexArray plus(Complex alpha, ComplexArray other);
-
-  /**
-   * Element wise subtraction. {@code this - other}.
-   *
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  ComplexArray minus(ComplexArray other);
-
-  /**
-   * Element wise subtraction. {@code this - other}.
-   *
-   * @param scalar the scalar
-   * @return r r
-   */
-  ComplexArray minus(Complex scalar);
-
-  /**
-   * Element wise subtraction.
-   *
-   * @param alpha scaling for {@code this}
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  ComplexArray minus(Complex alpha, ComplexArray other);
-
-  /**
-   * <u>R</u>eversed element wise subtraction. {@code scalar - this}.
-   *
-   * @param scalar the scalar
-   * @return a new matrix
-   */
-  ComplexArray reverseMinus(Complex scalar);
-
-  /**
-   * Element wise division. {@code this / other}.
-   *
-   * @param other the other
-   * @return a new matrix
-   * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
-   */
-  ComplexArray div(ComplexArray other);
-
-  /**
-   * Element wise division. {@code this / other}.
-   *
-   * @param other the scalar
-   * @return a new matrix
-   * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
-   */
-  ComplexArray div(Complex other);
-
-  /**
-   * Element wise division. {@code other / this}.
-   *
-   * @param other the scalar
-   * @return a new matrix
-   * @throws java.lang.ArithmeticException if {@code this} contains {@code 0}
-   */
-  ComplexArray reverseDiv(Complex other);
 
   /**
    * Returns a new matrix with elements negated.

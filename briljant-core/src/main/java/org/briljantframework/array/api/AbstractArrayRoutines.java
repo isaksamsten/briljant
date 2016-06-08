@@ -18,7 +18,7 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.briljantframework.array.base;
+package org.briljantframework.array.api;
 
 
 import static org.briljantframework.array.StrideUtils.columnMajor;
@@ -31,8 +31,6 @@ import org.apache.commons.math3.util.FastMath;
 import org.apache.commons.math3.util.Precision;
 import org.briljantframework.Check;
 import org.briljantframework.array.*;
-import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.array.api.ArrayRoutines;
 import org.briljantframework.data.statistics.FastStatistics;
 import org.briljantframework.exceptions.MultiDimensionMismatchException;
 import org.briljantframework.util.complex.MutableComplex;
@@ -42,14 +40,14 @@ import org.briljantframework.util.complex.MutableComplex;
  *
  * @author Isak Karlsson
  */
-public class BaseArrayRoutines implements ArrayRoutines {
+public class AbstractArrayRoutines implements ArrayRoutines {
 
   protected static final String VECTOR_REQUIRED = "1d-array required";
   private static final double LOG_2 = Math.log(2);
   private static final double EPS = 1e-10;
   protected final ArrayBackend backend;
 
-  protected BaseArrayRoutines(ArrayBackend backend) {
+  protected AbstractArrayRoutines(ArrayBackend backend) {
     this.backend = backend;
   }
 
@@ -512,7 +510,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public DoubleArray plus(DoubleArray a, DoubleArray b) {
-    return Arrays.broadcast(a, b, (x, y) -> {
+    return Arrays.broadcastCombine(a, b, (x, y) -> {
       DoubleArray out = x.newEmptyArray(x.getShape());
       for (int i = 0, size = x.size(); i < size; i++) {
         out.set(i, x.get(i) + y.get(i));
@@ -523,7 +521,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public void plusAssign(DoubleArray a, final DoubleArray out) {
-    Arrays.withBroadcast(out, a, (x, y) -> {
+    Arrays.broadcastWith(out, a, (x, y) -> {
       for (int i = 0, size = x.size(); i < size; i++) {
         x.set(i, x.get(i) + y.get(i));
       }
@@ -532,7 +530,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public DoubleArray minus(DoubleArray a, DoubleArray b) {
-    return Arrays.broadcast(a, b, (x, y) -> {
+    return Arrays.broadcastCombine(a, b, (x, y) -> {
       DoubleArray out = x.newEmptyArray(x.getShape());
       for (int i = 0, size = x.size(); i < size; i++) {
         out.set(i, x.get(i) - y.get(i));
@@ -543,7 +541,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public void minusAssign(DoubleArray a, DoubleArray out) {
-    Arrays.withBroadcast(out, a, (x, y) -> {
+    Arrays.broadcastWith(out, a, (x, y) -> {
       for (int i = 0, size = x.size(); i < size; i++) {
         x.set(i, y.get(i) - x.get(i));
       }
@@ -552,7 +550,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public DoubleArray times(DoubleArray a, DoubleArray b) {
-    return Arrays.broadcast(a, b, (x, y) -> {
+    return Arrays.broadcastCombine(a, b, (x, y) -> {
       DoubleArray out = x.newEmptyArray(x.getShape());
       for (int i = 0, size = x.size(); i < size; i++) {
         out.set(i, x.get(i) * y.get(i));
@@ -563,7 +561,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public void timesAssign(DoubleArray a, DoubleArray out) {
-    Arrays.withBroadcast(out, a, (x, y) -> {
+    Arrays.broadcastWith(out, a, (x, y) -> {
       for (int i = 0, size = x.size(); i < size; i++) {
         x.set(i, x.get(i) * y.get(i));
       }
@@ -572,7 +570,7 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public DoubleArray div(DoubleArray nominator, DoubleArray denominator) {
-    return Arrays.broadcast(nominator, denominator, (x, y) -> {
+    return Arrays.broadcastCombine(nominator, denominator, (x, y) -> {
       DoubleArray out = x.newEmptyArray(x.getShape());
       for (int i = 0, size = x.size(); i < size; i++) {
         out.set(i, x.get(i) / y.get(i));
@@ -583,10 +581,283 @@ public class BaseArrayRoutines implements ArrayRoutines {
 
   @Override
   public void divAssign(DoubleArray nominator, DoubleArray denominatorOut) {
-    Arrays.withBroadcast(denominatorOut, nominator, (x, y) -> {
+    Arrays.broadcastWith(denominatorOut, nominator, (x, y) -> {
       for (int i = 0, size = x.size(); i < size; i++) {
         x.set(i, y.get(i) / x.get(i));
       }
+    });
+  }
+
+  @Override
+  public IntArray plus(IntArray a, IntArray b) {
+    return Arrays.broadcastCombine(a, b, (x, y) -> {
+      IntArray out = x.newEmptyArray(x.getShape());
+      for (int i = 0, size = x.size(); i < size; i++) {
+        out.set(i, x.get(i) + y.get(i));
+      }
+      return out;
+    });
+  }
+
+  @Override
+  public void plusAssign(IntArray a, final IntArray out) {
+    Arrays.broadcastWith(out, a, (x, y) -> {
+      for (int i = 0, size = x.size(); i < size; i++) {
+        x.set(i, x.get(i) + y.get(i));
+      }
+    });
+  }
+
+  @Override
+  public IntArray minus(IntArray a, IntArray b) {
+    return Arrays.broadcastCombine(a, b, (x, y) -> {
+      IntArray out = x.newEmptyArray(x.getShape());
+      for (int i = 0, size = x.size(); i < size; i++) {
+        out.set(i, x.get(i) - y.get(i));
+      }
+      return out;
+    });
+  }
+
+  @Override
+  public void minusAssign(IntArray a, IntArray out) {
+    Arrays.broadcastWith(out, a, (x, y) -> {
+      for (int i = 0, size = x.size(); i < size; i++) {
+        x.set(i, y.get(i) - x.get(i));
+      }
+    });
+  }
+
+  @Override
+  public IntArray times(IntArray a, IntArray b) {
+    return Arrays.broadcastCombine(a, b, (x, y) -> {
+      IntArray out = x.newEmptyArray(x.getShape());
+      for (int i = 0, size = x.size(); i < size; i++) {
+        out.set(i, x.get(i) * y.get(i));
+      }
+      return out;
+    });
+  }
+
+  @Override
+  public void timesAssign(IntArray a, IntArray out) {
+    Arrays.broadcastWith(out, a, (x, y) -> {
+      for (int i = 0, size = x.size(); i < size; i++) {
+        x.set(i, x.get(i) * y.get(i));
+      }
+    });
+  }
+
+  @Override
+  public IntArray div(IntArray nominator, IntArray denominator) {
+    return Arrays.broadcastCombine(nominator, denominator, (x, y) -> {
+      IntArray out = x.newEmptyArray(x.getShape());
+      for (int i = 0, size = x.size(); i < size; i++) {
+        out.set(i, x.get(i) / y.get(i));
+      }
+      return out;
+    });
+  }
+
+  @Override
+  public void divAssign(IntArray nominator, IntArray denominatorOut) {
+    Arrays.broadcastWith(denominatorOut, nominator, (x, y) -> {
+      for (int i = 0, size = x.size(); i < size; i++) {
+        x.set(i, y.get(i) / x.get(i));
+      }
+    });
+  }
+
+  @Override
+  public LongArray plus(LongArray a, LongArray b) {
+    return Arrays.broadcastCombine(a, b, (x, y) -> {
+      LongArray out = x.newEmptyArray(x.getShape());
+      for (int i = 0, size = x.size(); i < size; i++) {
+        out.set(i, x.get(i) + y.get(i));
+      }
+      return out;
+    });
+  }
+
+  @Override
+  public void plusAssign(LongArray a, final LongArray out) {
+    Arrays.broadcastWith(out, a, (x, y) -> {
+      for (int i = 0, size = x.size(); i < size; i++) {
+        x.set(i, x.get(i) + y.get(i));
+      }
+    });
+  }
+
+  @Override
+  public LongArray minus(LongArray a, LongArray b) {
+    return Arrays.broadcastCombine(a, b, (x, y) -> {
+      LongArray out = x.newEmptyArray(x.getShape());
+      for (int i = 0, size = x.size(); i < size; i++) {
+        out.set(i, x.get(i) - y.get(i));
+      }
+      return out;
+    });
+  }
+
+  @Override
+  public void minusAssign(LongArray a, LongArray out) {
+    Arrays.broadcastWith(out, a, (x, y) -> {
+      for (int i = 0, size = x.size(); i < size; i++) {
+        x.set(i, y.get(i) - x.get(i));
+      }
+    });
+  }
+
+  @Override
+  public LongArray times(LongArray a, LongArray b) {
+    return Arrays.broadcastCombine(a, b, (x, y) -> {
+      LongArray out = x.newEmptyArray(x.getShape());
+      for (int i = 0, size = x.size(); i < size; i++) {
+        out.set(i, x.get(i) * y.get(i));
+      }
+      return out;
+    });
+  }
+
+  @Override
+  public void timesAssign(LongArray a, LongArray out) {
+    Arrays.broadcastWith(out, a, (x, y) -> {
+      for (int i = 0, size = x.size(); i < size; i++) {
+        x.set(i, x.get(i) * y.get(i));
+      }
+    });
+  }
+
+  @Override
+  public LongArray div(LongArray nominator, LongArray denominator) {
+    return Arrays.broadcastCombine(nominator, denominator, (x, y) -> {
+      LongArray out = x.newEmptyArray(x.getShape());
+      for (int i = 0, size = x.size(); i < size; i++) {
+        out.set(i, x.get(i) / y.get(i));
+      }
+      return out;
+    });
+  }
+
+  @Override
+  public void divAssign(LongArray nominator, LongArray denominatorOut) {
+    Arrays.broadcastWith(denominatorOut, nominator, (x, y) -> {
+      for (int i = 0, size = x.size(); i < size; i++) {
+        x.set(i, y.get(i) / x.get(i));
+      }
+    });
+  }
+
+  @Override
+  public ComplexArray plus(ComplexArray a, ComplexArray b) {
+    return Arrays.broadcastCombine(a, b, (x, y) -> {
+      ComplexArray out = x.newEmptyArray(x.getShape());
+      for (int i = 0, size = x.size(); i < size; i++) {
+        out.set(i, x.get(i).add(y.get(i)));
+      }
+      return out;
+    });
+  }
+
+  @Override
+  public void plusAssign(ComplexArray a, final ComplexArray out) {
+    Arrays.broadcastWith(out, a, (x, y) -> {
+      for (int i = 0, size = x.size(); i < size; i++) {
+        x.set(i, x.get(i).add(y.get(i)));
+      }
+    });
+  }
+
+  @Override
+  public ComplexArray minus(ComplexArray a, ComplexArray b) {
+    return Arrays.broadcastCombine(a, b, (x, y) -> {
+      ComplexArray out = x.newEmptyArray(x.getShape());
+      for (int i = 0, size = x.size(); i < size; i++) {
+        out.set(i, x.get(i).subtract(y.get(i)));
+      }
+      return out;
+    });
+  }
+
+  @Override
+  public void minusAssign(ComplexArray a, ComplexArray out) {
+    Arrays.broadcastWith(out, a, (x, y) -> {
+      for (int i = 0, size = x.size(); i < size; i++) {
+        x.set(i, y.get(i).subtract(x.get(i)));
+      }
+    });
+  }
+
+  @Override
+  public ComplexArray times(ComplexArray a, ComplexArray b) {
+    return Arrays.broadcastCombine(a, b, (x, y) -> {
+      ComplexArray out = x.newEmptyArray(x.getShape());
+      for (int i = 0, size = x.size(); i < size; i++) {
+        out.set(i, x.get(i).multiply(y.get(i)));
+      }
+      return out;
+    });
+  }
+
+  @Override
+  public void timesAssign(ComplexArray a, ComplexArray out) {
+    Arrays.broadcastWith(out, a, (x, y) -> {
+      for (int i = 0, size = x.size(); i < size; i++) {
+        x.set(i, x.get(i).multiply(y.get(i)));
+      }
+    });
+  }
+
+  @Override
+  public ComplexArray div(ComplexArray nominator, ComplexArray denominator) {
+    return Arrays.broadcastCombine(nominator, denominator, (x, y) -> {
+      ComplexArray out = x.newEmptyArray(x.getShape());
+      for (int i = 0, size = x.size(); i < size; i++) {
+        out.set(i, x.get(i).divide(y.get(i)));
+      }
+      return out;
+    });
+  }
+
+  @Override
+  public void divAssign(ComplexArray nominator, ComplexArray denominatorOut) {
+    Arrays.broadcastWith(denominatorOut, nominator, (x, y) -> {
+      for (int i = 0, size = x.size(); i < size; i++) {
+        x.set(i, y.get(i).divide(x.get(i)));
+      }
+    });
+  }
+
+  @Override
+  public BooleanArray and(BooleanArray a, BooleanArray b) {
+    return Arrays.broadcastCombine(a, b, (x, y) -> {
+      BooleanArray out = x.newEmptyArray(x.getShape());
+      for (int i = 0, size = x.size(); i < size; i++) {
+        out.set(i, x.get(i) && y.get(i));
+      }
+      return out;
+    });
+  }
+
+  @Override
+  public BooleanArray or(BooleanArray a, BooleanArray b) {
+    return Arrays.broadcastCombine(a, b, (x, y) -> {
+      BooleanArray out = x.newEmptyArray(x.getShape());
+      for (int i = 0, size = x.size(); i < size; i++) {
+        out.set(i, x.get(i) || y.get(i));
+      }
+      return out;
+    });
+  }
+
+  @Override
+  public BooleanArray xor(BooleanArray a, BooleanArray b) {
+    return Arrays.broadcastCombine(a, b, (x, y) -> {
+      BooleanArray out = x.newEmptyArray(x.getShape());
+      for (int i = 0, size = x.size(); i < size; i++) {
+        out.set(i, x.get(i) ^ y.get(i));
+      }
+      return out;
     });
   }
 

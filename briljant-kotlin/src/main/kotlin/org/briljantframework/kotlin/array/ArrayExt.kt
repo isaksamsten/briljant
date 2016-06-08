@@ -10,6 +10,16 @@ import org.briljantframework.array.LongArray
 import org.briljantframework.data.parser.SqlParser
 
 operator fun DoubleArray.times(x: DoubleArray): DoubleArray = Arrays.times(this, x)
+operator fun DoubleArray.timesAssign(x: DoubleArray) = Arrays.timesAssign(this, x)
+operator fun DoubleArray.plus(x: DoubleArray): DoubleArray = Arrays.plus(this, x)
+operator fun DoubleArray.plusAssign(x: DoubleArray) = Arrays.plusAssign(this, x)
+operator fun DoubleArray.minus(x: DoubleArray): DoubleArray = Arrays.minus(this, x)
+operator fun DoubleArray.div(x: DoubleArray): DoubleArray = Arrays.div(this, x)
+operator fun IntArray.times(x: IntArray): IntArray = Arrays.times(this, x)
+operator fun IntArray.plus(x: IntArray): IntArray = Arrays.plus(this, x)
+operator fun IntArray.minus(x: IntArray): IntArray = Arrays.minus(this, x)
+operator fun IntArray.div(x: IntArray): IntArray = Arrays.div(this, x)
+
 
 infix fun DoubleArray.pow(x: Double) = Arrays.pow(this, x)
 infix fun Double.pow(x: DoubleArray) = x.map { Math.pow(it, this) }
@@ -35,8 +45,10 @@ fun main(args: Array<String>) {
     val x = doubleArray(10, 10, 10)
     val y = linspace(-1.0, 1.0, 100).reshape(10, 10)
 
-    val z = broadcast(x, y, { i, j -> i * j })
+    val z = broadcastCombine(x, y, { i, j -> i * j })
+    val w = broadcast(x).combine(y, { i, j -> i * j })
     println(z)
+    println(w)
 
     val a = zeros(10, 10)
     val b = linspace(-1.0, 1.0, 10 * 10).reshape(10, 10)
@@ -48,7 +60,6 @@ fun main(args: Array<String>) {
     a += b.transpose()
     println(a)
     println(b.transpose())
-
 
 
     //    //    listOf<>()

@@ -14,7 +14,7 @@
   <description>Kotlin integration for Briljant</description>
 
   <properties>
-    <kotlin.version>1.0.0-rc-1036</kotlin.version>
+    <kotlin.version>1.0.2</kotlin.version>
   </properties>
 
   <build>

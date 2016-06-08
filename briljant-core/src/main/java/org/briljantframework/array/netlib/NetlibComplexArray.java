@@ -18,70 +18,70 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.briljantframework.array.base;
+package org.briljantframework.array.netlib;
 
 import java.util.Objects;
 
-import net.mintern.primitive.Primitive;
-import net.mintern.primitive.comparators.LongComparator;
-
-import org.briljantframework.array.AbstractLongArray;
-import org.briljantframework.array.LongArray;
+import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.array.AbstractComplexArray;
+import org.briljantframework.array.ComplexArray;
 import org.briljantframework.array.api.ArrayBackend;
 
 /**
  * @author Isak Karlsson
  */
-class BaseLongArray extends AbstractLongArray {
+class NetlibComplexArray extends AbstractComplexArray {
 
-  private long[] data;
+  private Complex[] data;
+  private Complex defaultValue = Complex.ZERO;
 
-  BaseLongArray(ArrayBackend bj, int[] shape) {
-    super(bj, shape);
-    this.data = new long[size()];
+  NetlibComplexArray(ArrayBackend bj, int size) {
+    super(bj, size);
+    this.data = new Complex[size];
   }
 
-  BaseLongArray(ArrayBackend bj, long[] data) {
-    super(bj, new int[] {Objects.requireNonNull(data).length});
+  NetlibComplexArray(ArrayBackend bj, Complex[] data) {
+    super(bj, Objects.requireNonNull(data).length);
     this.data = data;
   }
 
-  private BaseLongArray(ArrayBackend bj, int offset, int[] shape, int[] stride, long[] data) {
+  NetlibComplexArray(ArrayBackend bj, int[] shape) {
+    super(bj, shape);
+    this.data = new Complex[size()];
+  }
+
+  private NetlibComplexArray(ArrayBackend bj, int offset, int[] shape, int[] stride, Complex[] data) {
     super(bj, offset, shape, stride);
     this.data = data;
   }
 
   @Override
-  public void sort(LongComparator cmp) {
-    if (!isView() && isVector() && stride(0) == 1) {
-      Primitive.sort(data(), getOffset(), size(), cmp);
-    } else {
-      super.sort(cmp);
-    }
+  public ComplexArray asView(int offset, int[] shape, int[] stride) {
+    return new NetlibComplexArray(getArrayBackend(), offset, shape, stride, data);
   }
 
   @Override
-  public void setElement(int index, long value) {
-    data[index] = value;
-  }
-
-  @Override
-  public long getElement(int index) {
-    return data[index];
-  }
-
-  @Override
-  public LongArray asView(int offset, int[] shape, int[] stride) {
-    return new BaseLongArray(getArrayBackend(), offset, shape, stride, data);
-  }
-
-  @Override
-  public LongArray newEmptyArray(int... shape) {
-    return new BaseLongArray(getArrayBackend(), shape);
+  public ComplexArray newEmptyArray(int... shape) {
+    return new NetlibComplexArray(getArrayBackend(), shape);
   }
 
   @Override
   protected int elementSize() {
     return data.length;
+  }
+
+  @Override
+  protected Complex getElement(int i) {
+    Complex r = data[i];
+    if (r == null) {
+      return defaultValue;
+    } else {
+      return r;
+    }
+  }
+
+  @Override
+  protected void setElement(int i, Complex value) {
+    data[i] = value;
   }
 }

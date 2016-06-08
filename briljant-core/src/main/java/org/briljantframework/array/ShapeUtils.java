@@ -34,6 +34,15 @@ public class ShapeUtils {
     return !(a.isVector() && b.isVector());
   }
 
+  /**
+   * Broadcast the first argument to the shape of the second argument, or return the original if
+   * broadcasting does not make sense (both are vectors).
+   * 
+   * @param array the array
+   * @param newShape the new shape
+   * @param <E> the type of array
+   * @return the first argument with the shape of the second
+   */
   public static <E extends BaseArray<? extends E>> E broadcastToShapeOf(E array,
       BaseArray<?> newShape) {
     if (isBroadcastSensible(newShape, array)) {

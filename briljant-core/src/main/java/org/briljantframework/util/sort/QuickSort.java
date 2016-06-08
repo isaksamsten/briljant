@@ -25,7 +25,7 @@ import java.util.function.IntBinaryOperator;
 /**
  * QuickSort implementation from <a
  * href="https://github.com/apache/mahout/blob/master/math/src/main/java/org
- * /apache/mahout/math/Sorting.java">Apache Mahout</a> able to sort {@link Swappable} instances
+ * /apache/mahout/math/Sorting.java">Apache Mahout</a> able to sort {@link ElementSwapper} instances
  * using an {@link IntBinaryOperator} where each argument is an index and the output is similar to
  * the output from {@link java.util.Comparator}.
  * 
@@ -81,12 +81,12 @@ public class QuickSort {
    * @throws IllegalArgumentException if {@code start > end}.
    * @throws ArrayIndexOutOfBoundsException if {@code start < 0} or {@code end > array.length}.
    */
-  public static void quickSort(int start, int end, IntBinaryOperator comp, Swappable swap) {
+  public static void quickSort(int start, int end, IntBinaryOperator comp, ElementSwapper swap) {
     checkBounds(end + 1, start, end);
     quickSort0(start, end, comp, swap);
   }
 
-  private static void quickSort0(int start, int end, IntBinaryOperator comp, Swappable swap) {
+  private static void quickSort0(int start, int end, IntBinaryOperator comp, ElementSwapper swap) {
     int length = end - start;
     if (length < 7) {
       insertionSort(start, end, comp, swap);
@@ -208,7 +208,7 @@ public class QuickSort {
    * @param comp Sort order.
    * @param swap How to swap items.
    */
-  private static void insertionSort(int start, int end, IntBinaryOperator comp, Swappable swap) {
+  private static void insertionSort(int start, int end, IntBinaryOperator comp, ElementSwapper swap) {
     for (int i = start + 1; i < end; i++) {
       for (int j = i; j > start && comp.applyAsInt(j - 1, j) > 0; j--) {
         swap.swap(j - 1, j);

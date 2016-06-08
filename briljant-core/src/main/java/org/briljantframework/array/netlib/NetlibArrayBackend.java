@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.ArrayRoutines;
-import org.briljantframework.array.linalg.api.LinearAlgebraRoutines;
+import org.briljantframework.array.api.LinearAlgebraRoutines;
 
 /**
  * Provides arrays with operations optimized using Netlib.

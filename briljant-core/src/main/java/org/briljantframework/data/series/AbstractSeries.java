@@ -271,14 +271,14 @@ public abstract class AbstractSeries extends AbstractBaseArray<Series> implement
   }
 
   @Override
-  public Series zipWith(Series other, BiFunction<? super Object, ? super Object, ?> combiner) {
-    return zipWith(Object.class, other, combiner, new TypeInferenceBuilder());
+  public Series merge(Series other, BiFunction<? super Object, ? super Object, ?> combiner) {
+    return merge(Object.class, other, combiner, new TypeInferenceBuilder());
   }
 
   @Override
-  public <T> Series zipWith(Class<T> cls, Series other,
-      BiFunction<? super T, ? super T, ? extends T> combiner) {
-    return zipWith(cls, other, combiner, new TypeInferenceBuilder());
+  public <T> Series merge(Class<T> cls, Series other,
+                          BiFunction<? super T, ? super T, ? extends T> combiner) {
+    return merge(cls, other, combiner, new TypeInferenceBuilder());
   }
 
   @Override
@@ -646,8 +646,8 @@ public abstract class AbstractSeries extends AbstractBaseArray<Series> implement
     setElement(index, value);
   }
 
-  protected <T> Series zipWith(Class<? extends T> cls, Series other,
-      BiFunction<? super T, ? super T, ?> combiner, Builder builder) {
+  protected <T> Series merge(Class<? extends T> cls, Series other,
+                             BiFunction<? super T, ? super T, ?> combiner, Builder builder) {
     Index thisIndex = getIndex();
     Index otherIndex = Objects.requireNonNull(other, "require other series").getIndex();
     if (otherIndex instanceof RangeIndex) {

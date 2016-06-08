@@ -28,7 +28,7 @@ package org.briljantframework.array;
  * Ranges are used for basic slicing.
  * 
  * <p/>
- * A range is generally immutable and mutations throw an exception.
+ * A range is immutable and mutations should throw an {@link IllegalArgumentException}.
  * 
  * @author Isak Karlsson
  */
@@ -87,12 +87,4 @@ public interface Range extends IntArray {
    * @return the end value
    */
   int end();
-
-  /**
-   * Determines if the given value is included in the range.
-   *
-   * @param value the value
-   * @return true if the given value is included
-   */
-  boolean contains(int value);
 }

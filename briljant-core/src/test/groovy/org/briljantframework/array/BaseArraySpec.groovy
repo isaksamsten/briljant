@@ -25,7 +25,7 @@
 package org.briljantframework.array
 
 import org.apache.commons.math3.complex.Complex
-import org.briljantframework.array.base.BaseArrayBackend
+import org.briljantframework.array.netlib.NetlibArrayBackend
 import spock.lang.Specification
 
 /**
@@ -33,7 +33,7 @@ import spock.lang.Specification
  */
 class BaseArraySpec extends Specification {
 
-  static bj = new BaseArrayBackend().arrayFactory
+  static bj = new NetlibArrayBackend().arrayFactory
 
   def "Constructing a new array"() {
     expect:

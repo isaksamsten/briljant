@@ -30,7 +30,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.util.sort.Swappable;
+import org.briljantframework.util.sort.ElementSwapper;
 
 /**
  * This class provides a skeletal implementation of the {@link BaseArray} interface to minimize the
@@ -43,7 +43,7 @@ import org.briljantframework.util.sort.Swappable;
  * @see AbstractDoubleArray
  * @see AbstractComplexArray
  */
-public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseArray<E>, Swappable {
+public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseArray<E>, ElementSwapper {
 
   protected static final String INVALID_DIMENSION = "Dimension out of bounds (%s < %s)";
   protected static final String INVALID_VECTOR = "Series index out of bounds (%s < %s)";
@@ -184,7 +184,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   @Override
   public void assign(E o) {
-    org.briljantframework.array.Arrays.withBroadcast(this, o, (x, y) -> {
+    org.briljantframework.array.Arrays.broadcastWith(this, o, (x, y) -> {
       Check.size(x, y);
       for (int i = 0, size = x.size(); i < size; i++) {
         x.set(i, y, i);

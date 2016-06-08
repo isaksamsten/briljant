@@ -34,7 +34,7 @@ import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.ArrayRoutines;
-import org.briljantframework.array.linalg.api.LinearAlgebraRoutines;
+import org.briljantframework.array.api.LinearAlgebraRoutines;
 import org.briljantframework.array.netlib.NetlibArrayBackend;
 import org.briljantframework.data.statistics.FastStatistics;
 import org.briljantframework.exceptions.MultiDimensionMismatchException;
@@ -530,7 +530,7 @@ public final class Arrays {
   }
 
   public static int sum(BooleanArray x) {
-    return sum(x.asIntArray());
+    return sum(x.intArray());
   }
 
   /**
@@ -541,7 +541,7 @@ public final class Arrays {
   }
 
   public static IntArray sum(int dim, BooleanArray x) {
-    return sum(dim, x.asIntArray());
+    return sum(dim, x.intArray());
   }
 
   /**
@@ -1593,7 +1593,7 @@ public final class Arrays {
    * @param function the function
    * @return the function applied to the arrays
    */
-  public static <T extends BaseArray<? extends T>, U extends BaseArray<? extends U>, R> R broadcast(
+  public static <T extends BaseArray<? extends T>, U extends BaseArray<? extends U>, R> R broadcastCombine(
       T a, U b, BiFunction<? super T, ? super U, ? extends R> function) {
     int[] combinedShape = ShapeUtils.findCombinedBroadcastShape(java.util.Arrays.asList(a, b));
     return function.apply(Arrays.broadcastTo(a, combinedShape),
@@ -1609,9 +1609,13 @@ public final class Arrays {
    * @param b the second array broadcasted to the shape of the first
    * @param consumer the consumer
    */
-  public static <T extends BaseArray<? extends T>, U extends BaseArray<? extends U>> void withBroadcast(
+  public static <T extends BaseArray<? extends T>, U extends BaseArray<? extends U>> void broadcastWith(
       T a, U b, BiConsumer<? super T, ? super U> consumer) {
     consumer.accept(a, ShapeUtils.broadcastToShapeOf(b, a));
+  }
+
+  public static <E extends BaseArray<? extends E>> Broadcast<E> broadcast(E array) {
+    return new Broadcast<>(array);
   }
 
   /**
@@ -1884,7 +1888,9 @@ public final class Arrays {
    * @return a new array
    */
   public static <T extends Comparable<T>> Array<T> sort(Array<T> array) {
-    return sort(array, (a, i, j) -> a.get(i).compareTo(a.get(j)));
+    Array<T> out = array.copy();
+    out.sort(Comparable::compareTo);
+    return out;
   }
 
   /**
@@ -2019,7 +2025,7 @@ public final class Arrays {
    * @see Collections#binarySearch(List, Object)
    */
   public static <T> int binarySearch(Array<? extends Comparable<? super T>> array, T x) {
-    return Collections.binarySearch(array.asList(), x);
+    return Collections.binarySearch(new ArrayListAdapter<>(array), x);
   }
 
   /**
@@ -2033,7 +2039,7 @@ public final class Arrays {
    * @see #binarySearch(Array, Object)
    */
   public static int binarySearch(IntArray array, int x) {
-    return binarySearch(array.asArray(), x);
+    return binarySearch(array.boxed(), x);
   }
 
   /**
@@ -2061,7 +2067,7 @@ public final class Arrays {
    * @return the insertion point of the value
    */
   public static <T> int bisectLeft(Array<? extends Comparable<? super T>> array, T value) {
-    int i = Collections.binarySearch(array.asList(), value);
+    int i = Collections.binarySearch(new ArrayListAdapter<>(array), value);
     if (i < 0) {
       return -i - 1;
     } else {
@@ -2073,7 +2079,7 @@ public final class Arrays {
    * @see #bisectLeft(Array, Object)
    */
   public static int bisectLeft(IntArray array, int value) {
-    return bisectLeft(array.asArray(), value);
+    return bisectLeft(array.boxed(), value);
   }
 
   /**
@@ -2095,7 +2101,7 @@ public final class Arrays {
    * @see #bisectLeft(Array, Object)
    */
   public static <T> int bisectRight(Array<? extends Comparable<? super T>> array, T value) {
-    int i = Collections.binarySearch(array.asList(), value);
+    int i = Collections.binarySearch(new ArrayListAdapter<>(array), value);
     if (i < 0) {
       return -i - 1;
     } else {
@@ -2107,7 +2113,7 @@ public final class Arrays {
    * @see #bisectRight(Array, Object)
    */
   public static int bisectRight(IntArray array, int value) {
-    return bisectRight(array.asArray(), value);
+    return bisectRight(array.boxed(), value);
   }
 
   /**
@@ -2164,6 +2170,114 @@ public final class Arrays {
 
   public static DoubleArray times(DoubleArray a, double b) {
     return times(a, doubleVector(b));
+  }
+
+  public static IntArray plus(IntArray a, IntArray b) {
+    return ARRAY_ROUTINES.plus(a, b);
+  }
+
+  public static ComplexArray minus(ComplexArray a, ComplexArray b) {
+    return ARRAY_ROUTINES.minus(a, b);
+  }
+
+  public static IntArray minus(IntArray a, IntArray b) {
+    return ARRAY_ROUTINES.minus(a, b);
+  }
+
+  public static void timesAssign(ComplexArray a, ComplexArray out) {
+    ARRAY_ROUTINES.timesAssign(a, out);
+  }
+
+  public static void plusAssign(IntArray a, IntArray out) {
+    ARRAY_ROUTINES.plusAssign(a, out);
+  }
+
+  public static void plusAssign(LongArray a, LongArray out) {
+    ARRAY_ROUTINES.plusAssign(a, out);
+  }
+
+  public static void timesAssign(IntArray a, IntArray out) {
+    ARRAY_ROUTINES.timesAssign(a, out);
+  }
+
+  public static void divAssign(ComplexArray a, ComplexArray out) {
+    ARRAY_ROUTINES.divAssign(a, out);
+  }
+
+  public static ComplexArray times(ComplexArray a, ComplexArray b) {
+    return ARRAY_ROUTINES.times(a, b);
+  }
+
+  public static LongArray plus(LongArray a, LongArray b) {
+    return ARRAY_ROUTINES.plus(a, b);
+  }
+
+  public static void timesAssign(LongArray a, LongArray out) {
+    ARRAY_ROUTINES.timesAssign(a, out);
+  }
+
+  public static void minusAssign(IntArray a, IntArray out) {
+    ARRAY_ROUTINES.minusAssign(a, out);
+  }
+
+  public static BooleanArray xor(BooleanArray a, BooleanArray b) {
+    return ARRAY_ROUTINES.xor(a, b);
+  }
+
+  public static void minusAssign(LongArray a, LongArray out) {
+    ARRAY_ROUTINES.minusAssign(a, out);
+  }
+
+  public static BooleanArray and(BooleanArray a, BooleanArray b) {
+    return ARRAY_ROUTINES.and(a, b);
+  }
+
+  public static IntArray div(IntArray a, IntArray b) {
+    return ARRAY_ROUTINES.div(a, b);
+  }
+
+  public static void divAssign(LongArray a, LongArray out) {
+    ARRAY_ROUTINES.divAssign(a, out);
+  }
+
+  public static IntArray times(IntArray a, IntArray b) {
+    return ARRAY_ROUTINES.times(a, b);
+  }
+
+  public static void plusAssign(ComplexArray a, ComplexArray out) {
+    ARRAY_ROUTINES.plusAssign(a, out);
+  }
+
+  public static LongArray minus(LongArray a, LongArray b) {
+    return ARRAY_ROUTINES.minus(a, b);
+  }
+
+  public static BooleanArray or(BooleanArray a, BooleanArray b) {
+    return ARRAY_ROUTINES.or(a, b);
+  }
+
+  public static void minusAssign(ComplexArray a, ComplexArray out) {
+    ARRAY_ROUTINES.minusAssign(a, out);
+  }
+
+  public static void divAssign(IntArray a, IntArray out) {
+    ARRAY_ROUTINES.divAssign(a, out);
+  }
+
+  public static LongArray div(LongArray a, LongArray b) {
+    return ARRAY_ROUTINES.div(a, b);
+  }
+
+  public static ComplexArray div(ComplexArray a, ComplexArray b) {
+    return ARRAY_ROUTINES.div(a, b);
+  }
+
+  public static LongArray times(LongArray a, LongArray b) {
+    return ARRAY_ROUTINES.times(a, b);
+  }
+
+  public static ComplexArray plus(ComplexArray a, ComplexArray b) {
+    return ARRAY_ROUTINES.plus(a, b);
   }
 
   /**
@@ -2528,7 +2642,7 @@ public final class Arrays {
    */
   public static boolean any(IntArray array, IntPredicate predicate) {
     // change if shown to be a bottleneck
-    return any(array.asArray(), predicate::test);
+    return any(array.boxed(), predicate::test);
   }
 
   /**
@@ -2549,7 +2663,7 @@ public final class Arrays {
    * @see #any(Array, Predicate)
    */
   public static boolean any(BooleanArray array) {
-    return any(array.asArray(), (v) -> v);
+    return any(array.boxed(), (v) -> v);
   }
 
   /**
@@ -2859,13 +2973,8 @@ public final class Arrays {
     }
 
     @Override
-    public List<T> asList() {
-      return Collections.unmodifiableList(array.asList());
-    }
-
-    @Override
-    public T[] data() {
-      return array.data().clone();
+    public void sort(Comparator<? super T> comparator) {
+      throw new UnsupportedOperationException();
     }
 
     @Override
@@ -3096,7 +3205,7 @@ public final class Arrays {
 
     @Override
     public boolean isView() {
-      return array.isView();
+      return true;
     }
 
     @Override
@@ -3141,21 +3250,17 @@ public final class Arrays {
 
     @Override
     public boolean contains(Object o) {
-      return asList().contains(o);
+      return array.contains(o);
     }
 
     @Override
     public Object[] toArray() {
-      Object[] data = new Object[size()];
-      for (int i = 0; i < size(); i++) {
-        data[i] = get(i);
-      }
-      return data;
+      return array.toArray();
     }
 
     @Override
     public <T> T[] toArray(T[] a) {
-      return asList().toArray(a);
+      return array.toArray(a);
     }
 
     @Override
@@ -3409,11 +3514,6 @@ public final class Arrays {
     }
 
     @Override
-    public double[] data() {
-      return array.data().clone();
-    }
-
-    @Override
     public void set(int toIndex, DoubleArray from, int fromIndex) {
       throw new UnsupportedOperationException();
     }
@@ -3641,7 +3741,7 @@ public final class Arrays {
 
     @Override
     public boolean isView() {
-      return array.isView();
+      return true;
     }
 
     @Override
@@ -3843,8 +3943,8 @@ public final class Arrays {
     }
 
     @Override
-    public int get(int i, int j) {
-      return array.get(i, j);
+    public int get(int row, int column) {
+      return array.get(row, column);
     }
 
     @Override
@@ -3853,13 +3953,13 @@ public final class Arrays {
     }
 
     @Override
-    public void set(int[] ix, int value) {
+    public void set(int[] index, int value) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public int get(int... ix) {
-      return array.get(ix);
+    public int get(int... index) {
+      return array.get(index);
     }
 
     @Override
@@ -3873,13 +3973,8 @@ public final class Arrays {
     }
 
     @Override
-    public List<Integer> asList() {
-      return Collections.unmodifiableList(array.asList());
-    }
-
-    @Override
-    public Array<Integer> asArray() {
-      return unmodifiableArray(array.asArray());
+    public Array<Integer> boxed() {
+      return unmodifiableArray(array.boxed());
     }
 
     @Override
@@ -3893,103 +3988,8 @@ public final class Arrays {
     }
 
     @Override
-    public IntArray times(IntArray other) {
-      return array.times(other);
-    }
-
-    @Override
-    public IntArray times(int scalar) {
-      return array.times(scalar);
-    }
-
-    @Override
-    public IntArray plus(IntArray other) {
-      return array.plus(other);
-    }
-
-    @Override
-    public IntArray plus(int scalar) {
-      return array.plus(scalar);
-    }
-
-    @Override
-    public void plusAssign(IntArray other) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void plusAssign(int scalar) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public IntArray minus(IntArray other) {
-      return array.minus(other);
-    }
-
-    @Override
-    public IntArray minus(int scalar) {
-      return array.minus(scalar);
-    }
-
-    @Override
-    public void minusAssign(IntArray other) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void minusAssign(int scalar) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public IntArray reverseMinus(int scalar) {
-      return array.reverseMinus(scalar);
-    }
-
-    @Override
-    public void reverseMinusAssign(int scalar) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public IntArray div(IntArray other) {
-      return array.div(other);
-    }
-
-    @Override
-    public IntArray div(int other) {
-      return array.div(other);
-    }
-
-    @Override
-    public void divAssign(IntArray other) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void divAssign(int other) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public IntArray reverseDiv(int other) {
-      return array.reverseDiv(other);
-    }
-
-    @Override
-    public void reverseDivAssign(int other) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public IntArray negate() {
       return array.negate();
-    }
-
-    @Override
-    public int[] data() {
-      return array.data().clone();
     }
 
     @Override
@@ -4220,7 +4220,7 @@ public final class Arrays {
 
     @Override
     public boolean isView() {
-      return array.isView();
+      return true;
     }
 
     @Override
@@ -4275,7 +4275,7 @@ public final class Arrays {
 
     @Override
     public Iterator<Integer> iterator() {
-      return asList().iterator();
+      return array.iterator();
     }
 
     @Override
@@ -4285,7 +4285,7 @@ public final class Arrays {
 
     @Override
     public Spliterator<Integer> spliterator() {
-      return asList().spliterator();
+      return array.spliterator();
     }
   }
 
@@ -4770,7 +4770,7 @@ public final class Arrays {
 
     @Override
     public boolean isView() {
-      return array.isView();
+      return true;
     }
 
     @Override
@@ -5005,16 +5005,6 @@ public final class Arrays {
     }
 
     @Override
-    public ComplexArray reduceColumns(Function<? super ComplexArray, ? extends Complex> reduce) {
-      return array.reduceColumns(reduce);
-    }
-
-    @Override
-    public ComplexArray reduceRows(Function<? super ComplexArray, ? extends Complex> reduce) {
-      return array.reduceRows(reduce);
-    }
-
-    @Override
     public ComplexArray conjugateTranspose() {
       return unmodifiableArray(array.conjugateTranspose());
     }
@@ -5061,77 +5051,7 @@ public final class Arrays {
 
     @Override
     public Stream<Complex> stream() {
-      return asList().stream();
-    }
-
-    @Override
-    public List<Complex> asList() {
-      return Collections.unmodifiableList(array.asList());
-    }
-
-    @Override
-    public ComplexArray times(ComplexArray other) {
-      return array.times(other);
-    }
-
-    @Override
-    public ComplexArray times(Complex alpha, ComplexArray other) {
-      return array.times(alpha, other);
-    }
-
-    @Override
-    public ComplexArray times(Complex scalar) {
-      return array.times(scalar);
-    }
-
-    @Override
-    public ComplexArray plus(ComplexArray other) {
-      return array.plus(other);
-    }
-
-    @Override
-    public ComplexArray plus(Complex scalar) {
-      return array.plus(scalar);
-    }
-
-    @Override
-    public ComplexArray plus(Complex alpha, ComplexArray other) {
-      return array.plus(alpha, other);
-    }
-
-    @Override
-    public ComplexArray minus(ComplexArray other) {
-      return array.minus(other);
-    }
-
-    @Override
-    public ComplexArray minus(Complex scalar) {
-      return array.minus(scalar);
-    }
-
-    @Override
-    public ComplexArray minus(Complex alpha, ComplexArray other) {
-      return array.minus(alpha, other);
-    }
-
-    @Override
-    public ComplexArray reverseMinus(Complex scalar) {
-      return array.reverseMinus(scalar);
-    }
-
-    @Override
-    public ComplexArray div(ComplexArray other) {
-      return array.div(other);
-    }
-
-    @Override
-    public ComplexArray div(Complex other) {
-      return array.div(other);
-    }
-
-    @Override
-    public ComplexArray reverseDiv(Complex other) {
-      return array.reverseDiv(other);
+      return array.stream();
     }
 
     @Override
@@ -5296,6 +5216,16 @@ public final class Arrays {
     }
 
     @Override
+    public boolean isEmpty() {
+      return array.isEmpty();
+    }
+
+    @Override
+    public boolean contains(Object o) {
+      return array.contains(o);
+    }
+
+    @Override
     public int size(int dim) {
       return array.size(dim);
     }
@@ -5372,7 +5302,7 @@ public final class Arrays {
 
     @Override
     public boolean isView() {
-      return array.isView();
+      return true;
     }
 
     @Override
@@ -5427,7 +5357,52 @@ public final class Arrays {
 
     @Override
     public Iterator<Complex> iterator() {
-      return asList().iterator();
+      return array.iterator();
+    }
+
+    @Override
+    public Object[] toArray() {
+      return array.toArray();
+    }
+
+    @Override
+    public <T> T[] toArray(T[] a) {
+      return array.toArray(a);
+    }
+
+    @Override
+    public boolean add(Complex complex) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean remove(Object o) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+      return array.containsAll(c);
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends Complex> c) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void clear() {
+      throw new UnsupportedOperationException();
     }
 
     @Override
@@ -5437,7 +5412,7 @@ public final class Arrays {
 
     @Override
     public Spliterator<Complex> spliterator() {
-      return asList().spliterator();
+      return array.spliterator();
     }
   }
 
@@ -5464,8 +5439,8 @@ public final class Arrays {
       return array.hashCode();
     }
 
-    public DoubleArray asDoubleArray() {
-      return unmodifiableArray(array.asDoubleArray());
+    public DoubleArray doubleArray() {
+      return unmodifiableArray(array.doubleArray());
     }
 
     public void set(int[] toIndex, BooleanArray from, int[] fromIndex) {
@@ -5496,12 +5471,8 @@ public final class Arrays {
       return array.isMatrix();
     }
 
-    public BooleanArray xor(BooleanArray other) {
-      return array.xor(other);
-    }
-
     public boolean isView() {
-      return array.isView();
+      return true;
     }
 
     public BooleanArray getView(Range... indexers) {
@@ -5510,10 +5481,6 @@ public final class Arrays {
 
     public int dims() {
       return array.dims();
-    }
-
-    public BooleanArray orNot(BooleanArray other) {
-      return array.orNot(other);
     }
 
     public BooleanArray reduceAlong(int dim, Function<? super BooleanArray, Boolean> function) {
@@ -5567,16 +5534,12 @@ public final class Arrays {
       };
     }
 
-    public BooleanArray asBooleanArray() {
-      return unmodifiableArray(array.asBooleanArray());
+    public BooleanArray booleanArray() {
+      return unmodifiableArray(array.booleanArray());
     }
 
     public void assign(Supplier<Boolean> supplier) {
       throw new UnsupportedOperationException();
-    }
-
-    public BooleanArray or(BooleanArray other) {
-      return array.or(other);
     }
 
     public void set(IntArray[] indexers, BooleanArray slice) {
@@ -5667,8 +5630,8 @@ public final class Arrays {
       throw new UnsupportedOperationException();
     }
 
-    public LongArray asLongArray() {
-      return unmodifiableArray(array.asLongArray());
+    public LongArray longArray() {
+      return unmodifiableArray(array.longArray());
     }
 
     public void setRow(int i, BooleanArray vec) {
@@ -5691,8 +5654,8 @@ public final class Arrays {
       throw new UnsupportedOperationException();
     }
 
-    public Array<Boolean> asArray() {
-      return unmodifiableArray(array.asArray());
+    public Array<Boolean> boxed() {
+      return unmodifiableArray(array.boxed());
     }
 
     public int rows() {
@@ -5707,16 +5670,8 @@ public final class Arrays {
       return array.any(dim);
     }
 
-    public BooleanArray and(BooleanArray other) {
-      return array.and(other);
-    }
-
-    public BooleanArray andNot(BooleanArray other) {
-      return array.andNot(other);
-    }
-
-    public IntArray asIntArray() {
-      return unmodifiableArray(array.asIntArray());
+    public IntArray intArray() {
+      return unmodifiableArray(array.intArray());
     }
 
     public boolean isSquare() {
@@ -5805,6 +5760,24 @@ public final class Arrays {
 
     public boolean any() {
       return array.any();
+    }
+  }
+
+  private static class ArrayListAdapter<T> extends AbstractList<T> {
+    private final Array<T> array;
+
+    public ArrayListAdapter(Array<T> array) {
+      this.array = array;
+    }
+
+    @Override
+    public T get(int index) {
+      return array.get(index);
+    }
+
+    @Override
+    public int size() {
+      return array.size();
     }
   }
 }

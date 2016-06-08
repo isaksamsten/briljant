@@ -1026,7 +1026,7 @@ public interface DataFrame {
     Builder set(Object row, Object column, Object value);
 
     /**
-     * Set the column at the specified index to the specified series
+     * Set the column at the specified index to the specified series.
      *
      * @param key the column index
      * @param column the series
@@ -1048,7 +1048,7 @@ public interface DataFrame {
     }
 
     /**
-     * Set the column at the specified index to the specified series builder
+     * Set the column at the specified index to the specified series builder. Any indexing
      *
      * @param key the column index
      * @param columnBuilder the series

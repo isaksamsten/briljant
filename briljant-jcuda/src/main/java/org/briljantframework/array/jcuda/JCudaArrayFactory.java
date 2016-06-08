@@ -20,21 +20,159 @@
  */
 package org.briljantframework.array.jcuda;
 
-import org.briljantframework.array.DoubleArray;
+import org.apache.commons.math3.complex.Complex;
+import org.briljantframework.array.*;
 import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.array.base.BaseArrayFactory;
+import org.briljantframework.array.api.ArrayFactory;
 
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
-public class JCudaArrayFactory extends BaseArrayFactory {
+public class JCudaArrayFactory implements ArrayFactory {
+
+  private final ArrayBackend backend;
 
   protected JCudaArrayFactory(ArrayBackend backend) {
-    super(backend);
+    this.backend = backend;
+  }
+
+  @Override
+  public <T> Array<T> newVector(T[] data) {
+    return null;
+  }
+
+  @Override
+  public <T> Array<T> newMatrix(T[][] data) {
+    return null;
+  }
+
+  @Override
+  public <T> Array<T> newArray(int... shape) {
+    return null;
+  }
+
+  @Override
+  public BooleanArray newBooleanMatrix(boolean[][] data) {
+    return null;
+  }
+
+  @Override
+  public BooleanArray newBooleanVector(boolean... data) {
+    return null;
+  }
+
+  @Override
+  public BooleanArray newBooleanArray(int... shape) {
+    return null;
+  }
+
+  @Override
+  public IntArray newIntMatrix(int[][] data) {
+    return null;
+  }
+
+  @Override
+  public IntArray newIntVector(int... data) {
+    return null;
+  }
+
+  @Override
+  public IntArray newIntArray(int... shape) {
+    return null;
+  }
+
+  @Override
+  public LongArray newLongMatrix(long[][] data) {
+    return null;
+  }
+
+  @Override
+  public LongArray newLongVector(long... data) {
+    return null;
+  }
+
+  @Override
+  public LongArray newLongArray(int... shape) {
+    return null;
+  }
+
+  @Override
+  public DoubleArray newDoubleMatrix(double[][] data) {
+    return null;
+  }
+
+  @Override
+  public DoubleArray newDoubleVector(double... data) {
+    return null;
   }
 
   @Override
   public DoubleArray newDoubleArray(int... shape) {
     return new JCudaDoubleArray(backend, shape);
+  }
+
+  @Override
+  public ComplexArray newComplexMatrix(Complex[][] data) {
+    return null;
+  }
+
+  @Override
+  public ComplexArray newComplexVector(Complex... data) {
+    return null;
+  }
+
+  @Override
+  public ComplexArray newComplexVector(double... data) {
+    return null;
+  }
+
+  @Override
+  public ComplexArray newComplexArray(int... shape) {
+    return null;
+  }
+
+  @Override
+  public DoubleArray randn(int size) {
+    return null;
+  }
+
+  @Override
+  public DoubleArray rand(int size) {
+    return null;
+  }
+
+  @Override
+  public DoubleArray ones(int... shape) {
+    return null;
+  }
+
+  @Override
+  public <T extends BaseArray<T>> T diag(T data) {
+    return null;
+  }
+
+  @Override
+  public Range range(int start, int end, int step) {
+    return null;
+  }
+
+  @Override
+  public Range range(int start, int end) {
+    return null;
+  }
+
+  @Override
+  public Range range(int end) {
+    return null;
+  }
+
+  @Override
+  public DoubleArray linspace(double start, double end, int size) {
+    return null;
+  }
+
+  @Override
+  public DoubleArray eye(int size) {
+    return null;
   }
 }

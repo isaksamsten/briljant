@@ -18,44 +18,41 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.briljantframework.array.base;
+package org.briljantframework.array.netlib;
+
+import java.util.Objects;
 
 import net.mintern.primitive.Primitive;
-import net.mintern.primitive.comparators.IntComparator;
+import net.mintern.primitive.comparators.LongComparator;
 
-import org.briljantframework.array.AbstractIntArray;
-import org.briljantframework.array.IntArray;
+import org.briljantframework.array.AbstractLongArray;
+import org.briljantframework.array.LongArray;
 import org.briljantframework.array.api.ArrayBackend;
 
 /**
  * @author Isak Karlsson
  */
-class BaseIntArray extends AbstractIntArray {
+class NetlibLongArray extends AbstractLongArray {
 
-  private final int[] data;
+  private long[] data;
 
-  BaseIntArray(ArrayBackend bj, int size) {
-    super(bj, new int[] {size});
-    this.data = new int[size];
-  }
-
-  BaseIntArray(ArrayBackend bj, int[] shape) {
+  NetlibLongArray(ArrayBackend bj, int[] shape) {
     super(bj, shape);
-    this.data = new int[size()];
+    this.data = new long[size()];
   }
 
-  private BaseIntArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int[] data) {
+  NetlibLongArray(ArrayBackend bj, long[] data) {
+    super(bj, new int[] {Objects.requireNonNull(data).length});
+    this.data = data;
+  }
+
+  private NetlibLongArray(ArrayBackend bj, int offset, int[] shape, int[] stride, long[] data) {
     super(bj, offset, shape, stride);
     this.data = data;
   }
 
-  BaseIntArray(ArrayBackend bj, boolean ignore, int[] data) {
-    super(bj, new int[] {data.length});
-    this.data = data;
-  }
-
   @Override
-  public void sort(IntComparator cmp) {
+  public void sort(LongComparator cmp) {
     if (!isView() && isVector() && stride(0) == 1) {
       Primitive.sort(data(), getOffset(), size(), cmp);
     } else {
@@ -64,28 +61,23 @@ class BaseIntArray extends AbstractIntArray {
   }
 
   @Override
-  public int getElement(int index) {
-    return data[index];
-  }
-
-  @Override
-  public void setElement(int index, int value) {
+  public void setElement(int index, long value) {
     data[index] = value;
   }
 
   @Override
-  public int[] data() {
-    return data;
+  public long getElement(int index) {
+    return data[index];
   }
 
   @Override
-  public IntArray asView(int offset, int[] shape, int[] stride) {
-    return new BaseIntArray(getArrayBackend(), offset, shape, stride, data);
+  public LongArray asView(int offset, int[] shape, int[] stride) {
+    return new NetlibLongArray(getArrayBackend(), offset, shape, stride, data);
   }
 
   @Override
-  public IntArray newEmptyArray(int... shape) {
-    return new BaseIntArray(getArrayBackend(), shape);
+  public LongArray newEmptyArray(int... shape) {
+    return new NetlibLongArray(getArrayBackend(), shape);
   }
 
   @Override

@@ -18,7 +18,7 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.briljantframework.array.base;
+package org.briljantframework.array.netlib;
 
 import java.util.Objects;
 
@@ -29,38 +29,38 @@ import org.briljantframework.array.api.ArrayBackend;
 /**
  * @author Isak Karlsson
  */
-class BaseBooleanArray extends AbstractBooleanArray {
+class NetlibBooleanArray extends AbstractBooleanArray {
 
   private final boolean[] data;
 
-  BaseBooleanArray(ArrayBackend backend, int size) {
+  NetlibBooleanArray(ArrayBackend backend, int size) {
     super(backend, size);
     data = new boolean[size];
   }
 
-  BaseBooleanArray(ArrayBackend backend, boolean[] data) {
+  NetlibBooleanArray(ArrayBackend backend, boolean[] data) {
     super(backend, Objects.requireNonNull(data).length);
     this.data = data;
   }
 
-  BaseBooleanArray(ArrayBackend bj, int[] shape) {
+  NetlibBooleanArray(ArrayBackend bj, int[] shape) {
     super(bj, shape);
     this.data = new boolean[size()];
   }
 
-  private BaseBooleanArray(ArrayBackend bj, int offset, int[] shape, int[] stride, boolean[] data) {
+  private NetlibBooleanArray(ArrayBackend bj, int offset, int[] shape, int[] stride, boolean[] data) {
     super(bj, offset, shape, stride);
     this.data = data;
   }
 
   @Override
   public BooleanArray asView(int offset, int[] shape, int[] stride) {
-    return new BaseBooleanArray(getArrayBackend(), offset, shape, stride, data);
+    return new NetlibBooleanArray(getArrayBackend(), offset, shape, stride, data);
   }
 
   @Override
   public BooleanArray newEmptyArray(int... shape) {
-    return new BaseBooleanArray(getArrayBackend(), shape);
+    return new NetlibBooleanArray(getArrayBackend(), shape);
   }
 
   @Override

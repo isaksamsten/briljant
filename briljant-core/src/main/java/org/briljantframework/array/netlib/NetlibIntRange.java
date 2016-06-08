@@ -18,12 +18,13 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.briljantframework.array.base;
+package org.briljantframework.array.netlib;
 
 import java.util.Arrays;
 
 import net.mintern.primitive.comparators.IntComparator;
 
+import org.briljantframework.Check;
 import org.briljantframework.array.AbstractIntArray;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.array.Range;
@@ -32,18 +33,18 @@ import org.briljantframework.array.api.ArrayBackend;
 /**
  * @author Isak Karlsson
  */
-class BaseRange extends AbstractIntArray implements Range {
+class NetlibIntRange extends AbstractIntArray implements Range {
 
   private final int start, end, step;
 
-  BaseRange(ArrayBackend backend, int start, int end, int step) {
-    super(backend, new int[] {getSize(start, end, step)});
+  NetlibIntRange(ArrayBackend backend, int start, int end, int step) {
+    super(backend, new int[] {computeRangeSize(start, end, step)});
     this.start = start;
     this.end = end;
     this.step = step;
   }
 
-  private static int getSize(int start, int end, int step) {
+  private static int computeRangeSize(int start, int end, int step) {
     if ((start < end && step < 0) || (start > end) && step > 0) {
       throw new IllegalArgumentException();
     }
@@ -55,7 +56,8 @@ class BaseRange extends AbstractIntArray implements Range {
     }
   }
 
-  private BaseRange(ArrayBackend bj, int offset, int[] shape, int[] stride, int start, int end, int step) {
+  private NetlibIntRange(ArrayBackend bj, int offset, int[] shape, int[] stride, int start, int end,
+      int step) {
     super(bj, offset, shape, stride);
     this.start = start;
     this.end = end;
@@ -64,13 +66,12 @@ class BaseRange extends AbstractIntArray implements Range {
 
   @Override
   public IntArray asView(int offset, int[] shape, int[] stride) {
-    return new BaseRange(getArrayBackend(), offset, shape, stride, start(), end(),
-        step());
+    return new NetlibIntRange(getArrayBackend(), offset, shape, stride, start(), end(), step());
   }
 
   @Override
   public IntArray newEmptyArray(int... shape) {
-    return new BaseIntArray(getArrayBackend(), shape);
+    return new NetlibIntArray(getArrayBackend(), shape);
   }
 
   @Override
@@ -89,7 +90,11 @@ class BaseRange extends AbstractIntArray implements Range {
   }
 
   @Override
-  public boolean contains(int value) {
+  public boolean contains(Object v) {
+    if (!(v instanceof Integer)) {
+      return false;
+    }
+    int value = (Integer) v;
     return value % step == 0 && value < end && value >= start;
   }
 
@@ -100,26 +105,28 @@ class BaseRange extends AbstractIntArray implements Range {
 
   @Override
   protected int elementSize() {
-    return getSize(start(), end(), step());
+    return computeRangeSize(start(), end(), step());
+  }
+
+  @Override
+  public void sort() {
+    // already sorted in this order
   }
 
   @Override
   public void sort(IntComparator cmp) {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("Can't sort ranges in-place");
   }
 
   @Override
   protected void setElement(int index, int value) {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("Can't set element of immutable range");
   }
 
   @Override
   protected int getElement(int index) {
-    if (index < getSize(start(), end(), step()) && index >= 0) {
-      return start + index * step;
-    } else {
-      throw new IndexOutOfBoundsException(String.format("0 >= %d > %d", index, size()));
-    }
+    Check.index(index, computeRangeSize(start(), end(), step()));
+    return start + index * step;
   }
 
   @Override
@@ -131,17 +138,13 @@ class BaseRange extends AbstractIntArray implements Range {
   public boolean equals(Object obj) {
     if (obj instanceof Range) {
       Range rng = (Range) obj;
-      return start() == rng.start() && end() == rng.end() && step() == rng.step();
+      // Two ranges are exactly the same if they have the same start, end and step size
+      // and the same shape and stride
+      return start() == rng.start() && end() == rng.end() && step() == rng.step()
+          && Arrays.equals(this.getShape(), rng.getShape())
+          && Arrays.equals(getStride(), rng.getStride());
     }
     return super.equals(obj);
   }
 
-  @Override
-  public int[] data() {
-    int[] data = new int[size()];
-    for (int i = 0; i < data.length; i++) {
-      data[i] = get(i);
-    }
-    return data;
-  }
 }

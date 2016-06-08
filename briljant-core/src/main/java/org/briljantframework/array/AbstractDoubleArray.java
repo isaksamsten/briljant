@@ -185,7 +185,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public void assign(DoubleArray other, DoubleUnaryOperator operator) {
-    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+    org.briljantframework.array.Arrays.broadcastWith(this, other, (a, b) -> {
       Check.size(a, b);
       for (int i = 0, size = a.size(); i < size; i++) {
         a.set(i, operator.applyAsDouble(b.get(i)));
@@ -195,7 +195,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public void assign(IntArray other, IntToDoubleFunction function) {
-    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+    org.briljantframework.array.Arrays.broadcastWith(this, other, (a, b) -> {
       Check.size(a, b);
       for (int i = 0, size = a.size(); i < size; i++) {
         a.set(i, function.applyAsDouble(b.get(i)));
@@ -205,7 +205,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public void assign(LongArray other, LongToDoubleFunction function) {
-    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+    org.briljantframework.array.Arrays.broadcastWith(this, other, (a, b) -> {
       Check.size(a, b);
       for (int i = 0, size = a.size(); i < size; i++) {
         a.set(i, function.applyAsDouble(b.get(i)));
@@ -215,7 +215,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public void assign(ComplexArray other, ToDoubleFunction<? super Complex> function) {
-    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+    org.briljantframework.array.Arrays.broadcastWith(this, other, (a, b) -> {
       Check.size(a, b);
       for (int i = 0, size = a.size(); i < size; i++) {
         a.set(i, function.applyAsDouble(b.get(i)));
@@ -225,7 +225,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public void combineAssign(DoubleArray other, DoubleBinaryOperator combine) {
-    org.briljantframework.array.Arrays.withBroadcast(this, other, (a, b) -> {
+    org.briljantframework.array.Arrays.broadcastWith(this, other, (a, b) -> {
       Check.size(a, b);
       for (int i = 0, size = a.size(); i < size; i++) {
         a.set(i, combine.applyAsDouble(a.get(i), b.get(i)));
@@ -235,7 +235,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public DoubleArray combine(DoubleArray other, DoubleBinaryOperator combine) {
-    return org.briljantframework.array.Arrays.broadcast(this, other, (a, b) -> {
+    return org.briljantframework.array.Arrays.broadcastCombine(this, other, (a, b) -> {
       DoubleArray out = newEmptyArray(a.getShape());
       for (int i = 0, size = a.size(); i < size; i++) {
         out.set(i, combine.applyAsDouble(a.get(i), b.get(i)));
@@ -329,7 +329,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public BooleanArray where(DoubleArray other, DoubleBiPredicate predicate) {
-    return org.briljantframework.array.Arrays.broadcast(this, other, (a, b) -> {
+    return org.briljantframework.array.Arrays.broadcastCombine(this, other, (a, b) -> {
       BooleanArray out = getArrayBackend().getArrayFactory().newBooleanArray(a.getShape());
       for (int i = 0, size = a.size(); i < size; i++) {
         out.set(i, predicate.test(a.get(i), b.get(i)));

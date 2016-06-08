@@ -448,11 +448,4 @@ public interface DoubleArray
     return get(index);
   }
 
-  /**
-   * Returns a double array representation of this matrix. If {@linkplain #isView()} is {@code true}
-   * , a copy is returned.
-   *
-   * @return a double array
-   */
-  double[] data();
 }

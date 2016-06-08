@@ -260,24 +260,6 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public ComplexArray reduceColumns(Function<? super ComplexArray, ? extends Complex> reduce) {
-    ComplexArray mat = newEmptyArray(1, columns());
-    for (int i = 0; i < columns(); i++) {
-      mat.set(i, reduce.apply(getColumn(i)));
-    }
-    return mat;
-  }
-
-  @Override
-  public ComplexArray reduceRows(Function<? super ComplexArray, ? extends Complex> reduce) {
-    ComplexArray mat = newEmptyArray(rows(), 1);
-    for (int i = 0; i < rows(); i++) {
-      mat.set(i, reduce.apply(getRow(i)));
-    }
-    return mat;
-  }
-
-  @Override
   public ComplexArray conjugateTranspose() {
     ComplexArray matrix = newEmptyArray(columns(), rows());
     for (int j = 0; j < columns(); j++) {
@@ -356,153 +338,6 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
         return get(current++);
       }
     }, size(), Spliterator.SIZED), false);
-  }
-
-  @Override
-  public final List<Complex> asList() {
-    return new AbstractList<Complex>() {
-      @Override
-      public int size() {
-        return AbstractComplexArray.this.size();
-      }
-
-      @Override
-      public Complex get(int index) {
-        return AbstractComplexArray.this.get(index);
-      }
-
-      @Override
-      public Complex set(int index, Complex element) {
-        Complex old = get(index);
-        AbstractComplexArray.this.set(index, element);
-        return old;
-      }
-
-
-    };
-  }
-
-  @Override
-  public ComplexArray times(ComplexArray other) {
-    return times(Complex.ONE, other);
-  }
-
-  @Override
-  public ComplexArray times(Complex alpha, ComplexArray other) {
-    Pair<ComplexArray, ComplexArray> pair = ShapeUtils.combinedBroadcast(this, other);
-    other = pair.getRight();
-    ComplexArray me = pair.getLeft();
-    Check.size(me, other);
-
-    ComplexArray out = newEmptyArray(me.getShape());
-    for (int i = 0, size = me.size(); i < size; i++) {
-      out.set(i, alpha.multiply(me.get(i)).multiply(other.get(i)));
-    }
-    return out;
-  }
-
-  @Override
-  public ComplexArray times(Complex scalar) {
-    ComplexArray m = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      m.set(i, get(i).multiply(scalar));
-    }
-    return m;
-  }
-
-  @Override
-  public ComplexArray plus(ComplexArray other) {
-    return plus(Complex.ONE, other);
-  }
-
-  @Override
-  public ComplexArray plus(Complex scalar) {
-    ComplexArray m = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      m.set(i, get(i).add(scalar));
-    }
-    return m;
-  }
-
-  @Override
-  public ComplexArray plus(Complex alpha, ComplexArray other) {
-    Pair<ComplexArray, ComplexArray> pair = ShapeUtils.combinedBroadcast(this, other);
-    other = pair.getRight();
-    ComplexArray me = pair.getLeft();
-    Check.size(me, other);
-    ComplexArray m = newEmptyArray(me.getShape());
-    for (int i = 0, size = me.size(); i < size; i++) {
-      m.set(i, me.get(i).multiply(alpha).add(other.get(i)));
-    }
-    return m;
-  }
-
-  @Override
-  public ComplexArray minus(ComplexArray other) {
-    return minus(Complex.ONE, other);
-  }
-
-  @Override
-  public ComplexArray minus(Complex scalar) {
-    ComplexArray m = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      m.set(i, get(i).subtract(scalar));
-    }
-    return m;
-  }
-
-  @Override
-  public ComplexArray minus(Complex alpha, ComplexArray other) {
-    Pair<ComplexArray, ComplexArray> pair = ShapeUtils.combinedBroadcast(this, other);
-    other = pair.getRight();
-    ComplexArray me = pair.getLeft();
-    Check.size(me, other);
-
-    ComplexArray out = newEmptyArray(me.getShape());
-    for (int i = 0, size = me.size(); i < size; i++) {
-      out.set(i, alpha.multiply(me.get(i)).subtract(other.get(i)));
-    }
-    return out;
-  }
-
-  @Override
-  public ComplexArray reverseMinus(Complex scalar) {
-    ComplexArray m = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      m.set(i, scalar.subtract(get(i)));
-    }
-    return m;
-  }
-
-  @Override
-  public ComplexArray div(ComplexArray other) {
-    Pair<ComplexArray, ComplexArray> pair = ShapeUtils.combinedBroadcast(this, other);
-    other = pair.getRight();
-    ComplexArray me = pair.getLeft();
-    Check.size(me, other);
-    ComplexArray out = newEmptyArray(me.getShape());
-    for (int i = 0, size = me.size(); i < size; i++) {
-      out.set(i, me.get(i).divide(other.get(i)));
-    }
-    return out;
-  }
-
-  @Override
-  public ComplexArray div(Complex other) {
-    ComplexArray m = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      m.set(i, get(i).divide(other));
-    }
-    return m;
-  }
-
-  @Override
-  public ComplexArray reverseDiv(Complex other) {
-    ComplexArray m = newEmptyArray(getShape());
-    for (int i = 0; i < size(); i++) {
-      m.set(i, other.divide(get(i)));
-    }
-    return m;
   }
 
   @Override
@@ -661,6 +496,81 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
         return AbstractComplexArray.this.elementSize();
       }
     };
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return size() > 0;
+  }
+
+  @Override
+  public boolean contains(Object o) {
+    if (!(o instanceof Complex)) {
+      return false;
+    }
+    for (int i = 0; i < size(); i++) {
+      if (Objects.equals(get(i), o)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public Object[] toArray() {
+    Object[] array = new Object[size()];
+    for (int i = 0; i < size(); i++) {
+      array[i] = get(i);
+    }
+    return array;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T[] toArray(T[] a) {
+    int size = size();
+    T[] r = a.length >= size ? a :
+        (T[])java.lang.reflect.Array
+            .newInstance(a.getClass().getComponentType(), size);
+    for (int i = 0; i < size(); i++) {
+      r[i] = (T) get(i);
+    }
+    return r;
+  }
+
+  @Override
+  public boolean add(Complex complex) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean remove(Object o) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean containsAll(Collection<?> c) {
+    return false;
+  }
+
+  @Override
+  public boolean removeAll(Collection<?> c) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean addAll(Collection<? extends Complex> c) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean retainAll(Collection<?> c) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clear() {
+    throw new UnsupportedOperationException();
   }
 
   @Override

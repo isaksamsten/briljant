@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.briljantframework.util.sort.QuickSort;
-import org.briljantframework.util.sort.Swappable;
+import org.briljantframework.util.sort.ElementSwapper;
 import org.junit.Test;
 
 public class QuickSortTest {
@@ -38,18 +38,18 @@ public class QuickSortTest {
   public void testTest() throws Exception {
     ArrayList<String> list = new ArrayList<>();
     list.addAll(Arrays.asList("a", "b", "c", "q", "f", "d", "r", "a"));
-    Swappable s = new ListSwappable(list);
+    ElementSwapper s = new ListElementSwapper(list);
     QuickSort.quickSort(0, list.size(), (a, b) -> list.get(a).compareTo(list.get(b)), s);
 
     assertEquals("a", list.get(0));
     assertEquals("a", list.get(1));
   }
 
-  private static class ListSwappable implements Swappable {
+  private static class ListElementSwapper implements ElementSwapper {
 
     private final List<?> list;
 
-    private ListSwappable(List<?> list) {
+    private ListElementSwapper(List<?> list) {
       this.list = list;
     }
 

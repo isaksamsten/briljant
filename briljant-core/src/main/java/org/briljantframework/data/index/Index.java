@@ -26,7 +26,7 @@ import net.mintern.primitive.comparators.IntComparator;
 
 import org.briljantframework.array.Range;
 import org.briljantframework.data.SortOrder;
-import org.briljantframework.util.sort.Swappable;
+import org.briljantframework.util.sort.ElementSwapper;
 
 /**
  * An immutable index which maps an object to a location and a location to an object.
@@ -176,7 +176,7 @@ public interface Index extends List<Object> {
    */
   Builder newCopyBuilder();
 
-  interface Builder extends Swappable {
+  interface Builder extends ElementSwapper {
 
     /**
      * Returns {@code true} if the index builder contains the specified key.

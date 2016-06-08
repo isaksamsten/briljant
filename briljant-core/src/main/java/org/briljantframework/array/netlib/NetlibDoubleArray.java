@@ -40,11 +40,6 @@ class NetlibDoubleArray extends AbstractDoubleArray {
   private static BLAS blas = BLAS.getInstance();
   private final double[] data;
 
-  NetlibDoubleArray(ArrayBackend backend, int size) {
-    super(backend, new int[] {size});
-    data = new double[size];
-  }
-
   NetlibDoubleArray(ArrayBackend bj, double[] data) {
     super(bj, new int[] {Objects.requireNonNull(data).length});
     this.data = data;
@@ -57,11 +52,6 @@ class NetlibDoubleArray extends AbstractDoubleArray {
 
   private NetlibDoubleArray(ArrayBackend bj, int offset, int[] shape, int[] stride, double[] data) {
     super(bj, offset, shape, stride);
-    this.data = data;
-  }
-
-  public NetlibDoubleArray(ArrayBackend bj, double[] data, int rows, int columns) {
-    super(bj, new int[] {rows, columns});
     this.data = data;
   }
 
@@ -92,7 +82,7 @@ class NetlibDoubleArray extends AbstractDoubleArray {
   @Override
   public void sort(DoubleComparator cmp) {
     if (!isView() && isVector() && stride(0) == 1) {
-      Primitive.sort(data(), getOffset(), size(), cmp);
+      Primitive.sort(data, getOffset(), size(), cmp);
     } else {
       super.sort(cmp);
     }
@@ -108,8 +98,7 @@ class NetlibDoubleArray extends AbstractDoubleArray {
     data[i] = value;
   }
 
-  @Override
-  public double[] data() {
+  double[] getBackingArray() {
     return data;
   }
 }

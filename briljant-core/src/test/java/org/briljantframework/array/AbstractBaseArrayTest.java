@@ -373,41 +373,6 @@ public abstract class AbstractBaseArrayTest<S extends BaseArray<S>> {
   }
 
   @Test
-  public void asDoubleArray() throws Exception {
-
-  }
-
-  @Test
-  public void asIntArray() throws Exception {
-
-  }
-
-  @Test
-  public void asLongArray() throws Exception {
-
-  }
-
-  @Test
-  public void asBooleanArray() throws Exception {
-
-  }
-
-  @Test
-  public void asComplexArray() throws Exception {
-
-  }
-
-  @Test
-  public void asArray() throws Exception {
-
-  }
-
-  @Test
-  public void asList() throws Exception {
-
-  }
-
-  @Test
   public void isContiguous() throws Exception {
 
   }

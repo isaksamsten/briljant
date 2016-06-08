@@ -98,8 +98,7 @@ public class JCudaDoubleArray extends AbstractDoubleArray {
     return hostMemory.length;
   }
 
-  @Override
-  public double[] data() {
+  private double[] data() {
     allocateHostMemory();
     return hostMemory;
   }

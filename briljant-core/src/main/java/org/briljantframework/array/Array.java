@@ -21,6 +21,7 @@
 package org.briljantframework.array;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.*;
 import java.util.stream.Stream;
@@ -351,13 +352,5 @@ public interface Array<T> extends BaseArray<Array<T>>, Collection<T> {
    */
   Stream<T> stream();
 
-  List<T> asList();
-
-  /**
-   * Return the contents of this array as a Java-array. If the array is a view, the returned data
-   * might be longer (or shorter) than {@code this}
-   *
-   * @return a native array (view or copy)
-   */
-  T[] data();
+  void sort(Comparator<? super T> comparator);
 }

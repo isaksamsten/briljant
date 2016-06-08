@@ -18,38 +18,69 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.briljantframework.array.base;
+package org.briljantframework.array.netlib;
 
-import org.briljantframework.array.AbstractArray;
-import org.briljantframework.array.Array;
-import org.briljantframework.array.ShapeUtils;
+import net.mintern.primitive.Primitive;
+import net.mintern.primitive.comparators.IntComparator;
+
+import org.briljantframework.array.AbstractIntArray;
+import org.briljantframework.array.IntArray;
 import org.briljantframework.array.api.ArrayBackend;
 
 /**
  * @author Isak Karlsson
  */
-class BaseReferenceArray<T> extends AbstractArray<T> {
+class NetlibIntArray extends AbstractIntArray {
 
-  private final T[] data;
+  private final int[] data;
 
-  BaseReferenceArray(ArrayBackend bj, T[] data) {
-    this(bj, new int[] {data.length}, data);
+  NetlibIntArray(ArrayBackend bj, int size) {
+    super(bj, new int[] {size});
+    this.data = new int[size];
   }
 
-  private BaseReferenceArray(ArrayBackend bj, int[] shape, T[] data) {
+  NetlibIntArray(ArrayBackend bj, int[] shape) {
     super(bj, shape);
-    this.data = data;
+    this.data = new int[size()];
   }
 
-  private BaseReferenceArray(ArrayBackend bj, int offset, int[] shape, int[] stride, T[] data) {
+  private NetlibIntArray(ArrayBackend bj, int offset, int[] shape, int[] stride, int[] data) {
     super(bj, offset, shape, stride);
     this.data = data;
   }
 
-  @SuppressWarnings("unchecked")
-  BaseReferenceArray(ArrayBackend bj, int[] shape) {
-    super(bj, shape);
-    this.data = (T[]) new Object[ShapeUtils.size(shape)];
+  NetlibIntArray(ArrayBackend bj, boolean ignore, int[] data) {
+    super(bj, new int[] {data.length});
+    this.data = data;
+  }
+
+  @Override
+  public void sort(IntComparator cmp) {
+    if (!isView() && isVector() && stride(0) == 1) {
+      Primitive.sort(data, getOffset(), size(), cmp);
+    } else {
+      super.sort(cmp);
+    }
+  }
+
+  @Override
+  public int getElement(int index) {
+    return data[index];
+  }
+
+  @Override
+  public void setElement(int index, int value) {
+    data[index] = value;
+  }
+
+  @Override
+  public IntArray asView(int offset, int[] shape, int[] stride) {
+    return new NetlibIntArray(getArrayBackend(), offset, shape, stride, data);
+  }
+
+  @Override
+  public IntArray newEmptyArray(int... shape) {
+    return new NetlibIntArray(getArrayBackend(), shape);
   }
 
   @Override
@@ -57,30 +88,7 @@ class BaseReferenceArray<T> extends AbstractArray<T> {
     return data.length;
   }
 
-  @Override
-  public Array<T> asView(int offset, int[] shape, int[] stride) {
-    return new BaseReferenceArray<>(getArrayBackend(), offset, shape, stride, data);
-  }
-
-  @Override
-  public Array<T> newEmptyArray(int... shape) {
-    @SuppressWarnings("unchecked")
-    T[] data = (T[]) new Object[ShapeUtils.size(shape)];
-    return new BaseReferenceArray<>(getArrayBackend(), shape, data);
-  }
-
-  @Override
-  public T[] data() {
+  int[] getBackingArray() {
     return data;
-  }
-
-  @Override
-  protected void setElement(int i, T value) {
-    data[i] = value;
-  }
-
-  @Override
-  protected T getElement(int i) {
-    return data[i];
   }
 }

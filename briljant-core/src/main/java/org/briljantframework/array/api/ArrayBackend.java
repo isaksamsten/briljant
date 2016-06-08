@@ -20,8 +20,6 @@
  */
 package org.briljantframework.array.api;
 
-import org.briljantframework.array.linalg.api.LinearAlgebraRoutines;
-
 /**
  * An array backend provides {@link ArrayFactory factories}, {@link ArrayRoutines array routines}
  * and {@link LinearAlgebraRoutines linear algebra routines}.
@@ -34,7 +32,6 @@ import org.briljantframework.array.linalg.api.LinearAlgebraRoutines;
  * 
  * @author Isak Karlsson
  * @see org.briljantframework.array.netlib.NetlibArrayBackend
- * @see org.briljantframework.array.base.BaseArrayBackend
  */
 public interface ArrayBackend {
 

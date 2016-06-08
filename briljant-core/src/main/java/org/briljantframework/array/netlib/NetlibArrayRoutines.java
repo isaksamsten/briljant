@@ -26,7 +26,7 @@ import org.briljantframework.array.Arrays;
 import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.array.base.BaseArrayRoutines;
+import org.briljantframework.array.api.AbstractArrayRoutines;
 
 import com.github.fommil.netlib.BLAS;
 
@@ -35,7 +35,7 @@ import com.github.fommil.netlib.BLAS;
  * 
  * @author Isak Karlsson
  */
-class NetlibArrayRoutines extends BaseArrayRoutines {
+class NetlibArrayRoutines extends AbstractArrayRoutines {
 
   private final static BLAS blas = BLAS.getInstance();
 
@@ -45,7 +45,7 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
 
   @Override
   public void plusAssign(DoubleArray a, DoubleArray out) {
-    Arrays.withBroadcast(out, a, (y, x) -> {
+    Arrays.broadcastWith(out, a, (y, x) -> {
       Check.size(x, out);
       axpy(1.0, x, y);
     });
@@ -53,7 +53,7 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
 
   @Override
   public void minusAssign(DoubleArray a, DoubleArray out) {
-    Arrays.withBroadcast(out, a, (y, x) -> {
+    Arrays.broadcastWith(out, a, (y, x) -> {
       Check.size(x, out);
       axpy(-1.0, x, y);
     });
@@ -65,18 +65,22 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
       Check.argument(a.isVector() && b.isVector(), VECTOR_REQUIRED);
       Check.size(a, b);
       int n = a.size();
-      return blas.ddot(n, a.data(), a.getOffset(), getVectorMajorStride(a), b.data(), b.getOffset(),
+      return blas.ddot(n, getBackingArray(a), a.getOffset(), getVectorMajorStride(a), getBackingArray(b), b.getOffset(),
           getVectorMajorStride(b));
     } else {
       return super.inner(a, b);
     }
   }
 
+  private double[] getBackingArray(DoubleArray a) {
+    return ((NetlibDoubleArray) a).getBackingArray();
+  }
+
   @Override
   public double norm2(DoubleArray a) {
     if (isContinuousNetlibArray(a)) {
       Check.argument(a.isVector(), VECTOR_REQUIRED);
-      return blas.dnrm2(a.size(), a.data(), a.getOffset(), getVectorMajorStride(a));
+      return blas.dnrm2(a.size(), getBackingArray(a), a.getOffset(), getVectorMajorStride(a));
     } else {
       return super.norm2(a);
     }
@@ -86,7 +90,7 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
   public double asum(DoubleArray a) {
     if (isContinuousNetlibArray(a)) {
       Check.argument(a.isVector(), VECTOR_REQUIRED);
-      return blas.dasum(a.size(), a.data(), a.getOffset(), getVectorMajorStride(a));
+      return blas.dasum(a.size(), getBackingArray(a), a.getOffset(), getVectorMajorStride(a));
     } else {
       return super.asum(a);
     }
@@ -96,7 +100,7 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
   public int iamax(DoubleArray a) {
     if (isContinuousNetlibArray(a)) {
       Check.argument(a.isVector(), VECTOR_REQUIRED);
-      return blas.idamax(a.size(), a.data(), a.getOffset(), getVectorMajorStride(a));
+      return blas.idamax(a.size(), getBackingArray(a), a.getOffset(), getVectorMajorStride(a));
     } else {
       return super.iamax(a);
     }
@@ -106,7 +110,7 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
   public void scal(double alpha, DoubleArray a) {
     if (isContinuousNetlibArray(a) && alpha != 1) {
       Check.argument(a.isVector(), VECTOR_REQUIRED);
-      blas.dscal(a.size(), alpha, a.data(), a.getOffset(), getVectorMajorStride(a));
+      blas.dscal(a.size(), alpha, getBackingArray(a), a.getOffset(), getVectorMajorStride(a));
     } else {
       super.scal(alpha, a);
     }
@@ -121,7 +125,7 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
       // TODO: 5/27/16 we need to rework this
       // Check.argument(x.isVector() && y.isVector(), VECTOR_REQUIRED);
       // Check.size(x, y);
-      blas.daxpy(x.size(), alpha, x.data(), x.getOffset(), getVectorMajorStride(x), y.data(),
+      blas.daxpy(x.size(), alpha, getBackingArray(x), x.getOffset(), getVectorMajorStride(x), getBackingArray(y),
           y.getOffset(), getVectorMajorStride(y));
     } else {
       super.axpy(alpha, x, y);
@@ -141,8 +145,8 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
       int m = a.size(transA == ArrayOperation.KEEP ? 0 : 1);
       int n = a.size(transA == ArrayOperation.KEEP ? 1 : 0);
       // TODO: 5/2/16 ensure correctness
-      blas.dgemv(transA.getCblasString(), m, n, alpha, a.data(), a.getOffset(),
-          Math.max(1, a.stride(1)), x.data(), x.getOffset(), x.stride(0), beta, y.data(),
+      blas.dgemv(transA.getCblasString(), m, n, alpha, getBackingArray(a), a.getOffset(),
+          Math.max(1, a.stride(1)), getBackingArray(x), x.getOffset(), x.stride(0), beta, getBackingArray(y),
           y.getOffset(), y.stride(0));
     } else {
       super.gemv(transA, alpha, a, x, beta, y);
@@ -157,8 +161,8 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
     if (x instanceof NetlibDoubleArray && y instanceof NetlibDoubleArray
         && a instanceof NetlibDoubleArray && a.stride(0) == 1 && a.stride(1) >= a.size(1)) {
       // TODO: 5/3/16 ensure correctness
-      blas.dger(a.rows(), a.columns(), alpha, x.data(), x.getOffset(), y.stride(0), y.data(),
-          y.getOffset(), y.stride(0), a.data(), a.getOffset(), Math.max(1, a.stride(1)));
+      blas.dger(a.rows(), a.columns(), alpha, getBackingArray(x), x.getOffset(), y.stride(0), getBackingArray(y),
+          y.getOffset(), y.stride(0), getBackingArray(a), a.getOffset(), Math.max(1, a.stride(1)));
     } else {
       super.ger(alpha, x, y, a);
     }
@@ -191,15 +195,15 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
     // Issue: is a or b is non-netlib arrays it might be beneficial to copy here if
     // the array is a small view of a large array since the view performs a copy of
     // the large array and, while the copy here might be small.
-    a = a.isContiguous() && a.stride(0) == 1 ? a : a.copy();
-    b = b.isContiguous() && b.stride(0) == 1 ? b : b.copy();
+    a = !a.isView() && a.isContiguous() && a.stride(0) == 1 ? a : a.copy();
+    b = !b.isView() && b.isContiguous() && b.stride(0) == 1 ? b : b.copy();
     DoubleArray maybeC =
         c instanceof NetlibDoubleArray && c.isContiguous() && c.stride(0) == 1 ? c : c.copy();
 
 
-    blas.dgemm(transA.getCblasString(), transB.getCblasString(), m, n, k, alpha, a.data(),
-        a.getOffset(), Math.max(1, a.stride(1)), b.data(), b.getOffset(), Math.max(1, b.stride(1)),
-        beta, maybeC.data(), maybeC.getOffset(), Math.max(1, maybeC.stride(1)));
+    blas.dgemm(transA.getCblasString(), transB.getCblasString(), m, n, k, alpha, getBackingArray(a),
+        a.getOffset(), Math.max(1, a.stride(1)), getBackingArray(b), b.getOffset(), Math.max(1, b.stride(1)),
+        beta, getBackingArray(maybeC), maybeC.getOffset(), Math.max(1, maybeC.stride(1)));
 
     // If c was copied, maybeC and c won't be the same instance.
     // To simulate an out parameter, c is assigned the new data if this is the case.
@@ -214,8 +218,8 @@ class NetlibArrayRoutines extends BaseArrayRoutines {
     // internal data representation
     if (from instanceof NetlibDoubleArray && to instanceof NetlibDoubleArray && !from.isView()
         && from.stride(0) == 1 && !to.isView() && to.stride(0) == 1) {
-      System.arraycopy(((NetlibDoubleArray) from).data(), from.getOffset(),
-          ((NetlibDoubleArray) to).data(), to.getOffset(), from.size());
+      System.arraycopy(getBackingArray(((NetlibDoubleArray) from)), from.getOffset(),
+          getBackingArray(((NetlibDoubleArray) to)), to.getOffset(), from.size());
     } else {
       super.copy(from, to);
     }

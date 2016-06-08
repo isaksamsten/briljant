@@ -25,11 +25,11 @@ import java.util.List;
 import java.util.function.*;
 import java.util.stream.IntStream;
 
+import net.mintern.primitive.comparators.IntComparator;
+
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.IntSequence;
 import org.briljantframework.function.IntBiPredicate;
-
-import net.mintern.primitive.comparators.IntComparator;
 
 /**
  * A n-dimensional array of integer values.
@@ -181,163 +181,91 @@ public interface IntArray
 
   // GET / SET
 
-  void set(int index, int value);
-
   /**
-   * Get value at row {@code i} and column {@code j}
+   * {@inheritDoc}
    *
-   * @param i row
-   * @param j column
-   * @return value int
+   * @see #get(int)
+   * @param index the index
+   * @return the value
    */
-  int get(int i, int j);
-
-  void set(int row, int column, int value);
-
-  void set(int[] ix, int value);
-
-  int get(int... ix);
+  @Override
+  default int getInt(int index) {
+    return get(index);
+  }
 
   /**
-   * @param index get int
-   * @return int at {@code index}
+   * For nd-arrays, get the value at the specified index. For {@code n > 1}, return the value at the
+   * ravel position.
+   *
+   * @param index the index
+   * @return the value
    */
   int get(int index);
 
-  IntStream intStream();
+  /**
+   * For nd-arrays, set the value at the specified index. For {@code n > 1}, set the value at the
+   * ravel position.
+   *
+   * @param index the index
+   * @param value the value
+   */
+  void set(int index, int value);
 
-  List<Integer> asList();
+  /**
+   * For 2d-arrays, get the value at the specified row and column.
+   *
+   * @param row row
+   * @param column column
+   * @return the value
+   */
+  int get(int row, int column);
 
-  Array<Integer> asArray();
+  /**
+   * For 2d-arrays, set the value at the specified row and column.
+   *
+   * @param row the row
+   * @param column the column
+   * @param value the value
+   */
+  void set(int row, int column, int value);
 
+  /**
+   * For nd-arrays, get the value at the specified index.
+   *
+   * @param index the index
+   * @return the value
+   */
+  int get(int... index);
+
+  /**
+   * For nd-arrays, set the value at the specified index.
+   *
+   * @param index the index
+   * @param value the value
+   */
+  void set(int[] index, int value);
+
+  /**
+   * Sort the array in ascending order.
+   */
   void sort();
 
+  /**
+   * Sort the array according to the given comparator.
+   *
+   * @param cmp the comparator
+   */
   void sort(IntComparator cmp);
 
-  // Arithmetical operations ///////////
-
   /**
-   * Element wise <u>m</u>ultiplication
-   *
-   * @param other the matrix
-   * @return a new matrix
-   */
-  IntArray times(IntArray other);
-
-  /**
-   * Element wise <u>m</u>ultiplication
-   *
-   * @param scalar the scalar
-   * @return a new matrix
-   */
-  IntArray times(int scalar);
-
-  /**
-   * Element wise addition.
-   *
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  IntArray plus(IntArray other);
-
-  /**
-   * Element wise addition.
-   *
-   * @param scalar the scalar
-   * @return a new matrix
-   */
-  IntArray plus(int scalar);
-
-  void plusAssign(IntArray other);
-
-  void plusAssign(int scalar);
-
-  /**
-   * Element wise subtraction. {@code this - other}.
-   *
-   * @param other the other matrix
-   * @return a new matrix
-   */
-  IntArray minus(IntArray other);
-
-  /**
-   * Element wise subtraction. {@code this - other}.
-   *
-   * @param scalar the scalar
-   * @return r r
-   */
-  IntArray minus(int scalar);
-
-  void minusAssign(IntArray other);
-
-  void minusAssign(int scalar);
-
-  /**
-   * <u>R</u>eversed element wise subtraction. {@code scalar - this}.
-   *
-   * @param scalar the scalar
-   * @return a new matrix
-   */
-  IntArray reverseMinus(int scalar);
-
-  void reverseMinusAssign(int scalar);
-
-  /**
-   * Element wise division. {@code this / other}.
-   *
-   * @param other the other
-   * @return a new matrix
-   * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
-   */
-  IntArray div(IntArray other);
-
-  /**
-   * Element wise division. {@code this / other}.
-   *
-   * @param other the scalar
-   * @return a new matrix
-   * @throws java.lang.ArithmeticException if {@code other} contains {@code 0}
-   */
-  IntArray div(int other);
-
-  void divAssign(IntArray other);
-
-  void divAssign(int other);
-
-  /**
-   * Element wise division. {@code other / this}.
-   *
-   * @param other the scalar
-   * @return a new matrix
-   * @throws java.lang.ArithmeticException if {@code this} contains {@code 0}
-   */
-  IntArray reverseDiv(int other);
-
-  void reverseDivAssign(int other);
-
-  /**
-   * Returns a new matrix with elements negated.
+   * Returns a new array with elements negated.
    *
    * @return a new matrix
    */
   IntArray negate();
 
-  default Array<Integer> boxed() {
-    return asArray();
-  }
+  Array<Integer> boxed();
 
-  DoubleArray doubleArray();
+  IntStream intStream();
 
-  IntArray intArray();
-
-  LongArray longArray();
-
-  ComplexArray complexArray();
-
-  @Override
-  default int getInt(int i) {
-    return get(i);
-  }
-
-  int[] data();
 }

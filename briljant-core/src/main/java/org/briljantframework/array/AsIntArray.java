@@ -63,15 +63,6 @@ public abstract class AsIntArray extends AbstractIntArray {
   }
 
   @Override
-  public int[] data() {
-    int[] array = new int[elementSize()];
-    for (int i = 0; i < size(); i++) {
-      array[i] = get(i);
-    }
-    return array;
-  }
-
-  @Override
   public boolean isView() {
     return true;
   }

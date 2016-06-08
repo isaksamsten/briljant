@@ -58,8 +58,7 @@ public abstract class AsDoubleArray extends AbstractDoubleArray {
     return getArrayBackend().getArrayFactory().newDoubleArray(shape);
   }
 
-  @Override
-  public double[] data() {
+  private double[] data() {
     double[] v = new double[elementSize()];
     for (int i = 0; i < v.length; i++) {
       v[i] = getElement(i);
