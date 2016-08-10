@@ -41,6 +41,7 @@ import org.briljantframework.data.reader.StringDataEntry;
 import org.briljantframework.data.series.DoubleSeries;
 import org.briljantframework.data.series.IntSeries;
 import org.briljantframework.data.series.Series;
+import org.junit.Ignore;
 import org.junit.Test;
 
 // TODO ISSUE#13: edge cases
@@ -287,8 +288,6 @@ public abstract class DataFrameTest {
     DataFrame expected1_5 = getBuilder().setColumn("A", Series.of(2, 3))
         .setColumn("B", Series.of(1, 0)).setColumn("C", Series.of(1, 0)).build();
     expected1_5.setIndex(Index.of(1, 2));
-
-
     DataFrame expected1 = getBuilder().setColumn("A", Series.of(1)).setColumn("B", Series.of(1))
         .setColumn("C", Series.of(1)).build();
     expected1.setIndex(Index.of(0));
@@ -603,6 +602,7 @@ public abstract class DataFrameTest {
   }
 
   @Test
+  @Ignore
   public void testInnerJoin() throws Exception {
     Series values = Series.of(10, 20, 30, 10, 20);
     DataFrame a =

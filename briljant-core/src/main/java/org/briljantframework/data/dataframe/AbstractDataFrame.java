@@ -189,7 +189,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public DataFrameGroupBy groupBy(Function<? super Series, Object> combiner, Collection<?> keys) {
     HashMap<Object, IntList> groups = new LinkedHashMap<>();
-    for (int i = 0, size = columns(); i < size; i++) {
+    for (int i = 0, size = rows(); i < size; i++) {
       Series.Builder cs = new TypeInferenceBuilder();
       for (Object key : keys) {
         cs.add(get(key).loc().get(i));
