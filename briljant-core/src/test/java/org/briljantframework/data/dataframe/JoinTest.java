@@ -24,10 +24,11 @@ import static org.briljantframework.data.dataframe.Join.inner;
 import static org.junit.Assert.assertEquals;
 
 import org.briljantframework.data.series.Series;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class JoinTest {
-
+  @Ignore
   @Test
   public void testSimpleInnerJoin() throws Exception {
     DataFrame left = DataFrame.of("key", Series.of("foo", "foo", "ko"), "lval", Series.of(1, 2, 4));
@@ -39,6 +40,7 @@ public class JoinTest {
     assertEquals(expected, actual);
   }
 
+  @Ignore
   @Test
   public void testComplexInnerJoin() throws Exception {
     DataFrame left = DataFrame.of("key1", Series.of("foo", "foo", "bar"), "key2",
