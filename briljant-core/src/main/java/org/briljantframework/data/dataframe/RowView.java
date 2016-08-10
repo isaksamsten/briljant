@@ -42,7 +42,7 @@ class RowView extends AbstractSeries {
   }
 
   RowView(DataFrame parent, int row, Type type) {
-    this(parent.getColumnIndex(), parent, row, type, 0, new int[] {parent.size(1)}, new int[] {1});
+    this(parent.getColumnIndex(), parent, row, type, 0, new int[] {parent.columns()}, new int[] {1});
   }
 
   RowView(Index index, DataFrame parent, int row, Type type, int offset, int[] shape,
@@ -71,7 +71,7 @@ class RowView extends AbstractSeries {
     Set<Type> types = new HashSet<>();
 
     // This could be improved by finding the 'highest-common-supertype'.
-    for (Series column : df.columns()) {
+    for (Series column : df.getColumns()) {
       types.add(column.getType());
     }
     return types.size() == 1 ? types.iterator().next() : Types.OBJECT;

@@ -51,16 +51,16 @@ public final class Collectors {
 
   public static Collector<Series, ?, DataFrame> toDataFrame(Supplier<DataFrame.Builder> supplier) {
     return Collector.of(supplier, (DataFrame.Builder acc, Series record) -> {
-      if (acc.size(1) > 0 && record.size() != acc.size(1)) {
+      if (acc.columns() > 0 && record.size() != acc.columns()) {
         throw new IllegalStateException("All records must have the same size.");
       } else {
         acc.addRow(record);
       }
     }, (DataFrame.Builder left, DataFrame.Builder right) -> {
-      if (left.size(1) > 0 && left.size(0) != right.size(1)) {
+      if (left.columns() > 0 && left.rows() != right.columns()) {
         throw new IllegalStateException("Columns must all have the same length.");
       } else {
-        for (Series series : right.build().rows()) {
+        for (Series series : right.build().getRows()) {
           left.addRow(series);
         }
         return left;

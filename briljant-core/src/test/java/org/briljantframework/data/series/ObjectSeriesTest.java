@@ -54,13 +54,6 @@ public class ObjectSeriesTest extends AbstractBaseArrayTest<Series> {
     assertEquals(seriesOf(1, 2, 5).reindex(Index.of(0, 1, 4)), y);
   }
 
-  @Test
-  public void testNewCopyBuilderReturnsLazyBuilder() throws Exception {
-    Series x = seriesOf(1, 2, 3, 4, 5);
-    Series y = x.newCopyBuilder().build();
-    assertTrue(x == y);
-  }
-
   @Override
   protected ArrayTest<Series> createSetSingleIndexTest() {
     return new ArrayTest<Series>() {

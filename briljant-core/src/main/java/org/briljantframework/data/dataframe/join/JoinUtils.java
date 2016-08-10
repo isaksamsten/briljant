@@ -81,7 +81,7 @@ public class JoinUtils {
 
     int noGroups = 1;
     for (Object columnKey : on) {
-      JoinKeys pool = createJoinKeys(a.getColumn(columnKey), b.getColumn(columnKey));
+      JoinKeys pool = createJoinKeys(a.get(columnKey), b.get(columnKey));
 
       if (noGroups > 1) {
         IntArray lt = pool.getLeft();

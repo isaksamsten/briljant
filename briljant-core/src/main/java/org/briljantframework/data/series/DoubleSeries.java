@@ -136,6 +136,11 @@ public class DoubleSeries extends AbstractSeries {
   }
 
   @Override
+  public Series.Builder newCopyBuilder() {
+    return new Builder(this);
+  }
+
+  @Override
   public final int hashCode() {
     int result = 1;
     for (int i = 0; i < size(); i++) {

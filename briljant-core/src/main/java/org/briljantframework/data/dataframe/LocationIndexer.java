@@ -41,9 +41,8 @@ import org.briljantframework.data.series.Series;
  *
  * @author Isak Karlsson
  * @see org.briljantframework.data.series.LocationGetter
- * @see LocationSetter
  */
-public interface LocationGetter {
+public interface LocationIndexer {
 
   DataFrame get(IntArray rows, IntArray column);
 

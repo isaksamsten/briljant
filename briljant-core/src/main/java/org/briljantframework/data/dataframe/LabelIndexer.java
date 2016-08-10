@@ -18,34 +18,26 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.briljantframework.data.series;
+package org.briljantframework.data.dataframe;
+
+import org.briljantframework.data.series.Series;
+
+import java.util.Collection;
 
 /**
- * Created by isak on 08/06/16.
+ * Created by isak on 09/06/16.
  */
-final class InferenceType extends Type {
+public interface LabelIndexer {
 
-  @Override
-  public Series.Builder newBuilder() {
-    return new TypeInferenceBuilder();
-  }
+  DataFrame get(Collection<?> rows, Collection<?> columns);
 
-  @Override
-  public Series.Builder newBuilderWithCapacity(int capacity) {
-    return new TypeInferenceBuilder();
-  }
+  void set(Collection<?> rows, Collection<?> columns, DataFrame dataFrame);
 
-  @Override
-  public Series.Builder newBuilder(int size) {
-    TypeInferenceBuilder builder = new TypeInferenceBuilder();
-    for (int i = 0; i < size; i++) {
-      builder.addNA();
-    }
-    return builder;
-  }
+  Series getColumn(Object label);
 
-  @Override
-  public Class<?> getDataClass() {
-    return Object.class;
-  }
+  void setColumn(Object label, Series column);
+
+  Series getRow(Object label);
+
+  void setRow(Object label, Series row);
 }

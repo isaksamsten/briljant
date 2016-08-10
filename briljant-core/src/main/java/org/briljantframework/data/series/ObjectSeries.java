@@ -155,6 +155,11 @@ public class ObjectSeries extends AbstractSeries {
   }
 
   @Override
+  public Series.Builder newCopyBuilder() {
+    return new Builder(type.getDataClass()).addAll(this);
+  }
+
+  @Override
   public int hashCode() {
     return type.hashCode() + elements.hashCode();
   }

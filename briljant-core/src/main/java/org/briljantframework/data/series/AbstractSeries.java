@@ -548,23 +548,6 @@ public abstract class AbstractSeries extends AbstractBaseArray<Series> implement
     return locationGetter;
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * The copy builder returned here provides a lazy builder, which, if not used for modifying the
-   * contents return {@code this} when built.
-   *
-   * <p/>
-   * If your series is backed by a heavy data structure (e.g., a view from a data frame), consider
-   * overriding.
-   *
-   * @return a new lazy series builder
-   */
-  @Override
-  public Builder newCopyBuilder() {
-    return new LazySeriesBuilder(this);
-  }
-
   @Override
   public Builder newBuilder() {
     return getType().newBuilder();

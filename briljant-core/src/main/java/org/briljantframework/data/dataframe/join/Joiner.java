@@ -26,16 +26,13 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.dataframe.LocationSetter;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.series.Series;
 
 /**
  * A joiner keeps track of the indexes that will be joined. For example, given a joiner of the left
- * index {@code [1, 2, 3]} the right indexes and {@code [2, 2, 2]},
- * {@link #join(org.briljantframework.data.dataframe.DataFrame, org.briljantframework.data.dataframe.DataFrame, java.util.Collection)}
- * produces a data frame with the rows {@code 1, 2, 3} from {@code a} concatenated with
- * {@code 2, 2, 2} from {@code b}.
+ * index {@code [1, 2, 3]} the right indexes and {@code [2, 2, 2]} a data frame with the rows
+ * {@code 1, 2, 3} from {@code a} concatenated with {@code 2, 2, 2} from {@code b} are produced.
  *
  * <p>
  * Joiners are often created using a {@link org.briljantframework.data.dataframe.join.JoinOperation}
@@ -83,7 +80,7 @@ public abstract class Joiner {
       }
 
       if (columnKeys.contains(key)) {
-        builder.addColumn(a.getColumn(key).newBuilder(size));
+        builder.addColumn(a.get(key).newBuilder(size));
         indexColumn.put(key, currentColumnIndex);
         columnIndexer.add(key);
         currentColumnIndex += 1;
@@ -92,20 +89,20 @@ public abstract class Joiner {
 
     int columnIndex = columnKeys.size();
     for (Object key : a.getColumnIndex().keySet()) {
-      Series sourceColumn = a.getColumn(key);
+      Series sourceColumn = a.get(key);
       if (columnKeys.contains(key)) {
         int targetColumn = indexColumn.get(key);
         appendColumnFromLeftIndexIgnoreNA(size, builder, targetColumn, sourceColumn);
       } else {
         columnIndexer.add(key);
-        builder.addColumn(a.getColumn(key).newBuilder(size));
+        builder.addColumn(a.get(key).newBuilder(size));
         appendColumnFromLeftIndexIgnoreNA(size, builder, columnIndex, sourceColumn);
         columnIndex++;
       }
     }
 
     for (Object key : b.getColumnIndex().keySet()) {
-      Series sourceColumn = b.getColumn(key);
+      Series sourceColumn = b.get(key);
       if (columnKeys.contains(key)) {
         int targetColumn = indexColumn.get(key);
         appendColumnFromRightIndexIgnoreNA(size, builder, targetColumn, sourceColumn);
@@ -115,7 +112,7 @@ public abstract class Joiner {
           newKey = key.toString() + " (right)";
         }
         columnIndexer.add(newKey);
-        builder.addColumn(b.getColumn(key).newBuilder(size));
+        builder.addColumn(b.get(key).newBuilder(size));
         appendColumnFromRightIndexIgnoreNA(size, builder, columnIndex, sourceColumn);
         columnIndex++;
       }
@@ -127,24 +124,27 @@ public abstract class Joiner {
 
   private void appendColumnFromLeftIndexIgnoreNA(int size, DataFrame.Builder builder,
       int targetColumn, Series source) {
-    LocationSetter loc = builder.loc();
-    for (int i = 0; i < size; i++) {
-      int row = getLeftIndex(i);
-      if (row >= 0) {
-        loc.set(i, targetColumn, source, row);
-      }
-    }
+    throw new UnsupportedOperationException("change to series builder");
+    // LocationSetter loc = builder.loc();
+    // for (int i = 0; i < size; i++) {
+    // int row = getLeftIndex(i);
+    // if (row >= 0) {
+    // loc.set(i, targetColumn, source, row);
+    // }
+    // }
   }
 
   private void appendColumnFromRightIndexIgnoreNA(int size, DataFrame.Builder builder,
       int targetColumn, Series source) {
-    LocationSetter loc = builder.loc();
-    for (int i = 0; i < size; i++) {
-      int row = getRightIndex(i);
-      if (row >= 0) {
-        loc.set(i, targetColumn, source, row);
-      }
-    }
+    throw new UnsupportedOperationException("change to series builder");
+
+    // LocationSetter loc = builder.loc();
+    // for (int i = 0; i < size; i++) {
+    // int row = getRightIndex(i);
+    // if (row >= 0) {
+    // loc.set(i, targetColumn, source, row);
+    // }
+    // }
   }
 
   /**

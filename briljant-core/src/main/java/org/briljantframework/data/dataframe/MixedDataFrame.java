@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.briljantframework.Check;
+import org.briljantframework.data.Na;
 import org.briljantframework.data.index.HashIndex;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.reader.DataEntry;
@@ -303,20 +304,8 @@ public class MixedDataFrame extends AbstractDataFrame {
 
   @Override
   protected Series getRowElement(int index) {
-    Check.validIndex(index, size(0));
+    Check.validIndex(index, rows());
     return new RowView(this, index, mostSpecificColumnType);
-  }
-
-  @Override
-  public int size(int dim) {
-    switch (dim) {
-      case 0:
-        return rows;
-      case 1:
-        return columns.size();
-      default:
-        throw new IllegalArgumentException("illegal dimension");
-    }
   }
 
   @Override
@@ -336,14 +325,23 @@ public class MixedDataFrame extends AbstractDataFrame {
 
   @Override
   protected void setColumnElement(int pos, Series column) {
-    columns.set(pos, column);
+    if (columns.size() == pos) {
+      columns.add(pos, column);
+    } else {
+      columns.set(pos, column);
+    }
   }
 
   @Override
   protected void setRowElement(int pos, Series row) {
-    for (int i = 0; i < columns.size(); i++) {
-      Series column = columns.get(i);
-      column.set(pos, row, i);
+    Index columnIndex = getColumnIndex();
+    for (Object columnKey : columnIndex) {
+      Series column = get(columnKey);
+      if (row.getIndex().contains(columnKey)) {
+        column.loc().set(pos, row.get(columnKey));
+      } else {
+        column.loc().set(pos, Na.ANY);
+      }
     }
   }
 
@@ -353,23 +351,27 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
+  protected DataFrame dropColumnElement(int index) {
+    List<Series> newColumns = new ArrayList<>(columns);
+    newColumns.remove(index);
+    Index.Builder columnIndex = getColumnIndex().newCopyBuilder();
+    columnIndex.removeLocation(index);
+    return new MixedDataFrame(newColumns, rows, columnIndex.build(), getIndex());
+  }
+
+  @Override
   public DataFrame reindex(Index columnIndex, Index index) {
     return new MixedDataFrame(columns, rows, columnIndex, index);
   }
 
   @Override
-  public String toStringAt(int row, int column) {
-    return columns.get(column).loc().toString(row);
+  public int rows() {
+    return rows;
   }
 
   @Override
-  public Type getTypeAt(int index) {
-    return columns.get(index).getType();
-  }
-
-  @Override
-  protected Type getMostSpecificColumnType() {
-    return mostSpecificColumnType;
+  public int columns() {
+    return columns.size();
   }
 
   public static final class Builder extends AbstractBuilder {
@@ -474,7 +476,7 @@ public class MixedDataFrame extends AbstractDataFrame {
     @Override
     protected void setRowElement(int index, Series.Builder builder) {
       // ensureColumnCapacity(builder.size() - 1);
-      final int columns = size(1);
+      final int columns = columns();
       final int size = builder.size();
       final Series series = builder.build();
       for (int j = 0; j < Math.max(size, columns); j++) {
@@ -494,16 +496,6 @@ public class MixedDataFrame extends AbstractDataFrame {
       ensureColumnCapacity(c - 1);
       ensureColumnCapacity(c, from.getType());
       buffers.get(c).loc().setFrom(r, from, i);
-    }
-
-    @Override
-    protected Series.Builder getAt(int i) {
-      return buffers.get(i);
-    }
-
-    @Override
-    protected Series.Builder getRecordAt(int i) {
-      throw new UnsupportedOperationException();
     }
 
     @Override
@@ -530,7 +522,7 @@ public class MixedDataFrame extends AbstractDataFrame {
 
     @Override
     public void swapRowElement(int a, int b) {
-      for (int i = 0; i < size(1); i++) {
+      for (int i = 0; i < columns(); i++) {
         swapInColumn(i, a, b);
       }
     }
@@ -543,24 +535,20 @@ public class MixedDataFrame extends AbstractDataFrame {
       }
     }
 
-    @Override
-    public int size(int dim) {
-      switch (dim) {
-        case 0:
-          return buffers.stream().mapToInt(Series.Builder::size).reduce(0, Integer::max);
-        case 1:
-          return buffers.size();
-        default:
-          throw new IllegalArgumentException("illegal dimension");
-      }
+    public int rows() {
+      return buffers.stream().mapToInt(Series.Builder::size).reduce(0, Integer::max);
+    }
+
+    public int columns() {
+      return buffers.size();
     }
 
     @Override
     public MixedDataFrame build() {
-      int rows = size(0);
+      int rows = rows();
       List<Series> series = buffers.stream().map(x -> padVectorWithNA(x, rows).build())
           .collect(Collectors.toCollection(ArrayList::new));
-      MixedDataFrame df = new MixedDataFrame(series, rows, getColumnIndex(size(1)), getIndex(rows));
+      MixedDataFrame df = new MixedDataFrame(series, rows, getColumnIndex(columns()), getIndex(rows));
       buffers = null;
       return df;
     }

@@ -45,7 +45,7 @@ import org.briljantframework.data.series.Type;
  * 
  * <p/>
  * Columns and records can either be accessed by their intrinsic location using {@link #loc()} or by
- * their index e.g, using {@link #getColumn(Object)} and {@link #getRow(Object)}.
+ * their index e.g, using {@link #get(Object)} and {@link #ix()}
  *
  * @author Isak Karlsson
  */
@@ -255,7 +255,7 @@ public interface DataFrame {
   <T, C> DataFrame apply(Class<T> cls, Collector<? super T, C, ? extends Series> collector);
 
   /**
-   * Select only the records for which he predicate returns true
+   * Select only the rows for which he predicate returns true
    *
    * <pre>
    * DataFrame df = DataFrame.of(&quot;A&quot;, Series.of(1, 2, null), &quot;B&quot;, Series.of(1, null, 3));
@@ -491,20 +491,6 @@ public interface DataFrame {
    */
   <T> DataFrameGroupBy groupBy(Class<T> cls, Function<? super T, ?> keyFunction);
 
-  DataFrame getAll(Collection<?> rows, Collection<?> columns);
-
-  void setAll(Collection<?> rows, Collection<?> columns, DataFrame values);
-
-  /**
-   * Return a new data frame where the values of the specified column is replaced with (a series)
-   * of value
-   *
-   * @param key the key
-   * @param value the value
-   * @return a new data frame
-   */
-  void setColumn(Object key, Object value);
-
   /**
    * Set the specified column to the given series
    *
@@ -512,15 +498,14 @@ public interface DataFrame {
    * @param column the column
    * @return a new data frame
    */
-  void setColumn(Object key, Series column);
+  void set(Object key, Series column);
 
   /**
    * Set the specified column(s) to the specified vectors
    *
    * @param columns the map of keys to vectors
-   * @return a new data frame
    */
-  DataFrame setColumns(Map<?, Series> columns);
+  void setAll(Map<?, Series> columns);
 
   /**
    * Get the specified column
@@ -529,7 +514,7 @@ public interface DataFrame {
    * @return the column
    * @throws java.util.NoSuchElementException if key is not found
    */
-  Series getColumn(Object key);
+  Series get(Object key);
 
   /**
    * Select the specified columns
@@ -537,7 +522,7 @@ public interface DataFrame {
    * @param keys the keys
    * @return a new data frame
    */
-  DataFrame getColumns(Collection<?> keys);
+  DataFrame getAll(Collection<?> keys);
 
   /**
    * Drop the columns with the specified keys
@@ -580,32 +565,6 @@ public interface DataFrame {
   DataFrame dropIf(Predicate<? super Series> predicate);
 
   /**
-   * Get the row with the specified key
-   *
-   * @param key the key
-   * @return a record
-   */
-  Series getRow(Object key);
-
-  /**
-   * Set the specified record to a the specified value (all columns)
-   *
-   * @param key the record
-   * @param value the value
-   * @return a new data frame
-   */
-  DataFrame setRow(Object key, Object value);
-
-  /**
-   * Set the specified record to the specified series
-   *
-   * @param key the key
-   * @param series the series
-   * @return a new data frame
-   */
-  DataFrame setRow(Object key, Series series);
-
-  /**
    * @return a series with the diagonal entries
    */
   Series getDiagonal();
@@ -634,7 +593,7 @@ public interface DataFrame {
    * whereas
    *
    * <pre>
-   * df.get(Array.of(new boolean[] {false, true, true}));
+   * df.get(BooleanArray.of(false, true, true);
    * </pre>
    *
    * produces,
@@ -779,7 +738,9 @@ public interface DataFrame {
    */
   boolean isNA(Object row, Object col);
 
-  int size(int dim);
+  int rows();
+
+  int columns();
 
   /**
    * Returns a copy of this data frame.
@@ -860,7 +821,9 @@ public interface DataFrame {
    *
    * @return a location getter
    */
-  LocationGetter loc();
+  LocationIndexer loc();
+
+  LabelIndexer ix();
 
   /**
    * <p>
@@ -919,14 +882,14 @@ public interface DataFrame {
    *
    * @return an (immutable) collection of columns
    */
-  List<Series> columns();
+  List<Series> getColumns();
 
   /**
    * Return a list of rows.
    *
    * @return an (immutable) collection of rows
    */
-  List<Series> rows();
+  List<Series> getRows();
 
   /**
    * Return a stream over the records in this data frame. For example, we could filter the records
@@ -953,7 +916,7 @@ public interface DataFrame {
    * @return a stream of the rows of this data frame
    */
   default Stream<Series> stream() {
-    return StreamSupport.stream(rows().spliterator(), false);
+    return StreamSupport.stream(getRows().spliterator(), false);
   }
 
   /**
@@ -962,7 +925,7 @@ public interface DataFrame {
    * @return a parallel stream of the rows of this data frame
    */
   default Stream<Series> parallelStream() {
-    return StreamSupport.stream(rows().spliterator(), true);
+    return StreamSupport.stream(getRows().spliterator(), true);
   }
 
   /// builder
@@ -987,8 +950,6 @@ public interface DataFrame {
    * Since DataFrames are immutable, this builder allows for the creation of new data frames
    */
   interface Builder {
-
-    LocationSetter loc();
 
     /**
      * Set the element at the specified position to the value of specified data frame from the
@@ -1028,16 +989,23 @@ public interface DataFrame {
     /**
      * Set the column at the specified index to the specified series.
      *
-     * @param key the column index
+     * @param columnKey the column index
      * @param column the series
      * @return this modified
      */
-    default Builder setColumn(Object key, Series column) {
-      return setColumn(key, column.newCopyBuilder());
+    default Builder setColumn(Object columnKey, Series column) {
+      for (Object rowKey : column.getIndex()) {
+        setFrom(rowKey, columnKey, column, rowKey);
+      }
+      return this;
     }
 
     default Builder setColumn(Object key, Collection<?> column) {
-      return setColumn(key, Series.copyOf(column));
+      int i = 0;
+      for (Object value : column) {
+        set(i++, key, value);
+      }
+      return this;
     }
 
     default Builder setAll(Map<?, ? extends Series> columns) {
@@ -1048,7 +1016,7 @@ public interface DataFrame {
     }
 
     /**
-     * Set the column at the specified index to the specified series builder. Any indexing
+     * Set the column at the specified index to the specified series builder. Ignores indexing.
      *
      * @param key the column index
      * @param columnBuilder the series
@@ -1187,7 +1155,9 @@ public interface DataFrame {
      */
     Builder read(DataEntry entry);
 
-    int size(int dim);
+    int rows();
+
+    int columns();
 
     /**
      * Create a new DataFrame.

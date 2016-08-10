@@ -22,8 +22,10 @@ package org.briljantframework.data.parser;
 
 import static org.junit.Assert.assertEquals;
 
+import org.briljantframework.data.Collectors;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.dataframe.DataFrame;
+import org.briljantframework.data.series.Series;
 import org.junit.Test;
 
 public class SqlParserTest {
@@ -39,12 +41,13 @@ public class SqlParserTest {
     settings.remap("Name", "Artist");
 
     DataFrame df = parser.parse();
-    System.out.println(df.getColumn("Artist").valueCounts().sort(SortOrder.DESC));
+    System.out.println(df.groupBy("Artist").collect(Object.class, Collectors.count()));
+    System.out.println(df.get("Artist").valueCounts().sort(SortOrder.DESC));
     // for (int i = 0; i < sort.rows(); i++) {
     // System.out.println(sort.loc().getRecord(i));
     // }
 
-    assertEquals(2, df.size(1));
+    assertEquals(2, df.columns());
 
   }
 }

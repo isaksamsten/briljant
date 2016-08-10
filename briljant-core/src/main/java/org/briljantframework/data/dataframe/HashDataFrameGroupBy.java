@@ -130,7 +130,7 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
         if (dropColumnKey(columnKey)) {
           continue; // do not include the key used for grouping
         }
-        Series column = dataFrame.getColumn(columnKey);
+        Series column = dataFrame.get(columnKey);
         Series.Builder groupVector = column.newBuilder();
         for (int i = 0, size = group.getValue().size(); i < size; i++) {
           groupVector.addFromLocation(column, index.get(i));
@@ -161,7 +161,7 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
       IntArray index = group.getValue();
 
       for (Object columnKey : dataFrame.getColumnIndex().keySet()) {
-        Series column = dataFrame.getColumn(columnKey);
+        Series column = dataFrame.get(columnKey);
         if (dropColumnKey(columnKey) || !cls.isAssignableFrom(column.getType().getDataClass())) {
           continue;
         }
@@ -181,13 +181,13 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
   public DataFrame apply(UnaryOperator<Series> op) {
     DataFrame.Builder builder = dataFrame.newBuilder();
     for (Object dropKey : dropKeys) {
-      builder.setColumn(dropKey, dataFrame.getColumn(dropKey).newCopyBuilder());
+      builder.setColumn(dropKey, dataFrame.get(dropKey).newCopyBuilder());
     }
     for (Object columnKey : dataFrame.getColumnIndex()) {
       if (dropColumnKey(columnKey)) {
         continue;
       }
-      Series column = dataFrame.getColumn(columnKey);
+      Series column = dataFrame.get(columnKey);
       Series.Builder columnBuilder = column.newBuilder();
       for (IntArray index : groups.values()) {
         Series selectedColumn = column.loc().get(index);
@@ -203,56 +203,20 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
     DataFrame df = builder.build();
     df.setIndex(dataFrame.getIndex());
     return df;
-
-    // DataFrame.Builder builder = dataFrame.newBuilder();
-    // Index.Builder recordIndex = dataFrame.getIndex().newBuilder();
-    // int row = 0;
-    // for (Series index : groups.values()) {
-    // for (int j = 0, columns = dataFrame.columns(); j < columns; j++) {
-    // Series column = dataFrame.loc().get(j);
-    // Series.Builder columnBuilder = column.newBuilder();
-    // for (int i = 0, size = index.size(); i < size; i++) {
-    // columnBuilder.loc().set(i, column, index.loc().getAsInt(i));
-    // }
-    // Series transformed = op.apply(columnBuilder.build());
-    // for (int i = row, from = 0, size = transformed.size(); from < size; i++, from++) {
-    // builder.loc().set(i, j, transformed, from);
-    // }
-    // }
-    //
-    // for (int i = 0, size = index.size(); i < size; i++) {
-    // recordIndex.plus(dataFrame.getIndex().getKey(index.loc().getAsInt(i)));
-    // }
-    // row += index.size();
-    // }
-    //
-    // DataFrame df = builder.build();
-    // df.setColumnIndex(dataFrame.getColumnIndex());
-    // df.setIndex(recordIndex.build());
-    // return df;
   }
 
   private DataFrame createDataFrame(IntArray indices) {
-    final int size = indices.size();
-
+    final int indexSize = indices.size();
     DataFrame.Builder builder = dataFrame.newBuilder();
-    LocationSetter locationSetter = builder.loc();
-    if (indices.size() > 0) {
-      for (int j = 0, columns = dataFrame.size(1); j < columns; j++) {
-        builder.newColumn(dataFrame.loc().get(j).getType());
-        for (int i = 0; i < size; i++) {
-          locationSetter.set(i, j, dataFrame, indices.get(i), j);
+    if (indexSize > 0) {
+      Index labels = dataFrame.getIndex();
+      for (Object column : dataFrame.getColumnIndex()) {
+        for (int i = 0; i < indexSize; i++) {
+          Object row = labels.get(indices.get(i));
+          builder.setFrom(row, column, dataFrame, row, column);
         }
       }
     }
-    Index.Builder recordIndex = dataFrame.getIndex().newBuilder();
-    for (int i = 0; i < size; i++) {
-      recordIndex.add(dataFrame.getIndex().get(indices.get(i)));
-    }
-
-    DataFrame df = builder.build();
-    df.setColumnIndex(dataFrame.getColumnIndex());
-    df.setIndex(recordIndex.build());
-    return df;
+   return builder.build();
   }
 }

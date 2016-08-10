@@ -51,7 +51,7 @@ public abstract class DataFrameTest {
   @Test
   public void test_getNewSlice() throws Exception {
     DataFrame df = getRangeBuilder(Series.of("A", "B", "C", "D"), 10).build();
-    DataFrame actual = df.getAll(Range.of(0, 2), Series.of("A", "B"));
+    DataFrame actual = df.ix().get(Range.of(0, 2), Series.of("A", "B"));
 
     DataFrame expected =
         getBuilder().setColumn("A", Series.of(0, 1)).setColumn("B", Array.of(0, 1)).build();
@@ -77,7 +77,7 @@ public abstract class DataFrameTest {
         .setColumn("B", IntSeries.of(1, 2, 3, 4)).build();
 
     // actual.set("B", IntSeries.of(1, 2, 3, 4));
-    actual.setColumn("A", Series.of(10, 20, 30, 40));
+    actual.set("A", Series.of(10, 20, 30, 40));
     // assertEquals(expected, actual);
   }
 
@@ -97,11 +97,11 @@ public abstract class DataFrameTest {
     Map<Object, Series> setter = new HashMap<>();
     setter.put("A", IntSeries.of(1, 2, 3, 4));
     setter.put("B", IntSeries.of(1, 2, 3, 4));
-    DataFrame df = getBuilder().setColumn("A", IntSeries.of(1, 2, 3, 4)).build();
+    DataFrame df = getBuilder().setColumn("A", IntSeries.of(4, 4, 4, 4)).build();
     DataFrame expected = getBuilder().setColumn("A", IntSeries.of(1, 2, 3, 4))
         .setColumn("B", IntSeries.of(1, 2, 3, 4)).build();
-    DataFrame actual = df.setColumns(setter);
-    assertEquals(expected, actual);
+    df.setAll(setter);
+    assertEquals(expected, df);
   }
 
   @Test
@@ -110,7 +110,7 @@ public abstract class DataFrameTest {
         .setColumn("B", IntSeries.of(1, 2, 3)).setColumn("C", IntSeries.of(1, 2, 3)).build();
     DataFrame expected = getBuilder().setColumn("A", IntSeries.of(1, 2, 3))
         .setColumn("B", IntSeries.of(1, 2, 3)).build();
-    DataFrame actual = df.getColumns(Arrays.asList("A", "B"));
+    DataFrame actual = df.getAll(Arrays.asList("A", "B"));
     assertEquals(expected, actual);
   }
 
@@ -239,7 +239,6 @@ public abstract class DataFrameTest {
     DataFrame expectedGroup2 =
         getBuilder().setColumn("A", Series.of(2, 2)).setColumn("B", Series.of(2.0, 6.0)).build();
     expectedGroup2.setIndex(Index.of(1, 3));
-
     assertEquals(expectedGroup1, groups.get(1));
     assertEquals(expectedGroup2, groups.get(2));
   }
@@ -315,50 +314,50 @@ public abstract class DataFrameTest {
     int n = 3;
     DataFrame head = df.limit(n);
 
-    assertEquals(n, head.size(0));
+    assertEquals(n, head.rows());
     for (int i = 0; i < n; i++) {
-      Series a = head.getColumn("123");
-      Series b = head.getColumn("abc");
+      Series a = head.get("123");
+      Series b = head.get("abc");
 
       assertEquals(first.loc().getInt(i), a.loc().getInt(i));
       assertEquals(second.loc().getInt(i), b.loc().getInt(i));
     }
   }
 
-  @Test
-  public void testBuildingNewDataFrameFromLocationSetterAndDataFrame() throws Exception {
-    Series a = Series.of(1, 2, 3, 4);
-    Series b = Series.of(1, 2, 3, 4);
-    DataFrame df = getBuilder().addColumn(a).addColumn(b).build();
-    df.setColumnIndex(Index.of("a", "b"));
+//  @Test
+//  public void testBuildingNewDataFrameFromLocationSetterAndDataFrame() throws Exception {
+//    Series a = Series.of(1, 2, 3, 4);
+//    Series b = Series.of(1, 2, 3, 4);
+//    DataFrame df = getBuilder().addColumn(a).addColumn(b).build();
+//    df.setColumnIndex(Index.of("a", "b"));
+//
+//    DataFrame.Builder builder = df.newBuilder();
+//    for (int i = 0; i < df.rows(); i++) {
+//      for (int j = 0; j < df.columns(); j++) {
+//        builder.loc().set(i, j, df, i, j);
+//      }
+//    }
+//    DataFrame copy = builder.build();
+//    copy.setColumnIndex(df.getColumnIndex());
+//    assertEquals(df, copy);
+//  }
 
-    DataFrame.Builder builder = df.newBuilder();
-    for (int i = 0; i < df.size(0); i++) {
-      for (int j = 0; j < df.size(1); j++) {
-        builder.loc().set(i, j, df, i, j);
-      }
-    }
-    DataFrame copy = builder.build();
-    copy.setColumnIndex(df.getColumnIndex());
-    assertEquals(df, copy);
-  }
-
-  @Test
-  public void testBuildingNewDataFrameFromLocationSetterAndValues() throws Exception {
-    List<List<Integer>> values =
-        Arrays.asList(Arrays.asList(1, 2, 3, 4), Arrays.asList(1, 2, 3, 4));
-
-    DataFrame.Builder builder = getBuilder();
-    for (int j = 0; j < values.size(); j++) {
-      List<Integer> column = values.get(j);
-      for (int i = 0; i < column.size(); i++) {
-        builder.loc().set(i, j, column.get(i));
-      }
-    }
-    DataFrame df = builder.build();
-    assertEquals(values.get(0), df.loc().get(0).asList(Integer.class));
-    assertEquals(values.get(1), df.loc().get(1).asList(Integer.class));
-  }
+//  @Test
+//  public void testBuildingNewDataFrameFromLocationSetterAndValues() throws Exception {
+//    List<List<Integer>> values =
+//        Arrays.asList(Arrays.asList(1, 2, 3, 4), Arrays.asList(1, 2, 3, 4));
+//
+//    DataFrame.Builder builder = getBuilder();
+//    for (int j = 0; j < values.size(); j++) {
+//      List<Integer> column = values.get(j);
+//      for (int i = 0; i < column.size(); i++) {
+//        builder.loc().set(i, j, column.get(i));
+//      }
+//    }
+//    DataFrame df = builder.build();
+//    assertEquals(values.get(0), df.loc().get(0).asList(Integer.class));
+//    assertEquals(values.get(1), df.loc().get(1).asList(Integer.class));
+//  }
 
   @Test
   public void testBuildNewDataFrameFromLocationSetterAndRecords() throws Exception {
@@ -369,7 +368,7 @@ public abstract class DataFrameTest {
     }
     DataFrame df = builder.build();
 
-    assertEquals(series.length, df.size(0));
+    assertEquals(series.length, df.rows());
     for (int i = 0; i < series.length; i++) {
       assertEquals(series[i], df.loc().getRow(i));
     }
@@ -385,7 +384,7 @@ public abstract class DataFrameTest {
     }
     DataFrame df = builder.build();
 
-    assertEquals(series[0].size(), df.size(0));
+    assertEquals(series[0].size(), df.rows());
     for (int i = 0; i < series.length; i++) {
       assertEquals(series[i], df.loc().get(i));
     }
@@ -395,9 +394,9 @@ public abstract class DataFrameTest {
   public void testBuildNewDataFrameFromColumnAndKey() throws Exception {
     Series actual = Series.of(1, 2, 3, 4);
     DataFrame df = getBuilder().setColumn("abc", actual).setColumn("def", actual).build();
-    assertEquals(4, df.size(0));
-    assertEquals(actual, df.getColumn("abc"));
-    assertEquals(actual, df.getColumn("def"));
+    assertEquals(4, df.rows());
+    assertEquals(actual, df.get("abc"));
+    assertEquals(actual, df.get("def"));
   }
 
   @Test
@@ -407,11 +406,11 @@ public abstract class DataFrameTest {
     DataFrame df = getBuilder().setColumn("a", actual).setColumn("b", actual).build()
         .newCopyBuilder().setColumn("c", actual).setColumn("b", replace).build();
 
-    assertEquals(4, df.size(0));
-    assertEquals(3, df.size(1));
-    assertEquals(actual, df.getColumn("a"));
-    assertEquals(replace, df.getColumn("b"));
-    assertEquals(actual, df.getColumn("c"));
+    assertEquals(4, df.rows());
+    assertEquals(3, df.columns());
+    assertEquals(actual, df.get("a"));
+    assertEquals(replace, df.get("b"));
+    assertEquals(actual, df.get("c"));
   }
 
   @Test
@@ -419,10 +418,10 @@ public abstract class DataFrameTest {
     Series actual = Series.of(1, 2, 3, 4);
     DataFrame df = getBuilder().setRow("a", actual).setRow("b", actual).build();
 
-    assertEquals(4, df.size(1));
-    assertEquals(2, df.size(0));
-    assertEquals(actual, df.getRow("a"));
-    assertEquals(actual, df.getRow("b"));
+    assertEquals(4, df.columns());
+    assertEquals(2, df.rows());
+    assertEquals(actual, df.ix().getRow("a"));
+    assertEquals(actual, df.ix().getRow("b"));
   }
 
   @Test
@@ -432,11 +431,11 @@ public abstract class DataFrameTest {
     DataFrame df = getBuilder().setRow("a", actual).setRow("b", actual).build().newCopyBuilder()
         .setRow("c", actual).setRow("b", replace).build();
 
-    assertEquals(4, df.size(1));
-    assertEquals(3, df.size(0));
-    assertEquals(actual, df.getRow("a"));
-    assertEquals(replace, df.getRow("b"));
-    assertEquals(actual, df.getRow("c"));
+    assertEquals(4, df.columns());
+    assertEquals(3, df.rows());
+    assertEquals(actual, df.ix().getRow("a"));
+    assertEquals(replace, df.ix().getRow("b"));
+    assertEquals(actual, df.ix().getRow("c"));
   }
 
   @Test
@@ -445,10 +444,10 @@ public abstract class DataFrameTest {
 
     DataFrame df = getBuilder().addColumn(actual).addColumn(actual).addColumn(actual).build();
 
-    assertEquals(5, df.size(0));
-    assertEquals(3, df.size(1));
+    assertEquals(5, df.rows());
+    assertEquals(3, df.columns());
     for (int i = 0; i < 3; i++) {
-      assertEquals(actual, df.getColumn(i));
+      assertEquals(actual, df.get(i));
     }
   }
 
@@ -457,11 +456,11 @@ public abstract class DataFrameTest {
     Series actual = Series.of("a", "b", "c");
     DataFrame df = getBuilder().addRow(actual).addRow(actual).addRow(actual).build();
 
-    assertEquals(3, df.size(0));
-    assertEquals(3, df.size(1));
+    assertEquals(3, df.rows());
+    assertEquals(3, df.columns());
     for (int i = 0; i < 3; i++) {
       // For MixedDataFrame the type of a record is always Object
-      assertEquals(actual.asList(String.class), df.getRow(i).asList(String.class));
+      assertEquals(actual.asList(String.class), df.ix().getRow(i).asList(String.class));
     }
   }
 
@@ -470,15 +469,15 @@ public abstract class DataFrameTest {
     DataFrame df = getBuilder().set("a", "id", 4).set("a", "age", 32).set("b", "id", 37)
         .set("b", "age", 44).build();
 
-    assertEquals(2, df.size(0));
-    assertEquals(2, df.size(1));
+    assertEquals(2, df.rows());
+    assertEquals(2, df.columns());
 
-    assertEquals(Series.of(4, 32).asList(Integer.class), df.getRow("a").asList(Integer.class));
-    assertEquals(Series.of(37, 44).asList(Integer.class), df.getRow("b").asList(Integer.class));
+    assertEquals(Series.of(4, 32).asList(Integer.class), df.ix().getRow("a").asList(Integer.class));
+    assertEquals(Series.of(37, 44).asList(Integer.class), df.ix().getRow("b").asList(Integer.class));
 
-    assertEquals(Series.of(4, 37).asList(Integer.class), df.getColumn("id").asList(Integer.class));
+    assertEquals(Series.of(4, 37).asList(Integer.class), df.get("id").asList(Integer.class));
     assertEquals(Series.of(32, 44).asList(Integer.class),
-        df.getColumn("age").asList(Integer.class));
+        df.get("age").asList(Integer.class));
   }
 
   @Test
@@ -506,23 +505,23 @@ public abstract class DataFrameTest {
 
     DataFrame df = getBuilder().readAll(entryReader).build();
 
-    assertEquals(2, df.size(0));
-    assertEquals(3, df.size(1));
+    assertEquals(2, df.rows());
+    assertEquals(3, df.columns());
 
-    assertEquals(Arrays.asList("1", "2", "3"), df.getRow(0).asList(String.class));
-    assertEquals(Arrays.asList("3", "2", "1"), df.getRow(1).asList(String.class));
+    assertEquals(Arrays.asList("1", "2", "3"), df.ix().getRow(0).asList(String.class));
+    assertEquals(Arrays.asList("3", "2", "1"), df.ix().getRow(1).asList(String.class));
   }
-
-  @Test
-  public void testRemoveColumnUsingLocationIndex() throws Exception {
-    DataFrame.Builder builder = getBuilder().setColumn("a", Series.of(1, 2, 3, 4))
-        .setColumn("b", Series.of(1, 2, 3, 4)).setColumn("c", Series.of(1, 2, 3, 4));
-
-    builder.loc().remove(0);
-    DataFrame df = builder.build();
-    assertEquals(2, df.size(1));
-    assertEquals(4, df.size(0));
-  }
+//
+//  @Test
+//  public void testRemoveColumnUsingLocationIndex() throws Exception {
+//    DataFrame.Builder builder = getBuilder().setColumn("a", Series.of(1, 2, 3, 4))
+//        .setColumn("b", Series.of(1, 2, 3, 4)).setColumn("c", Series.of(1, 2, 3, 4));
+//
+//    builder.loc().remove(0);
+//    DataFrame df = builder.build();
+//    assertEquals(2, df.columns());
+//    assertEquals(4, df.rows());
+//  }
 
   @Test
   public void testReduceBinaryOpWithInit() throws Exception {
@@ -563,9 +562,9 @@ public abstract class DataFrameTest {
         .setColumn("k", Series.of(1, 2, 3, 4, 5)).setColumn("d", Series.of(1, 2, 3, 4, 5)).build();
 
     DataFrame dfs = df.map(Integer.class, a -> a * 2);
-    assertEquals(Arrays.asList(2, 4, 6, 8, 10), dfs.getColumn("i").asList(Integer.class));
-    assertEquals(Arrays.asList(2, 4, 6, 8, 10), dfs.getColumn("k").asList(Integer.class));
-    assertEquals(Arrays.asList(2, 4, 6, 8, 10), dfs.getColumn("d").asList(Integer.class));
+    assertEquals(Arrays.asList(2, 4, 6, 8, 10), dfs.get("i").asList(Integer.class));
+    assertEquals(Arrays.asList(2, 4, 6, 8, 10), dfs.get("k").asList(Integer.class));
+    assertEquals(Arrays.asList(2, 4, 6, 8, 10), dfs.get("d").asList(Integer.class));
   }
 
   @Test
@@ -584,9 +583,9 @@ public abstract class DataFrameTest {
         .setColumn("j", Series.of(10, 10, 20, 20, 30, null)).build();
 
     DataFrame replaced = df.groupBy("i").apply(v -> v.collect(Collectors.fillNa(22)));
-    assertEquals(6, replaced.size(0));
-    assertEquals(2, replaced.size(1));
-    assertEquals(22, replaced.getColumn("j").getInt(5));
+    assertEquals(6, replaced.rows());
+    assertEquals(2, replaced.columns());
+    assertEquals(22, replaced.get("j").getInt(5));
   }
 
   @Test
@@ -597,9 +596,9 @@ public abstract class DataFrameTest {
         .setRow(LocalDate.parse("2011-03-11", format), Series.of(11, 22, 33)).build();
     df.setColumnIndex(Index.of("A", "B", "C"));
     DataFrame sums = df.groupBy(v -> LocalDate.class.cast(v).getYear()).collect(Series::sum);
-    assertEquals(2, sums.size(0));
-    assertEquals(3, sums.size(1));
-    assertEquals(66, sums.getColumn("C").getInt(2011));
+    assertEquals(2, sums.rows());
+    assertEquals(3, sums.columns());
+    assertEquals(66, sums.get("C").getInt(2011));
     assertEquals(1, sums.getInt(2010, "A"));
   }
 
@@ -615,9 +614,9 @@ public abstract class DataFrameTest {
     Series on = Series.of(1, 2, 2, 3, 5);
     Series expectedLeft = Series.of(10, 20, 20, 30, 20);
     Series expectedRight = Series.of(20, 20, 10, 30, 10);
-    assertEquals(on, join.getColumn("a"));
-    assertEquals(expectedLeft, join.getColumn("left"));
-    assertEquals(expectedRight, join.getColumn("right"));
+    assertEquals(on, join.get("a"));
+    assertEquals(expectedLeft, join.get("left"));
+    assertEquals(expectedRight, join.get("right"));
   }
 
   @Test
@@ -630,7 +629,7 @@ public abstract class DataFrameTest {
         DataFrame.builder().setRow("a", Series.of(1, 2)).setRow("b", Series.of(1, 2)).build();
     System.out.println(df2.resetIndex());
     DataFrame actual = df.resetIndex();
-    assertEquals(Series.of("a", "b", "c", "d", "e"), actual.getColumn("index"));
+    assertEquals(Series.of("a", "b", "c", "d", "e"), actual.get("index"));
     assertEquals(Index.of(0, 1, 2, 3, 4), actual.getIndex());
   }
 

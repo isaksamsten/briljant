@@ -38,8 +38,6 @@ infix fun BooleanArray.xor(x: BooleanArray): BooleanArray = this.xor(x)
 
 fun main(args: Array<String>) {
 
-    val sp = SqlParser("")
-
     println(10.0 pow doubleVector(2.0, 3.0))
 
     val x = doubleArray(10, 10, 10)

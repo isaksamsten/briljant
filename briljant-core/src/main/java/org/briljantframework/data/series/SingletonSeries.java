@@ -106,6 +106,11 @@ final class SingletonSeries extends AbstractSeries {
   }
 
   @Override
+  public Builder newCopyBuilder() {
+    return newBuilder().addAll(this);
+  }
+
+  @Override
   protected String getStringElement(int index) {
     Check.validIndex(index, size());
     return Na.toString(element);

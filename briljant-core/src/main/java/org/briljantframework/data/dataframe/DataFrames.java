@@ -132,7 +132,7 @@ public final class DataFrames {
   }
 
   public static DataFrame sortBy(DataFrame df, Object key, SortOrder order) {
-    org.briljantframework.data.series.LocationGetter loc = df.getColumn(key).loc();
+    org.briljantframework.data.series.LocationGetter loc = df.get(key).loc();
     boolean asc = order == SortOrder.ASC;
     IntComparator cmp = asc ? loc::compare : (a, b) -> loc.compare(b, a);
     Index.Builder index = df.getIndex().newCopyBuilder();
@@ -142,7 +142,7 @@ public final class DataFrames {
 
   public static <T> DataFrame sortBy(DataFrame df, Object key, Class<? extends T> cls,
       Comparator<? super T> cmp) {
-    org.briljantframework.data.series.LocationGetter loc = df.getColumn(key).loc();
+    org.briljantframework.data.series.LocationGetter loc = df.get(key).loc();
     Index.Builder index = df.getIndex().newCopyBuilder();
     index.sortIterationOrder((a, b) -> cmp.compare(loc.get(cls, a), loc.get(cls, b)));
     return df.reindex(df.getColumnIndex(), index.build());
@@ -192,7 +192,7 @@ public final class DataFrames {
         .newColumn("mode", Types.OBJECT);
 
     for (Object columnKey : df.getColumnIndex().keySet()) {
-      Series column = df.getColumn(columnKey);
+      Series column = df.get(columnKey);
       if (Is.numeric(column)) {
         StatisticalSummary summary = column.collect(Number.class, Collectors.statisticalSummary());
         builder.set(columnKey, "mean", summary.getMean())
@@ -239,7 +239,7 @@ public final class DataFrames {
    * Knuth), which is an algorithm for generating a random permutation of a finite set.
    *
    * <p>
-   * The permutation is only visible when accessing values using {@link LocationGetter
+   * The permutation is only visible when accessing values using {@link LocationIndexer
    * location-based indexing}.
    *
    * @param df the input {@code DataFrame}
@@ -247,12 +247,21 @@ public final class DataFrames {
    * @return a permuted copy of input
    */
   public static DataFrame permute(DataFrame df, Random random) {
-    DataFrame.Builder builder = df.newCopyBuilder();
-    LocationSetter loc = builder.loc();
-    for (int i = builder.size(0); i > 1; i--) {
-      loc.swapRows(i - 1, random.nextInt(i));
+    DataFrame copy = df.copy();
+    for (int i = copy.rows(); i > 1; i--) {
+      Series a = df.loc().getRow(i-1);
+      int randomPos = random.nextInt(i);
+      Series b = df.loc().getRow(randomPos);
+      df.loc().setRow(randomPos, a);
+      df.loc().setRow(i - 1, b);
     }
-    return builder.build();
+    return copy;
+//    LocationSetter loc = builder.loc();
+//    for (int i = builder.rows(); i > 1; i--) {
+//      loc.swapRows(i - 1, random.nextInt(i));
+//    }
+//    return builder.build();
+//    throw new UnsupportedOperationException();
   }
 
   /**
@@ -266,9 +275,9 @@ public final class DataFrames {
    */
   public static <T, R> Array<R> toArray(Class<T> t, DataFrame x,
       Function<? super T, ? extends R> function) {
-    Array<R> array = Arrays.array(x.size(0), x.size(1));
-    for (int j = 0; j < x.size(1); j++) {
-      for (int i = 0; i < x.size(0); i++) {
+    Array<R> array = Arrays.array(x.rows(), x.columns());
+    for (int j = 0; j < x.columns(); j++) {
+      for (int i = 0; i < x.rows(); i++) {
         array.set(i, j, function.apply(x.loc().get(t, i, j)));
       }
     }
@@ -316,9 +325,9 @@ public final class DataFrames {
    * @return a new double array
    */
   public static DoubleArray toDoubleArray(DataFrame x, DoubleUnaryOperator operator) {
-    DoubleArray array = Arrays.doubleArray(x.size(0), x.size(1));
-    for (int j = 0; j < x.size(1); j++) {
-      for (int i = 0; i < x.size(0); i++) {
+    DoubleArray array = Arrays.doubleArray(x.rows(), x.columns());
+    for (int j = 0; j < x.columns(); j++) {
+      for (int i = 0; i < x.rows(); i++) {
         array.set(i, j, operator.applyAsDouble(x.loc().getDouble(i, j)));
       }
     }
@@ -356,7 +365,7 @@ public final class DataFrames {
    * @return a tabular string representation
    */
   public static String toString(DataFrame df, int max) {
-    max = df.size(0) > max ? PER_SLICE : df.size(0);
+    max = df.rows() > max ? PER_SLICE : df.rows();
     Index index = df.getIndex();
     Index columnIndex = df.getColumnIndex();
 
@@ -377,13 +386,13 @@ public final class DataFrames {
       builder.append(safeColumnKey);
     }
     builder.append("\n");
-    for (int i = 0; i < df.size(0); i++) {
+    for (int i = 0; i < df.rows(); i++) {
       Object recordKey = index.get(i);
       String safeRecordKey = Na.toString(recordKey);
       builder.append(safeRecordKey);
       padWithSpace(builder, (longestRecordValue - safeRecordKey.length()));
 
-      for (int j = 0; j < df.size(1); j++) {
+      for (int j = 0; j < df.columns(); j++) {
         Object columnKey = columnIndex.get(j);
         String str = Na.toString(df.get(String.class, recordKey, columnKey));
         padWithSpace(builder, (longestColumnValue[j] - str.length()) + 2);
@@ -391,10 +400,10 @@ public final class DataFrames {
       }
       builder.append("\n");
       if (i >= max) {
-        int left = df.size(0) - i - 1;
+        int left = df.rows() - i - 1;
         if (left > max) {
           padWithSpace(builder, longestRecordValue);
-          for (int j = 0; j < df.size(1); j++) {
+          for (int j = 0; j < df.columns(); j++) {
             String str = "...";
             padWithSpace(builder, (longestColumnValue[j] - str.length()) + 2);
             builder.append(str);
@@ -405,7 +414,7 @@ public final class DataFrames {
       }
 
     }
-    return builder.append("\n[").append(df.size(0)).append(" rows x ").append(df.size(1))
+    return builder.append("\n[").append(df.rows()).append(" rows x ").append(df.columns())
         .append(" columns]").toString();
   }
 
@@ -416,16 +425,16 @@ public final class DataFrames {
   }
 
   private static int[] longestColumnValues(DataFrame df, int max, Index columnIndex, int padding) {
-    return columnIndex.keySet().stream().map(df::getColumn).mapToInt(v -> {
-      int longest = df.size(0) > max * 2 ? 3 : 0;
-      for (int i = 0; i < df.size(0); i++) {
+    return columnIndex.keySet().stream().map(df::get).mapToInt(v -> {
+      int longest = df.rows() > max * 2 ? 3 : 0;
+      for (int i = 0; i < df.rows(); i++) {
         Object recordKey = df.getIndex().get(i);
         int length = Na.toString(v.get(String.class, recordKey)).length();
         if (length > longest) {
           longest = length;
         }
         if (i >= max) {
-          int left = df.size(0) - i - 1;
+          int left = df.rows() - i - 1;
           if (left > max) {
             i += left - max - 1;
           }
