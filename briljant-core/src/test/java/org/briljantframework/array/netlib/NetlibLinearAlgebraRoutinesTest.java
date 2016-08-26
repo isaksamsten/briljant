@@ -20,10 +20,8 @@
  */
 package org.briljantframework.array.netlib;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.Arrays;
-
+import com.github.fommil.netlib.F2jLAPACK;
+import com.github.fommil.netlib.LAPACK;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
@@ -33,7 +31,12 @@ import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.LinearAlgebraRoutines;
 import org.briljantframework.array.linalg.decomposition.SingularValueDecomposition;
+import org.junit.Assume;
 import org.junit.Test;
+
+import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
 
 public class NetlibLinearAlgebraRoutinesTest {
   private static ArrayBackend b = new NetlibArrayBackend();
@@ -47,17 +50,18 @@ public class NetlibLinearAlgebraRoutinesTest {
 
   @Test
   public void geev() throws Exception {
+    Assume.assumeFalse(LAPACK.getInstance().getClass().equals(F2jLAPACK.class));
+
     final int n = 5;
     DoubleArray a = bj
         .newDoubleVector(-1.01, 3.98, 3.30, 4.43, 7.31, 0.86, 0.53, 8.26, 4.96, -6.43, -4.60, -7.04,
             -3.89, -7.66, -6.16, 3.31, 5.29, 8.20, -7.33, 2.47, -4.81, 3.55, -1.51, 6.18, 5.58)
-        .reshape(n, n);
+        .reshape(n, n).copy();
     DoubleArray wr = bj.newDoubleArray(n);
     DoubleArray wi = bj.newDoubleArray(n);
     DoubleArray vl = bj.newDoubleArray(n, n);
     DoubleArray vr = bj.newDoubleArray(n, n);
     linalg.geev('v', 'v', a, wr, wi, vl, vr);
-
     ArrayAssert.assertArrayEquals(bj.newComplexVector(Complex.valueOf(2.858132878, 10.7627498307),
         Complex.valueOf(2.858132878, -10.7627498307), Complex.valueOf(-0.6866745133, 4.7042613406),
         Complex.valueOf(-0.6866745133, -4.7042613406), Complex.valueOf(-10.4629167295)),
