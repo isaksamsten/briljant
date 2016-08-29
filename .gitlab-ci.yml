@@ -56,3 +56,15 @@ verify:jdk8:
   <<: *verify
   image: maven:3.3.9-jdk-8
 
+
+# For `develop` branch run `mvn deploy` automatically.
+# Here you need to decide whether you want to use JDK7 or 8.
+# To get this working you need to define a volume while configuring your gitlab-ci-multi-runner.
+# Mount your `settings.xml` as `/root/.m2/settings.xml` which holds your secrets.
+# See https://maven.apache.org/settings.html
+deploy:jdk8:
+  stage: test
+  script:
+    - 'mvn $MAVEN_CLI_OPTS deploy --settings ci-settings.xml -DskipTests=true -B'
+  only:
+    - develop
