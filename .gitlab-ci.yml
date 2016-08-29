@@ -41,9 +41,9 @@ verify:jdk8:
 # Mount your `settings.xml` as `/root/.m2/settings.xml` which holds your secrets.
 # See https://maven.apache.org/settings.html
 deploy:jdk8:
-  stage: test
+  stage: deploy
   script:
-    - 'mvn $MAVEN_CLI_OPTS deploy --settings ci-settings.xml'
+    - 'mvn $MAVEN_CLI_OPTS deploy --settings ci-settings.xml -DskipTests=true'
   only:
     - develop
   image: maven:3.3.9-jdk-8
