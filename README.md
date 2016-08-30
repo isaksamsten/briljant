@@ -28,7 +28,7 @@ parser.getSettings().setUrl(new URL("https://www.quandl.com/api/v1/datasets/GOOG
 
 DataFrame df = parser.parse();
 df.groupBy(LocalDate.class, "Date", LocalDate::getYear)
-  .collect(Vector::mean)
+  .collect(Series::mean)
   .sort(SortOrder.DESC)
 ```
 
