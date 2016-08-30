@@ -53,8 +53,6 @@ pages:
   script:
     - sphinx-build -b html ./docs public
   stage: deploy
-  dependencies:
-    - deploy:jdk8
   artifacts:
     paths:
       - public
