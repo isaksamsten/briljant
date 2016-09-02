@@ -48,7 +48,7 @@ deploy:jdk8:
     - develop
   image: maven:3.3.9-jdk-8
 
-pages:
+pages:develop:
   image: tsgkadot/sphinx-plantuml
   script:
     - 'sphinx-build -b html ./docs public/develop'
@@ -70,7 +70,7 @@ pages:
   only:
     - master
 
-pages:
+pages:tags:
   image: tsgkadot/sphinx-plantuml
   script:
     - 'sphinx-build -b html ./docs public/$CI_BUILD_TAG'
