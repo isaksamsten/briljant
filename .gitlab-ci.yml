@@ -40,24 +40,13 @@ verify:jdk8:
 # To get this working you need to define a volume while configuring your gitlab-ci-multi-runner.
 # Mount your `settings.xml` as `/root/.m2/settings.xml` which holds your secrets.
 # See https://maven.apache.org/settings.html
-deploy:jdk8:
+deploy:snapshot:jdk8:
   stage: deploy
   script:
     - 'mvn $MAVEN_CLI_OPTS deploy --settings ci-settings.xml -DskipTests=true'
   only:
     - develop
   image: maven:3.3.9-jdk-8
-
-pages:develop:
-  image: tsgkadot/sphinx-plantuml
-  script:
-    - 'sphinx-build -b html ./docs public/develop'
-  stage: deploy
-  artifacts:
-    paths:
-      - public
-  only:
-    - develop
 
 pages:
   image: tsgkadot/sphinx-plantuml
@@ -69,14 +58,3 @@ pages:
       - public
   only:
     - master
-
-pages:tags:
-  image: tsgkadot/sphinx-plantuml
-  script:
-    - 'sphinx-build -b html ./docs public/$CI_BUILD_TAG'
-  stage: deploy
-  artifacts:
-    paths:
-      - public
-  only:
-    - tags
