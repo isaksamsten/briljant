@@ -51,10 +51,32 @@ deploy:jdk8:
 pages:
   image: tsgkadot/sphinx-plantuml
   script:
-    - sphinx-build -b html ./docs public
+    - 'sphinx-build -b html ./docs public/develop'
   stage: deploy
   artifacts:
     paths:
       - public
   only:
     - develop
+
+pages:
+  image: tsgkadot/sphinx-plantuml
+  script:
+    - 'sphinx-build -b html ./docs public'
+  stage: deploy
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
+
+pages:
+  image: tsgkadot/sphinx-plantuml
+  script:
+    - 'sphinx-build -b html ./docs public/$CI_BUILD_TAG'
+  stage: deploy
+  artifacts:
+    paths:
+      - public
+  only:
+    - tags
