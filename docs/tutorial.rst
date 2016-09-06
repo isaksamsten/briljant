@@ -13,7 +13,7 @@ Introduction
 ============
 
 Briljants main abstractions are the (nd)-array, ``DataFrame`` and
-``Vector``.
+``Series``.
 
 * ``DataFrame`` is an immutable column wise heterogeneous data
   container and provides the essential tools for working with
@@ -26,7 +26,7 @@ Briljants main abstractions are the (nd)-array, ``DataFrame`` and
   * Different implementations with varying performance
     characteristics.
 
-* ``Vector`` is an immutable homogeneous data container. It supports
+* ``Series`` is an immutable homogeneous data container. It supports
   reference types such as ``String`` (i.e. categorical values),
   ``Double`` (i.e. double precision floating point numbers),
   ``Binary`` (i.e. true/false/NA), ``Integer`` and ``Complex``
@@ -39,7 +39,7 @@ Briljants main abstractions are the (nd)-array, ``DataFrame`` and
 
 To get a first taste of the Briljant framework, we'll start by
 exploring a few of its main primitives. The first primitive we
-introduce is the ``Vector`` which, as explained above, is a
+introduce is the ``Series`` which, as explained above, is a
 homogeneous ``NA`` supporting container type. Homogeneous mean that a
 series only contain values of one specific type; and ``NA`` supporting
 that it is aware of missing values. For example, suppose we are given
@@ -50,7 +50,7 @@ consisting of the names *Bob*, *Mary*, *Lisa*, etc.
 
 .. code-block:: java
                 
-   Vector employees = Vector.of("Bob", "Mary", "Lisa", "John", "Lisa", "Mary", "Anna");
+   Series employees = Series.of("Bob", "Mary", "Lisa", "John", "Lisa", "Mary", "Anna");
 
 If we print the series to the screen (e.g., using
 ``System.out.println(employees)``), we'll see something like this.
@@ -89,7 +89,7 @@ directly and instead say:
 
 .. code-block:: java
    
-    Vector counts = employees.valueCounts();
+    Series counts = employees.valueCounts();
 
 Again, printing the series (``counts`` in this case) produces something like this
     
@@ -112,28 +112,28 @@ treat the series as a list and, hence, access values based columnKeys their
 location we can say ``counts.loc().getAsInt(0)`` which will also
 return ``2``.
 
-In many cases ``Vectors`` will suffice, e.g., when storing the
+In many cases ``Series`` will suffice, e.g., when storing the
 evolution of stock prices
 
 .. code-block:: java
 
-   Vector.Builder spb = new DoubleVector.Builder();
+   Series.Builder spb = new DoubleSeries.Builder();
    spb.set(LocalDateTime.of(2014, Month.JANUARY, 1, 10, 10, 30), 100);
    spb.set(LocalDateTime.of(2014, Month.JANUARY, 1, 10, 10, 31), 200);
    // ....
    spb.set(LocalDateTime.of(2014, Month.JANUARY, 1, 10, 11, 00), 199);
-   Vector stockPrices = spb.build();
+   Series stockPrices = spb.build();
 
 or the price of products
 
 .. code-block:: java
 
-   Vector.Builder pp = new DoubleVector.Builder();
+   Series.Builder pp = new DoubleSeries.Builder();
    pp.set("iPad", 200);
    pp.set("iPhone", 300);
    // ...
    pp.set("Macbook Pro", 3000);
-   Vector prices = pp.build();
+   Series prices = pp.build();
 
 But what if we want to track the price, size and number of units in
 stock? Well, in those circumstances a common approach is to create a
@@ -142,10 +142,10 @@ spreadsheet or a ``DataFrame``. For example,
 .. code-block:: java
 
    DataFrame.Builder productBuilder = new MixedDataFrame.Builder();
-   productBuilder.set("Price", Vector.of(200.0, 300.0, 3000.0));
-   productBuilder.set("Size", Vector.of(150, 250, 2000));
-   productBuilder.set("UnitsInStock", Vector.of(10, null, 10));
-   productBuilder.set("Name", Vector.of("iPad", "iPhone", "Macbook Pro"));
+   productBuilder.set("Price", Series.of(200.0, 300.0, 3000.0));
+   productBuilder.set("Size", Series.of(150, 250, 2000));
+   productBuilder.set("UnitsInStock", Series.of(10, null, 10));
+   productBuilder.set("Name", Series.of("iPad", "iPhone", "Macbook Pro"));
                 
    DataFrame products = productBuilder.build();
 
@@ -228,7 +228,7 @@ for products with ``siz < 200`` and products with size ``size >= 200``:
 .. code-block:: java
 
    products.groupBy(Integer.class, "Size", v -> v >= 200)
-           .collect(Vector::mean);
+           .collect(Series::mean);
 
 
 which will produce
@@ -241,9 +241,9 @@ which will produce
 
    [2 rows x 3 columns]
 
-Note that ``Vector::mean`` is a function and ignores `NA`-values which
+Note that ``Series::mean`` is a function and ignores `NA`-values which
 is why the mean for ``UnitsInStock`` is ``10``; also note that for
-non-numerical series ``Vector#mean`` is undefined and returns ``NA``
+non-numerical series ``Series#mean`` is undefined and returns ``NA``
 which is why the mean of the ``Name``-column is ``NA``.
 
 The array
@@ -554,19 +554,19 @@ Compound operations
     Some other operations?
     
 
-The Vector
+The Series
 ==========
 
-Vectors are Briljants main abstraction and resembles immutable lists
-of homogenoues values. Vectors come in six homogeneous flavors, all of
+Seriess are Briljants main abstraction and resembles immutable lists
+of homogenoues values. Seriess come in six homogeneous flavors, all of
 which resides in the namespace
 ``org.briljantframework.data.series``. The flavors are:
 
-* ``DoubleVector`` for storing real number (``double``).
-* ``ComplexVector`` for storing complex numbers.
+* ``DoubleSeries`` for storing real number (``double``).
+* ``ComplexSeries`` for storing complex numbers.
   (``org.briljantframework.complex.Complex``).
 * ``Intvector`` for storing integers (``int``).
-* ``GenericVector(Class<? extends E>)`` for storing values of ``E``.
+* ``GenericSeries(Class<? extends E>)`` for storing values of ``E``.
 
 In addition to values, each series can store a distinct value, called
 ``NA``, which represents the absence of a value. For the reference
@@ -574,8 +574,8 @@ types (apart from ``Complex`` and ``Logical``), the ``NA``-value is
 ``null``. To generically check for ``NA``-values, use the
 ``Is#NA(Object)`` method.
 
-In this introduction we'll start with a quick overview of the ``Vector``
-data structure. For most applications in Briljant, ``Vector`` will be a
+In this introduction we'll start with a quick overview of the ``Series``
+data structure. For most applications in Briljant, ``Series`` will be a
 trusty companion. To get started, we import
 
 ::
@@ -591,7 +591,7 @@ trusty companion. To get started, we import
     compound type. To support functions with ``Object`` parameters,
     the primitive values can be *boxed* into a reference type. This is
     a rather costly operation. To avoid the cost of boxing, Briljant
-    provide specialized ``Vector``-classes for some of the most
+    provide specialized ``Series``-classes for some of the most
     commonly used primitive types: ``int`` and ``double``. To
     illustrate the cost of boxing, consider the following two examples
     of computing the mean of 1000 element series:
@@ -600,7 +600,7 @@ trusty companion. To get started, we import
     .. code-block:: java
                 
         // Construct a series of random numbers. Negative numbers are NA.
-        Vector b = Vector.of(rand::nextGaussian, 1000).map(Double.class, v -> {
+        Series b = Series.of(rand::nextGaussian, 1000).map(Double.class, v -> {
             double sqrt = Math.sqrt(v);
             return Double.isNaN(sqrt) ? Na.of(Double.class) : sqrt;
         });
@@ -627,7 +627,7 @@ trusty companion. To get started, we import
     Example 2 does not come from boxing, but rather from the use of
     lambdas. If we change ``b.getAsDouble(i)``, to ``get(Double.class,
     i)``, the performance difference is only a factor of two. For many
-    common operations, the ``Vector``-interface provides a default
+    common operations, the ``Series``-interface provides a default
     implementation and, optionally optimized implementations. For
     ``double``-values, the ``mean()``-method (Example 3) has
     equivalent performance to Example 1, and should be **preferred**.
@@ -638,25 +638,25 @@ Creating series
 
 Since series in Briljant are immutable (which is a great way of
 supporting simple concurrent programming), new series are created
-using a ``Vector.Builder``-object.
+using a ``Series.Builder``-object.
 
 .. code-block:: java
              
-   Vector.Builder vb = new IntVector.Builder();
+   Series.Builder vb = new IntSeries.Builder();
    for(int i = 0; i < 10; i++)
       vb.add(i);
 
-   Vector zeroToNine = vb.build();
+   Series zeroToNine = vb.build();
 
-In the example above, we create a new ``IntVector`` with the values
+In the example above, we create a new ``IntSeries`` with the values
 from 0 to 9.
 
-Every series has a type, accessible from ``Vector#getType()``. The
+Every series has a type, accessible from ``Series#getType()``. The
 returned type object contains information about, for example, the
 underlying type and how to copy, compare and identify ``NA``-values.
 
 Perhaps the simplest, and most common, way of creating a series is to
-call ``Vector.of(data)``. Here, ``data`` can be:
+call ``Series.of(data)``. Here, ``data`` can be:
 
 * A ``E[]``
 * a ``Supplier<E>``; or
@@ -667,37 +667,37 @@ example:
 
 .. code-block:: java
              
-   // i is an IntVector
-   Vector i = Vector.of(1,2,3,4,5);
+   // i is an IntSeries
+   Series i = Series.of(1,2,3,4,5);
 
-   // d is a DoubleVector
-   Vector d = Vector.of(1.1, 1.2, 1.3);
+   // d is a DoubleSeries
+   Series d = Series.of(1.1, 1.2, 1.3);
 
-   // n is a GenericVector(Number.class)
-   Vector n = Vector.of(1.1, 1, 2, 3, 4);
+   // n is a GenericSeries(Number.class)
+   Series n = Series.of(1.1, 1, 2, 3, 4);
 
-   // data is a GenericVector(String.class)
-   Vector data = Vector.of("Hello", "World");
+   // data is a GenericSeries(String.class)
+   Series data = Series.of("Hello", "World");
 
 
 .. note:: Missing values
 
    In Briljant, ``NA`` denote the absence of a value. The particular
    value denoting ``NA`` changes based columnKeys series type. For the
-   reference types (e.g., ``GenericVector`` and ``ComplexVector``),
+   reference types (e.g., ``GenericSeries`` and ``ComplexSeries``),
    ``NA`` is the same as ``null``. For the primitive types, however,
    ``NA`` is represented differently depending columnKeys type. For the
-   ``IntVector``, ``Integer.MAX_VALUE`` denote ``NA`` and for the
-   ``DoubleVector`` a value in the ``NaN``-range
+   ``IntSeries``, ``Integer.MAX_VALUE`` denote ``NA`` and for the
+   ``DoubleSeries`` a value in the ``NaN``-range
    (``0x7ff0000000000009L``) denote ``NA``. To simplify
    ``NA``-checking, use ``Is.NA(...)``.
 
-To create a series with missing values, ``Vector.Builder#addNA`` can
+To create a series with missing values, ``Series.Builder#addNA`` can
 be used. For example:
 
 .. code-block:: java
    
-   Vector.Builder vb = new DoubleVector.Builder();
+   Series.Builder vb = new DoubleSeries.Builder();
    for (int i = 0; i < 10; i++) {
        if(i % 2 == 0) {
            vb.addNA();
@@ -705,8 +705,8 @@ be used. For example:
            vb.add(i);
        }
    }
-   Vector v = vb.build(); // [NA, 1, NA, 3, NA, 5, NA, 7, NA, 9]
-   Vector v = Vector.of(1,null, 3, null, 4, null); // [1, NA, 3, NA, 4, NA]
+   Series v = vb.build(); // [NA, 1, NA, 3, NA, 5, NA, 7, NA, 9]
+   Series v = Series.of(1,null, 3, null, 4, null); // [1, NA, 3, NA, 4, NA]
    
 
 A series acts very similar to a ``List<E>`` with the difference that
@@ -715,7 +715,7 @@ it natively handles primitive types (using ``#getAsInt(int)`` and
 
 .. code-block:: java
                 
-   Vector v = Vector.of(1.1, 1.2, 1.3, 1.4, 1.5);
+   Series v = Series.of(1.1, 1.2, 1.3, 1.4, 1.5);
 
    // No boxing!
    double i = v.getAsDouble(0); // 1.1
@@ -725,12 +725,12 @@ it natively handles primitive types (using ``#getAsInt(int)`` and
    // Get a List<E> view
    List<Double> l = vec.asList(Double.class); // [1.1, 1.2, 1.3, 1.4, 1.5]
 
-   v instanceof DoubleVector // true
+   v instanceof DoubleSeries // true
    
-   Vector nv = Vector.of("Hello", "World");
-   nv instanceof GenericVector // true
+   Series nv = Series.of("Hello", "World");
+   nv instanceof GenericSeries // true
 
-   // We can get double values from GenericVectors as well...
+   // We can get double values from GenericSeriess as well...
    double i = nv.getAsDouble(0);
 
    // however, the value is NA
@@ -745,20 +745,20 @@ Transforming series
 A common operation in statistical languages is the ability to
 transform series, for example by performing some element-wise
 operations. In Briljant, the simplest way to transform a series is by
-using the ``Vector#map`` method which takes as arguments the
+using the ``Series#map`` method which takes as arguments the
 type of value we are interested in transforming and a lambda that
 perform the operation. For example:
 
 .. code-block:: java
                 
-   Vector v = Vector.of(rand::nextGaussian, 100);
+   Series v = Series.of(rand::nextGaussian, 100);
    UnaryOperator<Double> abs = Math::abs;
 
-   Vector absSqrt = v.map(Double.class, abs.andThen(Math::sqrt));
-   Vector pow = v.map(Double.class, v -> Math.pow(v, 3));
+   Series absSqrt = v.map(Double.class, abs.andThen(Math::sqrt));
+   Series pow = v.map(Double.class, v -> Math.pow(v, 3));
 
    // 'clip' the values in the -1 and 1 range
-   Vector ne = v.map(Double.class, Transformations.clip(-1, 1));
+   Series ne = v.map(Double.class, Transformations.clip(-1, 1));
 
 
 .. warning::
@@ -768,12 +768,12 @@ perform the operation. For example:
 
    .. code-block:: java
                    
-      Vector.Builder builder = new DoubleVector.Builder();
+      Series.Builder builder = new DoubleSeries.Builder();
       for(int i = 0, size = v.size(); i < size; i++) {
           builder.add(Math.sqrt(Math.abs(v.getAsDouble(i))));
       }
 
-      Vector absSqrt = builder.build();
+      Series absSqrt = builder.build();
 
 
    This is, of course, more verbose but perform vastly better since it
@@ -792,7 +792,7 @@ columnKeys the tedious and sometimes error-prone ``for``-loop?
 
 .. code-block:: java
                 
-   Vector v = Vector.of("A", "B", "Cat", "Dog", "E", "F");
+   Series v = Series.of("A", "B", "Cat", "Dog", "E", "F");
    ArrayList strings = new ArrayList<>();
    for(int i = 0; i < v.size(); i++) {
        strings.add(v.get(String.class, i));
@@ -810,7 +810,7 @@ What if we want to collect our ``String``-series into a single string?
    }
 
    
-Fortunately not! Instead, Briljant exposes an ``Vector#collect``
+Fortunately not! Instead, Briljant exposes an ``Series#collect``
 function which is a very general method for the purposes outlined
 above. For example:
 
@@ -825,7 +825,7 @@ above. For example:
    double mean = series.aggregate(Double.class, Aggregates.mean());
 
 Collectors (i.e. aggregate operations) are, however, more general than
-that! The ``collect``-method of ``Vector`` (and as we will see later,
+that! The ``collect``-method of ``Series`` (and as we will see later,
 data frames and grouped data frames) accepts as arguments a type ``E``
 (in the example above ``String.class``) and, either a ``Supplier<E>``
 and a ``BiConsumer<E, E>``, or an instance of ``Collector<E, R, C>``
@@ -846,22 +846,22 @@ Since ``Collectors`` are very general, operations such as ``repeat``,
                 
    import static org.briljantframework.functions.Aggregates.*;
 
-   Vector v = Vector.of(1,2,3,4, null);
+   Series v = Series.of(1,2,3,4, null);
 
    // Repeat the series n times
-   Vector v2Times = v.collect(repeat(IntVector.Builder::new, 2));
+   Series v2Times = v.collect(repeat(IntSeries.Builder::new, 2));
    // [1,2,3,4,NA,1,2,3,4,NA]
 
    // Repeat each element n times
-   Vector each2times = v.collect(each(IntVector.Builder::new, 2));
+   Series each2times = v.collect(each(IntSeries.Builder::new, 2));
    //[1,1,2,2,3,3,4,4,NA,NA]
 
    // Indicator of which values are NA
-   Vector nas = v.collect(isNA());
+   Series nas = v.collect(isNA());
    // [FALSE, FALSE, FALSE, FALSE, TRUE]
 
    // all non-na values larger than 2
-   Vector largerThan2 = v.collect(test(v -> !Is.NA(v) && v > 2));
+   Series largerThan2 = v.collect(test(v -> !Is.NA(v) && v > 2));
    // [FALSE, FALSE, TRUE, TRUE, TRUE]
 
 
@@ -883,51 +883,51 @@ just using a simple ``for``-loop:
 
 .. code-block:: java
                 
-   Vector a = Vector.of(1.1, 1.2, 1.3);
-   Vector b = Vector.of(() -> 2.0, 3);
+   Series a = Series.of(1.1, 1.2, 1.3);
+   Series b = Series.of(() -> 2.0, 3);
    
-   DoubleVector.Builder result = new DoubleVector.Builder();
+   DoubleSeries.Builder result = new DoubleSeries.Builder();
    for(int i = 0; i < a.size(); i++) {
        result.add(a.getAsDouble(i) + b.getAsDouble(i));
    }
-   Vector c = result.build(); // [3.1, 3.2, 3.3]
+   Series c = result.build(); // [3.1, 3.2, 3.3]
 
    
 The example above is both rather verbose and in some cases
 error-prone, e.g., what if ``a`` and ``b`` are of unequal length?  To
 simplify and generalize the use-case outlined above, Briljant provides
-``Vector#combine``. For example, the example could be written as:
+``Series#merge``. For example, the example could be written as:
 
 .. code-block:: java
                 
-   Vector c = a.combine(Double.class, b, (x, y) -> x + y);
+   Series c = a.merge(Double.class, b, (x, y) -> x + y);
    // [3.1, 3.2, 3.3]
 
 .. warning:: Indexed series
 
-   Since series can be indexed (using the ``Vector#setIndex``)
+   Since series can be indexed (using the ``Series#setIndex``)
    method, the first example only works for `int`-indexed series. To
-   combine over locations (i.e. physical access locations) use
-   ``Vector#loc()``.
+   merge over locations (i.e. physical access locations) use
+   ``Series#loc()``.
    
 
 Now, what if one of the series contains ``NA`` values?
 
 .. code-block:: java
                 
-   Vector a = Vector.of(1, 2, 3, null);
-   Vector b = Vector.of(1, 2, null, 3);
-   Vector c = a.combine(Integer.class, b, Combine.add()); // (or Vector c = a.add(b);)
+   Series a = Series.of(1, 2, 3, null);
+   Series b = Series.of(1, 2, null, 3);
+   Series c = a.merge(Integer.class, b, Merge.add()); // (or Series c = a.add(b);)
    // [2, 4, null, null]
 
-   Vector c = a.combine(Integer.class, b, Combine.add(1));
+   Series c = a.merge(Integer.class, b, Merge.add(1));
    // [2, 4, 4, 5]
 
-   Vector c = a.combine(Integer.class, b, Na.ignore((x, y) -> x + y))
+   Series c = a.merge(Integer.class, b, Na.ignore((x, y) -> x + y))
    // [2, 4, null, null]
    
 
-``Combine#add(Number)`` returns a ``BiFunction<Number, Number,
+``Merge#add(Number)`` returns a ``BiFunction<Number, Number,
 Number>`` wrapped in a ``Na#ignore``, which - as the name
 implies - ignores ``NA`` values by keeping the ``NA``-value from
 either series.

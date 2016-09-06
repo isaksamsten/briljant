@@ -30,15 +30,15 @@ import org.briljantframework.data.Na;
  * 
  * @author Isak Karlsson
  */
-public final class Combine {
+public final class Merge {
 
-  private Combine() {}
+  private Merge() {}
 
   /**
    * @return an adder that ignores {@code NA}
    */
   public static BiFunction<Object, Object, Object> add() {
-    return Na.ignore(Combine::plusNumber);
+    return Na.ignore(Merge::plusNumber);
   }
 
   /**
@@ -47,31 +47,31 @@ public final class Combine {
    * @see Na#ignore(java.util.function.BiFunction, Object)
    */
   public static BiFunction<Object, Object, Object> add(Object fillValue) {
-    return Na.ignore(Combine::plusNumber, fillValue);
+    return Na.ignore(Merge::plusNumber, fillValue);
   }
 
   public static BiFunction<Object, Object, Object> mul() {
-    return Na.ignore(Combine::multiplyNumber);
+    return Na.ignore(Merge::multiplyNumber);
   }
 
   public static BiFunction<Object, Object, Object> multiply(Object fillValue) {
-    return Na.ignore(Combine::multiplyNumber, fillValue);
+    return Na.ignore(Merge::multiplyNumber, fillValue);
   }
 
   public static BiFunction<Object, Object, Object> div() {
-    return Na.ignore(Combine::divNumber);
+    return Na.ignore(Merge::divNumber);
   }
 
   public static BiFunction<Object, Object, Object> div(Object fillValue) {
-    return Na.ignore(Combine::divNumber, fillValue);
+    return Na.ignore(Merge::divNumber, fillValue);
   }
 
   public static BiFunction<Object, Object, Object> sub() {
-    return Na.ignore(Combine::minusNumber);
+    return Na.ignore(Merge::minusNumber);
   }
 
   public static BiFunction<Object, Object, Object> sub(Object fillValue) {
-    return Na.ignore(Combine::minusNumber, fillValue);
+    return Na.ignore(Merge::minusNumber, fillValue);
   }
 
   // TODO: propagate aptly. e.g., int / double => double, int / int => int, long + int => long

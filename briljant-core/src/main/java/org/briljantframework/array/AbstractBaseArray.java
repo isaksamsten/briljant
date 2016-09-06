@@ -43,7 +43,8 @@ import org.briljantframework.util.sort.ElementSwapper;
  * @see AbstractDoubleArray
  * @see AbstractComplexArray
  */
-public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseArray<E>, ElementSwapper {
+public abstract class AbstractBaseArray<E extends BaseArray<E>>
+    implements BaseArray<E>, ElementSwapper {
 
   protected static final String INVALID_DIMENSION = "Dimension out of bounds (%s < %s)";
   protected static final String INVALID_VECTOR = "Series index out of bounds (%s < %s)";
@@ -98,7 +99,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
   /**
    * Construct an empty base array with the specified offset (i.e., where elements start), shape,
    * stride and majorStride
-   * 
+   *
    * @param backend the factory
    * @param offset the offset
    * @param shape the shape (<strong>not copied</strong>)
@@ -111,41 +112,6 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
     this.size = ShapeUtils.size(shape);
     this.offset = offset;
   }
-  //
-  // @Override
-  // public boolean contains(Object o) {
-  // for (T v : this) {
-  // if (Objects.equals(v, o)) {
-  // return true;
-  // }
-  // }
-  // return false;
-  // }
-  //
-  // @Override
-  // public boolean containsAll(Collection<?> c) {
-  // for (Object o : c) {
-  // if (!contains(o)) {
-  // return false;
-  // }
-  // }
-  // return true;
-  // }
-  //
-  // @Override
-  // public Object[] toArray() {
-  // throw new UnsupportedOperationException();
-  // }
-  //
-  // @Override
-  // public <T1> T1[] toArray(T1[] a) {
-  // throw new UnsupportedOperationException();
-  // }
-  //
-  // @Override
-  // public boolean isEmpty() {
-  // return size() == 0;
-  // }
 
   /**
    * Returns the array factory
@@ -562,11 +528,10 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>> implements BaseA
 
   @Override
   public final E transpose() {
-    // TODO: consider using the implementation provided in Arrays#transpose
     if (dims() == 1) {
       return asView(getOffset(), getShape(), getStride());
     } else {
-      return asView(getOffset(), StrideUtils.reverse(shape), StrideUtils.reverse(stride));
+      return org.briljantframework.array.Arrays.transpose(asView(shape, stride));
     }
   }
 

@@ -15,7 +15,7 @@ It contains among other things:
 
 - a powerful and efficient n-dimensional array abstraction with native
   *BLAS* and *LAPACK* sub-routines [#]_.
-- a powerful ``r``-like ``DataFrame``, ``Vector`` and List abstractions
+- a powerful ``r``-like ``DataFrame`` abstraction
 - efficient, accurate and powerful machine learning procedures for
   *conformal prediction*, *ensemble learning*, and *data series
   learning*.
