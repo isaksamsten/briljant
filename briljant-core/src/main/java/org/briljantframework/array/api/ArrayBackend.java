@@ -34,21 +34,6 @@ package org.briljantframework.array.api;
  * @see org.briljantframework.array.netlib.NetlibArrayBackend
  */
 public interface ArrayBackend {
-
-  /**
-   * Returns true if the backend is available.
-   * 
-   * @return true if the backend is available
-   */
-  boolean isAvailable();
-
-  /**
-   * Returns the priority of the backend (the larger; the larger priority)
-   * 
-   * @return the priority
-   */
-  int getPriority();
-
   /**
    * Get the array factory.
    * 

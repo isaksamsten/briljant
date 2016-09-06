@@ -18,17 +18,47 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.briljantframework.array;
+package org.briljantframework.array.jcuda;
 
-import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.array.netlib.NetlibArrayBackend;
+import org.briljantframework.array.api.ArrayBackend;
+import org.briljantframework.array.api.ArrayService;
+
+import jcuda.jcublas.JCublas;
 
 /**
- * Created by isak on 5/4/16.
+ * Created by isak on 9/6/16.
  */
-public class NetlibIntArrayTest extends IntArrayTest {
+public class JCudaArrayService implements ArrayService {
+  private static boolean isAvailable = true;
 
-  @Override protected ArrayFactory getArrayFactory() {
-    return NetlibArrayBackend.getInstance().getArrayFactory();
+  static {
+    try {
+      JCublas.cublasInit();
+    } catch (Exception ignore) {
+      System.err.println("JCudaArrayBackend is unavailable.");
+      ignore.printStackTrace();
+      isAvailable = false;
+    }
+    Runtime.getRuntime().addShutdownHook(new Thread() {
+      @Override
+      public void run() {
+        JCublas.cublasShutdown();
+      }
+    });
+  }
+
+  @Override
+  public boolean isAvailable() {
+    return isAvailable;
+  }
+
+  @Override
+  public int getPriority() {
+    return 200;
+  }
+
+  @Override
+  public ArrayBackend getArrayBackend() {
+    return JCudaArrayBackend.getInstance();
   }
 }

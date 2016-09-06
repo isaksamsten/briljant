@@ -36,7 +36,7 @@ import java.util.function.Supplier
  */
 class ReferenceArraySpec extends Specification {
 
-  def bj = new NetlibArrayBackend().arrayFactory
+  def bj = NetlibArrayBackend.instance.arrayFactory
 
   def "assigning a single element"() {
     given:

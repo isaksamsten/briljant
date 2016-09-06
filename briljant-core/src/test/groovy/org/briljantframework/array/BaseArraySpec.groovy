@@ -33,7 +33,7 @@ import spock.lang.Specification
  */
 class BaseArraySpec extends Specification {
 
-  static bj = new NetlibArrayBackend().arrayFactory
+  static bj = NetlibArrayBackend.instance.arrayFactory
 
   def "Constructing a new array"() {
     expect:

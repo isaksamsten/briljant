@@ -20,24 +20,24 @@
  */
 package org.briljantframework.array.netlib;
 
+import java.util.logging.Handler;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.briljantframework.array.api.ArrayRoutines;
 import org.briljantframework.array.api.LinearAlgebraRoutines;
 
-import java.util.logging.Handler;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
-
 /**
  * Provides arrays with operations optimized using Netlib.
- * 
+ * <p>
  * <p/>
  * Priority: 100
- * 
+ *
  * @author Isak Karlsson
  */
-public class NetlibArrayBackend implements ArrayBackend {
+public final class NetlibArrayBackend implements ArrayBackend {
 
   static {
     // This should suppress the output from the JNI logger
@@ -50,18 +50,25 @@ public class NetlibArrayBackend implements ArrayBackend {
     }
   }
 
+  private static final ArrayBackend instance = new NetlibArrayBackend();
+
   private ArrayFactory arrayFactory;
   private ArrayRoutines arrayRoutines;
   private LinearAlgebraRoutines linearAlgebraRoutines;
 
-  @Override
-  public boolean isAvailable() {
-    return true;
+  private NetlibArrayBackend() {
+    if (instance != null) {
+      throw new IllegalStateException("Already initialized");
+    }
+  }
+
+  public static ArrayBackend getInstance() {
+    return instance;
   }
 
   @Override
-  public int getPriority() {
-    return 100;
+  protected Object clone() throws CloneNotSupportedException {
+    throw new CloneNotSupportedException();
   }
 
   @Override

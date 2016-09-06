@@ -18,17 +18,34 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.briljantframework.array;
-
-import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.array.netlib.NetlibArrayBackend;
+package org.briljantframework.array.api;
 
 /**
- * Created by isak on 5/4/16.
+ * An array service is used by the service loader to create a {@link ArrayBackend}.
+ *
+ * <p/>
+ *
+ * Note that successive calls to {@link #getArrayBackend()} should return the same instance and that
+ * implementors must provide a default implementation.
  */
-public class NetlibIntArrayTest extends IntArrayTest {
+public interface ArrayService {
+  /**
+   * Returns true if the backend is available.
+   *
+   * @return true if the backend is available
+   */
+  boolean isAvailable();
 
-  @Override protected ArrayFactory getArrayFactory() {
-    return NetlibArrayBackend.getInstance().getArrayFactory();
-  }
+  /**
+   * Returns the priority of the backend (the larger; the larger priority)
+   *
+   * @return the priority
+   */
+  int getPriority();
+
+  /**
+   * Returns the array backend
+   * @return the array backend
+   */
+  ArrayBackend getArrayBackend();
 }

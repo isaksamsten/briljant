@@ -18,17 +18,27 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.briljantframework.array;
+package org.briljantframework.array.netlib;
 
-import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.array.netlib.NetlibArrayBackend;
+import org.briljantframework.array.api.ArrayBackend;
+import org.briljantframework.array.api.ArrayService;
 
 /**
- * Created by isak on 5/4/16.
+ * Created by isak on 9/6/16.
  */
-public class NetlibIntArrayTest extends IntArrayTest {
+public class NetlibArrayService implements ArrayService {
 
-  @Override protected ArrayFactory getArrayFactory() {
-    return NetlibArrayBackend.getInstance().getArrayFactory();
+  @Override
+  public boolean isAvailable() {
+    return true;
+  }
+
+  @Override
+  public int getPriority() {
+    return 100;
+  }
+
+  @Override public ArrayBackend getArrayBackend() {
+    return NetlibArrayBackend.getInstance();
   }
 }

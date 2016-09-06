@@ -29,6 +29,6 @@ import org.briljantframework.array.netlib.NetlibArrayBackend;
 public class NetlibDoubleArrayTest extends DoubleArrayTest {
   @Override
   protected ArrayFactory getArrayFactory() {
-    return new NetlibArrayBackend().getArrayFactory();
+    return NetlibArrayBackend.getInstance().getArrayFactory();
   }
 }

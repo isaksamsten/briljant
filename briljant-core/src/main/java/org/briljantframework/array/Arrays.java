@@ -31,10 +31,7 @@ import org.apache.commons.math3.distribution.RealDistribution;
 import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 import org.apache.commons.math3.exception.NotStrictlyPositiveException;
 import org.briljantframework.Check;
-import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.array.api.ArrayRoutines;
-import org.briljantframework.array.api.LinearAlgebraRoutines;
+import org.briljantframework.array.api.*;
 import org.briljantframework.array.netlib.NetlibArrayBackend;
 import org.briljantframework.data.statistics.FastStatistics;
 import org.briljantframework.exceptions.MultiDimensionMismatchException;
@@ -100,13 +97,13 @@ public final class Arrays {
   private static final ArrayFactory ARRAY_FACTORY;
   private static final ArrayRoutines ARRAY_ROUTINES;
 
-  // TODO(isak): allow for swapping array backends
   static {
     ARRAY_BACKEND =
-        StreamSupport.stream(ServiceLoader.load(ArrayBackend.class).spliterator(), false)
-            .filter(ArrayBackend::isAvailable)
+        StreamSupport.stream(ServiceLoader.load(ArrayService.class).spliterator(), false)
+            .filter(ArrayService::isAvailable)
             .sorted((a, b) -> Integer.compare(b.getPriority(), a.getPriority())).findFirst()
-            .orElse(new NetlibArrayBackend());
+            .map(ArrayService::getArrayBackend).orElseThrow(
+                () -> new UnsupportedOperationException("Can't find ArrayService to initialize"));
 
     ARRAY_FACTORY = ARRAY_BACKEND.getArrayFactory();
     ARRAY_ROUTINES = ARRAY_BACKEND.getArrayRoutines();

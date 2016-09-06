@@ -37,7 +37,7 @@ public class NetlibArrayRoutinesTest {
     ArrayPrinter.setMinimumTruncateSize(1000);
   }
 
-  private ArrayBackend backend = new NetlibArrayBackend();
+  private ArrayBackend backend = NetlibArrayBackend.getInstance();
   private ArrayFactory bj = backend.getArrayFactory();
 
   // private DoubleArray a = bj.doubleArray(10000).assign(10);

@@ -39,7 +39,7 @@ import java.util.Arrays;
 import static org.junit.Assert.assertEquals;
 
 public class NetlibLinearAlgebraRoutinesTest {
-  private static ArrayBackend b = new NetlibArrayBackend();
+  private static ArrayBackend b = NetlibArrayBackend.getInstance();
   private static ArrayFactory bj = b.getArrayFactory();
   private static LinearAlgebraRoutines linalg = b.getLinearAlgebraRoutines();
 

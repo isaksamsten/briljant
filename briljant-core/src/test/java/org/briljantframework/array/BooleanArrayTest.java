@@ -22,12 +22,15 @@ package org.briljantframework.array;
 
 import static org.junit.Assert.assertEquals;
 
+import org.briljantframework.array.api.ArrayFactory;
 import org.junit.Test;
 
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
-public class BooleanArrayTest {
+public abstract class BooleanArrayTest {
+
+  protected abstract ArrayFactory getArrayFactory();
 
   @Test
   public void testAny_withDim() throws Exception {

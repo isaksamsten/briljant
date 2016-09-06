@@ -32,7 +32,7 @@ import org.briljantframework.array.ArrayRoutinesSpec
 class NetlibArrayRoutinesSpec extends ArrayRoutinesSpec {
 
   def setupSpec() {
-    def b = new NetlibArrayBackend()
+    def b = NetlibArrayBackend.instance
     bj = b.arrayFactory
     bjr = b.arrayRoutines
   }

@@ -36,7 +36,7 @@ public class BaseArrayRoutinesTest {
     ArrayPrinter.setMinimumTruncateSize(1000);
   }
 
-  ArrayBackend b = new NetlibArrayBackend();
+  ArrayBackend b = NetlibArrayBackend.getInstance();
   ArrayFactory bj = b.getArrayFactory();
   ArrayRoutines bjr = b.getArrayRoutines();
 

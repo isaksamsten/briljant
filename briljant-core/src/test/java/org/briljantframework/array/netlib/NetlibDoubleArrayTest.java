@@ -24,13 +24,14 @@ import org.briljantframework.array.ArrayAssert;
 import org.briljantframework.array.ArrayOperation;
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
 import org.junit.Test;
 
 public class NetlibDoubleArrayTest {
 
   protected static final double EPSILON = 1e-10;
-  NetlibArrayBackend backend = new NetlibArrayBackend();
+  ArrayBackend backend = NetlibArrayBackend.getInstance();
   ArrayFactory bj = backend.getArrayFactory();
 
   @Test

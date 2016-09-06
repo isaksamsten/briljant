@@ -20,8 +20,6 @@
  */
 package org.briljantframework.array.jcuda;
 
-import jcuda.jcublas.JCublas;
-
 import org.briljantframework.array.ArrayOperation;
 import org.briljantframework.array.DoubleArray;
 import org.briljantframework.array.api.ArrayBackend;
@@ -35,33 +33,25 @@ import org.briljantframework.array.api.LinearAlgebraRoutines;
  */
 public class JCudaArrayBackend implements ArrayBackend {
 
-  private static boolean isAvailable = true;
-
-  static {
-    try {
-      JCublas.cublasInit();
-    } catch (Exception ignore) {
-      System.err.println("JCudaArrayBackend is unavailable.");
-      ignore.printStackTrace();
-      isAvailable = false;
-    }
-    Runtime.getRuntime().addShutdownHook(new Thread() {
-      @Override
-      public void run() {
-        JCublas.cublasShutdown();
-      }
-    });
-  }
-
   private final Object lock = new Object();
   private ArrayFactory factory = null;
   private ArrayRoutines routines = null;
+  private static ArrayBackend INSTANCE = new JCudaArrayBackend();
+
+  private JCudaArrayBackend() {
+    if (INSTANCE != null) {
+      throw new UnsupportedOperationException("Already initialized");
+    }
+    factory = new JCudaArrayFactory(this);
+    routines = new JCudaArrayRoutines(this);
+  }
+
+
 
   public static void main(String[] args) {
     int size = 1000;
-//    time(new BaseArrayBackend(), size);
-    time(new NetlibArrayBackend(), size);
-    time(new JCudaArrayBackend(), size);
+    time(NetlibArrayBackend.getInstance(), size);
+    time(JCudaArrayBackend.getInstance(), size);
   }
 
   private static void time(ArrayBackend backend, int size) {
@@ -85,33 +75,17 @@ public class JCudaArrayBackend implements ArrayBackend {
     System.out.println((System.currentTimeMillis() - start) + "  " + value);
   }
 
-  @Override
-  public boolean isAvailable() {
-    return isAvailable;
-  }
-
-  @Override
-  public int getPriority() {
-    return 200;
+  public static ArrayBackend getInstance() {
+    return INSTANCE;
   }
 
   @Override
   public ArrayFactory getArrayFactory() {
-    synchronized (lock) {
-      if (factory == null) {
-        factory = new JCudaArrayFactory(this);
-      }
-    }
     return factory;
   }
 
   @Override
   public ArrayRoutines getArrayRoutines() {
-    synchronized (lock) {
-      if (routines == null) {
-        routines = new JCudaArrayRoutines(this);
-      }
-    }
     return routines;
   }
 
