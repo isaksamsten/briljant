@@ -122,7 +122,7 @@ public interface BaseArray<S extends BaseArray<S>> extends ElementSwapper {
    * @param from the other array
    * @param fromIndex the index in {@code from}
    */
-  void set(int toIndex, S from, int fromIndex);
+  void setFrom(int toIndex, S from, int fromIndex);
 
   /**
    * For 2d-arrays, perform {@code this.set(toRow, toColumn, from.get(fromRow, fromColumn)} while
@@ -133,9 +133,9 @@ public interface BaseArray<S extends BaseArray<S>> extends ElementSwapper {
    * @param from the other array
    * @param fromRow the row in {@code from}
    * @param fromColumn the column in {@code from}
-   * @see #set(int, BaseArray, int) for an example
+   * @see #setFrom(int, BaseArray, int) for an example
    */
-  void set(int toRow, int toColumn, S from, int fromRow, int fromColumn);
+  void setFrom(int toRow, int toColumn, S from, int fromRow, int fromColumn);
 
   /**
    * For nd-arrays, perform {@code this.set(toIndex, from.get(fromIndex)} while avoiding unboxing of
@@ -144,9 +144,9 @@ public interface BaseArray<S extends BaseArray<S>> extends ElementSwapper {
    * @param toIndex the index in {@code this}
    * @param from the other array
    * @param fromIndex the index in {@code from}
-   * @see #set(int, BaseArray, int) for an example
+   * @see #setFrom(int, BaseArray, int) for an example
    */
-  void set(int[] toIndex, S from, int[] fromIndex);
+  void setFrom(int[] toIndex, S from, int[] fromIndex);
 
   /**
    * For nd-arrays, set the element in this at to index to the value at the linear position in from.
@@ -155,7 +155,7 @@ public interface BaseArray<S extends BaseArray<S>> extends ElementSwapper {
    * @param from the source
    * @param fromIndex the index in source
    */
-  void set(int[] toIndex, S from, int fromIndex);
+  void setFrom(int[] toIndex, S from, int fromIndex);
 
   /**
    * For nd-arrays, set the element in this at to index to the value at the linear position in from.
@@ -164,7 +164,7 @@ public interface BaseArray<S extends BaseArray<S>> extends ElementSwapper {
    * @param from the source
    * @param fromIndex the index in source
    */
-  void set(int toIndex, S from, int[] fromIndex);
+  void setFrom(int toIndex, S from, int[] fromIndex);
 
   /**
    * Reverses each dimension of the array.

@@ -78,27 +78,27 @@ public abstract class AbstractSeries extends AbstractBaseArray<Series> implement
   }
 
   @Override
-  public void set(int toIndex, Series from, int fromIndex) {
+  public void setFrom(int toIndex, Series from, int fromIndex) {
     loc().set(toIndex, from.loc().get(fromIndex));
   }
 
   @Override
-  public void set(int toRow, int toColumn, Series from, int fromRow, int fromColumn) {
+  public void setFrom(int toRow, int toColumn, Series from, int fromRow, int fromColumn) {
     loc().set(toRow, fromColumn, from.loc().get(fromRow, fromColumn));
   }
 
   @Override
-  public void set(int[] toIndex, Series from, int[] fromIndex) {
+  public void setFrom(int[] toIndex, Series from, int[] fromIndex) {
     loc().set(toIndex, from.loc().get(fromIndex));
   }
 
   @Override
-  public void set(int[] toIndex, Series from, int fromIndex) {
+  public void setFrom(int[] toIndex, Series from, int fromIndex) {
     loc().set(toIndex, from.loc().get(fromIndex));
   }
 
   @Override
-  public void set(int toIndex, Series from, int[] fromIndex) {
+  public void setFrom(int toIndex, Series from, int[] fromIndex) {
     loc().set(toIndex, from.loc().get(fromIndex));
   }
 
@@ -424,7 +424,7 @@ public abstract class AbstractSeries extends AbstractBaseArray<Series> implement
       if (array.get(i)) {
         loc().set(i, value);
       } else {
-        set(i, this, i);
+        setFrom(i, this, i);
       }
     }
   }

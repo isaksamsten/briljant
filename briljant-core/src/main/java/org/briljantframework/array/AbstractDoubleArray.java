@@ -55,27 +55,27 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public void set(int toIndex, DoubleArray from, int fromIndex) {
+  public void setFrom(int toIndex, DoubleArray from, int fromIndex) {
     set(toIndex, from.get(fromIndex));
   }
 
   @Override
-  public void set(int toRow, int toColumn, DoubleArray from, int fromRow, int fromColumn) {
+  public void setFrom(int toRow, int toColumn, DoubleArray from, int fromRow, int fromColumn) {
     set(toRow, toColumn, from.get(fromRow, fromColumn));
   }
 
   @Override
-  public void set(int[] toIndex, DoubleArray from, int[] fromIndex) {
+  public void setFrom(int[] toIndex, DoubleArray from, int[] fromIndex) {
     set(toIndex, from.get(fromIndex));
   }
 
   @Override
-  public void set(int[] toIndex, DoubleArray from, int fromIndex) {
+  public void setFrom(int[] toIndex, DoubleArray from, int fromIndex) {
     set(toIndex, from.get(fromIndex));
   }
 
   @Override
-  public void set(int toIndex, DoubleArray from, int[] fromIndex) {
+  public void setFrom(int toIndex, DoubleArray from, int[] fromIndex) {
     set(toIndex, from.get(fromIndex));
   }
 

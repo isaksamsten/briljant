@@ -145,4 +145,11 @@ public final class ArrayAssert {
       assertEquals(value, actual.get(i));
     }
   }
+
+  public static void assertArrayEquals(BooleanArray actual, BooleanArray expected) {
+    assertEquals(expected.size(), actual.size());
+    for (int i = 0; i < actual.size(); i++) {
+      assertEquals(expected.get(i), actual.get(i));
+    }
+  }
 }

@@ -20,15 +20,16 @@
  */
 package org.briljantframework.array;
 
+import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.ArrayFactory;
-import org.briljantframework.array.netlib.NetlibArrayBackend;
 
 /**
- * Created by isak on 5/4/16.
+ * Created by isak on 9/7/16.
  */
-public class NetlibDoubleArrayTest extends DoubleArrayTest {
-  @Override
-  protected ArrayFactory getArrayFactory() {
-    return NetlibArrayBackend.getInstance().getArrayFactory();
+public interface ArrayBackendTest {
+  ArrayBackend getArrayBackend();
+
+  default ArrayFactory getArrayFactory() {
+    return getArrayBackend().getArrayFactory();
   }
 }

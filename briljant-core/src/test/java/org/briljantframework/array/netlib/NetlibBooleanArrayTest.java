@@ -20,15 +20,16 @@
  */
 package org.briljantframework.array.netlib;
 
-import org.briljantframework.array.BooleanArrayTest;
-import org.briljantframework.array.api.ArrayFactory;
+import org.briljantframework.array.AbstractBooleanArrayTest;
+import org.briljantframework.array.BooleanArray;
+import org.briljantframework.array.api.ArrayBackend;
 
 /**
  * Created by isak on 9/6/16.
  */
-public class NetlibBooleanArrayTest extends BooleanArrayTest {
+public class NetlibBooleanArrayTest extends AbstractBooleanArrayTest {
   @Override
-  protected ArrayFactory getArrayFactory() {
-    return NetlibArrayBackend.getInstance().getArrayFactory();
+  public ArrayBackend getArrayBackend() {
+    return NetlibArrayBackend.getInstance();
   }
 }

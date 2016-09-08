@@ -56,27 +56,27 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
   }
 
   @Override
-  public void set(int toIndex, BooleanArray from, int fromIndex) {
+  public void setFrom(int toIndex, BooleanArray from, int fromIndex) {
     set(toIndex, from.get(fromIndex));
   }
 
   @Override
-  public void set(int toRow, int toColumn, BooleanArray from, int fromRow, int fromColumn) {
+  public void setFrom(int toRow, int toColumn, BooleanArray from, int fromRow, int fromColumn) {
     set(toRow, toColumn, from.get(fromRow, fromColumn));
   }
 
   @Override
-  public void set(int[] toIndex, BooleanArray from, int[] fromIndex) {
+  public void setFrom(int[] toIndex, BooleanArray from, int[] fromIndex) {
     set(toIndex, from.get(fromIndex));
   }
 
   @Override
-  public void set(int[] toIndex, BooleanArray from, int fromIndex) {
+  public void setFrom(int[] toIndex, BooleanArray from, int fromIndex) {
     set(toIndex, from.get(fromIndex));
   }
 
   @Override
-  public void set(int toIndex, BooleanArray from, int[] fromIndex) {
+  public void setFrom(int toIndex, BooleanArray from, int[] fromIndex) {
     set(toIndex, from.get(fromIndex));
   }
 
@@ -215,12 +215,12 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public boolean get(int i, int j) {
-    Check.argument(isMatrix(), REQUIRE_2D);
+    Check.state(isMatrix(), REQUIRE_2D);
     return getElement(getOffset() + i * stride(0) + j * stride(1));
   }
 
   public final boolean get(int... ix) {
-    Check.argument(ix.length == dims(), REQUIRE_ND, dims());
+    Check.state(ix.length == dims(), REQUIRE_ND, dims());
     return getElement(StrideUtils.index(ix, getOffset(), getStride()));
   }
 

@@ -1100,7 +1100,7 @@ public final class Arrays {
     if (empty.dims() == 1) {
       for (T array : arrays) {
         for (int j = 0; j < array.size(); j++) {
-          empty.set(i++, array, j);
+          empty.setFrom(i++, array, j);
         }
       }
     } else {
@@ -1218,7 +1218,7 @@ public final class Arrays {
     Check.argument(num > 0 && num <= x.size(), "to few/many elements to take");
     T c = x.newEmptyArray(num);
     for (int i = 0; i < num; i++) {
-      c.set(i, x, i);
+      c.setFrom(i, x, i);
     }
     return c;
   }
@@ -1249,7 +1249,7 @@ public final class Arrays {
     for (int i = 0; i < x.size(); i++) {
       int pad = i * num;
       for (int j = 0; j < num; j++) {
-        array.set(pad + j, x, i);
+        array.setFrom(pad + j, x, i);
       }
     }
     return array;
@@ -1469,7 +1469,7 @@ public final class Arrays {
       for (int j = 0; j < reps[dim]; j++) {
         int pad = j * size;
         for (int i = 0; i < size; i++) {
-          array.set(pad + i, x, i);
+          array.setFrom(pad + i, x, i);
         }
       }
     } else {
@@ -2553,7 +2553,7 @@ public final class Arrays {
   public static <T extends BaseArray<T>> T take(T array, IntArray indexes) {
     T taken = array.newEmptyArray(indexes.size());
     for (int i = 0; i < indexes.size(); i++) {
-      taken.set(i, array, indexes.get(i));
+      taken.setFrom(i, array, indexes.get(i));
     }
     return taken;
   }
@@ -2591,7 +2591,7 @@ public final class Arrays {
     Check.dimension(a, values);
     for (int i = 0; i < a.size(); i++) {
       if (mask.get(i)) {
-        a.set(i, values, i);
+        a.setFrom(i, values, i);
       }
     }
   }
@@ -2711,7 +2711,7 @@ public final class Arrays {
     int size = x.size();
     E selected = x.newEmptyArray(shape);
     for (int i = 0; i < size; i++) {
-      selected.set(i, condition.get(i) ? x : y, i);
+      selected.setFrom(i, condition.get(i) ? x : y, i);
     }
     return selected;
   }
@@ -2726,7 +2726,7 @@ public final class Arrays {
     int fromIndex = 0;
     for (int i = 0; i < in.size(); i++) {
       if (mask.get(i)) {
-        in.set(i, from, fromIndex++);
+        in.setFrom(i, from, fromIndex++);
       }
     }
   }
@@ -2787,7 +2787,7 @@ public final class Arrays {
       int rowPadding = index * size;
       if (empty.dims() == 1) {
         for (int i = 0; i < size; i++) {
-          empty.set(i, array, rowPadding + i);
+          empty.setFrom(i, array, rowPadding + i);
         }
       } else {
         for (int i = 0; i < size; i++) {
@@ -2975,27 +2975,27 @@ public final class Arrays {
     }
 
     @Override
-    public void set(int toIndex, Array<T> from, int fromIndex) {
+    public void setFrom(int toIndex, Array<T> from, int fromIndex) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void set(int toRow, int toColumn, Array<T> from, int fromRow, int fromColumn) {
+    public void setFrom(int toRow, int toColumn, Array<T> from, int fromRow, int fromColumn) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void set(int[] toIndex, Array<T> from, int[] fromIndex) {
+    public void setFrom(int[] toIndex, Array<T> from, int[] fromIndex) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void set(int[] toIndex, Array<T> from, int fromIndex) {
+    public void setFrom(int[] toIndex, Array<T> from, int fromIndex) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void set(int toIndex, Array<T> from, int[] fromIndex) {
+    public void setFrom(int toIndex, Array<T> from, int[] fromIndex) {
       throw new UnsupportedOperationException();
     }
 
@@ -3511,27 +3511,27 @@ public final class Arrays {
     }
 
     @Override
-    public void set(int toIndex, DoubleArray from, int fromIndex) {
+    public void setFrom(int toIndex, DoubleArray from, int fromIndex) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void set(int toRow, int toColumn, DoubleArray from, int fromRow, int fromColumn) {
+    public void setFrom(int toRow, int toColumn, DoubleArray from, int fromRow, int fromColumn) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void set(int[] toIndex, DoubleArray from, int[] fromIndex) {
+    public void setFrom(int[] toIndex, DoubleArray from, int[] fromIndex) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void set(int[] toIndex, DoubleArray from, int fromIndex) {
+    public void setFrom(int[] toIndex, DoubleArray from, int fromIndex) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void set(int toIndex, DoubleArray from, int[] fromIndex) {
+    public void setFrom(int toIndex, DoubleArray from, int[] fromIndex) {
       throw new UnsupportedOperationException();
     }
 
@@ -3990,27 +3990,27 @@ public final class Arrays {
     }
 
     @Override
-    public void set(int toIndex, IntArray from, int fromIndex) {
+    public void setFrom(int toIndex, IntArray from, int fromIndex) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void set(int toRow, int toColumn, IntArray from, int fromRow, int fromColumn) {
+    public void setFrom(int toRow, int toColumn, IntArray from, int fromRow, int fromColumn) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void set(int[] toIndex, IntArray from, int[] fromIndex) {
+    public void setFrom(int[] toIndex, IntArray from, int[] fromIndex) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void set(int[] toIndex, IntArray from, int fromIndex) {
+    public void setFrom(int[] toIndex, IntArray from, int fromIndex) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void set(int toIndex, IntArray from, int[] fromIndex) {
+    public void setFrom(int toIndex, IntArray from, int[] fromIndex) {
       throw new UnsupportedOperationException();
     }
 
@@ -4540,27 +4540,27 @@ public final class Arrays {
     }
 
     @Override
-    public void set(int toIndex, LongArray from, int fromIndex) {
+    public void setFrom(int toIndex, LongArray from, int fromIndex) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void set(int toRow, int toColumn, LongArray from, int fromRow, int fromColumn) {
+    public void setFrom(int toRow, int toColumn, LongArray from, int fromRow, int fromColumn) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void set(int[] toIndex, LongArray from, int[] fromIndex) {
+    public void setFrom(int[] toIndex, LongArray from, int[] fromIndex) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void set(int[] toIndex, LongArray from, int fromIndex) {
+    public void setFrom(int[] toIndex, LongArray from, int fromIndex) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void set(int toIndex, LongArray from, int[] fromIndex) {
+    public void setFrom(int toIndex, LongArray from, int[] fromIndex) {
       throw new UnsupportedOperationException();
     }
 
@@ -5062,27 +5062,27 @@ public final class Arrays {
     }
 
     @Override
-    public void set(int toIndex, ComplexArray from, int fromIndex) {
+    public void setFrom(int toIndex, ComplexArray from, int fromIndex) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void set(int toRow, int toColumn, ComplexArray from, int fromRow, int fromColumn) {
+    public void setFrom(int toRow, int toColumn, ComplexArray from, int fromRow, int fromColumn) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void set(int[] toIndex, ComplexArray from, int[] fromIndex) {
+    public void setFrom(int[] toIndex, ComplexArray from, int[] fromIndex) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void set(int[] toIndex, ComplexArray from, int fromIndex) {
+    public void setFrom(int[] toIndex, ComplexArray from, int fromIndex) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void set(int toIndex, ComplexArray from, int[] fromIndex) {
+    public void setFrom(int toIndex, ComplexArray from, int[] fromIndex) {
       throw new UnsupportedOperationException();
     }
 
@@ -5440,7 +5440,7 @@ public final class Arrays {
       return unmodifiableArray(array.doubleArray());
     }
 
-    public void set(int[] toIndex, BooleanArray from, int[] fromIndex) {
+    public void setFrom(int[] toIndex, BooleanArray from, int[] fromIndex) {
       throw new UnsupportedOperationException();
     }
 
@@ -5492,7 +5492,7 @@ public final class Arrays {
       return unmodifiableArray(array.getRow(i));
     }
 
-    public void set(int[] toIndex, BooleanArray from, int fromIndex) {
+    public void setFrom(int[] toIndex, BooleanArray from, int fromIndex) {
       throw new UnsupportedOperationException();
     }
 
@@ -5551,7 +5551,7 @@ public final class Arrays {
       throw new UnsupportedOperationException();
     }
 
-    public void set(int toIndex, BooleanArray from, int[] fromIndex) {
+    public void setFrom(int toIndex, BooleanArray from, int[] fromIndex) {
       throw new UnsupportedOperationException();
     }
 
@@ -5679,7 +5679,7 @@ public final class Arrays {
       return array.reduce(identity, accumulator);
     }
 
-    public void set(int toIndex, BooleanArray from, int fromIndex) {
+    public void setFrom(int toIndex, BooleanArray from, int fromIndex) {
       throw new UnsupportedOperationException();
     }
 
@@ -5699,7 +5699,7 @@ public final class Arrays {
       return array.getShape();
     }
 
-    public void set(int toRow, int toColumn, BooleanArray from, int fromRow, int fromColumn) {
+    public void setFrom(int toRow, int toColumn, BooleanArray from, int fromRow, int fromColumn) {
       throw new UnsupportedOperationException();
     }
 

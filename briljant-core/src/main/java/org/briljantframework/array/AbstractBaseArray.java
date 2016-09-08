@@ -142,7 +142,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>>
       E to = e.getVector(0, i);
       int size = from.size();
       for (int j = 0; j < size; j++) {
-        to.set(size - j - 1, from, j);
+        to.setFrom(size - j - 1, from, j);
       }
     }
     return e;
@@ -153,7 +153,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>>
     org.briljantframework.array.Arrays.broadcastWith(this, o, (x, y) -> {
       Check.size(x, y);
       for (int i = 0, size = x.size(); i < size; i++) {
-        x.set(i, y, i);
+        x.setFrom(i, y, i);
       }
     });
   }
@@ -398,7 +398,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>>
                 String.format(ILLEGAL_DIMENSION_INDEX, idx, j, size(j)));
           }
         }
-        to.set(i, from, fromIndex);
+        to.setFrom(i, from, fromIndex);
       }
 
       // reshape the array to the intended shape
@@ -433,7 +433,7 @@ public abstract class AbstractBaseArray<E extends BaseArray<E>>
                 String.format(ILLEGAL_DIMENSION_INDEX, idx, j, size(j)));
           }
         }
-        set(toIndex, value, i);
+        setFrom(toIndex, value, i);
       }
     }
   }

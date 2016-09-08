@@ -412,27 +412,27 @@ public abstract class AbstractComplexArray extends AbstractBaseArray<ComplexArra
   }
 
   @Override
-  public void set(int toIndex, ComplexArray from, int fromIndex) {
+  public void setFrom(int toIndex, ComplexArray from, int fromIndex) {
     set(toIndex, from.get(fromIndex));
   }
 
   @Override
-  public void set(int toRow, int toColumn, ComplexArray from, int fromRow, int fromColumn) {
+  public void setFrom(int toRow, int toColumn, ComplexArray from, int fromRow, int fromColumn) {
     set(toRow, toColumn, from.get(fromRow, fromColumn));
   }
 
   @Override
-  public void set(int[] toIndex, ComplexArray from, int[] fromIndex) {
+  public void setFrom(int[] toIndex, ComplexArray from, int[] fromIndex) {
     set(toIndex, from.get(fromIndex));
   }
 
   @Override
-  public void set(int[] toIndex, ComplexArray from, int fromIndex) {
+  public void setFrom(int[] toIndex, ComplexArray from, int fromIndex) {
     set(toIndex, from.get(fromIndex));
   }
 
   @Override
-  public void set(int toIndex, ComplexArray from, int[] fromIndex) {
+  public void setFrom(int toIndex, ComplexArray from, int[] fromIndex) {
     set(toIndex, from.get(fromIndex));
   }
 

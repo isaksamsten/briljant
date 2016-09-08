@@ -20,12 +20,12 @@
  */
 package org.briljantframework.array;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Consumer;
+import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeNotNull;
 
-import org.junit.Assert;
+import java.util.List;
+
+import org.junit.Assume;
 import org.junit.Test;
 
 /**
@@ -34,105 +34,59 @@ import org.junit.Test;
 public abstract class AbstractBaseArrayTest<S extends BaseArray<S>> {
 
   /**
-   * Create a list of arrays that will be manipulated and given back to the test method.
-   * 
-   * @param <E>
-   */
-  protected interface ArrayTest<E extends BaseArray<E>> {
-    List<E> create();
-
-    void test(List<E> actual);
-  }
-
-  /**
-   * Create:
-   * <p>
-   * 
+   * Requires:
+   *
    * <pre>
-   * 0 => [1,2,3,4]
-   * 1 => [5,6,7,8]
-   *
-   * 2 => [[1,2],[3,4]]
-   * 3 => [[5,6],[7,8]]
-   *
-   * 4 => [[[1,2]],[[1,2]]]
-   * 5 => [[[5,6]],[[7,8]]]
+   *   actual:
+   *     to: array of length > 4 with any dim
+   *     from array of length > 4 with any dim
+   *   expected:
+   *     array with dim = to.dim where the element at location 1 is set to the value of from
+   *     at location 3
    * </pre>
-   * <p>
-   * Test: for each pair, that: 2 has been changed to 5
    */
   protected abstract ArrayTest<S> createSetSingleIndexTest();
 
   @Test
-  public final void setSingleIndex() throws Exception {
+  public final void testSetFromSingleIndex() throws Exception {
     ArrayTest<S> test = createSetSingleIndexTest();
-    List<S> arrays = test.create();
+    assumeNotNull(test);
 
-    List<S> actual = new ArrayList<>();
-    arrays.get(0).set(1, arrays.get(1), 0);
-    actual.add(arrays.get(0));
-
-    arrays.get(2).set(2, arrays.get(3), 0);
-    actual.add(arrays.get(2));
-
-    arrays.get(4).set(2, arrays.get(5), 0);
-    actual.add(arrays.get(4));
-
-    test.test(actual);
+    List<TestCase<S>> testCase = test.getTestCases();
+    Assume.assumeFalse(testCase.isEmpty());
+    for (TestCase<S> t : testCase) {
+      S to = t.getActual("to");
+      S from = t.getActual("from");
+      to.setFrom(1, from, 3);
+      test.assertEqual(to, t.getExpected());
+    }
   }
 
   /**
-   * Create:
+   * Requires:
    * <p>
-   * 
+   *
    * <pre>
-   *   0 => [a,b,c,d]
-   *
-   *   1 => [[a,b,c,d],[a,b,c,d]]
-   *   2 => [[e,e,e,e],[e,e,e,e]]
-   *
-   *   3 => [[[e,e],[e,e]]]
-   *
-   * </pre>
-   * <p>
-   * Test:
-   * <p>
-   * 
-   * <pre>
-   *   0 => [[e,e,e,e],[e,e,e,e]]
+   *   actual:
+   *     to: 2d-array with size(0) and size(2) > 2
+   *     from: 2d-array with size(0) and size(2) > 3
+   *   expected:
+   *     array with dims() == to.dims() where location [1,1] is equal to the value at location [3,3] in from
    * </pre>
    */
   protected abstract ArrayTest<S> createSetMatrixIndexTest();
 
   @Test
-  public final void setMatrixIndex() throws Exception {
+  public final void testSetMatrixIndex() throws Exception {
     ArrayTest<S> test = createSetMatrixIndexTest();
-    List<S> arrays = test.create();
+    assumeNotNull(test);
 
-    try {
-      S a = arrays.get(0);
-      for (int i = 0; i < a.size(); i++) {
-        a.set(0, i, a, 0, a.size() - i);
-      }
-      Assert.fail();
-    } catch (IllegalStateException ignored) { // only for matrices
-    }
-
-    S a = arrays.get(1);
-    S b = arrays.get(2);
-    for (int i = 0; i < a.rows(); i++) {
-      for (int j = 0; j < a.columns(); j++) {
-        a.set(i, j, b, i, j);
-      }
-    }
-
-    test.test(Collections.singletonList(a));
-
-    try {
-      S array = arrays.get(3);
-      array.set(0, 1, array, 0, 1);
-      Assert.fail();
-    } catch (IllegalStateException ignored) { // only for matrices
+    List<TestCase<S>> testCase = test.getTestCases();
+    Assume.assumeFalse(testCase.isEmpty());
+    for (TestCase<S> t : testCase) {
+      S to = t.getActual("to");
+      S from = t.getActual("from");
+      to.setFrom(1, 1, from, 2, 2);
     }
   }
 
@@ -151,27 +105,29 @@ public abstract class AbstractBaseArrayTest<S extends BaseArray<S>> {
 
   }
 
+  protected ArrayTest<S> createReverseTest() {
+    return null;
+  }
+
   @Test
   public void reverse() throws Exception {
-
+    ArrayTest<S> test = createReverseTest();
+    assumeNotNull(test);
+    assumeFalse(test.isEmpty());
+    for (TestCase<S> testCase : test) {
+      test.assertEqual(testCase.getActual().reverse(), testCase.getExpected());
+    }
   }
 
   /**
    * Create:
-   * 
-   * <pre>
-   *   0 => 3 x 3 x 3 empty array
-   *   1 => [a]
    *
-   *   2 => 1 x 3 x 4 empty array
-   *   3 => [a,b,c,d]
-   * </pre>
-   *
-   * Test:
-   * 
    * <pre>
-   *   0 => 3 x 3 x 3 array filled with a
-   *   1 => 1 x 3 x 4 where each vector along the last dimension equals [a,b,c,d]
+   *  actual:
+   *    to: array with any dim
+   *    from: array with any dim that can be broadcasted to 'to'
+   *  expected:
+   *     an array where to is assigned from
    * </pre>
    *
    */
@@ -180,26 +136,78 @@ public abstract class AbstractBaseArrayTest<S extends BaseArray<S>> {
   @Test
   public void assign() throws Exception {
     ArrayTest<S> test = createAssignTest();
-    List<S> arrays = test.create();
-    arrays.get(0).assign(arrays.get(1));
-    arrays.get(2).assign(arrays.get(3));
+    assumeNotNull(test);
 
-    test.test(java.util.Arrays.asList(arrays.get(0), arrays.get(2)));
+    List<TestCase<S>> testCase = test.getTestCases();
+    Assume.assumeFalse(testCase.isEmpty());
+
+    for (TestCase<S> t : testCase) {
+      S to = t.getActual("to");
+      S from = t.getActual("from");
+
+      to.assign(from);
+
+      S expected = t.getExpected();
+      test.assertEqual(to, expected);
+    }
   }
 
-  @Test
-  public void forEach() throws Exception {
+  protected abstract ArrayTest<S> createForEachTest();
 
+  @Test
+  public void testForEach() throws Exception {
+    ArrayTest<S> test = createForEachTest();
+    assumeNotNull(test);
+    List<TestCase<S>> testCase = test.getTestCases();
+    assumeFalse(testCase.isEmpty());
+    for (TestCase<S> t : testCase) {
+      int dim = t.getPayload("dim", Integer.class);
+      t.getActual().forEach(dim, s -> test.assertEqual(s, t.getExpected()));
+    }
+  }
+
+  protected ArrayTest<S> createSetColumnTest() {
+    return null;
   }
 
   @Test
   public void setColumn() throws Exception {
+    ArrayTest<S> test = createSetColumnTest();
+    assumeNotNull(test);
+    List<TestCase<S>> testCase = test.getTestCases();
+    assumeFalse(testCase.isEmpty());
 
+    for (TestCase<S> t : testCase) {
+      S empty = t.getActual("empty");
+      List<?> columns = t.getPayload("columns", List.class);
+      for (Object column : columns) {
+        S actual = t.getActual(column);
+        assumeNotNull("Actual for column " + column + " is null", actual);
+        empty.setColumn((int) column, actual);
+      }
+      test.assertEqual(empty, t.getExpected());
+    }
+  }
+
+  protected ArrayTest<S> createGetColumnTest() {
+    return null;
   }
 
   @Test
   public void getColumn() throws Exception {
+    ArrayTest<S> test = createGetColumnTest();
+    assumeNotNull(test);
 
+    List<TestCase<S>> testCases = test.getTestCases();
+    assumeFalse(testCases.isEmpty());
+
+    for (TestCase<S> testCase : testCases) {
+      S array = testCase.getActual();
+      assumeNotNull("Actual array missing", array);
+      for (int i = 0; i < array.columns(); i++) {
+        test.assertEqual(array.getColumn(i), testCase.getExpected(i));
+      }
+    }
   }
 
   @Test
@@ -329,6 +337,9 @@ public abstract class AbstractBaseArrayTest<S extends BaseArray<S>> {
 
   @Test
   public void rows() throws Exception {
+
+
+
 
   }
 

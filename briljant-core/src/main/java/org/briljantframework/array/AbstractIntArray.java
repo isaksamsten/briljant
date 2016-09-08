@@ -59,27 +59,27 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   }
 
   @Override
-  public void set(int toIndex, IntArray from, int fromIndex) {
+  public void setFrom(int toIndex, IntArray from, int fromIndex) {
     set(toIndex, from.get(fromIndex));
   }
 
   @Override
-  public void set(int toRow, int toColumn, IntArray from, int fromRow, int fromColumn) {
+  public void setFrom(int toRow, int toColumn, IntArray from, int fromRow, int fromColumn) {
     set(toRow, toColumn, from.get(fromRow, fromColumn));
   }
 
   @Override
-  public void set(int[] toIndex, IntArray from, int[] fromIndex) {
+  public void setFrom(int[] toIndex, IntArray from, int[] fromIndex) {
     set(toIndex, from.get(fromIndex));
   }
 
   @Override
-  public void set(int[] toIndex, IntArray from, int fromIndex) {
+  public void setFrom(int[] toIndex, IntArray from, int fromIndex) {
     set(toIndex, from.get(fromIndex));
   }
 
   @Override
-  public void set(int toIndex, IntArray from, int[] fromIndex) {
+  public void setFrom(int toIndex, IntArray from, int[] fromIndex) {
     set(toIndex, from.get(fromIndex));
   }
 

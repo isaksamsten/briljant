@@ -91,27 +91,27 @@ public class ObjectSeries extends AbstractSeries {
   }
 
   @Override
-  public void set(int toIndex, Series from, int fromIndex) {
+  public void setFrom(int toIndex, Series from, int fromIndex) {
     loc().set(toIndex, from.loc().get(type.getDataClass(), fromIndex));
   }
 
   @Override
-  public void set(int toRow, int toColumn, Series from, int fromRow, int fromColumn) {
+  public void setFrom(int toRow, int toColumn, Series from, int fromRow, int fromColumn) {
     loc().set(toRow, fromColumn, from.loc().get(type.getDataClass(), fromRow, fromColumn));
   }
 
   @Override
-  public void set(int[] toIndex, Series from, int[] fromIndex) {
+  public void setFrom(int[] toIndex, Series from, int[] fromIndex) {
     loc().set(toIndex, from.loc().get(type.getDataClass(), fromIndex));
   }
 
   @Override
-  public void set(int[] toIndex, Series from, int fromIndex) {
+  public void setFrom(int[] toIndex, Series from, int fromIndex) {
     loc().set(toIndex, from.loc().get(type.getDataClass(), fromIndex));
   }
 
   @Override
-  public void set(int toIndex, Series from, int[] fromIndex) {
+  public void setFrom(int toIndex, Series from, int[] fromIndex) {
     loc().set(toIndex, from.loc().get(type.getDataClass(), fromIndex));
   }
 

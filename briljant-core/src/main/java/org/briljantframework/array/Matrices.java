@@ -333,7 +333,7 @@ public class Matrices {
         int jj = j + (cc * n);
         for (int rc = 0; rc < r; rc++) {
           for (int i = 0; i < m; i++) {
-            y.set(i + (rc * m), jj, x, i, j);
+            y.setFrom(i + (rc * m), jj, x, i, j);
           }
         }
       }

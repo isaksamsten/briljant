@@ -308,27 +308,27 @@ public final class BasicIndex implements Range {
   }
 
   @Override
-  public void set(int toIndex, IntArray from, int fromIndex) {
+  public void setFrom(int toIndex, IntArray from, int fromIndex) {
     throw unsupported();
   }
 
   @Override
-  public void set(int toRow, int toColumn, IntArray from, int fromRow, int fromColumn) {
+  public void setFrom(int toRow, int toColumn, IntArray from, int fromRow, int fromColumn) {
     throw unsupported();
   }
 
   @Override
-  public void set(int[] toIndex, IntArray from, int[] fromIndex) {
+  public void setFrom(int[] toIndex, IntArray from, int[] fromIndex) {
     throw unsupported();
   }
 
   @Override
-  public void set(int[] toIndex, IntArray from, int fromIndex) {
+  public void setFrom(int[] toIndex, IntArray from, int fromIndex) {
     throw unsupported();
   }
 
   @Override
-  public void set(int toIndex, IntArray from, int[] fromIndex) {
+  public void setFrom(int toIndex, IntArray from, int[] fromIndex) {
     throw unsupported();
   }
 

@@ -63,27 +63,27 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
   }
 
   @Override
-  public void set(int toIndex, LongArray from, int fromIndex) {
+  public void setFrom(int toIndex, LongArray from, int fromIndex) {
     set(toIndex, from.get(fromIndex));
   }
 
   @Override
-  public void set(int toRow, int toColumn, LongArray from, int fromRow, int fromColumn) {
+  public void setFrom(int toRow, int toColumn, LongArray from, int fromRow, int fromColumn) {
     set(toRow, toColumn, from.get(fromRow, fromColumn));
   }
 
   @Override
-  public void set(int[] toIndex, LongArray from, int[] fromIndex) {
+  public void setFrom(int[] toIndex, LongArray from, int[] fromIndex) {
     set(toIndex, from.get(fromIndex));
   }
 
   @Override
-  public void set(int[] toIndex, LongArray from, int fromIndex) {
+  public void setFrom(int[] toIndex, LongArray from, int fromIndex) {
     set(toIndex, from.get(fromIndex));
   }
 
   @Override
-  public void set(int toIndex, LongArray from, int[] fromIndex) {
+  public void setFrom(int toIndex, LongArray from, int[] fromIndex) {
     set(toIndex, from.get(fromIndex));
   }
 

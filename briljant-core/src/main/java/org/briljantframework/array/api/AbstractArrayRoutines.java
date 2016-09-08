@@ -493,7 +493,7 @@ public class AbstractArrayRoutines implements ArrayRoutines {
   public <T extends BaseArray<T>> void copy(T from, T to) {
     Check.size(from, to);
     for (int i = 0; i < from.size(); i++) {
-      to.set(i, from, i);
+      to.setFrom(i, from, i);
     }
   }
 
@@ -502,9 +502,9 @@ public class AbstractArrayRoutines implements ArrayRoutines {
     Check.dimension(a, b);
     T tmp = a.newEmptyArray(1);
     for (int i = 0; i < a.size(); i++) {
-      tmp.set(0, a, i);
-      a.set(i, b, i);
-      b.set(i, tmp, 0);
+      tmp.setFrom(0, a, i);
+      a.setFrom(i, b, i);
+      b.setFrom(i, tmp, 0);
     }
   }
 
