@@ -108,7 +108,7 @@ employees. This is because in Briljant, series are *indexed* which
 essentially means that they are somewhat like a combination of a
 ``Map`` and a ``List``. To get the count of ``Mary`` we simply say
 ``counts.getAsInt("Mary");`` which will give us the answer ``2``. To
-treat the series as a list and, hence, access values based columnKeys their
+treat the series as a list and, hence, access values based on their
 location we can say ``counts.loc().getAsInt(0)`` which will also
 return ``2``.
 
@@ -197,7 +197,7 @@ produces
 
 and finally, ``products.getAsDouble(0, "Price")`` returns
 ``200.0``. Since every product is unique (a requirement for a valid
-index), we can *re-index* our data frame columnKeys the ``Name``-column. We do
+index), we can *re-index* our data frame on the ``Name``-column. We do
 this with the ``DataFrame#indexOn(Object)``
 
 .. code-block:: java
@@ -234,8 +234,7 @@ for products with ``siz < 200`` and products with size ``size >= 200``:
 which will produce
 
 ::
-
-          Price     UnitsInStock  Name  
+          Price     UnitsInStock  Name
    false  200.000   10.000        NA
    true   1650.000  10.000        NA
 
@@ -253,9 +252,9 @@ There are several ways to create matrices, of which most are implemented
 in the ``org.briljantframework.array.Arrays`` class. For example, matrices can be
 created from one and two dimensional arrays. The factory methods in
 ``Arrays`` is delegated to an instance of
-``org.briljantframework.matrix.api.MatrixFactory`` and decided based columnKeys
-the ``MatrixBackend``. For details, please refer to the discussion columnKeys
-`MatrixBackends <reference/matrix.md#backend>`__.
+``org.briljantframework.matrix.api.ArrayFactory`` and decided based on
+the ``ArrayBackend``. For details, please refer to the discussion on
+`ArrayBackends <reference/matrix.md#backend>`__.
 
 .. note:: In the examples below, `import
     org.briljantframework.array.*` and `import static
@@ -435,11 +434,11 @@ Basic operations
 ^^^^^^^^^^^^^^^^
 
 Unlike most scientific languages, Java does not support user defined
-operators. Hence, addition, subtraction, multiplication and
-division are performed using named method calls. For brevity,
-these are shortened to `mul` (for multiplication), `mmul` (for
-matrix-multiplication), `add` (for addition) and `sub` (for
-subtraction).
+operators. Hence, addition, subtraction, multiplication and division
+are performed using named method calls. These can be found in the
+`Arrays`-class. For example, `times(a, b)` (for elementwise
+multiplication), `dot(a, b)` (for matrix-matrix-multiplication),
+`plus(a, b)` (for addition) and `minus(a, b)` (for subtraction).
 
 .. note:: As stated previously, Briljant provides several array
         implementations. The most common is provided by the
@@ -448,13 +447,12 @@ subtraction).
 
 
 The most common matrix routines (e.g., BLAS level 1, 2 and 3) are
-provided by the ``org.briljantframework.array.api.ArrayRoutines`` class
-and the most common linear algebra routines are provided by the
-``LinearAlgebraRoutines``. By default,
-``Arrays`` delegates to, for the current platform chose,
-implementation. However, the user can freely choose between
-implementation by constructing an instance of a ``ArrayBackend``. For
-example:
+provided by the ``org.briljantframework.array.api.ArrayRoutines``
+class and the most common linear algebra routines are provided by the
+``LinearAlgebraRoutines``. By default, ``Arrays`` delegates to, for
+the current platform chose, implementation. However, the user can
+freely choose between implementation by getting an instance of a
+``ArrayBackend``. For example:
 
 .. literalinclude:: code/array-backend.java
    :language: java
@@ -474,16 +472,16 @@ Briljant provides many convenience methods over the BLAS routines.
    DoubleArray b = Arrays.rand(9, new NormalDistribution(-1, 1)).reshape(3, 3);
 
    // element-wise addition
-   b.plus(a);
+   Arrays.plus(a, b);
 
    // element-wise subtraction
-   b.minus(a);
+   Arrays.minus(a, b);
 
    // element-wise multiplication
-   b.times(a);
+   Arrays.times(a, b);
 
    // generalized matrix-matrix multiplication
-   Arrays.dot(a, b)
+   Arrays.dot(a, b);
 
    
 Element wise operations
@@ -500,7 +498,7 @@ wise functions and produces new matrices as output.
    // create a new array with the square root of each element
    a.map(Math::sqrt);
 
-   // ... and so columnKeys for various java.lang.Math methodsg
+   // ... and so on for various java.lang.Math methodsg
    a.map(Math::abs);
    a.map(Math::exp);
    a.map(Math::acos);
@@ -540,7 +538,7 @@ not as fast as its Julia counterpart.
 .. literalinclude:: code/example.java
    :language: java
 
-The ``assign``-method is called columnKeys several views each occupying a
+The ``assign``-method is called on several views each occupying a
 5-by-5 matrix in ``p`` and ``q``. The call to ``#collect`` above takes
 two functions, one supplying an initial value (usually a mutable
 container) and the second performs a collect call for each value in
@@ -621,7 +619,7 @@ trusty companion. To get started, we import
         double avg = b.mean();
    
     Above, Example 1 (which takes 0.1 ms) is roughly 20 times faster
-    columnKeys a recent machine than Example 2 (which takes 2 ms). Example 2,
+    on a recent machine than Example 2 (which takes 2 ms). Example 2,
     however, is vastly more readable and should be preferred in all
     but hot inner loops. Note that all of the performance overhead of
     Example 2 does not come from boxing, but rather from the use of
@@ -683,10 +681,10 @@ example:
 .. note:: Missing values
 
    In Briljant, ``NA`` denote the absence of a value. The particular
-   value denoting ``NA`` changes based columnKeys series type. For the
+   value denoting ``NA`` changes based on series type. For the
    reference types (e.g., ``GenericSeries`` and ``ComplexSeries``),
    ``NA`` is the same as ``null``. For the primitive types, however,
-   ``NA`` is represented differently depending columnKeys type. For the
+   ``NA`` is represented differently depending on type. For the
    ``IntSeries``, ``Integer.MAX_VALUE`` denote ``NA`` and for the
    ``DoubleSeries`` a value in the ``NaN``-range
    (``0x7ff0000000000009L``) denote ``NA``. To simplify
@@ -788,7 +786,7 @@ for computing the mean of a series. We have, however, not yet seen how
 they work. Imaging that we are interested in transforming a series of
 ``String`` into an ``ArrayList<String>``, clearly it would be
 impossible to used the ``transform`` function. So, do we have to rely
-columnKeys the tedious and sometimes error-prone ``for``-loop?
+on the tedious and sometimes error-prone ``for``-loop?
 
 .. code-block:: java
                 

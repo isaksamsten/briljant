@@ -1,7 +1,7 @@
 import org.briljantframework.array.netlib.NetlibArrayBackend;
 
 // Construct the array backend
-ArrayBackend mb = new NetlibArrayBackend();
+ArrayBackend mb = NetlibArrayBackend.getInstance();
 
 // Get the array factory
 ArrayFactory bj = mb.getArrayFactory();
