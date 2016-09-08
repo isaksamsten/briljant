@@ -1,6 +1,7 @@
 # Briljant Framework
 
-[![Join the chat at https://gitter.im/briljant/briljant](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/briljant/briljant?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
+[![Join the chat at https://gitter.im/briljant/briljant](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/briljant/briljant?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Read the docs at http://briljant.readthedocs.io/en/latest/](https://readthedocs.org/projects/pip/badge/?version=latest)](http://briljant.readthedocs.io/en/latest/)
 
 Briljant (0.3) is a [MIT](http://https://opensource.org/licenses/MIT)
 licensed framework for [Numpy](http://www.numpy.org/)-like nd-arrays
