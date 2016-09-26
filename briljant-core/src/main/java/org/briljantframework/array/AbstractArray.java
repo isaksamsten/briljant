@@ -30,10 +30,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.data.index.NaturalOrdering;
 import org.briljantframework.util.sort.QuickSort;
-
-import static java.util.Arrays.asList;
 
 /**
  * Provide a skeletal implementation of an {@link Array} to minimize the effort required to
@@ -257,13 +254,13 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
 
   @Override
   public T get(int i, int j) {
-    Check.index(i, j, rows(), columns());
+    Check.index(i, rows(), j, columns());
     return getElement(getOffset() + i * stride(0) + j * stride(1));
   }
 
   @Override
   public void set(int i, int j, T value) {
-    Check.index(i, j, rows(), columns());
+    Check.index(i, rows(), j, columns());
     setElement(getOffset() + i * stride(0) + j * stride(1), value);
   }
 
@@ -298,8 +295,9 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
     }
     return convertToArray(elements);
   }
-  /**
 
+  /**
+   * 
    * Converts a list to an array.
    *
    * @param l the list
@@ -376,9 +374,8 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   @SuppressWarnings("unchecked")
   public <E> E[] toArray(E[] a) {
     int size = size();
-    E[] r = a.length >= size ? a :
-        (E[])java.lang.reflect.Array
-            .newInstance(a.getClass().getComponentType(), size);
+    E[] r = a.length >= size ? a
+        : (E[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
     for (int i = 0; i < size(); i++) {
       r[i] = (E) get(i);
     }
