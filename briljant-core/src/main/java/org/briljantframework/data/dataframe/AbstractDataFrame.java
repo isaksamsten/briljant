@@ -28,10 +28,8 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collector;
 
 import org.briljantframework.Check;
+import org.briljantframework.array.*;
 import org.briljantframework.array.Arrays;
-import org.briljantframework.array.BasicIndex;
-import org.briljantframework.array.BooleanArray;
-import org.briljantframework.array.IntArray;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.index.HashIndex;
 import org.briljantframework.data.index.Index;
@@ -74,7 +72,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public final DataFrame indexOn(Object key) {
     HashIndex index = HashIndex.of(get(key)); // fail fast. throws on duplicates
-    DataFrame.Builder builder = newBuilder();
+    DataFrame.Builder builder = newEmptyBuilder();
     for (Object columnKey : getIndex()) {
       if (!Objects.equals(columnKey, key)) {
         builder.setColumn(columnKey, get(columnKey));
@@ -87,7 +85,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public final <T> DataFrame map(Class<T> cls, Function<? super T, ?> mapper) {
-    DataFrame.Builder builder = newBuilder();
+    DataFrame.Builder builder = newEmptyBuilder();
     for (int j = 0; j < columns(); j++) {
       Series column = getColumnElement(j);
 
@@ -112,7 +110,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public final DataFrame apply(Function<? super Series, ? extends Series> transform) {
-    DataFrame.Builder builder = newBuilder();
+    DataFrame.Builder builder = newEmptyBuilder();
     for (Object columnKey : this.getColumnIndex()) {
       Series column = get(columnKey);
       builder.setColumn(columnKey, transform.apply(column));
@@ -125,7 +123,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public final <T, C> DataFrame apply(Class<T> cls,
       Collector<? super T, C, ? extends Series> collector) {
-    DataFrame.Builder builder = newBuilder();
+    DataFrame.Builder builder = newEmptyBuilder();
     for (Object columnKey : getColumnIndex().keySet()) {
       Series column = get(columnKey);
       C accumulator = collector.supplier().get();
@@ -245,7 +243,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DataFrame getAll(Collection<?> keys) {
-    DataFrame.Builder builder = newBuilder();
+    DataFrame.Builder builder = newEmptyBuilder();
     for (Object key : keys) {
       builder.setColumn(key, getColumnElement(getColumnIndex().getLocation(key)).newCopyBuilder());
     }
@@ -264,7 +262,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     if (keys.isEmpty()) {
       return this;
     }
-    DataFrame.Builder builder = newBuilder();
+    DataFrame.Builder builder = newEmptyBuilder();
     Set<Object> drop = new HashSet<>(keys);
     getColumnIndex().stream().filter(k -> !drop.contains(k)).forEach(k -> builder.setColumn(k,
         getColumnElement(getColumnIndex().getLocation(k)).newCopyBuilder()));
@@ -275,7 +273,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DataFrame dropIf(Predicate<? super Series> predicate) {
-    Builder builder = newBuilder();
+    Builder builder = newEmptyBuilder();
     for (Object columnKey : getColumnIndex().keySet()) {
       Series column = get(columnKey);
       if (predicate.test(column)) {
@@ -289,7 +287,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public final DataFrame filter(Collection<?> keys) {
-    DataFrame.Builder builder = newBuilder();
+    DataFrame.Builder builder = newEmptyBuilder();
     for (Object recordKey : keys) {
       builder.setRow(recordKey, ix().getRow(recordKey).newCopyBuilder());
     }
@@ -320,7 +318,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DataFrame get(BooleanArray array) {
-    DataFrame.Builder builder = newBuilder();
+    DataFrame.Builder builder = newEmptyBuilder();
     DataFrame df;
     if (array.isMatrix()) { // Select values; setting false values to NA
       Check.argument(array.rows() == rows() && array.columns() == columns(), "Illegal shape");
@@ -391,7 +389,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     if (n == rows()) {
       return this;
     }
-    DataFrame.Builder builder = newBuilder();
+    DataFrame.Builder builder = newEmptyBuilder();
     int i = 0;
     for (Object key : getIndex().keySet()) {
       if (i >= n) {
@@ -407,7 +405,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DataFrame transpose() {
-    DataFrame.Builder builder = newBuilder();
+    DataFrame.Builder builder = newEmptyBuilder();
     for (Object columnKey : getColumnIndex().keySet()) {
       builder.setRow(columnKey, get(columnKey).newCopyBuilder());
     }
@@ -423,7 +421,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public final DataFrame filter(Predicate<? super Series> predicate) {
-    DataFrame.Builder builder = newBuilder();
+    DataFrame.Builder builder = newEmptyBuilder();
     for (Object recordKey : getIndex().keySet()) {
       Series record = ix().getRow(recordKey);
       if (predicate.test(record)) {
@@ -481,7 +479,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   public final DataFrame resetIndex() {
     Check.state(!getColumnIndex().contains("index"),
         "cannot reset index. Column 'index' already exists");
-    DataFrame.Builder builder = newBuilder();
+    DataFrame.Builder builder = newEmptyBuilder();
     Series.Builder indexColumn = new TypeInferenceBuilder();
     getIndex().keySet().forEach(indexColumn::add);
     builder.setColumn("index", indexColumn);
@@ -658,7 +656,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   protected DataFrame getIndexElement(IntArray indices) {
-    DataFrame.Builder builder = newBuilder();
+    DataFrame.Builder builder = newEmptyBuilder();
     Index.Builder columnIndex = getColumnIndex().newBuilder();
     for (int i = 0; i < indices.size(); i++) {
       columnIndex.add(getColumnIndex().get(indices.get(i)));
@@ -675,7 +673,7 @@ public abstract class AbstractDataFrame implements DataFrame {
    * @return
    */
   protected DataFrame getRowIndexElement(IntArray indexes) {
-    Builder builder = newBuilder();
+    Builder builder = newEmptyBuilder();
     for (Integer index : indexes) {
       builder.setRow(getIndex().get(index), getRowElement(index).newCopyBuilder());
     }
@@ -695,15 +693,15 @@ public abstract class AbstractDataFrame implements DataFrame {
   /**
    * Constructs a new DataFrame by dropping the columns in {@code indexes}.
    *
-   * This implementations rely on {@link #newBuilder()} returning a builder and that
+   * This implementations rely on {@link #newEmptyBuilder()} returning a builder and that
    * {@link org.briljantframework.data.dataframe.DataFrame.Builder#addColumn(Series)} adds a series.
    *
    * @param indexes collection of indexes
-   * @return a new data frame as created by {@link #newBuilder()}
+   * @return a new data frame as created by {@link #newEmptyBuilder()}
    */
   protected DataFrame dropColumnIndexElement(IntArray indexes) {
     indexes.sort();
-    Builder builder = newBuilder();
+    Builder builder = newEmptyBuilder();
     for (int i = 0; i < columns(); i++) {
       if (Arrays.binarySearch(indexes, i) < 0) {
         builder.setColumn(getColumnIndex().get(i), getColumnElement(i).newCopyBuilder());
@@ -978,7 +976,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     public DataFrame get(Collection<?> rows, Collection<?> columns) {
       rows = rows == BasicIndex.ALL ? getIndex() : rows;
       columns = columns == BasicIndex.ALL ? getColumnIndex() : columns;
-      DataFrame.Builder builder = newBuilder();
+      DataFrame.Builder builder = newEmptyBuilder();
       for (Object row : rows) {
         for (Object column : columns) {
           builder.set(row, column, AbstractDataFrame.this.get(row, column));
@@ -1028,10 +1026,12 @@ public abstract class AbstractDataFrame implements DataFrame {
   private class LocationIndexerImpl implements LocationIndexer {
 
     @Override
-    public DataFrame get(IntArray rows, IntArray column) {
-      DataFrame.Builder out = newBuilder();
-      for (int i = 0; i < column.size(); i++) {
-        int columnLocation = column.get(i);
+    public DataFrame get(IntArray rows, IntArray columns) {
+      rows = rows instanceof BasicIndex ? Range.of(rows()) : rows;
+      columns = columns instanceof BasicIndex ? Range.of(columns()) : columns;
+      DataFrame.Builder out = newEmptyBuilder();
+      for (int i = 0; i < columns.size(); i++) {
+        int columnLocation = columns.get(i);
         Object columnKey = getColumnIndex().get(columnLocation);
         Series oldColumn = get(columnLocation);
         Series.Builder newColumn = oldColumn.newBuilder();

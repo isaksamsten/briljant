@@ -309,7 +309,7 @@ public class MixedDataFrame extends AbstractDataFrame {
   }
 
   @Override
-  public Builder newBuilder() {
+  public Builder newEmptyBuilder() {
     return new Builder();
   }
 

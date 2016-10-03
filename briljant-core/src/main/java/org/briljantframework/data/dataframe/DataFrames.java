@@ -74,7 +74,7 @@ public final class DataFrames {
       bUnique.add(vb);
     }
 
-    DataFrame.Builder df = DataFrame.builder();
+    DataFrame.Builder df = DataFrame.newBuilder();
     for (Object i : aUnique) {
       Map<Object, Integer> row = counts.get(i);
       if (row == null) {

@@ -626,7 +626,7 @@ public abstract class DataFrameTest {
         .setRow("e", Series.of(1, 2, 3)).build();
 
     DataFrame df2 =
-        DataFrame.builder().setRow("a", Series.of(1, 2)).setRow("b", Series.of(1, 2)).build();
+        DataFrame.newBuilder().setRow("a", Series.of(1, 2)).setRow("b", Series.of(1, 2)).build();
     System.out.println(df2.resetIndex());
     DataFrame actual = df.resetIndex();
     assertEquals(Series.of("a", "b", "c", "d", "e"), actual.get("index"));

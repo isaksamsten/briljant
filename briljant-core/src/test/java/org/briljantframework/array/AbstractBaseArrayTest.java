@@ -33,6 +33,20 @@ import org.junit.Test;
  */
 public abstract class AbstractBaseArrayTest<S extends BaseArray<S>> {
 
+
+  @Test
+  public void testAssign2() throws Exception {
+    DoubleArray a = DoubleArray.of(1, 2, 3, 4);
+    DoubleArray b = DoubleArray.of(1);
+
+    a.assign(b);
+
+    System.out.println(a);
+
+    Arrays.plusAssign(b, a);
+    System.out.println(a);
+  }
+
   /**
    * Requires:
    *

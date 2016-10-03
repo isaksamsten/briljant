@@ -53,6 +53,10 @@ public final class Is {
         || Complex.class.isAssignableFrom(v.getType().getDataClass());
   }
 
+  public static boolean numeric(Class<?> cls) {
+    return Number.class.isAssignableFrom(cls);
+  }
+
   public static boolean equal(Object a, Object b) {
     return Is.NA(a) && Is.NA(b) || Objects.equals(a, b);
   }

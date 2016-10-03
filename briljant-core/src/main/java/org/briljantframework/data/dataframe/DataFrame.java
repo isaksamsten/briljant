@@ -102,8 +102,16 @@ public interface DataFrame {
     return MixedDataFrame.fromEntries(entry, entries);
   }
 
-  static DataFrame.Builder builder(Class... cls) {
-    DataFrame.Builder builder = builder();
+  static DataFrame.Builder newBuilder(List<Class<?>> types) {
+    DataFrame.Builder builder = newBuilder();
+    for (Class<?> type : types) {
+      builder.addColumn(Series.Builder.of(type));
+    }
+    return builder;
+  }
+
+  static DataFrame.Builder newBuilder(Class... cls) {
+    DataFrame.Builder builder = newBuilder();
     for (Class c : cls) {
       builder.addColumn(Series.Builder.of(c));
     }
@@ -115,7 +123,7 @@ public interface DataFrame {
    *
    * @return a new data frame builder
    */
-  static DataFrame.Builder builder() {
+  static DataFrame.Builder newBuilder() {
     return MixedDataFrame.builder();
   }
 
@@ -936,7 +944,7 @@ public interface DataFrame {
    *
    * @return a new builder
    */
-  Builder newBuilder();
+  Builder newEmptyBuilder();
 
   /**
    * Creates a new builder, initialized with a copy of this data frame, i.e.

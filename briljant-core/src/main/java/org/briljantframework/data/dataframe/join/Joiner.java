@@ -65,7 +65,7 @@ public abstract class Joiner {
     int size = this.size();
     int indexSize = columnKeys.size();
 
-    DataFrame.Builder builder = a.newBuilder();
+    DataFrame.Builder builder = a.newEmptyBuilder();
     Index.Builder columnIndexer = a.getColumnIndex().newBuilder();
     Map<Object, Integer> indexColumn = new HashMap<>(columnKeys.size());
     Iterator<Object> aIt = a.getColumnIndex().keySet().iterator();

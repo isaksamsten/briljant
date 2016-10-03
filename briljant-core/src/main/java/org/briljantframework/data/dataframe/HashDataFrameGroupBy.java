@@ -123,7 +123,7 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
 
   @Override
   public DataFrame collect(Function<Series, Object> function) {
-    DataFrame.Builder builder = dataFrame.newBuilder();
+    DataFrame.Builder builder = dataFrame.newEmptyBuilder();
     for (Map.Entry<Object, IntArray> group : groups()) {
       IntArray index = group.getValue();
       for (Object columnKey : dataFrame.getColumnIndex().keySet()) {
@@ -155,7 +155,7 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
   @Override
   public <T, C> DataFrame collect(Class<? extends T> cls,
       Collector<? super T, C, ? extends T> collector) {
-    DataFrame.Builder builder = dataFrame.newBuilder();
+    DataFrame.Builder builder = dataFrame.newEmptyBuilder();
     for (Map.Entry<Object, IntArray> group : groups.entrySet()) {
       Object groupKey = group.getKey();
       IntArray index = group.getValue();
@@ -179,7 +179,7 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
 
   @Override
   public DataFrame apply(UnaryOperator<Series> op) {
-    DataFrame.Builder builder = dataFrame.newBuilder();
+    DataFrame.Builder builder = dataFrame.newEmptyBuilder();
     for (Object dropKey : dropKeys) {
       builder.setColumn(dropKey, dataFrame.get(dropKey).newCopyBuilder());
     }
@@ -207,7 +207,7 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
 
   private DataFrame createDataFrame(IntArray indices) {
     final int indexSize = indices.size();
-    DataFrame.Builder builder = dataFrame.newBuilder();
+    DataFrame.Builder builder = dataFrame.newEmptyBuilder();
     if (indexSize > 0) {
       Index labels = dataFrame.getIndex();
       for (Object column : dataFrame.getColumnIndex()) {

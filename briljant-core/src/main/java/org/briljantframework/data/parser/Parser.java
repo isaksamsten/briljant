@@ -32,12 +32,12 @@ import org.briljantframework.data.dataframe.DataFrame;
 public interface Parser {
 
   /**
-   * Parse the data source and produce a data frame (specified by the {@link DataFrame#builder()}).
+   * Parse the data source and produce a data frame (specified by the {@link DataFrame#newBuilder()}).
    * 
    * @return a data frame
    */
   default DataFrame parse() {
-    return parse(DataFrame::builder);
+    return parse(DataFrame::newBuilder);
   }
 
   /**
