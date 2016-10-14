@@ -5,7 +5,7 @@
   <groupId>org.briljantframework</groupId>
   <artifactId>briljant</artifactId>
   <packaging>pom</packaging>
-  <version>0.4-SNAPSHOT</version>
+  <version>0.4.1-SNAPSHOT</version>
 
   <name>Briljant framework</name>
   <description>Briljant framework</description>
