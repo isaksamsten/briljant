@@ -412,9 +412,7 @@ public interface DoubleArray
    */
   DoubleStream doubleStream();
 
-  List<Double> asList();
-
-  Array<Double> asArray();
+  Array<Double> boxed();
 
   /**
    * Returns a new matrix with elements negated.
@@ -430,10 +428,6 @@ public interface DoubleArray
    * @return a boolean array
    */
   BooleanArray where(DoublePredicate predicate);
-
-  default Array<Double> boxed() {
-    return asArray();
-  }
 
   DoubleArray doubleArray();
 

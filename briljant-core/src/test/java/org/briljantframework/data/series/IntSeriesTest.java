@@ -21,31 +21,12 @@
 package org.briljantframework.data.series;
 
 /**
- * Created by isak on 08/06/16.
+ * Created by isak on 2016-10-11.
  */
-final class InferenceType extends Type {
+public class IntSeriesTest extends SeriesTest {
 
   @Override
-  public Series.Builder newBuilder() {
-    return new TypeInferenceBuilder();
-  }
-
-  @Override
-  public Series.Builder newBuilderWithCapacity(int capacity) {
-    return new TypeInferenceBuilder();
-  }
-
-  @Override
-  public Series.Builder newBuilder(int size) {
-    TypeInferenceBuilder builder = new TypeInferenceBuilder();
-    for (int i = 0; i < size; i++) {
-      builder.addNA();
-    }
-    return builder;
-  }
-
-  @Override
-  public Class<?> getDataClass() {
-    return Object.class;
+  protected Series.Builder getBuilder() {
+    return new IntSeries.Builder();
   }
 }

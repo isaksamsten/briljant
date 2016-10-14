@@ -48,20 +48,19 @@ public final class SeriesUtils {
 
   private SeriesUtils() {}
 
-  public static Series remove(Series series, Object key) {
-    return series.newCopyBuilder().remove(key).build();
-  }
-
-  public static Series removeAll(Series series, Collection<?> keys) {
-    if (keys.isEmpty()) {
-      return series;
+  public static Series select(Series series, IntArray locations) {
+    Series.Builder builder = series.newBuilder();
+    Index index = series.index();
+    for (int i = 0; i < locations.size(); i++) {
+      int location = locations.get(i);
+      builder.setFromLocation(index.get(location), series, location);
     }
-    return removeIf(series, keys::contains);
+    return builder.build();
   }
 
   public static Series removeIf(Series series, Predicate<Object> predicate) {
     Series.Builder vectorBuilder = series.newBuilder();
-    for (Object key : series.getIndex()) {
+    for (Object key : series.index()) {
       if (!predicate.test(key)) {
         vectorBuilder.setFrom(key, series, key);
       }
@@ -77,9 +76,9 @@ public final class SeriesUtils {
   }
 
   public static Series rand(int size, RealDistribution source) {
-    DoubleSeries.Builder v = new DoubleSeries.Builder(0, size);
+    Series.Builder v = new DoubleSeries.Builder(0, size);
     for (int i = 0; i < size; i++) {
-      v.setElement(i, source.sample());
+      v.loc().set(i, source.sample());
     }
     return v.build();
   }
@@ -89,7 +88,7 @@ public final class SeriesUtils {
     Check.argument(src.size() <= srcStart + length, "illegal source");
     Check.argument(dest.size() <= destStart + length, "illegal destination");
     for (int i = srcStart; i < length; i++) {
-      dest.set(destStart++, src.loc().get(t, i));
+      dest.set(destStart++, src.values().get(t, i));
     }
   }
 
@@ -101,7 +100,7 @@ public final class SeriesUtils {
     Check.argument(src.size() <= srcStart + length, "illegal source");
     Check.argument(dest.size() <= destStart + length, "illegal destination");
     for (int i = srcStart; i < length; i++) {
-      dest.set(destStart++, src.loc().getDouble(i));
+      dest.set(destStart++, src.values().getDouble(i));
     }
   }
 
@@ -110,13 +109,13 @@ public final class SeriesUtils {
   }
 
   public static <T> Array<T> toArray(Class<T> t, Series v) {
-    return Array.copyOf(v.asList(t));
+    return Array.copyOf(toList(t, v));
   }
 
   public static DoubleArray toDoubleArray(Series v, DoubleUnaryOperator operator) {
     DoubleArray a = DoubleArray.zeros(v.size());
     for (int i = 0; i < v.size(); i++) {
-      a.set(i, operator.applyAsDouble(v.loc().getDouble(i)));
+      a.set(i, operator.applyAsDouble(v.values().getDouble(i)));
     }
     return a;
   }
@@ -126,11 +125,26 @@ public final class SeriesUtils {
   }
 
   public static ComplexArray toComplexArray(Series v) {
-    return ComplexArray.copyOf(v.asList(Complex.class));
+    return ComplexArray.copyOf(toList(Complex.class, v));
   }
 
   public static IntArray toIntArray(Series v) {
-    return IntArray.copyOf(v.asList(Integer.class));
+    return IntArray.copyOf(toList(Integer.class, v));
+  }
+
+  public static <T> List<T> toList(Class<T> cls, Series series) {
+    Storage storage = series.values();
+    return new AbstractList<T>() {
+      @Override
+      public T get(int index) {
+        return storage.get(cls, index);
+      }
+
+      @Override
+      public int size() {
+        return storage.size();
+      }
+    };
   }
 
   /**
@@ -143,7 +157,7 @@ public final class SeriesUtils {
   public static String toString(Series v, int max) {
     Objects.requireNonNull(v);
     StringBuilder builder = new StringBuilder();
-    Index index = v.getIndex();
+    Index index = v.index();
     max = v.size() < max ? v.size() : 10;
 
     // Compute the longest string representation of a key
@@ -185,8 +199,7 @@ public final class SeriesUtils {
         }
       }
     }
-    builder.append("Shape: ").append(Arrays.toString(v.getShape())).append(", type: ")
-        .append(v.getType().toString());
+    builder.append("Size: ").append(v.size()).append(", type: ").append(v.getType().toString());
     return builder.toString();
   }
 
@@ -202,7 +215,7 @@ public final class SeriesUtils {
    */
   public static int find(Series haystack, Series needleSource, int needle) {
     for (int i = 0; i < haystack.size(); i++) {
-      if (haystack.loc().equals(i, needleSource, needle)) {
+      if (haystack.values().equals(i, needleSource.values(), needle)) {
         return i;
       }
     }
@@ -220,7 +233,7 @@ public final class SeriesUtils {
   @Deprecated
   public static int find(Series haystack, Object needle) {
     for (int i = 0; i < haystack.size(); i++) {
-      Object v = haystack.loc().get(i);
+      Object v = haystack.values().get(i);
       if (Is.equal(v, needle)) {
         return i;
       }
@@ -237,7 +250,7 @@ public final class SeriesUtils {
    */
   public static <T> int indexOf(Class<T> cls, Series series, Predicate<T> predicate) {
     for (int i = 0; i < series.size(); i++) {
-      if (predicate.test(series.loc().get(cls, i))) {
+      if (predicate.test(series.values().get(cls, i))) {
         return i;
       }
     }
@@ -329,7 +342,7 @@ public final class SeriesUtils {
   public static StatisticalSummary statisticalSummary(Series series) {
     FastStatistics r = new FastStatistics();
     for (int i = 0; i < series.size(); i++) {
-      double v = series.loc().getDouble(i);
+      double v = series.values().getDouble(i);
       if (!Is.NA(v)) {
         r.addValue(v);
       }
@@ -369,8 +382,8 @@ public final class SeriesUtils {
     double var = 0;
     int nonNA = 0;
     for (int i = 0; i < series.size(); i++) {
-      if (!series.loc().isNA(i)) {
-        double residual = series.loc().getDouble(i) - mean;
+      if (!series.values().isNA(i)) {
+        double residual = series.values().getDouble(i) - mean;
         var += residual * residual;
         nonNA += 1;
       }
@@ -406,8 +419,8 @@ public final class SeriesUtils {
     double mean = 0;
     int nonNA = 0;
     for (int i = 0; i < series.size(); i++) {
-      if (!series.loc().isNA(i)) {
-        mean += series.loc().getDouble(i);
+      if (!series.values().isNA(i)) {
+        mean += series.values().getDouble(i);
         nonNA += 1;
       }
     }
@@ -425,7 +438,7 @@ public final class SeriesUtils {
     double sum = 0;
     int nonNas = 0;
     for (int i = 0; i < series.size(); i++) {
-      double d = series.loc().getDouble(i);
+      double d = series.values().getDouble(i);
       boolean nonNa = !Is.NA(d);
       if (nonNa) {
         sum += d;
@@ -436,16 +449,16 @@ public final class SeriesUtils {
   }
 
   public static <T extends Number> double sum(Class<T> cls, Series series) {
-    return series.asList(cls).stream().filter(x -> !Is.NA(x)).mapToDouble(Number::doubleValue)
+    return toList(cls, series).stream().filter(x -> !Is.NA(x)).mapToDouble(Number::doubleValue)
         .sum();
   }
 
   public static <T extends Comparable<T>> Optional<T> min(Class<T> cls, Series series) {
-    return series.stream(cls).min(Comparable::compareTo);
+    return series.values().stream().map(o -> Convert.to(cls, o)).min(Comparable::compareTo);
   }
 
   public static <T extends Comparable<T>> Optional<T> max(Class<T> cls, Series series) {
-    return series.stream(cls).max(Comparable::compareTo);
+    return series.values().stream().map(o -> Convert.to(cls, o)).max(Comparable::compareTo);
   }
 
   /**
@@ -495,7 +508,7 @@ public final class SeriesUtils {
     Set<Object> taken = new HashSet<>();
     for (Series serie : series) {
       for (int i = 0; i < serie.size(); i++) {
-        Object value = serie.loc().get(i);
+        Object value = serie.values().get(i);
         if (!taken.contains(value)) {
           taken.add(value);
           builder.addFromLocation(serie, i);
@@ -520,7 +533,7 @@ public final class SeriesUtils {
    */
   public static <T> Map<T, Integer> count(Class<T> cls, Series series) {
     Map<T, Integer> count = new HashMap<>();
-    for (T value : series.asList(cls)) {
+    for (T value : toList(cls, series)) {
       count.compute(value, (x, v) -> v == null ? 1 : v + 1);
     }
     return Collections.unmodifiableMap(count);
@@ -537,7 +550,7 @@ public final class SeriesUtils {
    */
   public static Map<Object, Integer> count(Series series) {
     Map<Object, Integer> freq = new HashMap<>();
-    for (Object value : series.asList(Object.class)) {
+    for (Object value : series) {
       freq.compute(value, (x, i) -> i == null ? 1 : i + 1);
     }
     return Collections.unmodifiableMap(freq);
@@ -549,7 +562,7 @@ public final class SeriesUtils {
    */
   public static int[] indexSort(Series series) {
     return indexSort(series,
-        (o1, o2) -> Double.compare(series.loc().getDouble(o1), series.loc().getDouble(o2)));
+        (o1, o2) -> Double.compare(series.values().getDouble(o1), series.values().getDouble(o2)));
   }
 
   /**
@@ -594,8 +607,8 @@ public final class SeriesUtils {
     final int size = y.size();
     double dot = 0;
     for (int i = 0; i < size; i++) {
-      double yv = y.loc().getDouble(i);
-      double xv = x.loc().getDouble(i);
+      double yv = y.values().getDouble(i);
+      double xv = x.values().getDouble(i);
       if (!Is.NA(yv) && !Is.NA(xv)) {
         dot += xv * yv;
       }

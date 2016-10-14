@@ -23,22 +23,10 @@ package org.briljantframework.data.dataframe;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.time.LocalDate;
-import java.util.Date;
-
-import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.data.Is;
-import org.briljantframework.data.Logical;
-import org.briljantframework.data.index.Index;
-import org.briljantframework.data.resolver.Resolve;
-import org.briljantframework.data.series.Series;
-import org.briljantframework.data.series.Types;
-import org.junit.Test;
-
 /**
  * Created by isak on 17/08/15.
  */
-public class MixedDataFrameTest extends DataFrameTest {
+public class ColumnDataFrameTest extends DataFrameTest {
 
 //  @Test
 //  public void testBuilderSetNA() throws Exception {
@@ -56,7 +44,7 @@ public class MixedDataFrameTest extends DataFrameTest {
 //
   @Override
   DataFrame.Builder getBuilder() {
-    return new MixedDataFrame.Builder();
+    return new ColumnDataFrame.Builder();
   }
 //
 //  @Test

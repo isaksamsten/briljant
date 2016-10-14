@@ -20,12 +20,12 @@
  */
 package org.briljantframework.data.series;
 
+import java.io.Serializable;
+import java.util.Objects;
 import java.util.stream.DoubleStream;
 
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.briljantframework.Check;
-import org.briljantframework.array.ShapeUtils;
-import org.briljantframework.array.StrideUtils;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.index.Index;
@@ -40,27 +40,22 @@ import org.briljantframework.util.primitive.ArrayAllocations;
  *
  * @author Isak Karlsson
  */
-public class DoubleSeries extends AbstractSeries {
+public class DoubleSeries extends AbstractSeries implements Serializable {
 
-  private final double[] buffer;
-  private final int elementCount;
+  private static final long serialVersionUID = -6815497340399916036L;
+
+  private Index index;
+  private double[] buffer;
+  private int elementCount;
 
   private DoubleSeries(double[] buffer, int elementCount) {
-    this(null, buffer, elementCount);
+    this(new RangeIndex(0, elementCount), buffer, elementCount);
   }
 
   private DoubleSeries(Index index, double[] buffer, int elementCount) {
-    this(index, 0, new int[] {elementCount}, new int[] {1}, buffer);
-  }
-
-  private DoubleSeries(Index index, int offset, int[] shape, int[] stride, double[] buffer) {
-    super(index, offset, shape, stride);
+    this.index = Objects.requireNonNull(index);
     this.buffer = buffer;
-    this.elementCount = ShapeUtils.size(shape);
-  }
-
-  private DoubleSeries(int offset, int[] shape, int[] stride, double[] buffer) {
-    this(null, offset, shape, stride, buffer);
+    this.elementCount = elementCount;
   }
 
   public DoubleSeries() {
@@ -87,52 +82,23 @@ public class DoubleSeries extends AbstractSeries {
   }
 
   @Override
-  public int compareElement(int a, Series other, int b) {
-    double va = getDoubleElement(a);
-    double vb = other.loc().getDouble(b);
-    return !Is.NA(va) && !Is.NA(vb) ? Double.compare(va, vb) : 0;
+  public Object get(Object key) {
+    return buffer[index().getLocation(key)];
   }
 
   @Override
-  protected boolean isElementNA(int i) {
-    return Is.NA(getDoubleElement(i));
-  }
-
-  @Override
-  protected int getIntElement(int i) {
-    double value = getDoubleElement(i);
-    return Is.NA(value) ? Na.INT : (int) value;
-  }
-
-  @Override
-  protected final double getDoubleElement(int i) {
-    return buffer[i];
-  }
-
-  @Override
-  protected <T> T getElement(Class<T> cls, int index) {
-    Check.argument(!cls.isPrimitive(), "can't get primitive values");
-    return Convert.to(cls, getDoubleElement(index));
-  }
-
-  @Override
-  protected void setElement(int i, Object value) {
-    buffer[i] = Convert.to(Double.class, value);
-  }
-
-  @Override
-  protected void setDoubleElement(int index, double value) {
-    buffer[index] = value;
-  }
-
-  @Override
-  protected void setIntElement(int index, int value) {
-    buffer[index] = value;
+  public void set(Object key, Object value) {
+    buffer[index().getLocation(key)] = Convert.to(Double.class, value);
   }
 
   @Override
   public Series reindex(Index index) {
     return new DoubleSeries(index, buffer, elementCount);
+  }
+
+  @Override
+  public Index index() {
+    return index;
   }
 
   @Override
@@ -144,7 +110,7 @@ public class DoubleSeries extends AbstractSeries {
   public final int hashCode() {
     int result = 1;
     for (int i = 0; i < size(); i++) {
-      long v = Double.doubleToLongBits(getDoubleElement(i));
+      long v = Double.doubleToLongBits(values().getDouble(i));
       result = 31 * result + (int) (v ^ v >>> 32);
     }
     return result;
@@ -163,10 +129,10 @@ public class DoubleSeries extends AbstractSeries {
     if (size() != that.size()) {
       return false;
     }
-    if (!getIndex().equals(that.getIndex())) {
+    if (!index().equals(that.index())) {
       return false;
     }
-    for (Object key : getIndex().keySet()) {
+    for (Object key : index().keySet()) {
       double a = getDouble(key);
       double b = that.getDouble(key);
       if (!Is.NA(a) && !Is.NA(b) && a != b) {
@@ -178,57 +144,8 @@ public class DoubleSeries extends AbstractSeries {
   }
 
   @Override
-  protected String getStringElement(int index) {
-    double value = getDoubleElement(index);
-    return Is.NA(value) ? "NA" : String.format("%.3f", value);
-  }
-
-  @Override
-  protected boolean equalsElement(int a, Series other, int b) {
-    double av = getDoubleElement(a);
-    double ab = other.loc().getDouble(b);
-    return (Is.NA(av) && Is.NA(ab)) || (Double.isNaN(av) && Double.isNaN(ab)) || av == ab;
-  }
-
-  @Override
-  public Series newEmptyArray(int... shape) {
-    return new DoubleSeries(null, 0, shape, StrideUtils.computeStride(shape),
-        new double[ShapeUtils.size(shape)]);
-  }
-
-  @Override
-  protected int elementSize() {
-    return size();
-  }
-
-  @Override
-  public void setFrom(int toIndex, Series from, int fromIndex) {
-    loc().setDouble(toIndex, from.loc().getDouble(fromIndex));
-  }
-
-  @Override
-  public void setFrom(int toRow, int toColumn, Series from, int fromRow, int fromColumn) {
-    loc().setDouble(toRow, fromColumn, from.loc().getDouble(fromRow, fromColumn));
-  }
-
-  @Override
-  public void setFrom(int[] toIndex, Series from, int[] fromIndex) {
-    loc().setDouble(toIndex, from.loc().getDouble(fromIndex));
-  }
-
-  @Override
-  public void setFrom(int[] toIndex, Series from, int fromIndex) {
-    loc().setDouble(toIndex, from.loc().getDouble(fromIndex));
-  }
-
-  @Override
-  public void setFrom(int toIndex, Series from, int[] fromIndex) {
-    loc().setDouble(toIndex, from.loc().getDouble(fromIndex));
-  }
-
-  @Override
-  public Series asView(int offset, int[] shape, int[] stride) {
-    return new DoubleSeries(offset, shape, stride, buffer);
+  public int size() {
+    return elementCount;
   }
 
   @Override
@@ -242,7 +159,7 @@ public class DoubleSeries extends AbstractSeries {
   public double sum() {
     double sum = 0;
     for (int i = 0, size = size(); i < size; i++) {
-      double v = getDoubleElement(i);
+      double v = values().getDouble(i);
       if (!Is.NA(v)) {
         sum += v;
       }
@@ -254,13 +171,67 @@ public class DoubleSeries extends AbstractSeries {
   public double mean() {
     Mean mean = new Mean();
     for (int i = 0, size = size(); i < size; i++) {
-      double v = getDoubleElement(i);
+      double v = values().getDouble(i);
       if (!Is.NA(v)) {
         mean.increment(v);
       }
     }
     return mean.getN() > 0 ? mean.getResult() : Na.DOUBLE;
   }
+
+  @Override
+  public Storage values() {
+    Storage st;
+    return (st = storage) == null ? (storage = new Str()) : st;
+  }
+
+  private final class Str extends AbstractStorage {
+    @Override
+    public Object get(int index) {
+      return buffer[index];
+    }
+
+    @Override
+    public Object set(int index, Object element) {
+      return setDouble(index, Convert.to(Double.class, element));
+    }
+
+    @Override
+    public double setDouble(int index, double value) {
+      double oldValue = buffer[index];
+      buffer[index] = value;
+      return oldValue;
+    }
+
+    @Override
+    public int setInt(int index, int value) {
+      int oldValue = getInt(index);
+      buffer[index] = Is.NA(value) ? Na.DOUBLE : value;
+      return oldValue;
+    }
+
+    @Override
+    public double getDouble(int i) {
+      return buffer[i];
+    }
+
+    @Override
+    public int getInt(int i) {
+      double v = buffer[i];
+      return Is.NA(v) ? Na.INT : (int) v;
+    }
+
+    @Override
+    public void setFrom(int to, Storage source, int from) {
+      setDouble(to, source.getDouble(from));
+    }
+
+    @Override
+    public int size() {
+      return elementCount;
+    }
+  }
+
 
   public static final class Builder extends AbstractSeriesBuilder {
 
@@ -302,7 +273,7 @@ public class DoubleSeries extends AbstractSeries {
     }
 
     private static Index.Builder getIndexBuilder(DoubleSeries vector) {
-      Index.Builder builder = vector.getIndex().newCopyBuilder();
+      Index.Builder builder = vector.index().newCopyBuilder();
       if (builder instanceof RangeIndex.Builder) {
         return null;
       }
@@ -317,11 +288,6 @@ public class DoubleSeries extends AbstractSeries {
       extendIndex(index);
       return this;
     }
-//
-//    @Override
-//    public Series.Builder addFrom(Series from, int fromIndex) {
-//      return addDouble(from.loc().getDouble(fromIndex));
-//    }
 
     @Override
     public Series.Builder addFrom(Series from, Object key) {
@@ -370,7 +336,7 @@ public class DoubleSeries extends AbstractSeries {
       final int oldSize = size;
       ensureCapacity(t + 1);
       fillNa(oldSize, size, buffer);
-      buffer[t] = from.loc().getDouble(f);
+      buffer[t] = from.values().getDouble(f);
     }
 
     @Override

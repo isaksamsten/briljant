@@ -22,11 +22,11 @@ package org.briljantframework.data.index;
 
 import java.util.*;
 
-import net.mintern.primitive.comparators.IntComparator;
-
 import org.briljantframework.array.Range;
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.util.sort.ElementSwapper;
+
+import net.mintern.primitive.comparators.IntComparator;
 
 /**
  * An immutable index which maps an object to a location and a location to an object.

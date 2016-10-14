@@ -23,10 +23,10 @@ package org.briljantframework.data.series;
 /**
  * Created by isak on 17/08/15.
  */
-public class ObjectSeriesBuilderTest extends VectorBuilderTest {
+public class ObjectSeriesBuilderTest extends SeriesBuilderTest {
 
   @Override
   Series.Builder getBuilder() {
-    return Types.from(Object.class).newBuilder();
+    return new ObjectSeries.Builder();
   }
 }

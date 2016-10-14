@@ -77,4 +77,6 @@ public interface DataFrameGroupBy extends Iterable<Group> {
 
   DataFrame apply(UnaryOperator<Series> op);
 
+  DataFrame applyAll(UnaryOperator<DataFrame> op);
+
 }

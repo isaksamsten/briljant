@@ -21,12 +21,12 @@
 package org.briljantframework.data.series;
 
 import java.util.Comparator;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 
-import org.briljantframework.Check;
-import org.briljantframework.array.ShapeUtils;
 import org.briljantframework.data.Is;
-import org.briljantframework.data.Na;
 import org.briljantframework.data.index.Index;
+import org.briljantframework.data.index.RangeIndex;
 
 /**
  * Representing vectors of a single (unique) value repeated n (0 <= n) times.
@@ -39,20 +39,21 @@ final class SingletonSeries extends AbstractSeries {
   private final Object element;
   private final Type type;
   private final int elementSize;
+  private final Index index;
 
   SingletonSeries(Object element, int elementSize) {
-    this(null, elementSize, element);
+    this(new RangeIndex(0, elementSize), elementSize, element);
   }
 
   private SingletonSeries(Index index, int elementSize, Object element) {
-    this(index, 0, new int[] {elementSize}, new int[] {0}, element);
-  }
-
-  private SingletonSeries(Index index, int offset, int[] shape, int[] stride, Object element) {
-    super(index, offset, shape, stride);
+    this.index = Objects.requireNonNull(index);
     this.element = element;
     this.type = Types.from(element != null ? element.getClass() : Object.class);
-    this.elementSize = ShapeUtils.size(shape);
+    this.elementSize = elementSize;
+  }
+
+  private SingletonSeries(Index index, Object element) {
+    this(index, 1, element);
   }
 
   public static Series empty() {
@@ -60,13 +61,31 @@ final class SingletonSeries extends AbstractSeries {
   }
 
   @Override
-  public <T> Series sort(Class<T> cls, Comparator<? super T> cmp) {
-    return reindex(getIndex());
+  public <T> Series sortBy(Class<T> cls, Comparator<? super T> cmp) {
+    return reindex(index());
   }
 
   @Override
-  public <T extends Comparable<T>> Series sort(Class<T> cls) {
-    return reindex(getIndex());
+  public Index index() {
+    return index;
+  }
+
+  @Override
+  public Object get(Object key) {
+    if (!index().contains(key)) {
+      throw new NoSuchElementException();
+    }
+    return element;
+  }
+
+  @Override
+  public void set(Object key, Object value) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <T extends Comparable<T>> Series sortBy(Class<T> cls) {
+    return reindex(index());
   }
 
   @Override
@@ -74,31 +93,25 @@ final class SingletonSeries extends AbstractSeries {
     return Is.NA(element);
   }
 
-  @Override
-  protected boolean isElementNA(int i) {
-    Check.validIndex(i, size());
-    return Is.NA(element);
-  }
-
-  @Override
-  protected int getIntElement(int i) {
-    Check.validIndex(i, size());
-    Number val = Convert.to(Number.class, element);
-    return Is.NA(val) ? Na.INT : val.intValue();
-  }
-
-  @Override
-  protected double getDoubleElement(int i) {
-    Check.validIndex(i, size());
-    Number val = Convert.to(Number.class, element);
-    return Is.NA(val) ? Na.DOUBLE : val.doubleValue();
-  }
-
-  @Override
-  protected <T> T getElement(Class<T> cls, int index) {
-    Check.validIndex(index, size());
-    return Convert.to(cls, element);
-  }
+  // @Override
+  // protected int getIntElement(int i) {
+  // Check.validIndex(i, size());
+  // Number val = Convert.to(Number.class, element);
+  // return Is.NA(val) ? Na.INT : val.intValue();
+  // }
+  //
+  // @Override
+  // protected double getDoubleElement(int i) {
+  // Check.validIndex(i, size());
+  // Number val = Convert.to(Number.class, element);
+  // return Is.NA(val) ? Na.DOUBLE : val.doubleValue();
+  // }
+  //
+  // @Override
+  // protected <T> T getElement(Class<T> cls, int index) {
+  // Check.validIndex(index, size());
+  // return Convert.to(cls, element);
+  // }
 
   @Override
   public Series reindex(Index index) {
@@ -107,13 +120,7 @@ final class SingletonSeries extends AbstractSeries {
 
   @Override
   public Builder newCopyBuilder() {
-    return newBuilder().addAll(this);
-  }
-
-  @Override
-  protected String getStringElement(int index) {
-    Check.validIndex(index, size());
-    return Na.toString(element);
+    return newBuilder().setAll(this);
   }
 
   @Override
@@ -122,17 +129,7 @@ final class SingletonSeries extends AbstractSeries {
   }
 
   @Override
-  protected int elementSize() {
+  public int size() {
     return elementSize;
-  }
-
-  @Override
-  public Series asView(int offset, int[] shape, int[] stride) {
-    return new SingletonSeries(getIndex(), offset, shape, stride, element);
-  }
-
-  @Override
-  public Series newEmptyArray(int... shape) {
-    return new ObjectSeries(type, shape);
   }
 }

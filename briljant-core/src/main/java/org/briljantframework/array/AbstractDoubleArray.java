@@ -443,12 +443,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   }
 
   @Override
-  public List<Double> asList() {
-    return new DoubleListView();
-  }
-
-  @Override
-  public Array<Double> asArray() {
+  public Array<Double> boxed() {
     return new AsArray<Double>(this) {
 
       @Override
@@ -537,7 +532,19 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public Iterator<Double> iterator() {
-    return asList().iterator();
+    return new Iterator<Double>() {
+      private int index = 0;
+
+      @Override
+      public boolean hasNext() {
+        return index < size();
+      }
+
+      @Override
+      public Double next() {
+        return get(index++);
+      }
+    };
   }
 
   @Override
@@ -547,7 +554,14 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public boolean contains(Object o) {
-    return asList().contains(o);
+    if (o instanceof Double) {
+      for (int i = 0; i < size(); i++) {
+        if (o.equals(get(i))) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   @Override
@@ -561,7 +575,10 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public <T> T[] toArray(T[] a) {
-    return asList().toArray(a);
+    if (a instanceof Double[]) {
+
+    }
+    return null;
   }
 
   @Override
@@ -598,44 +615,6 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
   public final boolean removeAll(Collection<?> c) {
     throw new UnsupportedOperationException();
   }
-
-  private class DoubleListView extends AbstractList<Double> {
-
-    @Override
-    public Double get(int i) {
-      return AbstractDoubleArray.this.get(i);
-    }
-
-    @Override
-    public Double set(int i, Double value) {
-      Double old = AbstractDoubleArray.this.get(i);
-      AbstractDoubleArray.this.set(i, value);
-      return old;
-    }
-
-    @Override
-    public Iterator<Double> iterator() {
-      return new Iterator<Double>() {
-        private int index = 0;
-
-        @Override
-        public boolean hasNext() {
-          return index < size();
-        }
-
-        @Override
-        public Double next() {
-          return get(index++);
-        }
-      };
-    }
-
-    @Override
-    public int size() {
-      return AbstractDoubleArray.this.size();
-    }
-  }
-
 
 
 }

@@ -21,11 +21,12 @@
 package org.briljantframework.data.index;
 
 
+import java.io.Serializable;
 import java.util.*;
 
-import net.mintern.primitive.comparators.IntComparator;
-
 import org.briljantframework.data.SortOrder;
+
+import net.mintern.primitive.comparators.IntComparator;
 
 /**
  * An index implementing an monotonically increasing index of integer values backed by a start
@@ -33,7 +34,7 @@ import org.briljantframework.data.SortOrder;
  * 
  * @author Isak Karlsson
  */
-public final class RangeIndex extends AbstractIndex {
+public final class RangeIndex extends AbstractIndex implements Serializable {
 
   private final int start;
   private final int size;

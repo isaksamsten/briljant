@@ -43,21 +43,21 @@ class NetlibArrayRoutines extends AbstractArrayRoutines {
     super(backend);
   }
 
-  @Override
-  public void plusAssign(DoubleArray a, DoubleArray out) {
-    Arrays.broadcastWith(out, a, (y, x) -> {
-      Check.size(x, out);
-      axpy(1.0, x, y);
-    });
-  }
-
-  @Override
-  public void minusAssign(DoubleArray a, DoubleArray out) {
-    Arrays.broadcastWith(out, a, (y, x) -> {
-      Check.size(x, out);
-      axpy(-1.0, x, y);
-    });
-  }
+//  @Override
+//  public void plus(DoubleArray a, DoubleArray b, DoubleArray out) {
+//    Arrays.broadcastWith(a, b, (y, x) -> {
+//      Check.size(x, out);
+//      axpy(1.0, x, out);
+//    });
+//  }
+//
+//  @Override
+//  public void minus(DoubleArray a, DoubleArray b, DoubleArray out) {
+//    Arrays.broadcastWith(out, a, (y, x) -> {
+//      Check.size(x, out);
+//      axpy(-1.0, x, y);
+//    });
+//  }
 
   @Override
   public double inner(DoubleArray a, DoubleArray b) {

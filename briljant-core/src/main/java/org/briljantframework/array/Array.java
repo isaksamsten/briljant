@@ -22,7 +22,6 @@ package org.briljantframework.array;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 import java.util.function.*;
 import java.util.stream.Stream;
 
@@ -57,11 +56,13 @@ public interface Array<T> extends BaseArray<Array<T>>, Collection<T> {
    * @param elements the elements
    * @return a new array
    */
-  static <T> Array<T> copyOf(List<? extends T> elements) {
+  static <T> Array<T> copyOf(Collection<? extends T> elements) {
     Array<T> a = empty(elements.size());
-    for (int i = 0; i < elements.size(); i++) {
-      a.set(i, elements.get(i));
+    int i = 0;
+    for (T element : elements) {
+      a.set(i++, element);
     }
+
     return a;
   }
 
@@ -228,6 +229,10 @@ public interface Array<T> extends BaseArray<Array<T>>, Collection<T> {
    * @return a new array
    */
   BooleanArray where(Array<? extends T> other, BiPredicate<? super T, ? super T> predicate);
+
+  int indexOf(Object v);
+
+  IntArray indexOf(int dim, Object v);
 
   /**
    * Reduce the array element wise with the given initial value and accumulator.

@@ -7,12 +7,11 @@ import org.briljantframework.array.BooleanArray
 import org.briljantframework.array.DoubleArray
 import org.briljantframework.array.IntArray
 import org.briljantframework.array.LongArray
-import org.briljantframework.data.parser.SqlParser
 
 operator fun DoubleArray.times(x: DoubleArray): DoubleArray = Arrays.times(this, x)
-operator fun DoubleArray.timesAssign(x: DoubleArray) = Arrays.timesAssign(this, x)
+operator fun DoubleArray.timesAssign(x: DoubleArray) = Arrays.times(this, x, this)
 operator fun DoubleArray.plus(x: DoubleArray): DoubleArray = Arrays.plus(this, x)
-operator fun DoubleArray.plusAssign(x: DoubleArray) = Arrays.plusAssign(this, x)
+operator fun DoubleArray.plusAssign(x: DoubleArray) = Arrays.plus(this, x, this)
 operator fun DoubleArray.minus(x: DoubleArray): DoubleArray = Arrays.minus(this, x)
 operator fun DoubleArray.div(x: DoubleArray): DoubleArray = Arrays.div(this, x)
 operator fun IntArray.times(x: IntArray): IntArray = Arrays.times(this, x)

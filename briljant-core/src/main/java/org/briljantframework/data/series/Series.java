@@ -20,9 +20,7 @@
  */
 package org.briljantframework.data.series;
 
-import java.io.Serializable;
 import java.util.*;
-import java.util.Arrays;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -34,7 +32,9 @@ import java.util.stream.Stream;
 
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.Check;
-import org.briljantframework.array.*;
+import org.briljantframework.array.BooleanArray;
+import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.IntArray;
 import org.briljantframework.data.Collectors;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.SortOrder;
@@ -50,26 +50,8 @@ import org.briljantframework.data.reader.DataEntry;
  * 
  * The <tt>equals</tt> and <tt>hashCode</tt> methods should be based on both the values and the
  * indices. That is, given two series they are only considered equal if each key is associated with
- * equal elements (similar to the {@link Map Map} interface.
+ * equal elements (similar to the {@link Map Map} interface).
  * 
- * <p/>
- * 
- * A <tt>Series</tt> implements the <tt>BaseArray</tt> interface and can thus be used by many
- * operations in {@link org.briljantframework.array.Arrays Arrays}. Note, however, that a view
- * returned by any of the operations in the <tt>BaseArray</tt> interface <i>looses</i> the index of
- * the original (and replaces it with a range index from <tt>[0...size()]</tt>). For example:
- *
- * <pre>
- * Series a = Series.of("A", "B", "C", "D");
- * a.setIndex(Index.of(10, 20, 30, 40));
- * b = a.reshape(2, 2);
- * b.get(10); // throws NoSuchKeyException
- * b.get(0); // => "A"
- * b.loc().get(0, 0); // => "A"
- * </pre>
- *
- * Location based indexing works as expected (in column-major order).
- *
  * <p/>
  * Since NA value are implemented differently depending value type, checking for NA-values are done
  * via the {@link #isNA(Object)} method or via the static
@@ -77,7 +59,7 @@ import org.briljantframework.data.reader.DataEntry;
  *
  * @author Isak Karlsson
  */
-public interface Series extends BaseArray<Series>, Collection<Object>, Serializable {
+public interface Series extends Iterable<Object> {
 
   /**
    * Construct a series of values. The type of series is inferred from the values.
@@ -152,7 +134,6 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
    * @param values the elements
    * @return a new series
    */
-  @SuppressWarnings("unchecked")
   static Series copyOf(Collection<?> values) {
     if (values instanceof Series) {
       return (Series) values;
@@ -229,19 +210,18 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
   }
 
   /**
-   * {@inheritDoc}
+   * Returns the number of key-value pairs in the series.
    * 
-   * In addition to the requirements imposed by the <tt>BaseArray</tt> interface, for
-   * <tt>Series</tt> the indexing of the view is no longer related to the original. The returned
-   * view should be indexed with a {@link org.briljantframework.data.index.RangeIndex RangeIndex}.
-   * 
-   * @param offset the offset (where indexing starts)
-   * @param shape the shape of the view
-   * @param stride the stride of the view
-   * @return
+   * @return the number of key-value pairs in the series.
    */
-  @Override
-  Series asView(int offset, int[] shape, int[] stride);
+  int size();
+
+  /**
+   * Returns true if there are no key-value pairs in the series
+   * 
+   * @return true if there are no key-value pairs in the series
+   */
+  boolean isEmpty();
 
   /**
    * Returns a boolean array of the elements for which the predicate returns {@code true}.
@@ -263,27 +243,6 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
    * @return a boolean array
    */
   <T> BooleanArray where(Class<T> cls, Predicate<? super T> predicate);
-
-  /**
-   * Returns a series consisting of only the elements for which the predicate returns true.
-   * 
-   * @param predicate the predicate
-   * @return a series
-   */
-  default Series retainIf(Predicate<? super Object> predicate) {
-    return retainIf(Object.class, predicate);
-  }
-
-  /**
-   * Filter values in this series, treating each value as {@code cls} (or NA), using the supplied
-   * predicate.
-   *
-   * @param <T> the type
-   * @param cls the class
-   * @param predicate the predicate
-   * @return a new series with only values for which {@code predicate} returns true
-   */
-  <T> Series retainIf(Class<T> cls, Predicate<? super T> predicate);
 
   default Series dropIf(Predicate<? super Object> predicate) {
     return dropIf(Object.class, predicate);
@@ -337,13 +296,13 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
   Series merge(Series other, BiFunction<? super Object, ? super Object, ?> combiner);
 
   /**
-   * Combine two vectors using the specified combination function. For example, concatenating two
+   * Merge two vectors using the specified combination function. For example, concatenating two
    * string vectors, or adding two numerical vectors.
    *
    * <pre>
    * Series a = Series.of(1, 2, 3, 4);
    * Series b = Series.of(1, 2, 3, 4);
-   * a.combine(String.class, b, (x, y) -&gt; x + y).map(String.class, String::length);
+   * a.merge(String.class, b, (x, y) -&gt; x + y).map(String.class, String::length);
    * </pre>
    *
    * @param cls the class
@@ -355,10 +314,28 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
   <T> Series merge(Class<T> cls, Series other,
       BiFunction<? super T, ? super T, ? extends T> combiner);
 
+  /**
+   * Return a new series with the specified key-value removed.
+   *
+   * @param key the key
+   * @return a new series
+   */
   Series drop(Object key);
 
+  /**
+   * Return a new series with the specified key-values removed.
+   * 
+   * @param keys the keys to remove
+   * @return a new series
+   */
   Series dropAll(Collection<?> keys);
 
+  /**
+   * Return a new series with the specified keys retained.
+   *
+   * @param keys the keys to retain
+   * @return a new series
+   */
   Series getAll(Collection<?> keys);
 
   /**
@@ -370,7 +347,7 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
    * @param order the specified order
    * @return the series sorted
    */
-  Series sort(SortOrder order); // TODO: 4/28/16 this should sort the index
+  Series sort(SortOrder order);
 
   /**
    * Sort the series according to the natural sort order of the specified comparable
@@ -378,7 +355,7 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
    * @param cls the comparable type
    * @return a new series sorted
    */
-  <T extends Comparable<T>> Series sort(Class<T> cls); // this should take a comparator
+  <T extends Comparable<T>> Series sortBy(Class<T> cls);
 
   /**
    * Sort the series using the the specified comparator and the defined type
@@ -386,8 +363,8 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
    * @param cls the type of elements
    * @param cmp the comparator
    * @return a new sorted series
-   */ // TODO(isak) rename sortBy (sort values)
-  <T> Series sort(Class<T> cls, Comparator<? super T> cmp);
+   */
+  <T> Series sortBy(Class<T> cls, Comparator<? super T> cmp);
 
   /**
    * Return a series of the {@code n} first elements
@@ -421,18 +398,16 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
    * Example
    * 
    * <pre>
-   * {@code
    * > Series v = Series.of(1, 2, 3, 4);
    * 0  1
    * 1  2
    * 2  3
    * 3  4
    * 
-   * > v.tail(1);
+   * > v.tail(3);
    * 0  2
    * 1  3
    * 2  4
-   * }
    * </pre>
    */
   Series tail(int n);
@@ -444,30 +419,21 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
    *
    * @return the index of this series
    */
-  Index getIndex();
-
-  /**
-   * Set the index of this series. The size of the index must equal the size of the series.
-   *
-   * @param index the index
-   */
-  void setIndex(Index index);
+  Index index();
 
   /// Query operations
 
   /**
    * Get the object with the specified key as an object
-   * 
+   *
    * @param key the key
    * @return an object
    */
-  default Object get(Object key) {
-    return get(Object.class, key);
-  }
+  Object get(Object key);
 
   /**
    * Get the value with the given key as an instance of the specified type
-   * 
+   *
    * @param cls the type
    * @param key the key
    * @param <T> the type
@@ -486,7 +452,7 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
 
   /**
    * Get the value with the given key as a double
-   * 
+   *
    * @param key the key
    * @return a double
    */
@@ -533,24 +499,6 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
   void set(BooleanArray array, Object value);
 
   /**
-   * Unsupported operation.
-   * 
-   * @param o {@inheritDoc}
-   * @return {@inheritDoc}
-   */
-  @Override
-  boolean add(Object o);
-
-  /**
-   * Unsupported operation.
-   * 
-   * @param c {@inheritDoc}
-   * @return {@inheritDoc}
-   */
-  @Override
-  boolean addAll(Collection<?> c);
-
-  /**
    * Return true if the value with the given key is {@code NA}
    *
    * @param key the key
@@ -572,11 +520,7 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
    */
   Type getType();
 
-  default Set<Map.Entry<Object, Object>> entrySet() {
-    return entrySet(Object.class);
-  }
-
-  <T> Set<Map.Entry<Object, T>> entrySet(Class<T> cls);
+  Set<Map.Entry<Object, Object>> entrySet();
 
   /**
    * {@inheritDoc}
@@ -590,55 +534,13 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
   // View operations
 
   /**
-   * Return this view as a <tt>DoubleArray</tt>.
-   *
-   * @return a double array view
-   */
-  DoubleArray asDoubleArray();
-
-  /**
-   * Return this view as an <tt>IntArray</tt>.
-   *
-   * @return an int array view
-   */
-  IntArray asIntArray();
-
-  LongArray asLongArray();
-
-  BooleanArray asBooleanArray();
-
-  ComplexArray asComplexArray();
-
-  /**
-   * Return a view of this series as an array.
-   *
-   * @return an array view
-   */
-  Array<Object> asArray();
-
-  /**
-   * Return a view of this series as a list.
-   *
-   * @return a list view
-   */
-  List<Object> asList();
-
-  /**
    * Return a view of this <tt>Series</tt> as a list.
-   * 
+   *
    * @param cls the element type
    * @param <T> the element type
    * @return a list view
    */
-  <T> List<T> asList(Class<T> cls);
-
-  /**
-   * Return a stream of the elements in this series.
-   *
-   * @param cls the element type
-   * @return a stream
-   */
-  <T> Stream<T> stream(Class<T> cls);
+  <T> List<T> values(Class<T> cls);
 
   /**
    * Returns a stream of the elements in this series as ints.
@@ -877,13 +779,14 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
    *
    * @return a location indexer
    */
-  LocationGetter loc();
+  Storage values(); // TODO: rename to values()
 
   /**
    * Return a shallow copy of the specified series indexed using the given indexer.
    *
    * @param index the index
    * @return a new series
+   * @see #setIndex(Index)
    */
   Series reindex(Index index);
 
@@ -1071,22 +974,13 @@ public interface Series extends BaseArray<Series>, Collection<Object>, Serializa
     }
 
     /**
-     * Add all values in to this builder.
+     * Set all values in to this builder (key-value pair) to the corresponding key-value pair from
+     * the given series.
      *
      * @param from the series
      * @return a modified builder
      */
-    Builder addAll(Series from);
-
-    /**
-     * Remove the value associated with the specified key. This shifts the location of all elements
-     * with a location larger than the element associated with the specified key on index to the
-     * left.
-     * 
-     * @param key the key
-     * @return a modified builder
-     */
-    Builder remove(Object key);
+    Builder setAll(Series from);
 
     /**
      * Read all elements from the specified entry.

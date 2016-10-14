@@ -28,8 +28,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
+import org.briljantframework.data.dataframe.ColumnDataFrame;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.dataframe.MixedDataFrame;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.series.Series;
 import org.briljantframework.data.series.TypeInferenceBuilder;
@@ -46,7 +46,7 @@ public final class Collectors {
   private Collectors() {}
 
   public static Collector<Series, ?, DataFrame> toDataFrame() {
-    return toDataFrame(MixedDataFrame.Builder::new);
+    return toDataFrame(ColumnDataFrame.Builder::new);
   }
 
   public static Collector<Series, ?, DataFrame> toDataFrame(Supplier<DataFrame.Builder> supplier) {
@@ -86,7 +86,7 @@ public final class Collectors {
       Function<? super T, ? extends O> function) {
     return Collector.of(supplier, (acc, v) -> acc.add(function.apply(v)),
         (Series.Builder left, Series.Builder right) -> {
-          left.addAll(right.build());
+          left.setAll(right.build());
           return left;
         }, Series.Builder::build);
   }
@@ -106,7 +106,7 @@ public final class Collectors {
         acc.add(v);
       }
     }, (Series.Builder left, Series.Builder right) -> {
-      left.addAll(right.build());
+      left.setAll(right.build());
       return left;
     }, Series.Builder::build);
   }
@@ -153,7 +153,7 @@ public final class Collectors {
         acc.add(v);
       }
     }, (Series.Builder left, Series.Builder right) -> {
-      left.addAll(right.build());
+      left.setAll(right.build());
       return left;
     }, Series.Builder::build);
   }
@@ -164,7 +164,7 @@ public final class Collectors {
 
   public static <T> Collector<T, ?, Series> repeat(Supplier<Series.Builder> vb, int copies) {
     return Collector.of(vb, Series.Builder::add, (Series.Builder left, Series.Builder right) -> {
-      left.addAll(right.build());
+      left.setAll(right.build());
       return left;
     }, (v) -> {
       Series elements = v.build();
@@ -286,8 +286,7 @@ public final class Collectors {
     return withFinisher(statisticalSummary(), v -> {
       Series summary = Series.of(v.getMean(), v.getSum(), v.getStandardDeviation(), v.getVariance(),
           v.getMin(), v.getMax(), v.getN());
-      summary.setIndex(Index.of("mean", "sum", "std", "var", "min", "max", "n"));
-      return summary;
+      return summary.reindex(Index.of("mean", "sum", "std", "var", "min", "max", "n"));
     });
   }
 
@@ -418,7 +417,7 @@ public final class Collectors {
         builder.add(t);
       }
     }, (left, right) -> {
-      left.addAll(right.build());
+      left.setAll(right.build());
       return left;
     }, Series.Builder::build);
   }

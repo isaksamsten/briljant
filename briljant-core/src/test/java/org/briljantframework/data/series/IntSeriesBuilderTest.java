@@ -23,7 +23,7 @@ package org.briljantframework.data.series;
 /**
  * @author Isak Karlsson
  */
-public class IntSeriesBuilderTest extends VectorBuilderTest {
+public class IntSeriesBuilderTest extends SeriesBuilderTest {
 
   @Override
   Series.Builder getBuilder() {

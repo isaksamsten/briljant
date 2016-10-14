@@ -26,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.List;
 
-import org.briljantframework.array.IntArray;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.index.HashIndex;
@@ -34,7 +33,7 @@ import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.StringDataEntry;
 import org.junit.Test;
 
-public abstract class VectorBuilderTest {
+public abstract class SeriesBuilderTest {
 
   @Test
   public void testSetNAWithIndex() throws Exception {
@@ -46,9 +45,9 @@ public abstract class VectorBuilderTest {
     Series series = builder.build();
     assertEquals(4, series.size());
     for (int i = 0; i < series.size(); i++) {
-      assertTrue(i + " double is NA", Is.NA(series.loc().getDouble(i)));
-      assertTrue(i + " int is NA", Is.NA(series.loc().getInt(i)));
-      assertTrue(i + " Object is NA", Is.NA(series.loc().get(Object.class, i)));
+      assertTrue(i + " double is NA", Is.NA(series.values().getDouble(i)));
+      assertTrue(i + " int is NA", Is.NA(series.values().getInt(i)));
+      assertTrue(i + " Object is NA", Is.NA(series.values().get(Object.class, i)));
 
       Object key = i;
       assertTrue(i + " double is NA", Is.NA(series.getDouble(key)));
@@ -87,9 +86,9 @@ public abstract class VectorBuilderTest {
     Series series = builder.build();
     assertEquals(size, series.size());
     for (int i = 0; i < size; i++) {
-      assertTrue(i + " double is NA", Is.NA(series.loc().getDouble(i)));
-      assertTrue(i + " int is NA", Is.NA(series.loc().getInt(i)));
-      assertTrue(i + " Object is NA", Is.NA(series.loc().get(Object.class, i)));
+      assertTrue(i + " double is NA", Is.NA(series.values().getDouble(i)));
+      assertTrue(i + " int is NA", Is.NA(series.values().getInt(i)));
+      assertTrue(i + " Object is NA", Is.NA(series.values().get(Object.class, i)));
 
       Object key = i;
       assertTrue(i + " double is NA", Is.NA(series.getDouble(key)));
@@ -111,7 +110,7 @@ public abstract class VectorBuilderTest {
     for (int i = 0; i < expected.size(); i++) {
       Object key = i;
       Integer expectedValue = expected.get(i);
-      assertEquals(expectedValue, series.loc().get(Integer.class, i));
+      assertEquals(expectedValue, series.values().get(Integer.class, i));
       assertEquals(expectedValue, series.get(Integer.class, key));
     }
   }
@@ -128,8 +127,8 @@ public abstract class VectorBuilderTest {
     assertEquals(expected.size(), series.size());
     for (int i = 0; i < expected.size(); i++) {
       Object key = i;
-      Integer expectedValue = expected.loc().get(Integer.class, i);
-      assertEquals(expectedValue, series.loc().get(Integer.class, i));
+      Integer expectedValue = expected.values().get(Integer.class, i);
+      assertEquals(expectedValue, series.values().get(Integer.class, i));
       assertEquals(expectedValue, series.get(Integer.class, key));
     }
   }
@@ -149,7 +148,7 @@ public abstract class VectorBuilderTest {
     for (int i = 0; i < series.size(); i++) {
       Object key = i;
       int expectedValue = expected.get(i);
-      assertEquals(expectedValue, series.loc().getInt(i));
+      assertEquals(expectedValue, series.values().getInt(i));
       assertEquals(expectedValue, series.getInt(key));
     }
   }
@@ -165,7 +164,7 @@ public abstract class VectorBuilderTest {
     Series series = builder.build();
     for (int i = 0; i < keys.size(); i++) {
       assertEquals(i, series.getInt(keys.get(i)));
-      assertEquals(i, series.loc().getInt(i));
+      assertEquals(i, series.values().getInt(i));
     }
 
   }
@@ -180,7 +179,7 @@ public abstract class VectorBuilderTest {
 
     Series series = builder.build();
     for (int i = 0; i < expected.size(); i++) {
-      assertEquals(expected.loc().get(Integer.class, i), series.loc().get(Integer.class, i));
+      assertEquals(expected.values().get(Integer.class, i), series.values().get(Integer.class, i));
     }
 
   }
@@ -189,7 +188,7 @@ public abstract class VectorBuilderTest {
   public void testSetFromVectorFromKey() throws Exception {
     List<Object> index = Arrays.asList("a", "b", "c");
     Series expected = Series.of(10, 20, 30);
-    expected.setIndex(HashIndex.of(index));
+    expected = expected.reindex(HashIndex.of(index));
 
     Series.Builder builder = getBuilder();
     for (int i = 0; i < index.size(); i++) {
@@ -199,7 +198,7 @@ public abstract class VectorBuilderTest {
     Series actual = builder.build();
     for (int i = 0; i < index.size(); i++) {
       Object key = index.get(i);
-      assertEquals(expected.get(Integer.class, key), actual.loc().get(Integer.class, i));
+      assertEquals(expected.get(Integer.class, key), actual.values().get(Integer.class, i));
     }
   }
 
@@ -207,7 +206,7 @@ public abstract class VectorBuilderTest {
   public void testSetFromVectorWithKeyFromIndex() throws Exception {
     List<Object> index = Arrays.asList("a", "b", "c");
     Series expected = Series.of(10, 20, 30);
-    expected.setIndex(HashIndex.of(index));
+    expected = expected.reindex(HashIndex.of(index));
 
     Series.Builder builder = getBuilder();
     for (int i = 0; i < index.size(); i++) {
@@ -218,7 +217,7 @@ public abstract class VectorBuilderTest {
     Series actual = builder.build();
     for (int i = 0; i < index.size(); i++) {
       Object key = index.get(i);
-      assertEquals(expected.loc().get(Integer.class, i), actual.get(Integer.class, key));
+      assertEquals(expected.values().get(Integer.class, i), actual.get(Integer.class, key));
     }
   }
 
@@ -226,7 +225,7 @@ public abstract class VectorBuilderTest {
   public void testSetFromVectorWithKeyFromKey() throws Exception {
     List<Object> index = Arrays.asList("a", "b", "c");
     Series expected = Series.of(10, 20, 30);
-    expected.setIndex(HashIndex.of(index));
+    expected = expected.reindex(HashIndex.of(index));
 
     Series.Builder builder = getBuilder();
     for (Object key : index) {
@@ -248,28 +247,13 @@ public abstract class VectorBuilderTest {
 
     Series expected = Series.of(1, null, null, 100);
     Series actual = builder.build();
-    assertEquals(expected.asList(Integer.class), actual.asList(Integer.class));
-  }
-
-  @Test
-  public void testGetSubVectorWithCorrectKeysUsingLocationIndexes() throws Exception {
-    Series.Builder builder = getBuilder();
-    List<Object> keys = Arrays.asList(22, 300, 2, 10, 1000);
-    for (Object key : keys) {
-      builder.set(key, key);
-    }
-    Series series = builder.build();
-    Series selected = series.loc().get(IntArray.of(0, 1, 4));
-
-    assertEquals(22, selected.getInt(22));
-    assertEquals(300, selected.getInt(300));
-    assertEquals(1000, selected.getInt(1000));
+    assertEquals(expected, actual);
   }
 
   @Test
   public void testGetSubVectorWithKeysUsingBitVector() throws Exception {
     Series select = Series.of(0, 1, 1, 0);
-    select.setIndex(HashIndex.of("a", "b", "c", "d"));
+    select = select.reindex(HashIndex.of("a", "b", "c", "d"));
     List<Object> keys = Arrays.asList("a", "b", "c", "d");
 
     // Series.Builder builder = getBuilder();
@@ -293,9 +277,9 @@ public abstract class VectorBuilderTest {
 
     Series v = builder.build();
     if (v instanceof ObjectSeries) {
-      assertEquals(Arrays.asList("1", "2", "4", "10"), v.asList(String.class));
+      assertEquals(Arrays.asList("1", "2", "4", "10"), v.values(String.class));
     } else {
-      assertEquals(Arrays.asList(1, 2, 4, 10), v.asList(Integer.class));
+      assertEquals(Arrays.asList(1, 2, 4, 10), v.values(Integer.class));
     }
   }
 

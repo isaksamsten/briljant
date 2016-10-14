@@ -38,6 +38,7 @@ import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReader;
 import org.briljantframework.data.series.Convert;
 import org.briljantframework.data.series.Series;
+import org.briljantframework.data.series.Storage;
 import org.briljantframework.data.series.TypeInferenceBuilder;
 import org.briljantframework.util.primitive.IntList;
 
@@ -92,7 +93,7 @@ public abstract class AbstractDataFrame implements DataFrame {
       // Not affected by ISSUE#7
       Series.Builder newColumn = new TypeInferenceBuilder();
       for (int i = 0, size = column.size(); i < size; i++) {
-        Object transformed = mapper.apply(column.loc().get(cls, i));
+        Object transformed = mapper.apply(column.values().get(cls, i));
         if (Is.NA(transformed)) {
           newColumn.addNA();
         } else {
@@ -128,7 +129,7 @@ public abstract class AbstractDataFrame implements DataFrame {
       Series column = get(columnKey);
       C accumulator = collector.supplier().get();
       for (int i = 0, size = column.size(); i < size; i++) {
-        collector.accumulator().accept(accumulator, column.loc().get(cls, i));
+        collector.accumulator().accept(accumulator, column.values().get(cls, i));
       }
       Series transformed = collector.finisher().apply(accumulator);
       builder.setColumn(columnKey, transformed);
@@ -146,7 +147,7 @@ public abstract class AbstractDataFrame implements DataFrame {
       // if (column.getType().isAssignableTo(cls)) {
       T result = init;
       for (int i = 0, size = column.size(); i < size; i++) {
-        result = op.apply(result, column.loc().get(cls, i));
+        result = op.apply(result, column.values().get(cls, i));
       }
       builder.set(columnKey, result);
       // }
@@ -158,7 +159,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   public final DataFrameGroupBy groupBy(Object columnKey) {
     HashMap<Object, IntList> groups = new LinkedHashMap<>();
     Series column = get(columnKey);
-    org.briljantframework.data.series.LocationGetter loc = column.loc();
+    Storage loc = column.values();
     for (int i = 0, size = column.size(); i < size; i++) {
       groups.computeIfAbsent(loc.get(Object.class, i), a -> new IntList()).add(i);
     }
@@ -175,7 +176,7 @@ public abstract class AbstractDataFrame implements DataFrame {
       Object columnKey) {
     HashMap<Object, IntList> groups = new LinkedHashMap<>();
     Series column = get(columnKey);
-    org.briljantframework.data.series.LocationGetter loc = column.loc();
+    Storage loc = column.values();
     for (int i = 0, size = column.size(); i < size; i++) {
       T value = loc.get(cls, i);
       // Ignore NA values (group them separately)
@@ -190,7 +191,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     for (int i = 0, size = rows(); i < size; i++) {
       Series.Builder cs = new TypeInferenceBuilder();
       for (Object key : keys) {
-        cs.add(get(key).loc().get(i));
+        cs.add(get(key).values().get(i));
       }
       groups.computeIfAbsent(combiner.apply(cs.build()), a -> new IntList()).add(i);
     }
@@ -318,7 +319,7 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public DataFrame get(BooleanArray array) {
-    DataFrame.Builder builder = newEmptyBuilder();
+    DataFrame.Builder builder = newEmptyBuilder(true);
     DataFrame df;
     if (array.isMatrix()) { // Select values; setting false values to NA
       Check.argument(array.rows() == rows() && array.columns() == columns(), "Illegal shape");
@@ -360,7 +361,7 @@ public abstract class AbstractDataFrame implements DataFrame {
         Series column = loc().get(j);
         for (int i = 0; i < array.rows(); i++) {
           if (array.get(i, j)) {
-            column.loc().set(i, value);
+            column.values().set(i, value);
           }
         }
       }
@@ -371,7 +372,7 @@ public abstract class AbstractDataFrame implements DataFrame {
         if (array.get(i)) {
           Series row = loc().getRow(i);
           for (int j = 0; j < row.size(); j++) {
-            row.loc().set(j, value);
+            row.values().set(j, value);
           }
           // builder.setRow(key, Series.repeat(value, columns()).newCopyBuilder());
         }
@@ -560,7 +561,7 @@ public abstract class AbstractDataFrame implements DataFrame {
       // if (column.getType().isAssignableTo(cls)) {
       C accumulator = collector.supplier().get();
       for (int i = 0, size = column.size(); i < size; i++) {
-        collector.accumulator().accept(accumulator, column.loc().get(cls, i));
+        collector.accumulator().accept(accumulator, column.values().get(cls, i));
       }
       builder.set(columnKey, collector.finisher().apply(accumulator));
       // }
@@ -861,7 +862,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     public final Builder setFrom(Object row, Object column, Series from, Object key) {
       int r = getOrAddIndex(row);
       int c = getOrAddColumnIndex(column);
-      setElementFromLocation(r, c, from, from.getIndex().getLocation(key));
+      setElementFromLocation(r, c, from, from.index().getLocation(key));
       return this;
     }
 

@@ -21,6 +21,7 @@
 package org.briljantframework.array;
 
 import org.briljantframework.array.api.ArrayBackend;
+import org.briljantframework.data.series.AbstractSeries;
 
 /**
  * Class for views over double arrays.
@@ -31,6 +32,10 @@ public abstract class AsDoubleArray extends AbstractDoubleArray {
 
   public AsDoubleArray(ArrayBackend bj, int offset, int[] shape, int[] stride) {
     super(bj, offset, shape, stride);
+  }
+
+  public AsDoubleArray(AbstractBaseArray<?> array) {
+    super(array.getArrayBackend(), array.getOffset(), array.getShape(), array.getStride() );
   }
 
   @Override

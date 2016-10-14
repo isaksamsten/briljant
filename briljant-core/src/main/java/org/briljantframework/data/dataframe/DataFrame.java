@@ -52,41 +52,41 @@ import org.briljantframework.data.series.Type;
 public interface DataFrame {
 
   static DataFrame of(Object name, Series c) {
-    return MixedDataFrame.of(name, c);
+    return ColumnDataFrame.of(name, c);
   }
 
   static DataFrame of(Object n1, Series v1, Object n2, Series v2) {
-    return MixedDataFrame.of(n1, v1, n2, v2);
+    return ColumnDataFrame.of(n1, v1, n2, v2);
   }
 
   static DataFrame of(Object n1, Series v1, Object n2, Series v2, Object n3, Series v3) {
-    return MixedDataFrame.of(n1, v1, n2, v2, n3, v3);
+    return ColumnDataFrame.of(n1, v1, n2, v2, n3, v3);
   }
 
   static DataFrame of(Object n1, Series v1, Object n2, Series v2, Object n3, Series v3, Object n4,
       Series v4) {
-    return MixedDataFrame.of(n1, v1, n2, v2, n3, v3, n4, v4);
+    return ColumnDataFrame.of(n1, v1, n2, v2, n3, v3, n4, v4);
   }
 
   static DataFrame of(Object n1, Series v1, Object n2, Series v2, Object n3, Series v3, Object n4,
       Series v4, Object n5, Series v5) {
-    return MixedDataFrame.of(n1, v1, n2, v2, n3, v3, n4, v4, n5, v5);
+    return ColumnDataFrame.of(n1, v1, n2, v2, n3, v3, n4, v4, n5, v5);
   }
 
   static DataFrame of(Object n1, Series v1, Object n2, Series v2, Object n3, Series v3, Object n4,
       Series v4, Object n5, Series v5, Object n6, Series v6) {
-    return MixedDataFrame.of(n1, v1, n2, v2, n3, v3, n4, v4, n5, v5, n6, v6);
+    return ColumnDataFrame.of(n1, v1, n2, v2, n3, v3, n4, v4, n5, v5, n6, v6);
   }
 
   static DataFrame of(Object n1, Series v1, Object n2, Series v2, Object n3, Series v3, Object n4,
       Series v4, Object n5, Series v5, Object n6, Series v6, Object n7, Series v7) {
-    return MixedDataFrame.of(n1, v1, n2, v2, n3, v3, n4, v4, n5, v5, n6, v6, n7, v7);
+    return ColumnDataFrame.of(n1, v1, n2, v2, n3, v3, n4, v4, n5, v5, n6, v6, n7, v7);
   }
 
   static DataFrame of(Object n1, Series v1, Object n2, Series v2, Object n3, Series v3, Object n4,
       Series v4, Object n5, Series v5, Object n6, Series v6, Object n7, Series v7, Object n8,
       Series v8) {
-    return MixedDataFrame.of(n1, v1, n2, v2, n3, v3, n4, v4, n5, v5, n6, v6, n7, v7, n8, v8);
+    return ColumnDataFrame.of(n1, v1, n2, v2, n3, v3, n4, v4, n5, v5, n6, v6, n7, v7, n8, v8);
   }
 
   /**
@@ -99,7 +99,7 @@ public interface DataFrame {
   @SuppressWarnings("unchecked")
   static DataFrame fromEntries(Map.Entry<Object, ? extends Series> entry,
       Map.Entry<Object, ? extends Series>... entries) {
-    return MixedDataFrame.fromEntries(entry, entries);
+    return ColumnDataFrame.fromEntries(entry, entries);
   }
 
   static DataFrame.Builder newBuilder(List<Class<?>> types) {
@@ -124,7 +124,7 @@ public interface DataFrame {
    * @return a new data frame builder
    */
   static DataFrame.Builder newBuilder() {
-    return MixedDataFrame.builder();
+    return ColumnDataFrame.builder();
   }
 
   /**
@@ -842,7 +842,7 @@ public interface DataFrame {
    * that type; otherwise the most general series will be returned.
    *
    * <pre>
-   * DataFrame df = MixedDataFrame.of(&quot;a&quot;, Series.of(1, 2, 3), &quot;b&quot;, Series.of(10, 20, 30));
+   * DataFrame df = ColumnDataFrame.of(&quot;a&quot;, Series.of(1, 2, 3), &quot;b&quot;, Series.of(10, 20, 30));
    * Series means = df.reduce(Vectors::mean);
    * </pre>
    *
@@ -944,7 +944,18 @@ public interface DataFrame {
    *
    * @return a new builder
    */
-  Builder newEmptyBuilder();
+  default Builder newEmptyBuilder() {
+    return newEmptyBuilder(false);
+  }
+
+  /**
+   * Creates a new builder for creating new data frames which produces the concrete implementation
+   * of {@code this}
+   *
+   * @return a new builder
+   * @param includeHeader include the header
+   */
+  Builder newEmptyBuilder(boolean includeHeader);
 
   /**
    * Creates a new builder, initialized with a copy of this data frame, i.e.
@@ -1002,7 +1013,7 @@ public interface DataFrame {
      * @return this modified
      */
     default Builder setColumn(Object columnKey, Series column) {
-      for (Object rowKey : column.getIndex()) {
+      for (Object rowKey : column.index()) {
         setFrom(rowKey, columnKey, column, rowKey);
       }
       return this;

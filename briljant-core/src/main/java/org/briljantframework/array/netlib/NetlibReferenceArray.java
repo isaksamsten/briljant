@@ -74,11 +74,11 @@ class NetlibReferenceArray<T> extends AbstractArray<T> {
   @Override
   @SuppressWarnings("unchecked")
   public <E> E[] toArray(E[] a) {
-    if (a.length < size)
-      return (E[]) Arrays.copyOf(data, size, a.getClass());
-    System.arraycopy(data, 0, a, 0, size);
-    if (a.length > size)
-      a[size] = null;
+    if (a.length < size())
+      return (E[]) Arrays.copyOf(data, size(), a.getClass());
+    System.arraycopy(data, 0, a, 0, size());
+    if (a.length > size())
+      a[size()] = null;
     return a;
   }
 

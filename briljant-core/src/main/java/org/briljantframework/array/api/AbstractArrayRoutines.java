@@ -520,11 +520,13 @@ public class AbstractArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public void plusAssign(DoubleArray a, final DoubleArray out) {
-    Arrays.broadcastWith(out, a, (x, y) -> {
+  public void plus(DoubleArray a, DoubleArray b, final DoubleArray out) {
+    Arrays.broadcastCombine(a, b, (x, y) -> {
+      Check.dimension(x, out);
       for (int i = 0, size = x.size(); i < size; i++) {
-        x.set(i, x.get(i) + y.get(i));
+        out.set(i, x.get(i) + y.get(i));
       }
+      return null;
     });
   }
 
@@ -540,11 +542,13 @@ public class AbstractArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public void minusAssign(DoubleArray a, DoubleArray out) {
-    Arrays.broadcastWith(out, a, (x, y) -> {
+  public void minus(DoubleArray a, DoubleArray b, DoubleArray out) {
+    Arrays.broadcastCombine(a, b, (x, y) -> {
+      Check.dimension(x, out);
       for (int i = 0, size = x.size(); i < size; i++) {
-        x.set(i, y.get(i) - x.get(i));
+        out.set(i, y.get(i) - x.get(i));
       }
+      return null;
     });
   }
 
@@ -560,11 +564,13 @@ public class AbstractArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public void timesAssign(DoubleArray a, DoubleArray out) {
-    Arrays.broadcastWith(out, a, (x, y) -> {
+  public void times(DoubleArray a, DoubleArray b, DoubleArray out) {
+    Arrays.broadcastCombine(a, b, (x, y) -> {
+      Check.dimension(x, out);
       for (int i = 0, size = x.size(); i < size; i++) {
-        x.set(i, x.get(i) * y.get(i));
+        out.set(i, x.get(i) * y.get(i));
       }
+      return null;
     });
   }
 
@@ -580,11 +586,13 @@ public class AbstractArrayRoutines implements ArrayRoutines {
   }
 
   @Override
-  public void divAssign(DoubleArray nominator, DoubleArray denominatorOut) {
-    Arrays.broadcastWith(denominatorOut, nominator, (x, y) -> {
+  public void div(DoubleArray a, DoubleArray b, DoubleArray out) {
+    Arrays.broadcastCombine(a, b, (x, y) -> {
+      Check.dimension(x, out);
       for (int i = 0, size = x.size(); i < size; i++) {
-        x.set(i, y.get(i) / x.get(i));
+        out.set(i, y.get(i) / x.get(i));
       }
+      return null;
     });
   }
 

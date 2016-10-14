@@ -47,7 +47,7 @@ public class CollectorsTest {
     Series counts = vec.collect(Character.class, valueCounts());
     assertEquals(2, counts.getInt('e'));
     assertEquals(1, counts.getInt('d'));
-    assertTrue(counts.getIndex().containsAll(Arrays.asList('a', 'b', 'c', 'd', 'e')));
+    assertTrue(counts.index().containsAll(Arrays.asList('a', 'b', 'c', 'd', 'e')));
   }
 
   @Test

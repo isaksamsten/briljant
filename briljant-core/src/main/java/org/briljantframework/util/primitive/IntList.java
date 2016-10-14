@@ -20,6 +20,7 @@
  */
 package org.briljantframework.util.primitive;
 
+import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -40,7 +41,7 @@ import org.briljantframework.array.IntArray;
  * 
  * @author Isak Karlsson
  */
-public class IntList extends AbstractList<Integer> {
+public class IntList extends AbstractList<Integer> implements Serializable {
 
   /**
    * The maximum size of array to allocate. Some VMs reserve some header words in an array. Attempts

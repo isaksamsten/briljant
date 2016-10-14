@@ -25,60 +25,58 @@ import java.util.Objects;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.series.AbstractSeries;
 import org.briljantframework.data.series.Series;
+import org.briljantframework.data.series.Storage;
 import org.briljantframework.data.series.Type;
 
 /**
  * A series for which the index cannot be changed
  */
+// TODO: delegate all methods.
 final class ImmutableIndexSeries extends AbstractSeries {
   private final Series delegate;
+  private final Index index;
 
   private ImmutableIndexSeries(Series series, Index index) {
-    super(index, series.getOffset(), series.getShape(), series.getStride());
+    this.index = Objects.requireNonNull(index);
     this.delegate = Objects.requireNonNull(series);
   }
 
   static Series newInstance(Series series, Index index) {
-    if (series instanceof ImmutableIndexSeries && series.getIndex() == index) {
+    if (series instanceof ImmutableIndexSeries && series.index() == index) {
       return series;
     }
     return new ImmutableIndexSeries(series, index);
   }
 
-  @Override
-  protected void setElement(int index, Object value) {
-    delegate.loc().set(index, value);
-  }
-
-  @Override
-  protected void setDoubleElement(int index, double value) {
-    delegate.loc().setDouble(index, value);
-  }
-
-  @Override
-  protected void setIntElement(int index, int value) {
-    delegate.loc().setInt(index, value);
-  }
-
-  @Override
-  protected boolean isElementNA(int i) {
-    return delegate.loc().isNA(i);
-  }
-
-  @Override
-  protected int getIntElement(int i) {
-    return delegate.loc().getInt(i);
-  }
-
-  @Override
-  protected double getDoubleElement(int i) {
-    return delegate.loc().getDouble(i);
-  }
-
-  @Override
-  protected <T> T getElement(Class<T> cls, int index) {
-    return delegate.loc().get(cls, index);
-  }
+  // @Override
+  // protected void setElement(int index, Object value) {
+  // delegate.values().set(index, value);
+  // }
+  //
+  // @Override
+  // protected void setDoubleElement(int index, double value) {
+  // delegate.values().setDouble(index, value);
+  // }
+  //
+  // @Override
+  // protected void setIntElement(int index, int value) {
+  // delegate.values().setInt(index, value);
+  // }
+  //
+  // @Override
+  // protected int getIntElement(int i) {
+  // return delegate.values().getInt(i);
+  // }
+  //
+  // @Override
+  // protected double getDoubleElement(int i) {
+  // return delegate.values().getDouble(i);
+  // }
+  //
+  // @Override
+  // protected <T> T getElement(Class<T> cls, int index) {
+  // return delegate.values().get(cls, index);
+  // }
 
   @Override
   public Series reindex(Index index) {
@@ -86,28 +84,34 @@ final class ImmutableIndexSeries extends AbstractSeries {
   }
 
   @Override
-  protected String getStringElement(int index) {
-    return delegate.loc().toString(index);
+  public int size() {
+    return delegate.size();
   }
 
   @Override
-  public Series asView(int offset, int[] shape, int[] stride) {
-    return newInstance(delegate.asView(offset, shape, stride), getIndex());
+  public Index index() {
+    return index;
+  }
+
+
+  @Override
+  public Object get(Object key) {
+    return delegate.values().get(index().getLocation(key));
+  }
+
+  @Override
+  public void set(Object key, Object value) {
+    delegate.values().set(index().getLocation(key), value);
+  }
+
+  @Override
+  public Storage values() {
+    return delegate.values();
   }
 
   @Override
   public Builder newCopyBuilder() {
-    return newBuilder().addAll(this);
-  }
-
-  @Override
-  public Series newEmptyArray(int... shape) {
-    return delegate.newEmptyArray(shape);
-  }
-
-  @Override
-  protected int elementSize() {
-    return delegate.size();
+    return newBuilder().setAll(this);
   }
 
   @Override

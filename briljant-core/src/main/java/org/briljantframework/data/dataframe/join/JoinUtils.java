@@ -118,7 +118,7 @@ public class JoinUtils {
   }
 
   private static JoinKeys createJoinKeys(Series a, Series b) {
-    return createJoinKeys(a.asList(Object.class), b.asList(Object.class));
+    return createJoinKeys(a.values(), b.values());
   }
 
 }

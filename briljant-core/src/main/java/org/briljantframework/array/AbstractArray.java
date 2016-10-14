@@ -221,6 +221,35 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
+  public int indexOf(Object v) {
+    if (v == null) {
+      for (int i = 0; i < size(); i++) {
+        if (get(i) == null) {
+          return i;
+        }
+      }
+    } else {
+      for (int i = 0; i < size(); i++) {
+        if (v.equals(get(i))) {
+          return i;
+        }
+      }
+    }
+    return -1;
+  }
+
+  @Override
+  public IntArray indexOf(int dim, Object v) {
+    Check.argument(dim >= 0 && dim < dims(), INVALID_DIMENSION, dim, dims());
+    int vectors = vectors(dim);
+    IntArray out = getArrayBackend().getArrayFactory().newIntArray(vectors);
+    for (int i = 0; i < vectors; i++) {
+      out.set(i, getVector(dim, i).indexOf(v));
+    }
+    return out;
+  }
+
+  @Override
   public T reduce(T initial, BinaryOperator<T> accumulator) {
     for (int i = 0; i < size(); i++) {
       initial = accumulator.apply(initial, get(i));

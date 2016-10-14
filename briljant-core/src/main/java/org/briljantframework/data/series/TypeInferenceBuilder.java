@@ -20,8 +20,6 @@
  */
 package org.briljantframework.data.series;
 
-import java.util.NoSuchElementException;
-
 import org.briljantframework.data.Is;
 import org.briljantframework.data.reader.DataEntry;
 
@@ -166,22 +164,13 @@ public final class TypeInferenceBuilder implements Series.Builder {
   }
 
   @Override
-  public Series.Builder addAll(Series from) {
+  public Series.Builder setAll(Series from) {
     if (from.size() > 0) {
       initBuilderFromType(from.getType());
       if (builder != null) {
-        builder.addAll(from);
+        builder.setAll(from);
       }
     }
-    return this;
-  }
-
-  @Override
-  public Series.Builder remove(Object key) {
-    if (builder == null) {
-      throw new NoSuchElementException(key + "");
-    }
-    builder.remove(key);
     return this;
   }
 

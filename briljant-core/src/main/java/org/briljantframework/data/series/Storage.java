@@ -27,34 +27,24 @@ import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.ComplexSequence;
 import org.briljantframework.DoubleSequence;
 import org.briljantframework.IntSequence;
-import org.briljantframework.array.IntArray;
 
 /**
  * This class provides location based indexing of {@link Series}. // TODO: 4/28/16 removeAll
  * 
  * @author Isak Karlsson
  */
-// TODO: 5/4/16 consider removing list
-public interface LocationGetter extends DoubleSequence, ComplexSequence, IntSequence, List<Object> {
+public interface Storage extends DoubleSequence, ComplexSequence, IntSequence, List<Object> {
 
   default Object get(int i) {
     return get(Object.class, i);
   }
 
-  default Object get(int i, int j) {
-    return get(Object.class, i, j);
-  }
-
-  default Object get(int... index) {
-    return get(Object.class, index);
-  }
-
   /**
    * Returns the value at {@code index} as an instance of {@code T}. If value at {@code index} is
    * not an instance of {@code cls}, returns an appropriate {@code NA} value. For references types
-   * (apart from {@code Complex} and {@code Bit}) this means {@code null} and for {@code primitive}
-   * types their respective {@code NA} value. Hence, checking for {@code null} does not always work.
-   * Instead {@link org.briljantframework.data.Is#NA(Object)} should be used.
+   * (apart from {@code Complex} and {@code Logical}) this means {@code null} and for
+   * {@code primitive} types their respective {@code NA} value. Hence, checking for {@code null}
+   * does not always work. Instead {@link org.briljantframework.data.Is#NA(Object)} should be used.
    *
    * <pre>
    * {@code
@@ -83,22 +73,10 @@ public interface LocationGetter extends DoubleSequence, ComplexSequence, IntSequ
    */
   <T> T get(Class<T> cls, int i);
 
-  <T> T get(Class<T> cls, int i, int j);
-
-  <T> T get(Class<T> cls, int... index);
-
   @Override
   Object set(int index, Object element);
 
-  Object set(int i, int j, Object element);
-
-  Object set(int[] index, Object element);
-
   double setDouble(int index, double value);
-
-  double setDouble(int i, int j, double value);
-
-  double setDouble(int[] index, double value);
 
   /**
    * Returns value as {@code double} if applicable. Otherwise returns
@@ -110,15 +88,7 @@ public interface LocationGetter extends DoubleSequence, ComplexSequence, IntSequ
    */
   double getDouble(int i);
 
-  double getDouble(int i, int j);
-
-  double getDouble(int... index);
-
   int setInt(int index, int value);
-
-  int setInt(int i, int j, int value);
-
-  int setInt(int[] index, int value);
 
   /**
    * Returns value as {@code int} if applicable. Otherwise returns
@@ -129,14 +99,6 @@ public interface LocationGetter extends DoubleSequence, ComplexSequence, IntSequ
    * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
   int getInt(int i);
-
-  int getInt(int i, int j);
-
-  int getInt(int... index);
-
-  int indexOf(Object o);
-
-  int lastIndexOf(Object o);
 
   /**
    * Get the value at the specified index. If the value is {@code NA}, the supplied default value is
@@ -163,16 +125,6 @@ public interface LocationGetter extends DoubleSequence, ComplexSequence, IntSequ
    * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
   boolean isNA(int i);
-
-  /**
-   * Return the string representation of the value at {@code index}
-   *
-   * @param index the index
-   * @return the string representation. Returns "NA" if value is missing.
-   */
-  String toString(int index);
-
-  Series get(IntArray index);
 
   /**
    * Follows the conventions from {@link Comparable#compareTo(Object)}.
@@ -213,5 +165,7 @@ public interface LocationGetter extends DoubleSequence, ComplexSequence, IntSequ
    * @return true if values are equal
    * @throws java.lang.IndexOutOfBoundsException if {@code index < 0 || index > size()}
    */
-  boolean equals(int a, Series other, int b);
+  boolean equals(int a, Storage other, int b);
+
+  void setFrom(int to, Storage source, int from);
 }

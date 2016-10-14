@@ -49,7 +49,7 @@ public abstract class Type {
    * @return a new series
    */
   public Series copy(Series series) {
-    return newBuilder(series.size()).addAll(series).build();
+    return newBuilder(series.size()).setAll(series).build();
   }
 
   /**

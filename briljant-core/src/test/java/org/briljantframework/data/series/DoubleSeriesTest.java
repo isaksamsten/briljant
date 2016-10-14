@@ -20,14 +20,42 @@
  */
 package org.briljantframework.data.series;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Arrays;
+
+import org.briljantframework.data.index.Index;
+import org.junit.Assert;
+import org.junit.Test;
+
 /**
  * @author Isak Karlsson <isak-kar@dsv.su.se>
  */
-public class DoubleSeriesTest extends VectorTest {
+public class DoubleSeriesTest extends SeriesTest {
 
   @Override
   protected Series.Builder getBuilder() {
     return new DoubleSeries.Builder();
   }
 
+  @Test
+  public void testSerialize() throws Exception {
+    Series expected = getBuilder().addAll(Arrays.asList(1, 2, 3, 4)).build();
+    expected = expected.reindex(Index.of("A", "B", "C", "D"));
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    ObjectOutputStream oos = new ObjectOutputStream(bos);
+    oos.writeObject(expected);
+    oos.flush();
+
+    byte[] byteRep = bos.toByteArray();
+
+
+    ByteArrayInputStream bis = new ByteArrayInputStream(byteRep);
+    ObjectInputStream ois = new ObjectInputStream(bis);
+
+    Series actual = (Series) ois.readObject();
+    Assert.assertEquals(expected, actual);
+  }
 }

@@ -24,7 +24,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.briljantframework.data.index.Index;
-import org.briljantframework.data.series.*;
+import org.briljantframework.data.series.AbstractSeries;
+import org.briljantframework.data.series.Series;
+import org.briljantframework.data.series.Type;
+import org.briljantframework.data.series.Types;
 
 /**
  * View a row in a data frame.
@@ -42,25 +45,30 @@ class RowView extends AbstractSeries {
   }
 
   RowView(DataFrame parent, int row, Type type) {
-    this(parent.getColumnIndex(), parent, row, type, 0, new int[] {parent.columns()}, new int[] {1});
-  }
-
-  RowView(Index index, DataFrame parent, int row, Type type, int offset, int[] shape,
-      int[] stride) {
-    super(index, offset, shape, stride);
     this.parent = parent;
     this.type = type;
     this.row = row;
   }
 
   @Override
-  protected void setElement(int index, Object value) {
-    parent.loc().set(row, index, value);
+  public Index index() {
+    return parent.getColumnIndex();
+  }
+
+  // @Override
+  // protected void setElement(int index, Object value) {
+  // parent.loc().set(row, index, value);
+  // }
+
+  @Override
+  public Object get(Object key) {
+    // todo: consider if row should be a key instead of a location.
+    return parent.get(key).values().get(row);
   }
 
   @Override
-  public void setIndex(Index index) {
-    throw new UnsupportedOperationException("Can't set index on view");
+  public void set(Object key, Object value) {
+
   }
 
   /**
@@ -82,41 +90,30 @@ class RowView extends AbstractSeries {
     return type;
   }
 
-  @Override
-  public <T> T getElement(Class<T> cls, int index) {
-    return parent.loc().get(cls, row, index);
-  }
-
-  @Override
-  public double getDoubleElement(int i) {
-    return parent.loc().getDouble(row, i);
-  }
-
-  @Override
-  public int getIntElement(int i) {
-    return parent.loc().getInt(row, i);
-  }
-
-  @Override
-  public boolean isElementNA(int i) {
-    return parent.loc().isNA(row, i);
-  }
-
-  @Override
-  public String getStringElement(int index) {
-    return parent.loc().get(index).loc().toString(row);
-  }
+  // @Override
+  // public <T> T getElement(Class<T> cls, int index) {
+  // return parent.loc().get(cls, row, index);
+  // }
+  //
+  // @Override
+  // public double getDoubleElement(int i) {
+  // return parent.loc().getDouble(row, i);
+  // }
+  //
+  // @Override
+  // public int getIntElement(int i) {
+  // return parent.loc().getInt(row, i);
+  // }
 
   @Override
   public Series reindex(Index index) {
     Series series = newCopyBuilder().build();
-    series.setIndex(index);
-    return series;
+    return series.reindex(index);
   }
 
   @Override
   public Builder newCopyBuilder() {
-    return newBuilder().addAll(this);
+    return newBuilder().setAll(this);
   }
 
   @Override
@@ -130,17 +127,7 @@ class RowView extends AbstractSeries {
   }
 
   @Override
-  protected int elementSize() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Series asView(int offset, int[] shape, int[] stride) {
-    return new RowView(getIndex(), parent, row, type, offset, shape, stride);
-  }
-
-  @Override
-  public Series newEmptyArray(int... shape) {
-    return new ObjectSeries(type, shape);
+  public int size() {
+    return parent.columns();
   }
 }

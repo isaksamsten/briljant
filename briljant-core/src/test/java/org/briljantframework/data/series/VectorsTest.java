@@ -43,7 +43,7 @@ public class VectorsTest {
     int[] order = SeriesUtils.indexSort(v);
     System.out.println(Arrays.toString(order));
     for (int i : order) {
-      System.out.println(v.loc().getDouble(i));
+      System.out.println(v.values().getDouble(i));
     }
 
   }

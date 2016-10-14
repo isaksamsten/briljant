@@ -41,6 +41,7 @@ public class SqlParserTest {
     settings.remap("Name", "Artist");
 
     DataFrame df = parser.parse();
+    System.out.println(df);
     System.out.println(df.groupBy("Artist").collect(Object.class, Collectors.count()));
     System.out.println(df.get("Artist").valueCounts().sort(SortOrder.DESC));
     // for (int i = 0; i < sort.rows(); i++) {

@@ -31,7 +31,14 @@ import org.apache.commons.lang3.tuple.Pair;
 public class ShapeUtils {
 
   public static boolean isBroadcastSensible(BaseArray<?> a, BaseArray<?> b) {
-    return !(a.isVector() && b.isVector()) || b.size() == 1;
+    if (!(a.isVector() && b.isVector()))
+      if (a.size() == b.size())
+        return false;
+      else
+        return true;
+    if (b.size() == 1)
+      return true;
+    return false;
   }
 
   /**

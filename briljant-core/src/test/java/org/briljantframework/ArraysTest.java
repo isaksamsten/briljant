@@ -67,19 +67,21 @@ public class ArraysTest {
     // frame.setVisible(true);
   }
 
-  @Test public void testPlus() throws Exception {
+  @Test
+  public void testPlus() throws Exception {
     DoubleArray a = Arrays.doubleVector(1, 2, 3, 4, 5, 6).reshape(2, 3);
-    DoubleArray b = Arrays.doubleVector(1,2,3);
+    DoubleArray b = Arrays.doubleVector(1, 2, 3);
     System.out.println(a);
     System.out.println(b);
     System.out.println(Arrays.plus(a, b));
 
-    Arrays.plusAssign(b, a);
+    Arrays.plus(b, a, a);
     System.out.println(a);
 
   }
 
-  @Test public void testBroadcast_BiFunction() throws Exception {
+  @Test
+  public void testBroadcast_BiFunction() throws Exception {
     DoubleArray x = DoubleArray.zeros(3, 3, 3);
     DoubleArray y = DoubleArray.linspace(-1, 1, 3 * 3).reshape(3, 3);
 

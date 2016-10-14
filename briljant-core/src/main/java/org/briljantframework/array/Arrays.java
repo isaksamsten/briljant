@@ -2050,7 +2050,7 @@ public final class Arrays {
    * @see #binarySearch(Array, Object)
    */
   public static int binarySearch(DoubleArray array, double x) {
-    return binarySearch(array.asArray(), x);
+    return binarySearch(array.boxed(), x);
   }
 
   /**
@@ -2083,7 +2083,7 @@ public final class Arrays {
    * @see #bisectLeft(Array, Object)
    */
   public static int bisectLeft(DoubleArray array, double value) {
-    return bisectLeft(array.asArray(), value);
+    return bisectLeft(array.boxed(), value);
   }
 
   /**
@@ -2117,7 +2117,7 @@ public final class Arrays {
    * @see #bisectRight(Array, Object)
    */
   public static int bisectRight(DoubleArray array, double value) {
-    return bisectRight(array.asArray(), value);
+    return bisectRight(array.boxed(), value);
   }
 
   /**
@@ -2137,28 +2137,28 @@ public final class Arrays {
     return ARRAY_ROUTINES.div(nominator, denominator);
   }
 
-  public static void minusAssign(DoubleArray a, DoubleArray out) {
-    ARRAY_ROUTINES.minusAssign(a, out);
+  public static void minus(DoubleArray a, DoubleArray b, DoubleArray out) {
+    ARRAY_ROUTINES.minus(a, b, out);
   }
 
   public static DoubleArray minus(DoubleArray a, DoubleArray b) {
     return ARRAY_ROUTINES.minus(a, b);
   }
 
-  public static void plusAssign(DoubleArray a, DoubleArray out) {
-    ARRAY_ROUTINES.plusAssign(a, out);
+  public static void plus(DoubleArray a, DoubleArray b, DoubleArray out) {
+    ARRAY_ROUTINES.plus(a, b, out);
   }
 
-  public static void timesAssign(DoubleArray a, DoubleArray out) {
-    ARRAY_ROUTINES.timesAssign(a, out);
+  public static void times(DoubleArray a, DoubleArray b, DoubleArray out) {
+    ARRAY_ROUTINES.times(a, b, out);
   }
 
   public static DoubleArray plus(DoubleArray a, DoubleArray b) {
     return ARRAY_ROUTINES.plus(a, b);
   }
 
-  public static void divAssign(DoubleArray nominator, DoubleArray denominatorOut) {
-    ARRAY_ROUTINES.divAssign(nominator, denominatorOut);
+  public static void div(DoubleArray a, DoubleArray b, DoubleArray out) {
+    ARRAY_ROUTINES.div(a, b, out);
   }
 
   public static DoubleArray times(DoubleArray a, DoubleArray b) {
@@ -2915,6 +2915,16 @@ public final class Arrays {
     }
 
     @Override
+    public int indexOf(Object v) {
+      return array.indexOf(v);
+    }
+
+    @Override
+    public IntArray indexOf(int dim, Object v) {
+      return array.indexOf(dim, v);
+    }
+
+    @Override
     public T reduce(T initial, BinaryOperator<T> accumulator) {
       return array.reduce(initial, accumulator);
     }
@@ -3486,13 +3496,8 @@ public final class Arrays {
     }
 
     @Override
-    public List<Double> asList() {
-      return Collections.unmodifiableList(array.asList());
-    }
-
-    @Override
-    public Array<Double> asArray() {
-      return unmodifiableArray(array.asArray());
+    public Array<Double> boxed() {
+      return unmodifiableArray(array.boxed());
     }
 
     @Override
@@ -3783,7 +3788,7 @@ public final class Arrays {
 
     @Override
     public Iterator<Double> iterator() {
-      return asList().iterator();
+      return array.iterator();
     }
 
     @Override
@@ -3793,7 +3798,7 @@ public final class Arrays {
 
     @Override
     public Spliterator<Double> spliterator() {
-      return asList().spliterator();
+      return array.spliterator();
     }
 
     UnmodifiableDoubleArray(DoubleArray array) {

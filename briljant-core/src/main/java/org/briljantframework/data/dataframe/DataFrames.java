@@ -43,6 +43,7 @@ import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.NaturalOrdering;
 import org.briljantframework.data.series.Series;
+import org.briljantframework.data.series.Storage;
 import org.briljantframework.data.series.Types;
 import org.briljantframework.data.series.SeriesUtils;
 
@@ -62,8 +63,8 @@ public final class DataFrames {
     Set<Object> aUnique = new HashSet<>();
     Set<Object> bUnique = new HashSet<>();
     for (int i = 0; i < a.size(); i++) {
-      Object va = a.loc().get(i);
-      Object vb = b.loc().get(i);
+      Object va = a.values().get(i);
+      Object vb = b.values().get(i);
       Map<Object, Integer> countVb = counts.get(va);
       if (countVb == null) {
         countVb = new HashMap<>();
@@ -132,7 +133,7 @@ public final class DataFrames {
   }
 
   public static DataFrame sortBy(DataFrame df, Object key, SortOrder order) {
-    org.briljantframework.data.series.LocationGetter loc = df.get(key).loc();
+    Storage loc = df.get(key).values();
     boolean asc = order == SortOrder.ASC;
     IntComparator cmp = asc ? loc::compare : (a, b) -> loc.compare(b, a);
     Index.Builder index = df.getIndex().newCopyBuilder();
@@ -142,7 +143,7 @@ public final class DataFrames {
 
   public static <T> DataFrame sortBy(DataFrame df, Object key, Class<? extends T> cls,
       Comparator<? super T> cmp) {
-    org.briljantframework.data.series.LocationGetter loc = df.get(key).loc();
+    Storage loc = df.get(key).values();
     Index.Builder index = df.getIndex().newCopyBuilder();
     index.sortIterationOrder((a, b) -> cmp.compare(loc.get(cls, a), loc.get(cls, b)));
     return df.reindex(df.getColumnIndex(), index.build());
@@ -166,7 +167,7 @@ public final class DataFrames {
    *
    * <pre>
    * {@code
-   * > DataFrame df = MixedDataFrame.of(
+   * > DataFrame df = ColumnDataFrame.of(
    *    "a", Series.of(1, 2, 3, 4, 5, 6),
    *    "b", Series.of("a", "b", "b", "b", "e", "f"),
    *    "c", Series.of(1.1, 1.2, 1.3, 1.4, 1.5, 1.6)
@@ -186,7 +187,7 @@ public final class DataFrames {
    * @return a data frame summarizing {@code df}
    */
   public static DataFrame summary(DataFrame df) {
-    DataFrame.Builder builder = new MixedDataFrame.Builder();
+    DataFrame.Builder builder = new ColumnDataFrame.Builder();
     builder.newColumn("mean", Types.DOUBLE).newColumn("var", Types.DOUBLE)
         .newColumn("std", Types.DOUBLE).newColumn("min", Types.DOUBLE).newColumn("max", Types.DOUBLE)
         .newColumn("mode", Types.OBJECT);

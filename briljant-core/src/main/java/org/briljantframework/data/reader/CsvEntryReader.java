@@ -70,7 +70,11 @@ public class CsvEntryReader implements EntryReader {
           types.add(Object.class);
         } else if (NumberUtils.isNumber(repr)) {
           Number number = NumberUtils.createNumber(repr);
-          types.add(number.getClass());
+          if (number.intValue() == 0) {
+            types.add(Double.class);
+          } else {
+            types.add(number.getClass());
+          }
         } else {
           // Finally, try to resolve the value using the registered resolvers
           Resolver<?> resolver = null;

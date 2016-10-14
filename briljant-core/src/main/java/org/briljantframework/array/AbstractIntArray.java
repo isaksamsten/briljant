@@ -26,8 +26,6 @@ import java.util.function.*;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
-import net.mintern.primitive.comparators.IntComparator;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
@@ -35,6 +33,8 @@ import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.util.primitive.IntList;
 import org.briljantframework.util.sort.QuickSort;
+
+import net.mintern.primitive.comparators.IntComparator;
 
 /**
  * This class provides a skeletal implementation of an int array.
@@ -555,8 +555,8 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
   @Override
   @SuppressWarnings("unchecked")
   public <T> T[] toArray(T[] a) {
-    T[] r = a.length >= size ? a
-        : (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
+    T[] r = a.length >= size() ? a
+        : (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size());
     for (int i = 0; i < size(); i++) {
       r[i] = (T) Integer.valueOf(get(i));
     }

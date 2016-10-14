@@ -20,24 +20,25 @@
  */
 package org.briljantframework.data.index;
 
+import java.io.Serializable;
 import java.util.*;
-
-import net.mintern.primitive.comparators.IntComparator;
 
 import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.series.Series;
 import org.briljantframework.util.primitive.IntList;
+
+import net.mintern.primitive.comparators.IntComparator;
 
 /**
  * Index based on a HashMap.
  *
  * @author Isak Karlsson
  */
-public final class HashIndex extends AbstractIndex {
+public final class HashIndex extends AbstractIndex implements Serializable {
 
-  private final IterationOrderKeySet iterationOrderKeySet = new IterationOrderKeySet();
+  private final transient IterationOrderKeySet iterationOrderKeySet = new IterationOrderKeySet();
   private final Map<Object, Integer> keys;
-  private final List<Object> locations;
+  private final ArrayList<Object> locations;
   private final IntList order;
 
   private HashIndex(Collection<?> coll) {
@@ -59,14 +60,14 @@ public final class HashIndex extends AbstractIndex {
     return keys;
   }
 
-  private HashIndex(Map<Object, Integer> keys, List<Object> locations, IntList order) {
+  private HashIndex(Map<Object, Integer> keys, ArrayList<Object> locations, IntList order) {
     this.keys = Collections.unmodifiableMap(keys);
     this.locations = locations;
     this.order = order;
   }
 
   public static HashIndex of(Series series) {
-    return of(series.asList(Object.class));
+    return of(series.values());
   }
 
   public static HashIndex of(Collection<?> coll) {
@@ -150,7 +151,7 @@ public final class HashIndex extends AbstractIndex {
 
     private final static Comparator<Object> naturalOrdering = NaturalOrdering.ascending();
     private Map<Object, Integer> keys;
-    private List<Object> locations;
+    private ArrayList<Object> locations;
     private IntList order;
     private int currentSize = 0;
 
@@ -281,8 +282,8 @@ public final class HashIndex extends AbstractIndex {
       if (keys == null) {
         throw new IllegalStateException("Can't reuse builder");
       }
-      Map<Object, Integer> immutableKeys = Collections.unmodifiableMap(getKeys());
-      Index index = new HashIndex(immutableKeys, Collections.unmodifiableList(locations), order);
+      Map<Object, Integer> immutableKeys = getKeys();
+      Index index = new HashIndex(immutableKeys, locations, order);
       this.keys = null;
       this.locations = null;
       this.order = null;

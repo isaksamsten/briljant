@@ -127,7 +127,7 @@ public final class Resolve {
 
   private static Resolver<Logical> getLogicalResolver() {
     Resolver<Logical> logicalResolver = new Resolver<>(Logical.class);
-    logicalResolver.put(String.class, v -> Logical.valueOf(v.trim().equalsIgnoreCase("true")));
+    logicalResolver.put(String.class, v -> Logical.valueOf("true".trim().equalsIgnoreCase(v)));
     logicalResolver.put(Boolean.class, v -> v ? Logical.TRUE : Logical.FALSE);
     logicalResolver.put(Number.class, v -> v.intValue() == 1 ? Logical.TRUE : Logical.FALSE);
     return logicalResolver;

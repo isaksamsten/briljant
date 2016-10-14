@@ -281,19 +281,10 @@ abstract class AbstractSeriesBuilder implements Series.Builder {
    * @return a modified builder
    */
   @Override
-  public Series.Builder addAll(Series from) {
-    for (int i = 0; i < from.size(); i++) {
-      setElementFrom(size(), from, i);
+  public Series.Builder setAll(Series from) {
+    for (Object key : from.index()) {
+      setFrom(key, from, key);
     }
-    return this;
-  }
-
-  @Override
-  public final Series.Builder remove(Object key) {
-    initIndexBuilder();
-    int location = indexBuilder.getLocation(key);
-    removeElement(location);
-    removeIndexLocation(location);
     return this;
   }
 

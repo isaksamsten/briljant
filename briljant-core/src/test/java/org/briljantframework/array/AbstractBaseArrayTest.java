@@ -39,11 +39,11 @@ public abstract class AbstractBaseArrayTest<S extends BaseArray<S>> {
     DoubleArray a = DoubleArray.of(1, 2, 3, 4);
     DoubleArray b = DoubleArray.of(1);
 
-    a.assign(b);
+//    a.assign(b);
 
     System.out.println(a);
 
-    Arrays.plusAssign(b, a);
+    Arrays.plus(b, a, a);
     System.out.println(a);
   }
 
@@ -351,7 +351,6 @@ public abstract class AbstractBaseArrayTest<S extends BaseArray<S>> {
 
   @Test
   public void rows() throws Exception {
-
 
 
 

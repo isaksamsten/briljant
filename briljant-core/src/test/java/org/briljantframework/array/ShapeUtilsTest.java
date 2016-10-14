@@ -18,15 +18,19 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.briljantframework.data.series;
+package org.briljantframework.array;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
- * @author Isak Karlsson
+ * Created by isak on 2016-10-10.
  */
-public class DoubleSeriesBuilderTest extends SeriesBuilderTest {
-
-  @Override
-  Series.Builder getBuilder() {
-    return new DoubleSeries.Builder();
+public class ShapeUtilsTest {
+  @Test
+  public void isBroadcastSensible() throws Exception {
+    assertFalse(ShapeUtils.isBroadcastSensible(DoubleArray.of(1,2,3).reshape(3,1), DoubleArray.of(1, 2, 3)));
   }
+
 }

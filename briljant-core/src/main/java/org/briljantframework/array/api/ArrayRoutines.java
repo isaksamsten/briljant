@@ -526,37 +526,41 @@ public interface ArrayRoutines {
 
   /**
    * out <- a + out
+   * 
    * @param a
+   * @param b
    * @param out
    */
-  void plusAssign(DoubleArray a, DoubleArray out);
+  void plus(DoubleArray a, DoubleArray b, DoubleArray out);
 
   DoubleArray minus(DoubleArray a, DoubleArray b);
 
   /**
    * out <- a - out
-   * @param a
+   *  @param a
+   * @param b
    * @param out
    */
-  void minusAssign(DoubleArray a, DoubleArray out);
+  void minus(DoubleArray a, DoubleArray b, DoubleArray out);
 
   DoubleArray times(DoubleArray a, DoubleArray b);
 
   /**
    * out <- a * out
+   * 
    * @param a
    * @param out
    */
-  void timesAssign(DoubleArray a, DoubleArray out);
+  void times(DoubleArray a, DoubleArray b, DoubleArray out);
 
   DoubleArray div(DoubleArray nominator, DoubleArray denominator);
 
   /**
-   * out <- a / out
-   * @param nominator
-   * @param denominatorOut
+   * out <- a / b
+   *  @param a
+   * @param b
    */
-  void divAssign(DoubleArray nominator, DoubleArray denominatorOut);
+  void div(DoubleArray a, DoubleArray b, DoubleArray out);
 
   IntArray plus(IntArray a, IntArray b);
 
@@ -565,11 +569,11 @@ public interface ArrayRoutines {
   IntArray minus(IntArray a, IntArray b);
 
   void minusAssign(IntArray a, IntArray out);
-  
+
   IntArray times(IntArray a, IntArray b);
 
   void timesAssign(IntArray a, IntArray out);
-  
+
   IntArray div(IntArray a, IntArray b);
 
   void divAssign(IntArray a, IntArray out);

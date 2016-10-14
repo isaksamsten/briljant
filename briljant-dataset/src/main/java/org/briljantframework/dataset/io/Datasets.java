@@ -29,8 +29,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.briljantframework.data.dataframe.ColumnDataFrame;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.dataframe.MixedDataFrame;
 import org.briljantframework.data.index.HashIndex;
 import org.briljantframework.data.series.Type;
 
@@ -62,7 +62,7 @@ public class Datasets {
    * <p>
    * <code><pre>
    *    DataFrame dataframe =
-   *        DataFrames.load(MixedDataFrame.Builder::new, new CsvInputStream("iris.txt"));
+   *        DataFrames.load(ColumnDataFrame.Builder::new, new CsvInputStream("iris.txt"));
    * </pre></code>
    *
    * @param f the producing {@code BiFunction}
@@ -89,12 +89,12 @@ public class Datasets {
    * Returns the same dataset as {@link #loadIris()}, but using a particular {@code DataFrame}
    * builder.
    *
-   * For example, if using the {@link org.briljantframework.data.dataframe.MixedDataFrame}:
+   * For example, if using the {@link ColumnDataFrame}:
    *
    * <pre>
-   * DataFrame dataFrame = loadIris((names, types) -&gt; new MixedDataFrame.Builder(names, types));
+   * DataFrame dataFrame = loadIris((names, types) -&gt; new ColumnDataFrame.Builder(names, types));
    * // or simply
-   * DataFrame iris = loadIris(MixedDataFrame.Builder::new);
+   * DataFrame iris = loadIris(ColumnDataFrame.Builder::new);
    * </pre>
    *
    * @param f the supplier
@@ -130,7 +130,7 @@ public class Datasets {
     if (DATA_CACHE.containsKey(IRIS)) {
       return DATA_CACHE.get(IRIS);
     }
-    DataFrame iris = loadIris(MixedDataFrame.Builder::new);
+    DataFrame iris = loadIris(ColumnDataFrame.Builder::new);
     DATA_CACHE.put(IRIS, iris);
     return iris;
   }
@@ -153,7 +153,7 @@ public class Datasets {
     if (DATA_CACHE.containsKey(CONNECT_4)) {
       return DATA_CACHE.get(CONNECT_4);
     }
-    DataFrame frame = loadConnect4(MixedDataFrame.Builder::new);
+    DataFrame frame = loadConnect4(ColumnDataFrame.Builder::new);
     DATA_CACHE.put(CONNECT_4, frame);
     return frame;
   }
@@ -175,7 +175,7 @@ public class Datasets {
     if (DATA_CACHE.containsKey(SYNTHETIC_CONTROL)) {
       return DATA_CACHE.get(SYNTHETIC_CONTROL);
     }
-    DataFrame frame = loadSyntheticControl(types -> new MixedDataFrame.Builder());
+    DataFrame frame = loadSyntheticControl(types -> new ColumnDataFrame.Builder());
     DATA_CACHE.put(SYNTHETIC_CONTROL, frame);
     return frame;
   }
@@ -198,7 +198,7 @@ public class Datasets {
     if (DATA_CACHE.containsKey(DUMMY)) {
       return DATA_CACHE.get(DUMMY);
     }
-    DataFrame frame = loadDummy(MixedDataFrame.Builder::new);
+    DataFrame frame = loadDummy(ColumnDataFrame.Builder::new);
     DATA_CACHE.put(DUMMY, frame);
     return frame;
   }

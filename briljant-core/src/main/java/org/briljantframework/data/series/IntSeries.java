@@ -23,8 +23,6 @@ package org.briljantframework.data.series;
 import java.util.stream.IntStream;
 
 import org.briljantframework.Check;
-import org.briljantframework.array.ShapeUtils;
-import org.briljantframework.array.StrideUtils;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.index.Index;
@@ -41,41 +39,28 @@ import org.briljantframework.util.primitive.ArrayAllocations;
  */
 public class IntSeries extends AbstractSeries {
 
-  private final int[] buffer;
-  private final int elementCount;
+  private final Index index;
+  private int[] buffer;
+  private int elementCount;
 
   private IntSeries(int... values) {
     this(values, values.length, false);
   }
 
   private IntSeries(int[] buffer, int elementCount, boolean safe) {
-    super(0, new int[] {elementCount}, new int[] {1});
     if (safe) {
       this.buffer = java.util.Arrays.copyOf(buffer, elementCount);
     } else {
       this.buffer = buffer;
     }
     this.elementCount = elementCount;
+    this.index = new RangeIndex(0, elementCount);
   }
 
   private IntSeries(Index index, int[] buffer, int elementCount) {
-    this(index, 0, new int[] {elementCount}, new int[] {1}, buffer);
-
-  }
-
-  private IntSeries(int offset, int[] shape, int[] stride, int[] buffer) {
-    this(null, offset, shape, stride, buffer);
-
-  }
-
-  private IntSeries(Index index, int offset, int[] shape, int[] stride, int[] buffer) {
-    super(index, offset, shape, stride);
+    this.index = index;
     this.buffer = buffer;
-    this.elementCount = ShapeUtils.size(shape);
-  }
-
-  private IntSeries(int offset, int[] shape) {
-    this(offset, shape, StrideUtils.computeStride(shape), new int[ShapeUtils.size(shape)]);
+    this.elementCount = elementCount;
   }
 
   public static IntSeries of(int... values) {
@@ -91,28 +76,18 @@ public class IntSeries extends AbstractSeries {
   }
 
   @Override
-  public void setFrom(int toIndex, Series from, int fromIndex) {
-    loc().setInt(toIndex, from.loc().getInt(fromIndex));
+  public int size() {
+    return elementCount;
   }
 
   @Override
-  public void setFrom(int toRow, int toColumn, Series from, int fromRow, int fromColumn) {
-    loc().setInt(toRow, fromColumn, from.loc().getInt(fromRow, fromColumn));
+  public Index index() {
+    return index;
   }
 
   @Override
-  public void setFrom(int[] toIndex, Series from, int[] fromIndex) {
-    loc().setInt(toIndex, from.loc().getInt(fromIndex));
-  }
-
-  @Override
-  public void setFrom(int[] toIndex, Series from, int fromIndex) {
-    loc().setInt(toIndex, from.loc().getInt(fromIndex));
-  }
-
-  @Override
-  public void setFrom(int toIndex, Series from, int[] fromIndex) {
-    loc().setInt(toIndex, from.loc().getInt(fromIndex));
+  public Object get(Object key) {
+    return buffer[index().getLocation(key)];
   }
 
   @Override
@@ -131,61 +106,34 @@ public class IntSeries extends AbstractSeries {
   }
 
   @Override
-  public Series asView(int offset, int[] shape, int[] stride) {
-    return new IntSeries(getIndex(), offset, shape, stride, buffer);
+  public void set(Object index, Object value) {
+    buffer[index().getLocation(index)] = Convert.to(Integer.class, value);
+  }
+
+  // @Override
+  // protected void addElement(Object value) {
+  // buffer = ArrayAllocations.ensureCapacity(buffer, elementCount + 1);
+  // buffer[elementCount++] = Convert.to(Integer.class, value);
+  // }
+
+  @Override
+  public void setInt(Object index, int value) {
+    buffer[index().getLocation(index)] = value;
   }
 
   @Override
-  protected final int compareElement(int a, Series other, int b) {
-    int x = loc().getInt(a);
-    int y = other.loc().getInt(b);
-    boolean aIsNa = Is.NA(x);
-    boolean bIsNa = Is.NA(y);
-    if (aIsNa && !bIsNa) {
-      return -1;
-    } else if (!aIsNa && bIsNa) {
-      return 1;
-    } else {
-      return Integer.compare(x, y);
-    }
+  public int getInt(Object key) {
+    return buffer[index().getLocation(key)];
   }
 
   @Override
-  protected final boolean isElementNA(int i) {
-    return getIntElement(i) == Na.INT;
+  public double getDouble(Object key) {
+    return values().getDouble(index().getLocation(key));
   }
 
   @Override
-  protected void setElement(int index, Object value) {
-    setIntElement(index, Convert.to(Integer.class, value));
-  }
-
-  @Override
-  protected void setDoubleElement(int index, double value) {
-    setIntElement(index, (int) value);
-  }
-
-  @Override
-  protected void setIntElement(int index, int value) {
-    buffer[index] = value;
-  }
-
-  @Override
-  protected final int getIntElement(int i) {
-    return buffer[i];
-  }
-
-  @Override
-  protected final double getDoubleElement(int i) {
-    int value = getIntElement(i);
-    return value == Na.INT ? Na.DOUBLE : value;
-  }
-
-  @Override
-  protected final <T> T getElement(Class<T> cls, int index) {
-    Check.argument(!cls.isPrimitive(), "can't get primitive values");
-    int v = getIntElement(index);
-    return Convert.to(cls, v);
+  public void setDouble(Object key, double value) {
+    values().setDouble(index().getLocation(key), value);
   }
 
   @Override
@@ -202,7 +150,7 @@ public class IntSeries extends AbstractSeries {
   public final int hashCode() {
     int result = 1;
     for (int i = 0; i < size(); i++) {
-      result = 31 * result + getIntElement(i);
+      result = 31 * result + values().getInt(i);
     }
     return result;
   }
@@ -220,10 +168,10 @@ public class IntSeries extends AbstractSeries {
     if (size() != that.size()) {
       return false;
     }
-    if (!getIndex().equals(that.getIndex())) {
+    if (!index().equals(that.index())) {
       return false;
     }
-    for (Object key : getIndex().keySet()) {
+    for (Object key : index().keySet()) {
       int a = getInt(key);
       int b = that.getInt(key);
       if (!Is.NA(a) && !Is.NA(b) && a != b) {
@@ -235,29 +183,62 @@ public class IntSeries extends AbstractSeries {
   }
 
   @Override
-  protected final String getStringElement(int index) {
-    int value = getIntElement(index);
-    return value == Na.INT ? "NA" : String.valueOf(value);
-  }
-
-  @Override
-  protected boolean equalsElement(int a, Series other, int b) {
-    return getIntElement(a) == other.loc().getInt(b);
-  }
-
-  @Override
   public final Type getType() {
     return Types.INT;
   }
 
   @Override
-  protected int elementSize() {
-    throw new UnsupportedOperationException();
+  public Storage values() {
+    Storage st;
+    return (st = storage) == null ? storage = new IntStr() : st;
   }
 
-  @Override
-  public Series newEmptyArray(int... shape) {
-    return new IntSeries(0, shape);
+  private final class IntStr extends AbstractStorage {
+
+    @Override
+    public void setFrom(int to, Storage source, int from) {
+      setInt(to, source.getInt(from));
+    }
+
+    @Override
+    public Object set(int index, Object element) {
+      return setInt(index, Convert.to(Integer.class, element));
+    }
+
+    @Override
+    public Object get(int index) {
+      return buffer[index];
+    }
+
+    @Override
+    public int getInt(int i) {
+      return buffer[i];
+    }
+
+    @Override
+    public double getDouble(int i) {
+      int retVal = buffer[i];
+      return Is.NA(retVal) ? Na.DOUBLE : retVal;
+    }
+
+    @Override
+    public int setInt(int index, int value) {
+      int oldValue = getInt(index);
+      buffer[index] = value;
+      return oldValue;
+    }
+
+    @Override
+    public double setDouble(int index, double value) {
+      double oldValue = getDouble(index);
+      buffer[index] = Is.NA(value) ? Na.INT : (int) value;
+      return oldValue;
+    }
+
+    @Override
+    public int size() {
+      return elementCount;
+    }
   }
 
   public static final class Builder extends AbstractSeriesBuilder {
@@ -288,7 +269,7 @@ public class IntSeries extends AbstractSeries {
     }
 
     private static Index.Builder getIndexer(IntSeries vector) {
-      Index.Builder builder = vector.getIndex().newCopyBuilder();
+      Index.Builder builder = vector.index().newCopyBuilder();
       if (builder instanceof RangeIndex.Builder) {
         return null;
       }
@@ -351,7 +332,7 @@ public class IntSeries extends AbstractSeries {
       final int oldSize = size;
       ensureCapacity(t + 1);
       fillNa(oldSize, size, buffer);
-      buffer[t] = from.loc().getInt(f);
+      buffer[t] = from.values().getInt(f);
     }
 
     @Override

@@ -22,6 +22,7 @@ package org.briljantframework.data.dataframe;
 
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.series.Series;
+import org.briljantframework.data.series.Storage;
 
 /**
  * This class provides location-based indexing capabilities to the {@link DataFrame}.
@@ -40,7 +41,7 @@ import org.briljantframework.data.series.Series;
  * </pre>
  *
  * @author Isak Karlsson
- * @see org.briljantframework.data.series.LocationGetter
+ * @see Storage
  */
 public interface LocationIndexer {
 

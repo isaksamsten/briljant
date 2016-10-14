@@ -56,7 +56,7 @@ public class TypeInferenceBuilderTest {
     Series series = builder.build();
     assertEquals(Types.INT, series.getType());
     assertEquals(2, series.size());
-    assertEquals(Arrays.asList(Na.INT, 1), series.asList(Integer.class));
+    assertEquals(Arrays.asList(Na.INT, 1), series.values(Integer.class));
   }
 
   @Test
@@ -65,7 +65,7 @@ public class TypeInferenceBuilderTest {
     Series series = builder.build();
     assertEquals(Types.INT, series.getType());
     assertEquals(1, series.size());
-    assertEquals(Collections.singletonList(1), series.asList(Integer.class));
+    assertEquals(Collections.singletonList(1), series.values(Integer.class));
   }
 
   @Test
@@ -74,7 +74,7 @@ public class TypeInferenceBuilderTest {
     Series series = builder.build();
     assertEquals(Types.DOUBLE, series.getType());
     assertEquals(1, series.size());
-    assertEquals(Collections.singletonList(1.0), series.asList(Double.class));
+    assertEquals(Collections.singletonList(1.0), series.values(Double.class));
   }
 
   @Test
@@ -83,7 +83,7 @@ public class TypeInferenceBuilderTest {
     Series series = builder.build();
     assertEquals(Types.from(String.class), series.getType());
     assertEquals(1, series.size());
-    assertEquals(Collections.singletonList("hello"), series.asList(String.class));
+    assertEquals(Collections.singletonList("hello"), series.values(String.class));
   }
 
   @Test

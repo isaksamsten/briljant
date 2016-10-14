@@ -31,7 +31,8 @@ import org.briljantframework.Check;
 import org.briljantframework.array.IntArray;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.series.Series;
-import org.briljantframework.data.series.LocationGetter;
+import org.briljantframework.data.series.SeriesUtils;
+import org.briljantframework.data.series.Storage;
 import org.briljantframework.util.primitive.IntList;
 
 /**
@@ -165,10 +166,10 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
         if (dropColumnKey(columnKey) || !cls.isAssignableFrom(column.getType().getDataClass())) {
           continue;
         }
-        LocationGetter columnLocation = column.loc();
+        Storage columnStorage = column.values();
         C accumulator = collector.supplier().get();
         for (int i = 0, size = index.size(); i < size; i++) {
-          T value = columnLocation.get(cls, index.get(i));
+          T value = columnStorage.get(cls, index.get(i));
           collector.accumulator().accept(accumulator, value);
         }
         builder.set(groupKey, columnKey, collector.finisher().apply(accumulator));
@@ -190,7 +191,7 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
       Series column = dataFrame.get(columnKey);
       Series.Builder columnBuilder = column.newBuilder();
       for (IntArray index : groups.values()) {
-        Series selectedColumn = column.loc().get(index);
+        Series selectedColumn = SeriesUtils.select(column, index);
         Series transformed = op.apply(selectedColumn);
         Check.state(selectedColumn.size() == transformed.size(), "transformation must retain size");
         for (int i = 0; i < index.size(); i++) {
@@ -205,6 +206,29 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
     return df;
   }
 
+  @Override
+  public DataFrame applyAll(UnaryOperator<DataFrame> op) {
+    DataFrame.Builder out = dataFrame.newEmptyBuilder(true);
+    for (IntArray index : groups.values()) {
+      DataFrame.Builder group = dataFrame.newEmptyBuilder(true);
+      for (Integer ind : index) {
+        Object rowKey = dataFrame.getIndex().get(ind);
+        for (Object columnKey : dataFrame.getColumnIndex()) {
+          group.setFrom(rowKey, columnKey, dataFrame, rowKey, columnKey);
+        }
+      }
+      DataFrame build = group.build();
+      DataFrame newGroup = op.apply(build);
+      for (Object columnKey : newGroup.getColumnIndex()) {
+        for (Object rowKey : newGroup.getIndex()) {
+          out.setFrom(rowKey, columnKey, newGroup, rowKey, columnKey);
+        }
+      }
+    }
+
+    return out.build();
+  }
+
   private DataFrame createDataFrame(IntArray indices) {
     final int indexSize = indices.size();
     DataFrame.Builder builder = dataFrame.newEmptyBuilder();
@@ -217,6 +241,6 @@ class HashDataFrameGroupBy implements DataFrameGroupBy {
         }
       }
     }
-   return builder.build();
+    return builder.build();
   }
 }
