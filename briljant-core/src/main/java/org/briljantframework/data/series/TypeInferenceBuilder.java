@@ -36,6 +36,10 @@ import org.briljantframework.data.reader.DataEntry;
  */
 public final class TypeInferenceBuilder implements Series.Builder {
 
+  /**
+   * Recommended initial capacity.
+   */
+  public static final int INITIAL_CAPACITY = 5;
   private int noNaValues = 0;
   private Series.Builder builder = null;
   private LocationSetter locationSetter = new InferringLocationSetter();

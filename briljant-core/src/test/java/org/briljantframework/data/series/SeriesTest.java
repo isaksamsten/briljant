@@ -70,7 +70,7 @@ public abstract class SeriesTest {
   @Test
   public void testHead() throws Exception {
     Series a = getBuilder().set("a", 10).set("b", 100).set("c", 1).set("d", 11).build();
-    Series sort = a.sort(SortOrder.ASC);
+    Series sort = a.sortBy(Integer.class);
     Iterator<Object> index = sort.index().iterator();
     List<String> sorted = java.util.Arrays.asList("c", "a", "d", "b");
     for (int i = 0; i < sort.size(); i++) {

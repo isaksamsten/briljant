@@ -412,12 +412,12 @@ public abstract class AbstractArray<T> extends AbstractBaseArray<Array<T>> imple
   }
 
   @Override
-  public void clear() {
+  public final void clear() {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public boolean retainAll(Collection<?> c) {
+  public final boolean retainAll(Collection<?> c) {
     throw new UnsupportedOperationException();
   }
 

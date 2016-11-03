@@ -53,7 +53,7 @@ public class BacktrackingLineSearch {
    * @param fold the value of {@code function} at {@code xold}
    * @param g the the gradient of {@code xold}
    * @param p the direction
-   * @param x the new point
+   * @param x the new point (starting point)
    * @param maxStepSize the
    * @return the new value of {@code function}
    */

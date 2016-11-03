@@ -278,7 +278,7 @@ public abstract class DataFrameTest {
     DataFrame expectedGroup2 =
         getBuilder().setColumn("A", Series.of(10, 20)).setColumn("B", Series.of("c", "d")).build();
     expectedGroup2.setIndex(Index.of(2, 3));
-    DataFrameGroupBy groups = df.groupBy(String.class, String::length, "A");
+    DataFrameGroupBy groups = df.groupBy("A", String.class, String::length);
 
     assertEquals(expectedGroup1, groups.get(1));
     assertEquals(expectedGroup2, groups.get(2));
@@ -293,7 +293,7 @@ public abstract class DataFrameTest {
         .setColumn("C", Array.of(1, 1, 0, 4))
         .build();
     // @formatter:on
-    DataFrameGroupBy groups = df.groupBy(Series::mean, Series.of("A", "B").values());
+    DataFrameGroupBy groups = df.groupBy(Series.of("A", "B").values(), Series::mean);
     DataFrame expected1_5 = getBuilder().setColumn("A", Series.of(2, 3))
         .setColumn("B", Series.of(1, 0)).setColumn("C", Series.of(1, 0)).build();
     expected1_5.setIndex(Index.of(1, 2));

@@ -339,10 +339,8 @@ public interface Series extends Iterable<Object> {
   Series getAll(Collection<?> keys);
 
   /**
-   * Sort the series in its <i>natural order</i> in ascending or descending order
-   *
-   * <p>
-   * The sort order is specified by the implementation
+   * Sort the series in its <i>natural order</i> in ascending or descending order (according to its
+   * index)
    *
    * @param order the specified order
    * @return the series sorted
@@ -350,7 +348,8 @@ public interface Series extends Iterable<Object> {
   Series sort(SortOrder order);
 
   /**
-   * Sort the series according to the natural sort order of the specified comparable
+   * Sort the series according to the natural sort order of the values (converted to the specified
+   * comparable)
    *
    * @param cls the comparable type
    * @return a new series sorted
@@ -839,11 +838,6 @@ public interface Series extends Iterable<Object> {
   interface Builder {
 
     /**
-     * Recommended initial capacity.
-     */
-    int INITIAL_CAPACITY = 5;
-
-    /**
      * Construct a builder of the specified type.
      *
      * @param cls the class of the builder
@@ -852,32 +846,6 @@ public interface Series extends Iterable<Object> {
      */
     static Builder of(Class<?> cls) {
       return Types.from(cls).newBuilder();
-    }
-
-    /**
-     * Construct a builder of the specified type and size filled with {@code NA}
-     *
-     * @param cls the type
-     * @param size the size
-     * @return a new builder with the specified size filled with {@code NA}
-     */
-    static Builder withSize(Class<?> cls, int size) {
-      Series.Builder builder = withCapacity(cls, size);
-      for (int i = 0; i < size; i++) {
-        builder.addNA();
-      }
-      return builder;
-    }
-
-    /**
-     * Construct a new builder with the specified type and capacity.
-     * 
-     * @param cls the type
-     * @param capacity the initial capacity
-     * @return a new builder
-     */
-    static Builder withCapacity(Class<?> cls, int capacity) {
-      return Types.from(cls).newBuilderWithCapacity(capacity);
     }
 
     /**

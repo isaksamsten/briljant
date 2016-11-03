@@ -133,10 +133,10 @@ public abstract class AbstractSeries implements Series {
 
   @Override
   public Series sort(SortOrder order) {
-    IntComparator cmp =
-        order == SortOrder.ASC ? values()::compare : (a, b) -> values().compare(b, a);
+//    IntComparator cmp =
+//        order == SortOrder.ASC ? values()::compare : (a, b) -> values().compare(b, a);
     Index.Builder index = index().newCopyBuilder();
-    index.sortIterationOrder(cmp);
+    index.sort(order);
     return reindex(index.build());
   }
 

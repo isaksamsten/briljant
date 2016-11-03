@@ -247,7 +247,7 @@ public class IntSeries extends AbstractSeries {
     private int size;
 
     public Builder() {
-      this(0, INITIAL_CAPACITY);
+      this(0, TypeInferenceBuilder.INITIAL_CAPACITY);
     }
 
     public Builder(int size, int capacity) {

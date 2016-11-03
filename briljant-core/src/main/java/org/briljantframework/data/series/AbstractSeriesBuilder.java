@@ -115,6 +115,11 @@ import org.briljantframework.data.reader.DataEntry;
  */
 abstract class AbstractSeriesBuilder implements Series.Builder {
 
+  /**
+   * Recommended initial capacity.
+   */
+  public static final int INITIAL_CAPACITY = 5;
+
   protected static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
 
   private final LocationSetterImpl locationSetter = new LocationSetterImpl();

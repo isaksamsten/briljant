@@ -175,7 +175,7 @@ public class Datasets {
     if (DATA_CACHE.containsKey(SYNTHETIC_CONTROL)) {
       return DATA_CACHE.get(SYNTHETIC_CONTROL);
     }
-    DataFrame frame = loadSyntheticControl(types -> new ColumnDataFrame.Builder());
+    DataFrame frame = loadSyntheticControl(ColumnDataFrame.Builder::new);
     DATA_CACHE.put(SYNTHETIC_CONTROL, frame);
     return frame;
   }

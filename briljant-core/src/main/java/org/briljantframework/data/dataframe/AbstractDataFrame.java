@@ -168,12 +168,11 @@ public abstract class AbstractDataFrame implements DataFrame {
 
   @Override
   public final DataFrameGroupBy groupBy(Collection<?> keys) {
-    return groupBy(Function.identity(), keys);
+    return groupBy(keys, Function.identity());
   }
 
   @Override
-  public final <T> DataFrameGroupBy groupBy(Class<T> cls, Function<? super T, Object> map,
-      Object columnKey) {
+  public final <T> DataFrameGroupBy groupBy(Object columnKey, Class<T> cls, Function<? super T, Object> map) {
     HashMap<Object, IntList> groups = new LinkedHashMap<>();
     Series column = get(columnKey);
     Storage loc = column.values();
@@ -186,7 +185,7 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public DataFrameGroupBy groupBy(Function<? super Series, Object> combiner, Collection<?> keys) {
+  public DataFrameGroupBy groupBy(Collection<?> keys, Function<? super Series, Object> combiner) {
     HashMap<Object, IntList> groups = new LinkedHashMap<>();
     for (int i = 0, size = rows(); i < size; i++) {
       Series.Builder cs = new TypeInferenceBuilder();

@@ -20,10 +20,7 @@
  */
 package org.briljantframework.data.dataframe;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -33,10 +30,12 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.briljantframework.array.BooleanArray;
+import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.reader.EntryReader;
 import org.briljantframework.data.series.Series;
+import org.briljantframework.data.series.Storage;
 import org.briljantframework.data.series.Type;
 
 /**
@@ -399,12 +398,12 @@ public interface DataFrame {
    * </pre>
    *
    * @param <T> the type
+   * @param column the column
    * @param cls the class
    * @param map the mapper
-   * @param column the column
    * @return a grouped data frame
    */
-  <T> DataFrameGroupBy groupBy(Class<T> cls, Function<? super T, Object> map, Object column);
+  <T> DataFrameGroupBy groupBy(Object column, Class<T> cls, Function<? super T, Object> map);
 
   /**
    * Group the data frame based on the concatenation of the values in the specified columns. This is
@@ -461,11 +460,11 @@ public interface DataFrame {
    * [2 rows x 3 columns]
    * </pre>
    *
-   * @param combiner the function to combine the column values
    * @param keys the columns to select
+   * @param combiner the function to combine the column values
    * @return a grouped data frame
    */
-  DataFrameGroupBy groupBy(Function<? super Series, Object> combiner, Collection<?> keys);
+  DataFrameGroupBy groupBy(Collection<?> keys, Function<? super Series, Object> combiner);
 
   /**
    * Group data frame based on the value of the index returned by {@code keyFunction}. Each record
@@ -757,6 +756,26 @@ public interface DataFrame {
    */
   DataFrame copy();
 
+  default DataFrame sort(SortOrder order) {
+    Index.Builder index = getIndex().newCopyBuilder();
+    index.sort(order);
+    return reindex(getColumnIndex(), index.build());
+  }
+
+  default <T extends Comparable<T>> DataFrame sortBy(Object column, Class<T> cls) {
+    Storage loc = get(column).values();
+    Index.Builder index = getIndex().newCopyBuilder();
+    index.sortIterationOrder((a, b) -> loc.get((Class<? extends T>) cls, a).compareTo(loc.get((Class<? extends T>) cls, b)));
+    return reindex(getColumnIndex(), index.build());
+  }
+
+  default <T> DataFrame sortBy(Object column, Class<T> cls, Comparator<? super T> cmp) {
+    Storage loc = get(column).values();
+    Index.Builder index = getIndex().newCopyBuilder();
+    index.sortIterationOrder((a, b) -> cmp.compare(loc.get((Class<? extends T>) cls, a), loc.get((Class<? extends T>) cls, b)));
+    return reindex(getColumnIndex(), index.build());
+  }
+  
   // / Indexing
 
   /**

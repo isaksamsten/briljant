@@ -248,7 +248,7 @@ public class DoubleSeries extends AbstractSeries implements Serializable {
      * @param size the initial size
      */
     public Builder(int size) {
-      this(size, Math.max(size, INITIAL_CAPACITY));
+      this(size, Math.max(size, TypeInferenceBuilder.INITIAL_CAPACITY));
     }
 
     /**
@@ -405,6 +405,7 @@ public class DoubleSeries extends AbstractSeries implements Serializable {
       }
     }
 
+    // todo: should this call Convert.to(Double.class)
     private double convert(Object value) {
       double dval = Na.DOUBLE;
       if (value instanceof Number && !Is.NA(value)) {
