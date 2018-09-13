@@ -21,15 +21,13 @@
 package org.briljantframework.array;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.function.*;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
-import org.briljantframework.DoubleSequence;
-import org.briljantframework.function.DoubleBiPredicate;
+import org.briljantframework.DoubleVector;
 
 import net.mintern.primitive.comparators.DoubleComparator;
 
@@ -39,7 +37,7 @@ import net.mintern.primitive.comparators.DoubleComparator;
  * @author Isak Karlsson
  */
 public interface DoubleArray
-    extends NumberArray, BaseArray<DoubleArray>, Collection<Double>, DoubleSequence {
+    extends NumberArray, BaseArray<DoubleArray>, Collection<Double>, DoubleVector {
 
   static DoubleArray ones(int... shape) {
     return Arrays.ones(shape);
@@ -251,16 +249,6 @@ public interface DoubleArray
    * @return a new double array
    */
   DoubleArray filter(DoublePredicate predicate);
-
-  /**
-   * Return a boolean array of indicator values for joining this with the given array and the
-   * predicate
-   *
-   * @param array the array
-   * @param predicate the predicate
-   * @return a boolean array
-   */
-  BooleanArray where(DoubleArray array, DoubleBiPredicate predicate);
 
   /**
    * For each double perform the side-effect

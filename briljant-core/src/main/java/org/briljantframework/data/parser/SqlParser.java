@@ -32,6 +32,7 @@ import org.briljantframework.data.dataframe.DataFrame;
 import org.briljantframework.data.index.HashIndex;
 import org.briljantframework.data.reader.EntryReaderException;
 import org.briljantframework.data.reader.SqlEntryReader;
+import org.briljantframework.data.series.Type;
 
 /**
  * Parse a specified database using a given query.
@@ -44,7 +45,7 @@ public class SqlParser implements Parser {
   private final Properties properties = new Properties();
   private String url;
   private String query;
-  private List<Class<?>> types = null;
+  private List<Type> types = null;
   private List<Object> header = null;
   private Map<String, Object> headerReMap = new HashMap<>();
 
@@ -92,13 +93,13 @@ public class SqlParser implements Parser {
 
       SqlEntryReader entryReader = new SqlEntryReader(resultSet);
       DataFrame.Builder builder = supplier.get();
-      List<Class<?>> columnTypes;
+      List<Type> columnTypes;
       if (types != null) {
         columnTypes = types;
       } else {
         columnTypes = entryReader.getTypes();
       }
-      columnTypes.stream().map(org.briljantframework.data.series.Types::from).forEach(builder::newColumn);
+      columnTypes.forEach(builder::newColumn);
       builder.readAll(entryReader);
       DataFrame df = builder.build();
       df.setColumnIndex(index.build());
@@ -166,7 +167,7 @@ public class SqlParser implements Parser {
      * @param types the column types
      * @return receiver modified
      */
-    public void setTypes(List<Class<?>> types) {
+    public void setTypes(List<Type> types) {
       SqlParser.this.types = types;
     }
 

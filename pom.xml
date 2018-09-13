@@ -5,7 +5,7 @@
   <groupId>org.briljantframework</groupId>
   <artifactId>briljant</artifactId>
   <packaging>pom</packaging>
-  <version>0.4.1-SNAPSHOT</version>
+  <version>0.4.2-SNAPSHOT</version>
 
   <name>Briljant framework</name>
   <description>Briljant framework</description>
@@ -34,7 +34,6 @@
 
   <modules>
     <module>briljant-core</module>
-    <module>briljant-dataset</module>
     <module>briljant-kotlin</module>
   </modules>
 

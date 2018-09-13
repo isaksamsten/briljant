@@ -33,7 +33,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.util.primitive.ArrayAllocations;
 
 /**
  * This class provides a skeletal implementation of a boolean array.
@@ -333,29 +332,28 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
     }, size(), Spliterator.SIZED), false);
   }
 
-  @Override
-  public List<Boolean> asList() {
-    return new AbstractList<Boolean>() {
-      @Override
-      public int size() {
-        return AbstractBooleanArray.this.size();
-      }
-
-      @Override
-      public Boolean get(int index) {
-        return AbstractBooleanArray.this.get(index);
-      }
-
-      @Override
-      public Boolean set(int index, Boolean element) {
-        Boolean old = get(index);
-        AbstractBooleanArray.this.set(index, element);
-        return old;
-      }
-
-
-    };
-  }
+  // public List<Boolean> asList() {
+  // return new AbstractList<Boolean>() {
+  // @Override
+  // public int size() {
+  // return AbstractBooleanArray.this.size();
+  // }
+  //
+  // @Override
+  // public Boolean get(int index) {
+  // return AbstractBooleanArray.this.get(index);
+  // }
+  //
+  // @Override
+  // public Boolean set(int index, Boolean element) {
+  // Boolean old = get(index);
+  // AbstractBooleanArray.this.set(index, element);
+  // return old;
+  // }
+  //
+  //
+  // };
+  // }
 
   protected abstract boolean getElement(int i);
 
@@ -405,23 +403,94 @@ public abstract class AbstractBooleanArray extends AbstractBaseArray<BooleanArra
 
   @Override
   public Iterator<Boolean> iterator() {
-    return asList().iterator();
+    return new Iterator<Boolean>() {
+      private int current = 0;
+
+      @Override
+      public boolean hasNext() {
+        return current < size();
+      }
+
+      @Override
+      public Boolean next() {
+        if (current >= size()) {
+          throw new NoSuchElementException();
+        }
+        return get(current++);
+      }
+    };
   }
 
-  public class IncrementalBuilder {
-
-    private boolean[] buffer = new boolean[10];
-    private int size = 0;
-
-    public void add(boolean a) {
-      buffer = ArrayAllocations.ensureCapacity(buffer, size);
-      buffer[size++] = a;
-    }
-
-    public BooleanArray build() {
-      return getArrayBackend().getArrayFactory().newBooleanVector(Arrays.copyOf(buffer, size));
-    }
+  @Override
+  public boolean isEmpty() {
+    return size() == 0;
   }
 
+  @Override
+  public boolean contains(Object o) {
+    if (!(o instanceof Integer)) {
+      return false;
+    }
+    for (int i = 0; i < size(); i++) {
+      if (o.equals(get(i))) {
+        return true;
+      }
+    }
+    return false;
+  }
 
+  @Override
+  public Object[] toArray() {
+    Object[] data = new Object[size()];
+    for (int i = 0; i < size(); i++) {
+      data[i] = get(i);
+    }
+    return data;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T[] toArray(T[] a) {
+    T[] r = a.length >= size() ? a
+        : (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size());
+    for (int i = 0; i < size(); i++) {
+      r[i] = (T) Boolean.valueOf(get(i));
+    }
+    return r;
+  }
+
+  @Override
+  public void clear() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean retainAll(Collection<?> c) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public final boolean add(Boolean integer) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public final boolean remove(Object o) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public final boolean containsAll(Collection<?> c) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public final boolean addAll(Collection<? extends Boolean> c) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public final boolean removeAll(Collection<?> c) {
+    throw new UnsupportedOperationException();
+  }
 }

@@ -172,7 +172,8 @@ public abstract class AbstractDataFrame implements DataFrame {
   }
 
   @Override
-  public final <T> DataFrameGroupBy groupBy(Object columnKey, Class<T> cls, Function<? super T, Object> map) {
+  public final <T> DataFrameGroupBy groupBy(Object columnKey, Class<T> cls,
+      Function<? super T, Object> map) {
     HashMap<Object, IntList> groups = new LinkedHashMap<>();
     Series column = get(columnKey);
     Storage loc = column.values();
@@ -260,8 +261,9 @@ public abstract class AbstractDataFrame implements DataFrame {
   @Override
   public DataFrame dropAll(Collection<?> keys) {
     if (keys.isEmpty()) {
-      return this;
+      return this.copy();
     }
+    Check.argument(getColumnIndex().containsAll(keys), "illegal key");
     DataFrame.Builder builder = newEmptyBuilder();
     Set<Object> drop = new HashSet<>(keys);
     getColumnIndex().stream().filter(k -> !drop.contains(k)).forEach(k -> builder.setColumn(k,
@@ -1108,7 +1110,7 @@ public abstract class AbstractDataFrame implements DataFrame {
     }
 
     @Override
-    public DataFrame getRow(IntArray records) {
+    public DataFrame getRows(IntArray records) {
       return getRowIndexElement(records);
     }
   }

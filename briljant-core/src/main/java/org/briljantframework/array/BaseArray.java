@@ -39,8 +39,12 @@ import org.briljantframework.util.sort.ElementSwapper;
  * Different arrays can be sharing data so that changes made to a specific array can be visible in
  * another, i.e., an array can be a view of another array while still sharing underlying data
  * buffers.
+ *
+ * <p/>
+ * The methods defined in this class that returns an instance of an array will return either a
+ * <i>new array</i>, an <i>array view</i> or either an <i>array view/new array</i>.
  * 
- * </p>
+ * <p/>
  * This interface is implemented by arrays for four primitive types ({@link IntArray int},
  * {@link LongArray long}, {@link IntArray int} and {@link BooleanArray boolean}) and the references
  * types ({@link ComplexArray Complex} and {@link Array Object}). We call the first five the
@@ -66,8 +70,8 @@ import org.briljantframework.util.sort.ElementSwapper;
  * {@code DoubleArray}, setting a position to a double converts it to an {@code int} (using
  * {@code (int) value}).
  *
- * Finally, all specialized types must return them self when the specialization method is called. In
- * all other cases, a view should be returned. That is:
+ * Finally, all specialized types must return this when the specialization method is called. In all
+ * other cases, a view should be returned. That is:
  * <ul>
  * <li>{@link DoubleArray#doubleArray()} must return {@code this}</li>
  * <li>{@link IntArray#intArray()} must return {@code this}</li>
@@ -293,7 +297,7 @@ public interface BaseArray<S extends BaseArray<S>> extends ElementSwapper {
    * </pre>
    *
    * @param index the index
-   * @return a series of shape {@code n x 1}
+   * @return an array view of shape {@code n x 1}
    * @throws java.lang.IllegalStateException if array is not 2d
    */
   S getColumn(int index);
@@ -339,7 +343,7 @@ public interface BaseArray<S extends BaseArray<S>> extends ElementSwapper {
    * </pre>
    *
    * @param i the row index
-   * @param vec a series of size {@code m}
+   * @param vec an array of size {@code m}
    * @throws java.lang.IllegalStateException if array is not 2d
    * @throws java.lang.IllegalArgumentException if {@code i > n || i < 0}
    */
@@ -350,7 +354,7 @@ public interface BaseArray<S extends BaseArray<S>> extends ElementSwapper {
    * 2d-array with shape {@code 1 x m}.
    *
    * @param i the row index
-   * @return a series of shape {@code 1 x m}
+   * @return an array view of shape {@code 1 x m}
    * @throws java.lang.IllegalStateException if array is not 2d
    * @throws java.lang.IllegalArgumentException if {@code i > n || i < 0}
    */
@@ -460,7 +464,7 @@ public interface BaseArray<S extends BaseArray<S>> extends ElementSwapper {
   /**
    * Returns a 1d array concatenating all vectors in column major ordering.
    * 
-   * @return a 1d array
+   * @return an view array or a new 1d array
    */
   S ravel();
 
@@ -520,7 +524,7 @@ public interface BaseArray<S extends BaseArray<S>> extends ElementSwapper {
    * Note that this is the same as {@code select(0, index)}.
    *
    * @param index the slice in the final dimension to extract
-   * @return a view of the {@code i:th} slice in the final dimension
+   * @return an array view of the {@code i:th} slice in the final dimension
    */
   S select(int index);
 
@@ -563,6 +567,9 @@ public interface BaseArray<S extends BaseArray<S>> extends ElementSwapper {
    *        [10, 13, 16],
    *        [11, 14, 17]])
    * </pre>
+   * @param dimension
+   * @param index
+   * @return an array view of the {@code index} slice of the {@code dimension}
    */
   S select(int dimension, int index);
 
@@ -636,7 +643,7 @@ public interface BaseArray<S extends BaseArray<S>> extends ElementSwapper {
    * and
    *
    * <pre>
-   * r.get(Arrays.range(1, 2)
+   * r.get(Arrays.range(1, 2))
    * </pre>
    *
    * produces

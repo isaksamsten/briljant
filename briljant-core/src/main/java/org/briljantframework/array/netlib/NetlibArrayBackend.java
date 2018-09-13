@@ -31,9 +31,6 @@ import org.briljantframework.array.api.LinearAlgebraRoutines;
 
 /**
  * Provides arrays with operations optimized using Netlib.
- * <p>
- * <p/>
- * Priority: 100
  *
  * @author Isak Karlsson
  */

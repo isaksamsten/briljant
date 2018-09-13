@@ -20,9 +20,7 @@
  */
 package org.briljantframework;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -41,9 +39,9 @@ public final class Check<T> {
   protected static final String NON_CONFORMAT_VALUE =
       "The value of %s did not conform with the predicate.";
 
-  private final List<T> values;
+  private final Collection<T> values;
 
-  private Check(List<T> values) {
+  private Check(Collection<T> values) {
     this.values = values;
   }
 
@@ -66,7 +64,7 @@ public final class Check<T> {
    * @param <T> the value class
    * @return a checker
    */
-  public static <T> Check<T> all(List<T> values) {
+  public static <T> Check<T> all(Collection<T> values) {
     return new Check<>(values);
   }
 

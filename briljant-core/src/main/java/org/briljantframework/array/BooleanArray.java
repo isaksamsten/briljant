@@ -33,7 +33,7 @@ import java.util.stream.Stream;
  * 
  * @author Isak Karlsson
  */
-public interface BooleanArray extends BaseArray<BooleanArray>, Iterable<Boolean> {
+public interface BooleanArray extends BaseArray<BooleanArray>, Collection<Boolean> {
 
   static BooleanArray trues(int... shape) {
     BooleanArray array = falses(shape);
@@ -164,5 +164,4 @@ public interface BooleanArray extends BaseArray<BooleanArray>, Iterable<Boolean>
 
   Stream<Boolean> stream();
 
-  abstract List<Boolean> asList();
 }

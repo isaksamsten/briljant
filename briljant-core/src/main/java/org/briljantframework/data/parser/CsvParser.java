@@ -22,22 +22,22 @@ package org.briljantframework.data.parser;
 
 import java.io.*;
 import java.net.URL;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.briljantframework.Check;
 import org.briljantframework.data.dataframe.DataFrame;
-import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.HashIndex;
+import org.briljantframework.data.index.Index;
 import org.briljantframework.data.reader.CsvEntryReader;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.series.Type;
+import org.briljantframework.data.series.Types;
 
 import com.univocity.parsers.csv.CsvParserSettings;
-import org.briljantframework.data.series.Types;
 
 /**
  * Parses delimited files.
@@ -54,6 +54,7 @@ public class CsvParser implements Parser {
   private List<Object> header = null;
   private List<Type> types = null;
   private Reader reader;
+  private DateTimeFormatter dateFormat;
 
   public CsvParser() {
     this(null);
@@ -64,10 +65,6 @@ public class CsvParser implements Parser {
     this.reader = reader;
   }
 
-  public void set(Consumer<Settings> consumer) {
-    consumer.accept(getSettings());
-  }
-
   public Settings getSettings() {
     return settings;
   }
@@ -75,7 +72,7 @@ public class CsvParser implements Parser {
   @Override
   public DataFrame parse(Supplier<? extends DataFrame.Builder> supplier) {
     Check.state(reader != null, "No source file provided.");
-    CsvEntryReader entryReader = new CsvEntryReader(csvSettings, reader, missingValue);
+    CsvEntryReader entryReader = new CsvEntryReader(csvSettings, dateFormat, reader, missingValue);
     for (int i = 0; i < skipRows && entryReader.hasNext(); i++) {
       entryReader.next();
     }
@@ -96,12 +93,10 @@ public class CsvParser implements Parser {
 
     // If no types are set, use the entry reader to infer the types
     if (types == null) {
-      for (Class<?> type : entryReader.getTypes()) {
-        builder.newColumn(Types.from(type));
-      }
-    } else {
-      types.forEach(builder::newColumn);
+      types = entryReader.getTypes();
     }
+
+    types.forEach(builder::newColumn);
     DataFrame df = builder.readAll(entryReader).build();
     df.setColumnIndex(columnIndex.build());
     return df;
@@ -193,7 +188,7 @@ public class CsvParser implements Parser {
      * @return this
      */
     public Settings setTypes(List<Class> types) {
-      CsvParser.this.types = types.stream().map(Types::from).collect(Collectors.toList());
+      CsvParser.this.types = types.stream().map(Types::getType).collect(Collectors.toList());
       return this;
     }
 

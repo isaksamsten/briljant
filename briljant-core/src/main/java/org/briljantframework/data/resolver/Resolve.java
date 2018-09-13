@@ -20,15 +20,6 @@
  */
 package org.briljantframework.data.resolver;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
@@ -37,6 +28,17 @@ import org.briljantframework.data.Logical;
 import org.briljantframework.data.Na;
 import org.briljantframework.data.reader.DataEntry;
 import org.briljantframework.data.series.Series;
+import org.briljantframework.data.series.Type;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class provide options for <em>resolving</em> a value from one class to another. For example,
@@ -44,12 +46,12 @@ import org.briljantframework.data.series.Series;
  * "2011")} would produce the {@code int} value {@code 2011}.
  *
  * <p/>
- * This class is thread-safe, i.e. calls to {@link #install(Class, Resolver)} and
- * {@link #find(Class)} can be made in different threads. The guarantees provided are the same as
- * those provided by the {@linkplain ConcurrentHashMap}.
+ * This class is thread-safe, i.e. calls to {@link #addResolver(Class, Resolver)} and
+ * {@link #getResolver(Class)} can be made in different threads. The guarantees provided are the
+ * same as those provided by the {@linkplain ConcurrentHashMap}.
  *
  * <p/>
- * To install a new {@link Resolver} use {@link #install(Class, Resolver)}, for example, given a
+ * To install a new {@link Resolver} use {@link #addResolver(Class, Resolver)}, for example, given a
  * class
  *
  * <pre>
@@ -107,14 +109,14 @@ public final class Resolve {
     Resolver<Logical> logicalResolver = getLogicalResolver();
     Resolver<Object> objectResolver = getObjectResolver();
 
-    install(Logical.class, logicalResolver);
-    install(LocalDate.class, localDateResolver);
-    install(LocalDateTime.class, getLocalDateTimeResolver());
-    install(String.class, stringResolver);
-    install(Double.class, doubleResolver);
-    install(Integer.class, integerResolver);
-    install(Complex.class, complexResolver);
-    install(Object.class, objectResolver);
+    addResolver(Logical.class, logicalResolver);
+    addResolver(LocalDate.class, localDateResolver);
+    addResolver(LocalDateTime.class, getLocalDateTimeResolver());
+    addResolver(String.class, stringResolver);
+    addResolver(Double.class, doubleResolver);
+    addResolver(Integer.class, integerResolver);
+    addResolver(Complex.class, complexResolver);
+    addResolver(Object.class, objectResolver);
   }
 
   private Resolve() {}
@@ -217,10 +219,17 @@ public final class Resolve {
     Converter<java.sql.Date, LocalDate> sqlDateToLocalDate = java.sql.Date::toLocalDate;
     Converter<Long, LocalDate> longToLocalDate =
         (l) -> Instant.ofEpochMilli(l).atZone(ZoneId.systemDefault()).toLocalDate();
+    Converter<String, LocalDate> localDateConverter = (date) -> {
+      try {
+        return LocalDate.parse(date, DateTimeFormatter.ISO_DATE);
+      } catch (Exception e) {
+        return null;
+      }
+    };
 
     resolver.put(Date.class, dateToLocalDate);
     resolver.put(java.sql.Date.class, sqlDateToLocalDate);
-    resolver.put(String.class, StringToLocalDateConverter.ISO_DATE);
+    resolver.put(String.class, localDateConverter);
     resolver.put(Long.class, longToLocalDate);
     resolver.put(Long.TYPE, longToLocalDate);
     return resolver;
@@ -230,8 +239,13 @@ public final class Resolve {
     Resolver<LocalDateTime> resolver = new Resolver<>(LocalDateTime.class);
     Converter<Date, LocalDateTime> dateLocalDateTimeConverter =
         (date) -> date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-    Converter<String, LocalDateTime> stringLocalDateTimeConverter =
-        new StringLocalDateTimeConverter(DateTimeFormatter.ISO_DATE_TIME);
+    Converter<String, LocalDateTime> stringLocalDateTimeConverter = (date) -> {
+      try {
+        return LocalDateTime.parse(date, DateTimeFormatter.ISO_DATE_TIME);
+      } catch (Exception e) {
+        return null;
+      }
+    };
     Converter<Long, LocalDateTime> longLocalDateTimeConverter =
         (l) -> Instant.ofEpochMilli(l).atZone(ZoneId.systemDefault()).toLocalDateTime();
     Converter<java.sql.Date, LocalDateTime> sqlDateLocalDateTimeConverter =
@@ -252,7 +266,7 @@ public final class Resolve {
    * @param resolver the resolver
    * @param <T> the type
    */
-  public static <T> void install(Class<T> cls, Resolver<T> resolver) {
+  public static <T> void addResolver(Class<T> cls, Resolver<T> resolver) {
     RESOLVERS.put(cls, resolver);
   }
 
@@ -264,11 +278,11 @@ public final class Resolve {
    * @param <T> the type
    * @return an instance of T or NA if no resolver exists or the given value is null.
    */
-  public static <T> T to(Class<T> cls, Object value) {
+  public static <T> T value(Class<T> cls, Object value) {
     if (Is.NA(value)) {
       return Na.of(cls);
     } else {
-      Resolver<T> resolver = find(cls);
+      Resolver<T> resolver = getResolver(cls);
       if (resolver != null) {
         return resolver.resolve(value);
       } else {
@@ -282,12 +296,20 @@ public final class Resolve {
    * 
    * @param cls the class
    * @param <T> the type
-   * @return a resolver or null if no resolver is associated with the given class.
+   * @return a resolver
+   * @throws NoSuchElementException if no resolver is associated with the given class
    */
-  public static <T> Resolver<T> find(Class<T> cls) {
+  public static <T> Resolver<T> getResolver(Class<T> cls) {
     @SuppressWarnings("unchecked")
     Resolver<T> resolver = (Resolver<T>) RESOLVERS.get(cls);
+    if (resolver == null) {
+      throw new NoSuchElementException("No such resolver");
+    }
     return resolver;
+  }
+
+  public static Resolver<?> getResolver(Type type) {
+    return getResolver(type.getDataClass());
   }
 
 }

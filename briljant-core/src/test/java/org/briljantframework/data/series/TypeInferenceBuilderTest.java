@@ -81,7 +81,7 @@ public class TypeInferenceBuilderTest {
   public void testAdd_ReferenceType() throws Exception {
     builder.add("hello");
     Series series = builder.build();
-    assertEquals(Types.from(String.class), series.getType());
+    assertEquals(Types.getType(String.class), series.getType());
     assertEquals(1, series.size());
     assertEquals(Collections.singletonList("hello"), series.values(String.class));
   }

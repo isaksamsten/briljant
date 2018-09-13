@@ -128,7 +128,7 @@ public final class Collectors {
    * @return a filter aggregator
    */
   public static <T> Collector<T, ?, Series> test(Predicate<T> predicate) {
-    return map(() -> Types.from(Logical.class).newBuilder(), predicate::test);
+    return map(() -> Types.getType(Logical.class).newBuilder(), predicate::test);
   }
 
   /**

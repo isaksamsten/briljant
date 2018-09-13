@@ -20,6 +20,8 @@
  */
 package org.briljantframework.data.reader;
 
+import org.briljantframework.data.series.Type;
+
 import java.util.List;
 
 /**
@@ -34,7 +36,7 @@ public interface EntryReader {
    * 
    * @return the column types
    */
-  List<Class<?>> getTypes();
+  List<Type> getTypes();
 
   /**
    * Reads the next entry from this stream

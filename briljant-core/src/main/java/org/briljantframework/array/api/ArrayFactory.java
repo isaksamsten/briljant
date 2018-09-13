@@ -234,40 +234,6 @@ public interface ArrayFactory {
   DoubleArray ones(int... shape);
 
   /**
-   * Extract or create a diagonal matrix
-   *
-   * <p>
-   * If the argument is a 2d-array (matrix), a view of the diagonal entries will be
-   * {@linkplain org.briljantframework.array.BaseArray#getDiagonal() extracted}. If the argument is
-   * a 1d-array (series) of size {@code n}, a 2d-array {@code n x n} with the series as the diagonal
-   * will be returned. Note that a {@code 1 x n} or {@code m x 1} 2d-array will be considered a
-   * 1d-array.
-   *
-   * <p>
-   * Example
-   * 
-   * <pre>
-   * {@code
-   * > IntArray x = Arrays.range(3)
-   * array([0, 1, 2] type: int)
-   * 
-   * > IntArray y = Arrays.diag(x)
-   * array([[0, 0, 0],
-   *        [0, 1, 0],
-   *        [0, 0, 2]] type: int)
-   * 
-   * > Arrays.diag(y)
-   * array([0, 1, 2] type: int)
-   * }
-   * </pre>
-   *
-   * @param data the data
-   * @return a 2d-array or a 1d-view
-   * @throws java.lang.IllegalArgumentException if the array has more than 2 dimensions
-   */
-  <T extends BaseArray<T>> T diag(T data);
-
-  /**
    * Return a row series of evenly spaced values
    *
    * @param start start value

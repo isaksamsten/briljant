@@ -25,7 +25,6 @@ import java.util.function.*;
 import java.util.stream.LongStream;
 
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.function.LongBiPredicate;
 
 import net.mintern.primitive.comparators.LongComparator;
 
@@ -133,8 +132,6 @@ public interface LongArray extends NumberArray, BaseArray<LongArray>, Iterable<L
   void apply(LongUnaryOperator operator);
 
   BooleanArray where(LongPredicate predicate);
-
-  BooleanArray where(LongArray array, LongBiPredicate predicate);
 
   long reduce(long identity, LongBinaryOperator reduce);
 

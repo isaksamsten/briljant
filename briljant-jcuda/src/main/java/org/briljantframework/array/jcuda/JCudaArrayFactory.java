@@ -147,11 +147,6 @@ public class JCudaArrayFactory implements ArrayFactory {
   }
 
   @Override
-  public <T extends BaseArray<T>> T diag(T data) {
-    return null;
-  }
-
-  @Override
   public Range range(int start, int end, int step) {
     return null;
   }

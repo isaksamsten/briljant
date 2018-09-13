@@ -984,6 +984,10 @@ public interface DataFrame {
    */
   Builder newCopyBuilder();
 
+  static DataFrame empty() {
+    return newBuilder().build();
+  }
+
   /**
    * Since DataFrames are immutable, this builder allows for the creation of new data frames
    */

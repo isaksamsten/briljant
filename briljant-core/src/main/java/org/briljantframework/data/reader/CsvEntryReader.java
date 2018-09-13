@@ -23,6 +23,8 @@ package org.briljantframework.data.reader;
 import java.io.BufferedReader;
 import java.io.Reader;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +33,8 @@ import java.util.NoSuchElementException;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.briljantframework.data.resolver.Resolve;
 import org.briljantframework.data.resolver.Resolver;
+import org.briljantframework.data.series.Type;
+import org.briljantframework.data.series.Types;
 
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
@@ -46,53 +50,58 @@ public class CsvEntryReader implements EntryReader {
 
   private final CsvParser csvParser;
   private final String missingValue;
+  private final DateTimeFormatter dateTimeFormatter;
   private String[] current = null;
-  private List<Class<?>> types = null;
+  private List<Type> types = null;
 
-  public CsvEntryReader(CsvParserSettings settings, Reader reader, String missingValue) {
+  public CsvEntryReader(CsvParserSettings settings, DateTimeFormatter dateTimeFormatter,
+      Reader reader, String missingValue) {
     csvParser = new CsvParser(settings);
     csvParser.beginParsing(new BufferedReader(reader));
     this.missingValue = missingValue;
+    this.dateTimeFormatter = dateTimeFormatter;
   }
 
   @Override
-  public List<Class<?>> getTypes() {
-    if (!hasNext()) {
-      throw new NoSuchElementException();
-    }
+  public List<Type> getTypes() {
     if (types == null) {
+      if (!hasNext()) {
+        throw new NoSuchElementException();
+      }
       types = new ArrayList<>();
       for (String repr : current) {
         if (repr != null) {
           repr = repr.trim();
         }
         if (repr == null || repr.equals(missingValue)) {
-          types.add(Object.class);
+          types.add(Types.OBJECT);
         } else if (NumberUtils.isNumber(repr)) {
           Number number = NumberUtils.createNumber(repr);
           if (number.intValue() == 0) {
-            types.add(Double.class);
+            types.add(Types.DOUBLE);
           } else {
-            types.add(number.getClass());
+            types.add(Types.getType(number.getClass()));
           }
+        } else if (tryParseAsDateTime(repr)) {
+          types.add(Types.getType(LocalDateTime.class));
+        } else if (tryParseAsDate(repr)) {
+          types.add(Types.getType(LocalDate.class));
         } else {
-          // Finally, try to resolve the value using the registered resolvers
-          Resolver<?> resolver = null;
-          Object data;
-          if ((resolver = Resolve.find(LocalDate.class)) != null) {
-            data = resolver.resolve(repr);
-          } else {
-            data = null;
-          }
-          if (data == null) {
-            types.add(Object.class);
-          } else {
-            types.add(data.getClass());
-          }
+          types.add(Types.OBJECT);
         }
       }
     }
     return Collections.unmodifiableList(types);
+  }
+
+  private boolean tryParseAsDate(String repr) {
+    Resolver<LocalDate> resolver = Resolve.getResolver(LocalDate.class);
+    return resolver != null && resolver.resolve(repr) != null;
+  }
+
+  private boolean tryParseAsDateTime(String repr) {
+    Resolver<LocalDateTime> resolver = Resolve.getResolver(LocalDateTime.class);
+    return resolver != null && resolver.resolve(repr) != null;
   }
 
   @Override

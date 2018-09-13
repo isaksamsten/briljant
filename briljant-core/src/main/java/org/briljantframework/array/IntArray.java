@@ -25,11 +25,10 @@ import java.util.List;
 import java.util.function.*;
 import java.util.stream.IntStream;
 
-import net.mintern.primitive.comparators.IntComparator;
-
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.IntSequence;
-import org.briljantframework.function.IntBiPredicate;
+import org.briljantframework.IntVector;
+
+import net.mintern.primitive.comparators.IntComparator;
 
 /**
  * A n-dimensional array of integer values.
@@ -37,7 +36,7 @@ import org.briljantframework.function.IntBiPredicate;
  * @author Isak Karlsson
  */
 public interface IntArray
-    extends NumberArray, BaseArray<IntArray>, Collection<Integer>, IntSequence {
+    extends NumberArray, BaseArray<IntArray>, Collection<Integer>, IntVector {
 
   static IntArray ones(int... shape) {
     IntArray array = zeros(shape);
@@ -89,7 +88,7 @@ public interface IntArray
   void assign(IntSupplier supplier);
 
   /**
-   * Assign {@code matrix} to {@code this}, applying {@code operator} to each value.
+   * Assign {@code array} to {@code this}, applying {@code operator} to each value of {@code other}.
    *
    * @param operator the operator
    * @return receiver modified
@@ -97,8 +96,8 @@ public interface IntArray
   void assign(IntArray array, IntUnaryOperator operator);
 
   /**
-   * Assign {@code matrix} to {@code this}, applying {@code combine} to combine the i:th value of
-   * {@code this} and {@code matrix}
+   * Assign {@code array} to {@code this}, applying {@code combine} to combine the i:th value of
+   * {@code this} and {@code array}
    *
    * @param array the matrix
    * @param combine the combiner
@@ -114,34 +113,48 @@ public interface IntArray
 
   void assign(BooleanArray array, ToIntFunction<Boolean> function);
 
-  void apply(IntUnaryOperator operator);
 
   // Transform
 
   /**
-   * Perform {@code operator} element wise to receiver.
-   *
-   * For example, {@code m.map(Math::sqrt)} is equal to
+   * Apply the operator to each element of this array.
    *
    * <pre>
-   *     Matrix n = m.copy();
-   *     for(int i = 0; i < n.size(); i++)
-   *        n.put(i, Math.sqrt(n.get(i));
+   * {@code
+   * x.apply(v -> v + 1) // add one to each element
+   * }
    * </pre>
    *
-   * To perform the operation in place, modifying {@code m}, use {@code m.assign(m, Math::sqrt)} or
-   * more verbosely
+   * @param operator the operator to apply
+   */
+  void apply(IntUnaryOperator operator);
+
+  /**
+   * Return a copy of this array, with the operator applied to each element of the new array.
    *
    * <pre>
-   *     for(int i = 0; i < m.size(); i++)
-   *       m.put(i, Math.sqrt(m.get(i));
+   * {@code
+   * x.map(v -> v + 1) // new array with 1 added to each element
+   * }
    * </pre>
-   *
+   * 
    * @param operator the operator to apply to each element
    * @return a new matrix
    */
   IntArray map(IntUnaryOperator operator);
 
+  /**
+   * Return a copy of this array with each element converted to a {@code long}
+   *
+   * <pre>
+   * {@code
+   * x.mapToLong(v -> Long.valueOf(v))
+   * }
+   * </pre>
+   * 
+   * @param function
+   * @return
+   */
   LongArray mapToLong(IntToLongFunction function);
 
   DoubleArray mapToDouble(IntToDoubleFunction function);
@@ -155,8 +168,6 @@ public interface IntArray
   IntArray filter(IntPredicate operator);
 
   BooleanArray where(IntPredicate predicate);
-
-  BooleanArray where(IntArray array, IntBiPredicate predicate);
 
   void forEachPrimitive(IntConsumer consumer);
 
@@ -177,6 +188,13 @@ public interface IntArray
    */
   int reduce(int identity, IntBinaryOperator reduce, IntUnaryOperator map);
 
+  /**
+   * Reduce this array along the vectors of the specified dimension.
+   *
+   * @param dim
+   * @param accumulator
+   * @return
+   */
   IntArray reduceVectors(int dim, ToIntFunction<? super IntArray> accumulator);
 
   // GET / SET

@@ -27,6 +27,6 @@ public class IntSeriesBuilderTest extends SeriesBuilderTest {
 
   @Override
   Series.Builder getBuilder() {
-    return Types.from(Integer.class).newBuilder();
+    return Types.getType(Integer.class).newBuilder();
   }
 }

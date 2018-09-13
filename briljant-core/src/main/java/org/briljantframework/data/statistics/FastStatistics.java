@@ -22,7 +22,7 @@ package org.briljantframework.data.statistics;
 
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummaryValues;
-import org.briljantframework.DoubleSequence;
+import org.briljantframework.DoubleVector;
 
 /**
  * A fast implementation of the {@link StatisticalSummary} interface.
@@ -42,7 +42,7 @@ public class FastStatistics implements StatisticalSummary {
     }
   }
 
-  public void addAll(DoubleSequence arr) {
+  public void addAll(DoubleVector arr) {
     for (int i = 0; i < arr.size(); i++) {
       addValue(arr.getDouble(i));
     }

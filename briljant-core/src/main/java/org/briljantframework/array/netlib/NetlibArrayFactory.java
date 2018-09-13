@@ -34,20 +34,10 @@ import org.briljantframework.array.api.ArrayFactory;
  */
 class NetlibArrayFactory implements ArrayFactory {
   private static final ThreadLocal<RealDistribution> normalDistribution =
-      new ThreadLocal<RealDistribution>() {
-        @Override
-        protected RealDistribution initialValue() {
-          return new NormalDistribution(0, 1);
-        }
-      };
+      ThreadLocal.withInitial(() -> new NormalDistribution(0, 1));
 
   private static final ThreadLocal<RealDistribution> uniformDistribution =
-      new ThreadLocal<RealDistribution>() {
-        @Override
-        protected RealDistribution initialValue() {
-          return new UniformRealDistribution(0, 1);
-        }
-      };
+      ThreadLocal.withInitial(() -> new UniformRealDistribution(0, 1));
 
   private final ArrayBackend backend;
 
@@ -57,7 +47,7 @@ class NetlibArrayFactory implements ArrayFactory {
 
   @Override
   public <T> Array<T> newVector(T[] data) {
-    return new NetlibReferenceArray<>(backend, data);
+    return new NetlibArray<>(backend, data);
   }
 
   @Override
@@ -80,7 +70,7 @@ class NetlibArrayFactory implements ArrayFactory {
 
   @Override
   public <T> Array<T> newArray(int... shape) {
-    return new NetlibReferenceArray<>(backend, shape);
+    return new NetlibArray<>(backend, shape);
   }
 
   @Override
@@ -246,20 +236,6 @@ class NetlibArrayFactory implements ArrayFactory {
     DoubleArray array = newDoubleArray(shape);
     array.assign(1);
     return array;
-  }
-
-  @Override
-  public <T extends BaseArray<T>> T diag(T data) {
-    if (data.isVector()) {
-      int n = data.size();
-      T arr = data.newEmptyArray(n, n);
-      arr.getDiagonal().assign(data);
-      return arr;
-    } else if (data.isMatrix()) {
-      return data.getDiagonal();
-    } else {
-      throw new IllegalArgumentException("Input must be 1- or 2-d");
-    }
   }
 
   @Override

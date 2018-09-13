@@ -69,9 +69,9 @@ public final class Types {
    * @param value the value
    * @return a new type
    */
-  public static Type inferFrom(Object value) {
+  public static Type inferType(Object value) {
     if (value != null) {
-      return from(value.getClass());
+      return getType(value.getClass());
     } else {
       return OBJECT;
     }
@@ -83,7 +83,7 @@ public final class Types {
    * @param cls the specified class
    * @return a type
    */
-  public static Type from(Class<?> cls) {
+  public static Type getType(Class<?> cls) {
     if (cls == null) {
       return OBJECT;
     } else {
@@ -173,12 +173,12 @@ public final class Types {
 
     @Override
     public Series.Builder newBuilder() {
-      return new ObjectSeries.Builder(cls);
+      return new ObjectSeries.Builder(this);
     }
 
     @Override
     public Series.Builder newBuilder(int size) {
-      return new ObjectSeries.Builder(cls, size);
+      return new ObjectSeries.Builder(this, size);
     }
 
     @Override
@@ -188,7 +188,7 @@ public final class Types {
 
     @Override
     public Series.Builder newBuilderWithCapacity(int capacity) {
-      return new ObjectSeries.Builder(cls);
+      return new ObjectSeries.Builder(this);
     }
 
     @Override

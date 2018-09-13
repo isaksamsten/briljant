@@ -34,7 +34,6 @@ import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.exceptions.MultiDimensionMismatchException;
-import org.briljantframework.function.LongBiPredicate;
 import org.briljantframework.util.primitive.ArrayAllocations;
 import org.briljantframework.util.sort.QuickSort;
 
@@ -355,17 +354,6 @@ public abstract class AbstractLongArray extends AbstractBaseArray<LongArray> imp
       bits.set(i, predicate.test(get(i)));
     }
     return bits;
-  }
-
-  @Override
-  public BooleanArray where(LongArray other, LongBiPredicate predicate) {
-    return org.briljantframework.array.Arrays.broadcastCombine(this, other, (a, b) -> {
-      BooleanArray out = getArrayBackend().getArrayFactory().newBooleanArray(a.getShape());
-      for (int i = 0, size = a.size(); i < size; i++) {
-        out.set(i, predicate.test(a.get(i), b.get(i)));
-      }
-      return out;
-    });
   }
 
   @Override

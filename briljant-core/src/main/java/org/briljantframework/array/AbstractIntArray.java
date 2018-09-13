@@ -30,11 +30,12 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.function.IntBiPredicate;
 import org.briljantframework.util.primitive.IntList;
 import org.briljantframework.util.sort.QuickSort;
 
 import net.mintern.primitive.comparators.IntComparator;
+
+import static org.briljantframework.array.Arrays.*;
 
 /**
  * This class provides a skeletal implementation of an int array.
@@ -189,7 +190,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void combineAssign(IntArray other, IntBinaryOperator combine) {
-    org.briljantframework.array.Arrays.broadcastWith(this, other, (a, b) -> {
+    broadcastWith(this, other, (a, b) -> {
       Check.size(a, b);
       for (int i = 0, size = a.size(); i < size; i++) {
         a.set(i, combine.applyAsInt(a.get(i), b.get(i)));
@@ -199,7 +200,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void assign(ComplexArray other, ToIntFunction<? super Complex> function) {
-    org.briljantframework.array.Arrays.broadcastWith(this, other, (a, b) -> {
+    broadcastWith(this, other, (a, b) -> {
       Check.size(a, b);
       for (int i = 0, size = a.size(); i < size; i++) {
         a.set(i, function.applyAsInt(b.get(i)));
@@ -209,7 +210,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void assign(DoubleArray other, DoubleToIntFunction function) {
-    org.briljantframework.array.Arrays.broadcastWith(this, other, (a, b) -> {
+    broadcastWith(this, other, (a, b) -> {
       Check.size(a, b);
       for (int i = 0, size = a.size(); i < size; i++) {
         a.set(i, function.applyAsInt(b.get(i)));
@@ -219,7 +220,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void assign(LongArray other, LongToIntFunction function) {
-    org.briljantframework.array.Arrays.broadcastWith(this, other, (a, b) -> {
+    broadcastWith(this, other, (a, b) -> {
       Check.size(a, b);
       for (int i = 0, size = a.size(); i < size; i++) {
         a.set(i, function.applyAsInt(b.get(i)));
@@ -229,7 +230,7 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
 
   @Override
   public void assign(BooleanArray other, ToIntFunction<Boolean> function) {
-    org.briljantframework.array.Arrays.broadcastWith(this, other, (a, b) -> {
+    broadcastWith(this, other, (a, b) -> {
       Check.size(a, b);
       for (int i = 0, size = a.size(); i < size; i++) {
         a.set(i, function.applyAsInt(b.get(i)));
@@ -309,17 +310,6 @@ public abstract class AbstractIntArray extends AbstractBaseArray<IntArray> imple
       bits.set(i, predicate.test(get(i)));
     }
     return bits;
-  }
-
-  @Override
-  public BooleanArray where(IntArray other, IntBiPredicate predicate) {
-    return org.briljantframework.array.Arrays.broadcastCombine(this, other, (a, b) -> {
-      BooleanArray out = getArrayBackend().getArrayFactory().newBooleanArray(a.getShape());
-      for (int i = 0, size = a.size(); i < size; i++) {
-        out.set(i, predicate.test(a.get(i), b.get(i)));
-      }
-      return out;
-    });
   }
 
   @Override

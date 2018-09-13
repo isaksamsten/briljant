@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.briljantframework.data.series.Convert;
+import org.briljantframework.data.series.Type;
 
 /**
  * Converts a {@link ResultSet} to an entry reader.
@@ -42,15 +43,15 @@ public class SqlEntryReader implements EntryReader {
   private static final int LEAVE = 0;
   private static final int EMPTY = 1;
   private final ResultSet resultSet;
-  private final Class<?>[] types;
+  private final Type[] types;
   private int state = READ;
 
   public SqlEntryReader(ResultSet resultSet) throws SQLException {
     this.resultSet = resultSet;
     ResultSetMetaData metaData = resultSet.getMetaData();
-    this.types = new Class<?>[metaData.getColumnCount()];
+    this.types = new Type[metaData.getColumnCount()];
     for (int i = 1; i <= types.length; i++) {
-      types[i - 1] = toClass(metaData.getColumnType(i));
+      types[i - 1] = toType(metaData.getColumnType(i));
     }
   }
 
@@ -60,7 +61,7 @@ public class SqlEntryReader implements EntryReader {
    * @param type the type
    * @return a Java class
    */
-  private static Class<?> toClass(int type) {
+  private static Type toType(int type) {
     Class<?> result = Object.class;
     switch (type) {
       case Types.CHAR:
@@ -113,11 +114,11 @@ public class SqlEntryReader implements EntryReader {
         break;
     }
 
-    return result;
+    return org.briljantframework.data.series.Types.getType(result);
   }
 
   @Override
-  public List<Class<?>> getTypes() {
+  public List<Type> getTypes() {
     return Collections.unmodifiableList(Arrays.asList(types));
   }
 
@@ -158,11 +159,11 @@ public class SqlEntryReader implements EntryReader {
 
   private static class SqlEntry implements DataEntry {
 
-    private final Class<?>[] types;
+    private final Type[] types;
     private final Object[] values;
     private int current = 0;
 
-    private SqlEntry(Class<?>[] types, Object[] values) {
+    private SqlEntry(Type[] types, Object[] values) {
       this.types = types;
       this.values = values;
     }
@@ -175,7 +176,7 @@ public class SqlEntryReader implements EntryReader {
     @Override
     public <T> T next(Class<T> cls) {
       T value;
-      if (types[current].isAssignableFrom(cls)) {
+      if (types[current].getDataClass().isAssignableFrom(cls)) {
         value = cls.cast(values[current]);
       } else {
         value = Convert.to(cls, values[current]);

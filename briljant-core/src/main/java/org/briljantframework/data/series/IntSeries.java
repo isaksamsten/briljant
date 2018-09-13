@@ -408,7 +408,7 @@ public class IntSeries extends AbstractSeries {
       if (value instanceof Number && !Is.NA(value)) {
         dval = ((Number) value).intValue();
       } else if (value != null && !Is.NA(value)) {
-        Resolver<Integer> resolver = Resolve.find(Integer.class);
+        Resolver<Integer> resolver = Resolve.getResolver(Integer.class);
         if (resolver != null) {
           Integer resolve = resolver.resolve(value);
           if (resolve != null) {

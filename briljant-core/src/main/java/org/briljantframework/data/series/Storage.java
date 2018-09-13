@@ -24,16 +24,16 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.ComplexSequence;
-import org.briljantframework.DoubleSequence;
-import org.briljantframework.IntSequence;
+import org.briljantframework.ComplexVector;
+import org.briljantframework.DoubleVector;
+import org.briljantframework.IntVector;
 
 /**
  * This class provides location based indexing of {@link Series}. // TODO: 4/28/16 removeAll
  * 
  * @author Isak Karlsson
  */
-public interface Storage extends DoubleSequence, ComplexSequence, IntSequence, List<Object> {
+public interface Storage extends DoubleVector, ComplexVector, IntVector, List<Object> {
 
   default Object get(int i) {
     return get(Object.class, i);

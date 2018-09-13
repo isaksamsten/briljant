@@ -411,7 +411,7 @@ public class DoubleSeries extends AbstractSeries implements Serializable {
       if (value instanceof Number && !Is.NA(value)) {
         dval = ((Number) value).doubleValue();
       } else if (value != null && !Is.NA(value)) {
-        Resolver<Double> resolver = Resolve.find(Double.class);
+        Resolver<Double> resolver = Resolve.getResolver(Double.class);
         if (resolver != null) {
           Double resolve = resolver.resolve(value);
           if (resolve != null) {

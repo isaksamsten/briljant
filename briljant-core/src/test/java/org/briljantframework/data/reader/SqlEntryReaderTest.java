@@ -29,6 +29,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
 
+import org.briljantframework.data.series.Type;
+import org.briljantframework.data.series.Types;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,9 +61,9 @@ public class SqlEntryReaderTest {
     assertEquals(1, entry.nextInt());
     assertEquals("For Those About To Rock We Salute You", entry.nextString());
     assertEquals(1, entry.nextInt());
-    List<Class<?>> classes = reader.getTypes();
-    assertArrayEquals(new Class<?>[] {Integer.class, String.class, Integer.class},
-        classes.toArray(new Class<?>[classes.size()]));
+    List<Type> classes = reader.getTypes();
+    assertArrayEquals(new Type[] {Types.getType(Integer.class), Types.getType(String.class),
+        Types.getType(Integer.class)}, classes.toArray(new Type[classes.size()]));
 
   }
 }

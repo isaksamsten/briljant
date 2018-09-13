@@ -48,7 +48,7 @@ final class SingletonSeries extends AbstractSeries {
   private SingletonSeries(Index index, int elementSize, Object element) {
     this.index = Objects.requireNonNull(index);
     this.element = element;
-    this.type = Types.from(element != null ? element.getClass() : Object.class);
+    this.type = Types.getType(element != null ? element.getClass() : Object.class);
     this.elementSize = elementSize;
   }
 

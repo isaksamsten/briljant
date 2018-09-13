@@ -29,13 +29,12 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 
-import net.mintern.primitive.comparators.IntComparator;
-
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.briljantframework.Check;
 import org.briljantframework.array.Array;
 import org.briljantframework.array.Arrays;
 import org.briljantframework.array.DoubleArray;
+import org.briljantframework.array.Range;
 import org.briljantframework.data.Collectors;
 import org.briljantframework.data.Is;
 import org.briljantframework.data.Na;
@@ -43,9 +42,11 @@ import org.briljantframework.data.SortOrder;
 import org.briljantframework.data.index.Index;
 import org.briljantframework.data.index.NaturalOrdering;
 import org.briljantframework.data.series.Series;
+import org.briljantframework.data.series.SeriesUtils;
 import org.briljantframework.data.series.Storage;
 import org.briljantframework.data.series.Types;
-import org.briljantframework.data.series.SeriesUtils;
+
+import net.mintern.primitive.comparators.IntComparator;
 
 /**
  * Utility methods for handling {@code DataFrame}s
@@ -189,8 +190,8 @@ public final class DataFrames {
   public static DataFrame summary(DataFrame df) {
     DataFrame.Builder builder = new ColumnDataFrame.Builder();
     builder.newColumn("mean", Types.DOUBLE).newColumn("var", Types.DOUBLE)
-        .newColumn("std", Types.DOUBLE).newColumn("min", Types.DOUBLE).newColumn("max", Types.DOUBLE)
-        .newColumn("mode", Types.OBJECT);
+        .newColumn("std", Types.DOUBLE).newColumn("min", Types.DOUBLE)
+        .newColumn("max", Types.DOUBLE).newColumn("mode", Types.OBJECT);
 
     for (Object columnKey : df.getColumnIndex().keySet()) {
       Series column = df.get(columnKey);
@@ -248,21 +249,28 @@ public final class DataFrames {
    * @return a permuted copy of input
    */
   public static DataFrame permute(DataFrame df, Random random) {
-    DataFrame copy = df.copy();
-    for (int i = copy.rows(); i > 1; i--) {
-      Series a = df.loc().getRow(i-1);
-      int randomPos = random.nextInt(i);
-      Series b = df.loc().getRow(randomPos);
-      df.loc().setRow(randomPos, a);
-      df.loc().setRow(i - 1, b);
-    }
-    return copy;
-//    LocationSetter loc = builder.loc();
-//    for (int i = builder.rows(); i > 1; i--) {
-//      loc.swapRows(i - 1, random.nextInt(i));
-//    }
-//    return builder.build();
-//    throw new UnsupportedOperationException();
+    return df.loc().getRows(Arrays.shuffle(Range.of(df.rows())));
+
+//    DataFrame copy = df.copy();
+//    ((ElementSwapper) (a, b) -> {
+//      Series tmp = df.loc().getRow(a); // note that this might be a view
+//      copy.loc().setRow(a, copy.loc().getRow(b));
+//      copy.loc().setRow(b, tmp);
+//    }).permute(df.rows(), random);
+//     for (int i = copy.rows(); i > 1; i--) {
+//     Series a = df.loc().getRow(i-1);
+    // int randomPos = random.nextInt(i);
+    // Series b = df.loc().getRow(randomPos);
+    // df.loc().setRow(randomPos, a);
+    // df.loc().setRow(i - 1, b);
+    // }
+//    return copy;
+    // LocationSetter loc = builder.loc();
+    // for (int i = builder.rows(); i > 1; i--) {
+    // loc.swapRows(i - 1, random.nextInt(i));
+    // }
+    // return builder.build();
+    // throw new UnsupportedOperationException();
   }
 
   /**

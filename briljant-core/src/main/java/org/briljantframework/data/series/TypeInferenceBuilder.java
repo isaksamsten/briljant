@@ -141,7 +141,7 @@ public final class TypeInferenceBuilder implements Series.Builder {
       if (Is.NA(value)) {
         noNaValues++;
       } else {
-        builder = Types.inferFrom(value).newBuilder();
+        builder = Types.inferType(value).newBuilder();
         for (int i = 0; i < noNaValues; i++) {
           builder.addNA();
         }
@@ -241,7 +241,7 @@ public final class TypeInferenceBuilder implements Series.Builder {
     @Override
     public void setDouble(int i, double value) {
       if (builder == null) {
-        builder = Types.from(Double.class).newBuilder();
+        builder = Types.getType(Double.class).newBuilder();
       }
       builder.loc().setDouble(i, value);
     }
@@ -249,7 +249,7 @@ public final class TypeInferenceBuilder implements Series.Builder {
     @Override
     public void setInt(int i, int value) {
       if (builder == null) {
-        builder = Types.from(Integer.class).newBuilder();
+        builder = Types.getType(Integer.class).newBuilder();
       }
       builder.loc().setInt(i, value);
     }

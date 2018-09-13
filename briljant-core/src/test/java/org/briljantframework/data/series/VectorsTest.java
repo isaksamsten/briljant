@@ -56,15 +56,15 @@ public class VectorsTest {
 
   @Test
   public void testInferType() throws Exception {
-    assertEquals(Types.DOUBLE, Types.from(Double.class));
-    assertEquals(Types.INT, Types.from(Integer.class));
-    assertEquals(Types.LOGICAL, Types.from(Boolean.class));
-    assertEquals(Types.LOGICAL, Types.from(Logical.class));
-    assertEquals(Types.COMPLEX, Types.from(Complex.class));
-    assertEquals(Types.STRING, Types.from(String.class));
-    assertEquals(Types.DOUBLE, Types.from(Double.TYPE));
-    assertEquals(Types.INT, Types.from(Integer.TYPE));
-    assertEquals(Types.OBJECT, Types.from(null));
+    assertEquals(Types.DOUBLE, Types.getType(Double.class));
+    assertEquals(Types.INT, Types.getType(Integer.class));
+    assertEquals(Types.LOGICAL, Types.getType(Boolean.class));
+    assertEquals(Types.LOGICAL, Types.getType(Logical.class));
+    assertEquals(Types.COMPLEX, Types.getType(Complex.class));
+    assertEquals(Types.STRING, Types.getType(String.class));
+    assertEquals(Types.DOUBLE, Types.getType(Double.TYPE));
+    assertEquals(Types.INT, Types.getType(Integer.TYPE));
+    assertEquals(Types.OBJECT, Types.getType(null));
   }
 
   @Test

@@ -35,9 +35,6 @@ import org.briljantframework.array.api.*;
 import org.briljantframework.array.netlib.NetlibArrayBackend;
 import org.briljantframework.data.statistics.FastStatistics;
 import org.briljantframework.exceptions.MultiDimensionMismatchException;
-import org.briljantframework.function.DoubleBiPredicate;
-import org.briljantframework.function.IntBiPredicate;
-import org.briljantframework.function.LongBiPredicate;
 import org.briljantframework.util.sort.IndexComparator;
 import org.briljantframework.util.sort.QuickSort;
 
@@ -169,7 +166,7 @@ public final class Arrays {
       data[cindex] = value;
     }
 
-    return DoubleArray.of(data).reshape(shape);
+    return doubleVector(data).reshape(shape);
   }
 
   public static void writeIdx(BaseArray<?> array, OutputStream outputStream) {
@@ -469,16 +466,8 @@ public final class Arrays {
    * @param upper the upper bound
    * @return a new array
    */
-  @Deprecated
   public static IntArray randi(int size, int lower, int upper) {
     return rand(size, new UniformIntegerDistribution(lower, upper));
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayFactory#diag(org.briljantframework.array.BaseArray)
-   */
-  public static <T, S extends BaseArray<S>> S diag(S data) {
-    return ARRAY_FACTORY.diag(data);
   }
 
   /**
@@ -947,10 +936,71 @@ public final class Arrays {
   }
 
   /**
+   * @see org.briljantframework.array.api.ArrayRoutines#copy(org.briljantframework.array.BaseArray,
+   *      org.briljantframework.array.BaseArray)
+   */
+  public static <T extends BaseArray<T>> void copy(T from, T to) {
+    ARRAY_ROUTINES.copy(from, to);
+  }
+
+  /**
+   * @see org.briljantframework.array.api.ArrayRoutines#swap(org.briljantframework.array.BaseArray,
+   *      org.briljantframework.array.BaseArray)
+   */
+  public static <T extends BaseArray<T>> void swap(T a, T b) {
+    ARRAY_ROUTINES.swap(a, b);
+  }
+
+  /**
    * @see org.briljantframework.array.api.ArrayRoutines#trace(org.briljantframework.array.DoubleArray)
    */
   public static double trace(DoubleArray x) {
     return ARRAY_ROUTINES.trace(x);
+  }
+
+  /**
+   * Extract or create a diagonal matrix
+   *
+   * <p>
+   * If the argument is a 2d-array (matrix), a view of the diagonal entries will be
+   * {@linkplain org.briljantframework.array.BaseArray#getDiagonal() extracted}. If the argument is
+   * a 1d-array (series) of size {@code n}, a 2d-array {@code n x n} with the series as the diagonal
+   * will be returned. Note that a {@code 1 x n} or {@code m x 1} 2d-array will be considered a
+   * 1d-array.
+   *
+   * <p>
+   * Example
+   *
+   * <pre>
+   * {@code
+   * > IntArray x = Arrays.range(3)
+   * array([0, 1, 2] type: int)
+   *
+   * > IntArray y = Arrays.diag(x)
+   * array([[0, 0, 0],
+   *        [0, 1, 0],
+   *        [0, 0, 2]] type: int)
+   *
+   * > Arrays.diag(y)
+   * array([0, 1, 2] type: int)
+   * }
+   * </pre>
+   *
+   * @param data the array
+   * @return a 2d-array or a 1d-view
+   * @throws java.lang.IllegalArgumentException if the array has more than 2 dimensions
+   */
+  public static <T, S extends BaseArray<S>> S diag(S data) {
+    if (data.isVector()) {
+      int n = data.size();
+      S arr = data.newEmptyArray(n, n);
+      arr.getDiagonal().assign(data);
+      return arr;
+    } else if (data.isMatrix()) {
+      return data.getDiagonal();
+    } else {
+      throw new IllegalArgumentException("Input must be 1- or 2-d");
+    }
   }
 
   /**
@@ -1188,22 +1238,6 @@ public final class Arrays {
         return arrayList.size();
       }
     }, 1);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayRoutines#copy(org.briljantframework.array.BaseArray,
-   *      org.briljantframework.array.BaseArray)
-   */
-  public static <T extends BaseArray<T>> void copy(T from, T to) {
-    ARRAY_ROUTINES.copy(from, to);
-  }
-
-  /**
-   * @see org.briljantframework.array.api.ArrayRoutines#swap(org.briljantframework.array.BaseArray,
-   *      org.briljantframework.array.BaseArray)
-   */
-  public static <T extends BaseArray<T>> void swap(T a, T b) {
-    ARRAY_ROUTINES.swap(a, b);
   }
 
   /**
@@ -1590,8 +1624,8 @@ public final class Arrays {
    * @param function the function
    * @return the function applied to the arrays
    */
-  public static <T extends BaseArray<? extends T>, U extends BaseArray<? extends U>, R> R broadcastCombine(
-      T a, U b, BiFunction<? super T, ? super U, ? extends R> function) {
+  public static <T extends BaseArray<T>, U extends BaseArray<U>, R> R broadcastCombine(T a, U b,
+      BiFunction<? super T, ? super U, ? extends R> function) {
     int[] combinedShape = ShapeUtils.findCombinedBroadcastShape(java.util.Arrays.asList(a, b));
     return function.apply(Arrays.broadcastTo(a, combinedShape),
         Arrays.broadcastTo(b, combinedShape));
@@ -1611,7 +1645,7 @@ public final class Arrays {
     consumer.accept(a, ShapeUtils.broadcastToShapeOf(b, a));
   }
 
-  public static <E extends BaseArray<? extends E>> Broadcast<E> broadcast(E array) {
+  public static <E extends BaseArray<E>> Broadcast<E> broadcast(E array) {
     return new Broadcast<>(array);
   }
 
@@ -1621,10 +1655,10 @@ public final class Arrays {
    * @param array the array
    * @param a the first dimension
    * @param b the second dimension
-   * @param <E> the array type
+   * @param <S> the array type
    * @return a new array
    */
-  public static <E extends BaseArray<? extends E>> E swapDimension(E array, int a, int b) {
+  public static <S extends BaseArray<S>> S swapDimension(S array, int a, int b) {
     int[] permute = new int[array.dims()];
     for (int i = 0; i < permute.length; i++) {
       permute[i] = i;
@@ -1642,7 +1676,7 @@ public final class Arrays {
    * @param <E> the array type
    * @return a view
    */
-  public static <E extends BaseArray<? extends E>> E transpose(E array, int[] permute) {
+  public static <E extends BaseArray<E>> E transpose(E array, int[] permute) {
     Check.argument(array.dims() == permute.length, "dimension don't match array");
     int n = permute.length;
 
@@ -1670,11 +1704,10 @@ public final class Arrays {
       shape[i] = array.size(permutation[i]);
       stride[i] = array.stride(permutation[i]);
     }
-
     return array.asView(array.getOffset(), shape, stride);
   }
 
-  public static <E extends BaseArray<? extends E>> E transpose(E array) {
+  public static <E extends BaseArray<E>> E transpose(E array) {
     int[] permute = new int[array.dims()];
     for (int i = 0; i < permute.length; i++) {
       permute[i] = permute.length - 1 - i;
@@ -1960,6 +1993,21 @@ public final class Arrays {
     return sort(dim, array, (a, i, j) -> comparator.compare(a.get(i), a.get(j)));
   }
 
+  public static <T> IntArray order(int dim, Array<? extends T> array, Comparator<? super T> cmp) {
+    int vectors = array.vectors(dim);
+    IntArray order = IntArray.zeros(array.getShape());
+    for (int i = 0; i < vectors; i++) {
+      order.setVector(dim, i, order(array.getVector(dim, i), cmp));
+    }
+    return order;
+  }
+
+  public static <T> IntArray order(Array<? extends T> array, Comparator<? super T> cmp) {
+    IntArray order = Arrays.range(array.size()).copy();
+    order.sort((a, b) -> cmp.compare(array.get(a), array.get(b)));
+    return order;
+  }
+
   /**
    * Return the order of the values in array (with smallest index first).
    *
@@ -2118,6 +2166,26 @@ public final class Arrays {
    */
   public static int bisectRight(DoubleArray array, double value) {
     return bisectRight(array.boxed(), value);
+  }
+
+  public static void clip(DoubleArray x, double min, double max, DoubleArray out) {
+    Check.dimension(x, out);
+    for (int i = 0; i < x.size(); i++) {
+      double v = x.get(i);
+      if (v < min) {
+        out.set(i, min);
+      } else if (v > max) {
+        out.set(i, max);
+      } else {
+        out.set(i, v);
+      }
+    }
+  }
+
+  public static DoubleArray clip(DoubleArray x, double min, double max) {
+    DoubleArray newX = x.newEmptyArray(x.getShape());
+    clip(x, min, max, newX);
+    return newX;
   }
 
   /**
@@ -2731,17 +2799,17 @@ public final class Arrays {
     }
   }
 
-  public static DoubleArray select(DoubleBiPredicate predicate, DoubleArray x, DoubleArray y) {
-    Check.size(x, y);
-    int size = x.size();
-    DoubleArray selected = doubleArray(size);
-    for (int i = 0; i < size; i++) {
-      double a = x.get(i);
-      double b = y.get(i);
-      selected.set(i, predicate.test(a, b) ? a : b);
-    }
-    return selected;
-  }
+  // public static DoubleArray select(DoubleBiPredicate predicate, DoubleArray x, DoubleArray y) {
+  // Check.size(x, y);
+  // int size = x.size();
+  // DoubleArray selected = doubleArray(size);
+  // for (int i = 0; i < size; i++) {
+  // double a = x.get(i);
+  // double b = y.get(i);
+  // selected.set(i, predicate.test(a, b) ? a : b);
+  // }
+  // return selected;
+  // }
 
   public static double maxExcluding(DoubleArray array, int not) {
     Double max = Double.NEGATIVE_INFINITY;
@@ -3322,7 +3390,7 @@ public final class Arrays {
 
     @Override
     public boolean equals(Object obj) {
-      return array.equals(obj);
+      return this == obj || array.equals(obj);
     }
 
     @Override
@@ -3423,11 +3491,6 @@ public final class Arrays {
     @Override
     public DoubleArray filter(DoublePredicate predicate) {
       return array.filter(predicate);
-    }
-
-    @Override
-    public BooleanArray where(DoubleArray array, DoubleBiPredicate predicate) {
-      return this.array.where(array, predicate);
     }
 
     @Override
@@ -3915,11 +3978,6 @@ public final class Arrays {
     }
 
     @Override
-    public BooleanArray where(IntArray array, IntBiPredicate predicate) {
-      return this.array.where(array, predicate);
-    }
-
-    @Override
     public void forEachPrimitive(IntConsumer consumer) {
       array.forEachPrimitive(consumer);
     }
@@ -4387,11 +4445,6 @@ public final class Arrays {
     @Override
     public BooleanArray where(LongPredicate predicate) {
       return array.where(predicate);
-    }
-
-    @Override
-    public BooleanArray where(LongArray array, LongBiPredicate predicate) {
-      return this.array.where(array, predicate);
     }
 
     @Override
@@ -5453,6 +5506,66 @@ public final class Arrays {
       return array.size();
     }
 
+    @Override
+    public boolean isEmpty() {
+      return array.isEmpty();
+    }
+
+    @Override
+    public boolean contains(Object o) {
+      return array.contains(o);
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+      return array.containsAll(c);
+    }
+
+    @Override
+    public Iterator<Boolean> iterator() {
+      return array.iterator();
+    }
+
+    @Override
+    public Object[] toArray() {
+      return array.toArray();
+    }
+
+    @Override
+    public <T> T[] toArray(T[] a) {
+      return array.toArray(a);
+    }
+
+    @Override
+    public boolean add(Boolean aBoolean) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean remove(Object o) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends Boolean> c) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void clear() {
+      throw new UnsupportedOperationException();
+    }
+
     public void assign(boolean value) {
       throw new UnsupportedOperationException();
     }
@@ -5584,10 +5697,6 @@ public final class Arrays {
       return array.all(dim);
     }
 
-    public Stream<Boolean> stream() {
-      return asList().stream();
-    }
-
     public void permute(int count) {
       throw new UnsupportedOperationException();
     }
@@ -5624,10 +5733,6 @@ public final class Arrays {
       return array.copy();
     }
 
-    public Spliterator<Boolean> spliterator() {
-      return asList().spliterator();
-    }
-
     public void apply(UnaryOperator<Boolean> operator) {
       throw new UnsupportedOperationException();
     }
@@ -5658,6 +5763,11 @@ public final class Arrays {
 
     public Array<Boolean> boxed() {
       return unmodifiableArray(array.boxed());
+    }
+
+    @Override
+    public Stream<Boolean> stream() {
+      return array.stream();
     }
 
     public int rows() {
@@ -5724,16 +5834,8 @@ public final class Arrays {
       throw new UnsupportedOperationException();
     }
 
-    public List<Boolean> asList() {
-      return Collections.unmodifiableList(array.asList());
-    }
-
     public BooleanArray reshape(int... shape) {
       return unmodifiableArray(array.reshape(shape));
-    }
-
-    public Iterator<Boolean> iterator() {
-      return asList().iterator();
     }
 
     public BooleanArray getDiagonal() {

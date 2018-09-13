@@ -26,7 +26,7 @@ import java.util.function.*;
 import java.util.stream.Stream;
 
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.ComplexSequence;
+import org.briljantframework.ComplexVector;
 
 /**
  * A n-dimensional array of double values.
@@ -34,7 +34,7 @@ import org.briljantframework.ComplexSequence;
  * @author Isak Karlsson
  */
 public interface ComplexArray
-    extends NumberArray, BaseArray<ComplexArray>, Collection<Complex>, ComplexSequence {
+    extends NumberArray, BaseArray<ComplexArray>, Collection<Complex>, ComplexVector {
 
   static ComplexArray ones(int... shape) {
     ComplexArray array = zeros(shape);

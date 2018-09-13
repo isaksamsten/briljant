@@ -52,7 +52,7 @@ public final class StringDataEntry implements DataEntry {
     if (Is.NA(value)) {
       return Na.of(cls);
     }
-    return Resolve.to(cls, value);
+    return Resolve.value(cls, value);
   }
 
   @Override

@@ -29,7 +29,6 @@ import java.util.stream.IntStream;
 import net.mintern.primitive.comparators.IntComparator;
 
 import org.apache.commons.math3.complex.Complex;
-import org.briljantframework.function.IntBiPredicate;
 
 /**
  * Special indexer for inserting new dimensions and selecting everything along a specified dimension
@@ -224,11 +223,6 @@ public final class BasicIndex implements Range {
 
   @Override
   public BooleanArray where(IntPredicate predicate) {
-    throw unsupported();
-  }
-
-  @Override
-  public BooleanArray where(IntArray array, IntBiPredicate predicate) {
     throw unsupported();
   }
 

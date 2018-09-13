@@ -121,7 +121,7 @@ public interface Series extends Iterable<Object> {
       return of();
     }
     Object value = supplier.get();
-    Series.Builder builder = Types.inferFrom(value).newBuilder().add(value);
+    Series.Builder builder = Types.inferType(value).newBuilder().add(value);
     for (int i = 1; i < size; i++) {
       builder.add(supplier.get());
     }
@@ -202,7 +202,7 @@ public interface Series extends Iterable<Object> {
       return of();
     }
 
-    Series.Builder builder = new ObjectSeries.Builder(cls);
+    Series.Builder builder = new ObjectSeries.Builder(Types.getType(cls));
     while (it.hasNext()) {
       builder.add(it.next());
     }
@@ -842,10 +842,10 @@ public interface Series extends Iterable<Object> {
      *
      * @param cls the class of the builder
      * @return a primitive or reference builder
-     * @see Types#from(Class)
+     * @see Types#getType(Class)
      */
     static Builder of(Class<?> cls) {
-      return Types.from(cls).newBuilder();
+      return Types.getType(cls).newBuilder();
     }
 
     /**

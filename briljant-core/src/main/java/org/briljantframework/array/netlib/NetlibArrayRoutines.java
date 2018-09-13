@@ -22,11 +22,10 @@ package org.briljantframework.array.netlib;
 
 import org.briljantframework.Check;
 import org.briljantframework.array.ArrayOperation;
-import org.briljantframework.array.Arrays;
 import org.briljantframework.array.BaseArray;
 import org.briljantframework.array.DoubleArray;
-import org.briljantframework.array.api.ArrayBackend;
 import org.briljantframework.array.api.AbstractArrayRoutines;
+import org.briljantframework.array.api.ArrayBackend;
 
 import com.github.fommil.netlib.BLAS;
 
@@ -43,21 +42,21 @@ class NetlibArrayRoutines extends AbstractArrayRoutines {
     super(backend);
   }
 
-//  @Override
-//  public void plus(DoubleArray a, DoubleArray b, DoubleArray out) {
-//    Arrays.broadcastWith(a, b, (y, x) -> {
-//      Check.size(x, out);
-//      axpy(1.0, x, out);
-//    });
-//  }
-//
-//  @Override
-//  public void minus(DoubleArray a, DoubleArray b, DoubleArray out) {
-//    Arrays.broadcastWith(out, a, (y, x) -> {
-//      Check.size(x, out);
-//      axpy(-1.0, x, y);
-//    });
-//  }
+  // @Override
+  // public void plus(DoubleArray a, DoubleArray b, DoubleArray out) {
+  // Arrays.broadcastWith(a, b, (y, x) -> {
+  // Check.size(x, out);
+  // axpy(1.0, x, out);
+  // });
+  // }
+  //
+  // @Override
+  // public void minus(DoubleArray a, DoubleArray b, DoubleArray out) {
+  // Arrays.broadcastWith(out, a, (y, x) -> {
+  // Check.size(x, out);
+  // axpy(-1.0, x, y);
+  // });
+  // }
 
   @Override
   public double inner(DoubleArray a, DoubleArray b) {
@@ -65,8 +64,8 @@ class NetlibArrayRoutines extends AbstractArrayRoutines {
       Check.argument(a.isVector() && b.isVector(), VECTOR_REQUIRED);
       Check.size(a, b);
       int n = a.size();
-      return blas.ddot(n, getBackingArray(a), a.getOffset(), getVectorMajorStride(a), getBackingArray(b), b.getOffset(),
-          getVectorMajorStride(b));
+      return blas.ddot(n, getBackingArray(a), a.getOffset(), getVectorMajorStride(a),
+          getBackingArray(b), b.getOffset(), getVectorMajorStride(b));
     } else {
       return super.inner(a, b);
     }
@@ -125,8 +124,8 @@ class NetlibArrayRoutines extends AbstractArrayRoutines {
       // TODO: 5/27/16 we need to rework this
       // Check.argument(x.isVector() && y.isVector(), VECTOR_REQUIRED);
       // Check.size(x, y);
-      blas.daxpy(x.size(), alpha, getBackingArray(x), x.getOffset(), getVectorMajorStride(x), getBackingArray(y),
-          y.getOffset(), getVectorMajorStride(y));
+      blas.daxpy(x.size(), alpha, getBackingArray(x), x.getOffset(), getVectorMajorStride(x),
+          getBackingArray(y), y.getOffset(), getVectorMajorStride(y));
     } else {
       super.axpy(alpha, x, y);
     }
@@ -146,8 +145,8 @@ class NetlibArrayRoutines extends AbstractArrayRoutines {
       int n = a.size(transA == ArrayOperation.KEEP ? 1 : 0);
       // TODO: 5/2/16 ensure correctness
       blas.dgemv(transA.getCblasString(), m, n, alpha, getBackingArray(a), a.getOffset(),
-          Math.max(1, a.stride(1)), getBackingArray(x), x.getOffset(), x.stride(0), beta, getBackingArray(y),
-          y.getOffset(), y.stride(0));
+          Math.max(1, a.stride(1)), getBackingArray(x), x.getOffset(), x.stride(0), beta,
+          getBackingArray(y), y.getOffset(), y.stride(0));
     } else {
       super.gemv(transA, alpha, a, x, beta, y);
     }
@@ -161,8 +160,9 @@ class NetlibArrayRoutines extends AbstractArrayRoutines {
     if (x instanceof NetlibDoubleArray && y instanceof NetlibDoubleArray
         && a instanceof NetlibDoubleArray && a.stride(0) == 1 && a.stride(1) >= a.size(1)) {
       // TODO: 5/3/16 ensure correctness
-      blas.dger(a.rows(), a.columns(), alpha, getBackingArray(x), x.getOffset(), y.stride(0), getBackingArray(y),
-          y.getOffset(), y.stride(0), getBackingArray(a), a.getOffset(), Math.max(1, a.stride(1)));
+      blas.dger(a.rows(), a.columns(), alpha, getBackingArray(x), x.getOffset(), y.stride(0),
+          getBackingArray(y), y.getOffset(), y.stride(0), getBackingArray(a), a.getOffset(),
+          Math.max(1, a.stride(1)));
     } else {
       super.ger(alpha, x, y, a);
     }
@@ -202,8 +202,9 @@ class NetlibArrayRoutines extends AbstractArrayRoutines {
 
 
     blas.dgemm(transA.getCblasString(), transB.getCblasString(), m, n, k, alpha, getBackingArray(a),
-        a.getOffset(), Math.max(1, a.stride(1)), getBackingArray(b), b.getOffset(), Math.max(1, b.stride(1)),
-        beta, getBackingArray(maybeC), maybeC.getOffset(), Math.max(1, maybeC.stride(1)));
+        a.getOffset(), Math.max(1, a.stride(1)), getBackingArray(b), b.getOffset(),
+        Math.max(1, b.stride(1)), beta, getBackingArray(maybeC), maybeC.getOffset(),
+        Math.max(1, maybeC.stride(1)));
 
     // If c was copied, maybeC and c won't be the same instance.
     // To simulate an out parameter, c is assigned the new data if this is the case.

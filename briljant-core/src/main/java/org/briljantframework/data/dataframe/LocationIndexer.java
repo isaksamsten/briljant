@@ -108,5 +108,5 @@ public interface LocationIndexer {
 
   Series getRow(int r);
 
-  DataFrame getRow(IntArray records);
+  DataFrame getRows(IntArray records);
 }

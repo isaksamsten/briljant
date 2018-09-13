@@ -53,7 +53,7 @@ public interface LocationSetter extends ElementSwapper {
    *
    * <ul>
    * <li>{@code null} always result in {@code NA}</li>
-   * <li>If {@link Resolve#find(Class)} return a non-null value the returned
+   * <li>If {@link Resolve#getResolver(Class)} return a non-null value the returned
    * {@link org.briljantframework.data.resolver.Resolver#resolve(Class, Object)} shall be used to
    * produce the converted value.</li>
    * </ul>

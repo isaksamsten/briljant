@@ -32,11 +32,12 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.Precision;
 import org.briljantframework.Check;
 import org.briljantframework.array.api.ArrayBackend;
-import org.briljantframework.function.DoubleBiPredicate;
 import org.briljantframework.util.primitive.DoubleList;
 import org.briljantframework.util.sort.QuickSort;
 
 import net.mintern.primitive.comparators.DoubleComparator;
+
+import static org.briljantframework.array.Arrays.broadcastCombine;
 
 /**
  * This class provides a skeletal implementation of a double array.
@@ -235,7 +236,7 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
 
   @Override
   public DoubleArray combine(DoubleArray other, DoubleBinaryOperator combine) {
-    return org.briljantframework.array.Arrays.broadcastCombine(this, other, (a, b) -> {
+    return broadcastCombine(this, other, (a, b) -> {
       DoubleArray out = newEmptyArray(a.getShape());
       for (int i = 0, size = a.size(); i < size; i++) {
         out.set(i, combine.applyAsDouble(a.get(i), b.get(i)));
@@ -325,17 +326,6 @@ public abstract class AbstractDoubleArray extends AbstractBaseArray<DoubleArray>
     }
     return getArrayBackend().getArrayFactory()
         .newDoubleVector(Arrays.copyOf(builder.elementData, builder.size()));
-  }
-
-  @Override
-  public BooleanArray where(DoubleArray other, DoubleBiPredicate predicate) {
-    return org.briljantframework.array.Arrays.broadcastCombine(this, other, (a, b) -> {
-      BooleanArray out = getArrayBackend().getArrayFactory().newBooleanArray(a.getShape());
-      for (int i = 0, size = a.size(); i < size; i++) {
-        out.set(i, predicate.test(a.get(i), b.get(i)));
-      }
-      return out;
-    });
   }
 
   @Override

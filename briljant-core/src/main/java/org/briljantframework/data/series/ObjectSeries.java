@@ -38,10 +38,6 @@ public class ObjectSeries extends AbstractSeries {
   private final Type type;
   private final List<Object> buffer;
 
-  private ObjectSeries(Index index, Class<?> cls, List<Object> buffer) {
-    this(index, Types.from(cls), buffer);
-  }
-
   private ObjectSeries(Index index, Type type, List<Object> buffer) {
     this.index = index;
     this.type = type;
@@ -80,7 +76,7 @@ public class ObjectSeries extends AbstractSeries {
 
   @Override
   public Series.Builder newCopyBuilder() {
-    return new Builder(type.getDataClass()).setAll(this);
+    return new Builder(type).setAll(this);
   }
 
   @Override
@@ -89,7 +85,7 @@ public class ObjectSeries extends AbstractSeries {
     return (st = storage) == null ? storage = new Stor() : st;
   }
 
-  private class Stor extends AbstractStorage{
+  private class Stor extends AbstractStorage {
     @Override
     public Object get(int index) {
       return buffer.get(index);
@@ -110,70 +106,63 @@ public class ObjectSeries extends AbstractSeries {
 
   static final class Builder extends AbstractSeriesBuilder {
 
-    private static final Set<Class<?>> INVALID_CLASSES = new HashSet<>();
+    private static final Set<Type> ILLEGAL_CLASS = new HashSet<>();
 
     static {
-      INVALID_CLASSES.addAll(Arrays.asList(Integer.class, Integer.TYPE, Double.TYPE, Double.class));
+      ILLEGAL_CLASS.addAll(Arrays.asList(Types.INT, Types.DOUBLE));
     }
 
-    private final Class<?> cls;
+    private final Type type;
     private List<Object> buffer;
-    private Resolver<?> resolver = null;
 
-    public <T> Builder(Class<T> cls, Resolver<? extends T> resolver) {
-      this.cls = ensureValidClass(cls);
-      this.resolver = resolver;
+    public Builder(Type type, int size) {
+      this.type = ensureValidClass(type);
       this.buffer = new ArrayList<>();
-    }
-
-    public <T> Builder(Class<T> cls, int size) {
-      this(cls, Resolve.find(cls));
-      buffer = new ArrayList<>();
       for (int i = 0; i < size; i++) {
         buffer.add(null);
       }
     }
 
     public Builder() {
-      this(Object.class);
+      this(Types.OBJECT);
     }
 
-    public Builder(Class<?> cls) {
+    public Builder(Type cls) {
       this(cls, 0);
     }
 
-    private <T> Class<?> ensureValidClass(Class<T> cls) {
-      if (INVALID_CLASSES.contains(cls)) {
+    private Type ensureValidClass(Type type) {
+      if (ILLEGAL_CLASS.contains(type)) {
         throw new IllegalArgumentException(
-            String.format("ObjectSeries should not be used for: %s", cls));
+            String.format("ObjectSeries should not be used for: %s", type));
       }
-      return cls;
+      return type;
     }
 
     @Override
     protected void readAt(int index, DataEntry entry) {
       ensureCapacity(index);
-      buffer.set(index, entry.next(cls));
+      buffer.set(index, entry.next(type.getDataClass()));
     }
 
     @Override
     protected void setElement(int atIndex, Series from, Object f) {
-      setElement(atIndex, from.get(cls, f));
+      setElement(atIndex, from.get(type.getDataClass(), f));
     }
 
     @Override
     protected void setElementFrom(int t, Series from, int f) {
       ensureCapacity(t);
-      buffer.set(t, from.values().get(cls, f));
+      buffer.set(t, from.values().get(type.getDataClass(), f));
     }
 
     @Override
     protected void setElement(int index, Object value) {
       ensureCapacity(index);
-      if (value != null && cls.isInstance(value)) {
+      if (value != null && type.isAssignableTo(value.getClass())) {
         buffer.set(index, value);
       } else if (value != null) {
-        // Resolver<?> resolver = this.resolver == null ? Resolve.find(cls) : this.resolver;
+        Resolver<?> resolver = Resolve.getResolver(type);
         if (resolver == null) {
           buffer.set(index, null);
         } else {
@@ -215,7 +204,7 @@ public class ObjectSeries extends AbstractSeries {
 
     @Override
     public Series build() {
-      Series series = new ObjectSeries(getIndex(), cls, buffer);
+      Series series = new ObjectSeries(getIndex(), type, buffer);
       buffer = null;
       return series;
     }

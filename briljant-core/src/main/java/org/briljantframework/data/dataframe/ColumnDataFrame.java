@@ -304,8 +304,14 @@ public class ColumnDataFrame extends AbstractDataFrame {
 
   @Override
   protected Series getRowElement(int index) {
+    // TODO: fix me
     Check.validIndex(index, rows());
-    return new RowView(this, index, mostSpecificColumnType);
+    Series.Builder builder = mostSpecificColumnType.newBuilderWithCapacity(columns());
+    for (int i = 0; i < columns(); i++) {
+      builder.loc().set(i, getElement(Object.class, index, i));
+    }
+    Series row = builder.build();
+    return row.reindex(getIndex());
   }
 
   @Override
@@ -466,7 +472,7 @@ public class ColumnDataFrame extends AbstractDataFrame {
     @Override
     public void setElement(int r, int c, Object value) {
       ensureColumnCapacity(c - 1);
-      ensureColumnCapacity(c, Types.inferFrom(value));
+      ensureColumnCapacity(c, Types.inferType(value));
       buffers.get(c).loc().set(r, value);
     }
 
@@ -488,7 +494,7 @@ public class ColumnDataFrame extends AbstractDataFrame {
       for (int j = 0; j < Math.max(size, columns); j++) {
         if (j < size) {
           Object value = series.values().get(Object.class, j);
-          ensureColumnCapacity(j, Types.inferFrom(value));
+          ensureColumnCapacity(j, Types.inferType(value));
           setElement(index, j, value);
           // setAt(index, j, series, j);
         } else {
