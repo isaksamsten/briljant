@@ -145,7 +145,7 @@ array([[[a, b],
 ```
 
 Briljant also provides facilities to adapt arrays to 
-[https://commons.apache.org/proper/commons-math/](Apache Commons Math) matrices and series,
+[Apache Commons Math](https://commons.apache.org/proper/commons-math/) matrices and series,
 allowing us to leverage a large body of their linear algebra routines. For example, given
 `DoubleArray array = Arrays.linspace(-1, 1, 1000000).reshape(1000, 1000);` we can
 decompose it as:
